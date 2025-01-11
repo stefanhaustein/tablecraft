@@ -1,0 +1,13 @@
+* {
+    font-family: Sans-Serif;
+    font-size: 12px;
+}
+th {
+    font-weight: normal;
+    border-right: 1px solid #888;
+    border-bottom: 1px solid #888;
+}
+td {
+    border-right:1px solid #eee;
+    border-bottom:1px solid #eee;
+}
