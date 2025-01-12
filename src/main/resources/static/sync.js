@@ -13,7 +13,7 @@ function fetch() {
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
-    xmlhttp.onloadend = function () { setTimeout(fetch, 1000) }
+    // xmlhttp.onloadend = function () { setTimeout(fetch, 10000) }
 
 }
 

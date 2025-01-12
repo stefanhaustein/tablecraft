@@ -1,6 +1,9 @@
 package org.kobjects.pi123.model
 
 import com.pi4j.io.gpio.digital.DigitalInput
+import com.pi4j.io.gpio.digital.DigitalStateChangeListener
+import com.pi4j.io.gpio.digital.DigitalStateChangeEvent
+import com.pi4j.io.gpio.digital.PullResistance
 import java.time.LocalDateTime
 
 class Cell(
@@ -40,9 +43,21 @@ class Cell(
         when (name) {
             "time" -> computeFn = { LocalDateTime.now() }
             "din" -> {
-                val cfg = DigitalInput.newConfigBuilder(Model.pi4J).address(params[0].trim().toInt()).build()
-                val digitalInput = Model.pi4J.create(cfg)
-                computeFn = { digitalInput.isOn }
+                val address = params[0].trim().toInt()
+                val config = DigitalInput.newConfigBuilder(Model.pi4J)
+                    .address(address).pull(PullResistance.PULL_DOWN)
+                    .debounce(1000L)
+
+                val digitalInput = Model.pi4J.create(config)
+                /*val listener = digitalInput.addListener({
+
+                    println("event: $it input: $digitalInput")
+
+                })*/
+                computeFn = {
+                    println("DigitalInput $address state ${digitalInput.state()}; $digitalInput")
+                    digitalInput.state()
+                }
                 clearFn = { digitalInput.shutdown(Model.pi4J) }
             }
         }

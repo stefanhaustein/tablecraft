@@ -3,7 +3,7 @@ var model = {
         "Sheet1": {
             "name": "Sheet1",
             "cells": {
-                "B10": ["=din(10)"]
+
             }
         }
     }

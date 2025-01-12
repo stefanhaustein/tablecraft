@@ -21,9 +21,9 @@ repositories {
 dependencies {
     implementation("org.kobjects.parsek:core:0.10.0")
 
-    implementation("com.pi4j:pi4j-core:2.3.0")
-    implementation("com.pi4j:pi4j-plugin-raspberrypi:2.3.0")
-    implementation("com.pi4j:pi4j-plugin-pigpio:2.3.0")
+    implementation("com.pi4j:pi4j-core:2.7.0")
+    implementation("com.pi4j:pi4j-plugin-raspberrypi:2.7.0")
+    implementation("com.pi4j:pi4j-plugin-gpiod:2.7.0")
 
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.html.builder)
