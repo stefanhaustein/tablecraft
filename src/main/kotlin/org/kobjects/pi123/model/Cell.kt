@@ -43,9 +43,12 @@ class Cell(
         when (name) {
             "time" -> computeFn = { LocalDateTime.now() }
             "din" -> {
-                val address = params[0].trim().toInt()
+                val p0 = params[0].trim()
+                val cut = p0.indexOf("=")
+                val address = p0.substring(cut + 1).trim().toInt()
                 val config = DigitalInput.newConfigBuilder(Model.pi4J)
-                    .address(address).pull(PullResistance.PULL_DOWN)
+                    .address(address)
+                    .pull(PullResistance.PULL_DOWN)
                     .debounce(1000L)
 
                 val digitalInput = Model.pi4J.create(config)
