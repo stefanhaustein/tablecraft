@@ -7,7 +7,7 @@ class BinaryOperatorExpression(
 ): Expression() {
 
     override fun eval(): Any {
-        val l = leftOperand.eval()
+        val l = leftOperand.eval() ?: 0.0
         return when (l) {
             is Double -> {
                 val r = rightOperand.evalDouble()
@@ -23,4 +23,7 @@ class BinaryOperatorExpression(
             else -> throw UnsupportedOperationException("Type")
         }
     }
+
+    override val children: Collection<Expression>
+        get() = listOf(leftOperand, rightOperand)
 }

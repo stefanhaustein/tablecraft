@@ -4,70 +4,45 @@ import com.pi4j.io.gpio.digital.DigitalInput
 import com.pi4j.io.gpio.digital.DigitalStateChangeListener
 import com.pi4j.io.gpio.digital.DigitalStateChangeEvent
 import com.pi4j.io.gpio.digital.PullResistance
+import org.kobjects.parsek.tokenizer.RegularExpressions
+import org.kobjects.pi123.model.expression.Expression
+import org.kobjects.pi123.model.expression.LiteralExpression
+import org.kobjects.pi123.model.parser.FormulaParser
 import java.time.LocalDateTime
 
 class Cell(
     val sheet: Sheet,
     val id: String
 ) {
-    var value_: String = ""
+    var rawValue: String = ""
+    var expression: Expression? = null
     var computedValue: Any? = null
 
-    var computeFn: () -> Any = {""}
-    var clearFn: () -> Unit = {}
 
-    fun clear() {
-        computeFn = {""}
-        clearFn()
-        clearFn = {}
-    }
 
     fun setValue(value: String) {
-        if (value.isNotEmpty()) {
-            clear()
-        }
-        value_ = value
-        if (!value.startsWith("=")) {
-            computeFn = { value }
+        expression?.detach()
+        rawValue = value
+        expression = if (value.startsWith("=")) {
+            try {
+                val parsed = FormulaParser.parseExpression(value.substring(1), sheet)
+                parsed.attach()
+                parsed
+            } catch (e: Exception) {
+                LiteralExpression(e)
+            }
         } else {
-            setFormula(value.substring(1))
-        }
-    }
-
-    fun setFormula(value: String) {
-        val cut0 = value.indexOf('(')
-        val cut1 = value.lastIndexOf(')')
-        val params = if (cut0 == -1 || cut1 == -1) emptyList<String>() else
-            value.substring(cut0 + 1, cut1).split(",")
-        val name = if (cut0 == -1) value else value.take(cut0)
-        when (name) {
-            "time" -> computeFn = { LocalDateTime.now() }
-            "din" -> {
-                val p0 = params[0].trim()
-                val cut = p0.indexOf("=")
-                val address = p0.substring(cut + 1).trim().toInt()
-                val config = DigitalInput.newConfigBuilder(Model.pi4J)
-                    .address(address)
-                    .pull(PullResistance.PULL_DOWN)
-                    .debounce(1000L)
-
-                val digitalInput = Model.pi4J.create(config)
-                /*val listener = digitalInput.addListener({
-
-                    println("event: $it input: $digitalInput")
-
-                })*/
-                computeFn = {
-                    println("DigitalInput $address state ${digitalInput.state()}; $digitalInput")
-                    digitalInput.state()
-                }
-                clearFn = { digitalInput.shutdown(Model.pi4J) }
+            try {
+                LiteralExpression(value.toDouble())
+            } catch (e: Exception) {
+                LiteralExpression(value)
             }
         }
     }
 
+
     fun updateValue() {
-        computedValue = computeFn()
+        computedValue = expression?.eval()
     }
 
 

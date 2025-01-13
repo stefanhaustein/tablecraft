@@ -2,6 +2,14 @@
     font-family: Sans-Serif;
     font-size: 12px;
 }
+
+html {
+    box-sizing: border-box;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
 th {
     font-weight: normal;
     border-right: 1px solid #888;

@@ -14,4 +14,7 @@ class UnaryOperatorExpression(val name: String, val operand: Expression) : Expre
             else -> throw UnsupportedOperationException("")
         }
     }
+
+    override val children: Collection<Expression>
+        get() = emptyList()
 }
