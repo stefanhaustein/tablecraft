@@ -87,7 +87,6 @@ function selectCell(id) {
 
     if (newlySelected) {
         currentCellElement.classList.add("focus")
-        currentCellElement.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
     }
 }
 
@@ -108,9 +107,11 @@ function tableKeyPress(event) {
     if (event.key == "ArrowDown") {
         event.preventDefault()
         selectCell(letter + (number + 1))
+        currentCellElement.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
     } else if (event.key == "ArrowUp" && number > 1) {
         event.preventDefault()
         selectCell(letter + (number - 1))
+        currentCellElement.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
     } else if (event.key == "Enter") {
         event.preventDefault()
         selectCell(currentCellId)
