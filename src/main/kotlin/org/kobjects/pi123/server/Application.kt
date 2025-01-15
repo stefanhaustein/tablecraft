@@ -7,6 +7,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.kobjects.pi123.model.Model
+import org.kobjects.pi123.model.Sheet
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -20,9 +21,15 @@ fun Application.module() {
             val text = call.receiveText()
             Model.set(cell, text)
             call.respond(HttpStatusCode.OK, null)
+            Model.save()
         }
         get("/sheet/{name}/computed") {
-            call.respondText(Model.sheets[call.parameters["name"]!!]!!.getComputedValues(), ContentType.Application.Json, HttpStatusCode.OK,)
+            val sheet = Model.sheets[call.parameters["name"]!!]!!
+            sheet.update()
+            call.respondText(sheet.serializeValues(Sheet.ValueType.COMPUTED_VALUE), ContentType.Application.Json, HttpStatusCode.OK,)
+        }
+        get("/sheet/{name}/formulas") {
+            call.respondText(Model.sheets[call.parameters["name"]!!]!!.serializeValues(Sheet.ValueType.FORMULA), ContentType.Application.Json, HttpStatusCode.OK,)
         }
         /* get("/") {
              call.respondText("Hello World!")

@@ -1,60 +1,120 @@
-let currentCell = "A1"
+let currentCellId = null
+let currentCellElement = null
+let currentCellData = []
 
-document.getElementById("tbody").addEventListener("click", tableClick)
+document.getElementById("tbody").addEventListener(
+    "click", (event) => selectCell(event.target.id))
+//document.getElementById("tableViewport").addEventListener("keydown", tableKeyPress)
+//document.getElementById("table").addEventListener("keydown", tableKeyPress)
+document.addEventListener("keydown", tableKeyPress)
 
 let inputElement = document.getElementById("current")
 
 inputElement.addEventListener("change", sendInput)
-inputElement.addEventListener("keyup", processInput)
+inputElement.addEventListener("input", processInput)
+inputElement.addEventListener("keydown", (event) => {
+    if (event.key == "Enter") {
+        event.preventDefault()
+        event.stopPropagation()
+        inputElement.blur()
+        sendInput()
+    } else if (event.key == "Escape") {
+        inputElement.value = nullToEmtpy(currentCellSavedFormula)
+        inputElement.blur()
+        sendInput()
+    } else {
+        console.log(event.key)
+        processInput()
+    }
+})
+inputElement.addEventListener("focus", () => {
+  currentCellElement.classList.add("editing")
+  currentCellElement.innerText = nullToEmtpy(currentCellData[0])
+})
+inputElement.addEventListener("blur", () => {
+    currentCellElement.classList.remove("editing")
+    currentCellElement.innerText = nullToEmtpy(currentCellData[1])
+})
 
-selectCell(currentCell)
+selectCell("A1")
 
 function sendInput() {
     processInput()
     console.log("sendInput")
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", "update/" + currentSheet.name + "!" + currentCell, true);
+    xhr.open("POST", "update/" + currentSheet.name + "!" + currentCellId, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(currentSheet.cells[currentCell][0]);
+    xhr.send(currentSheet.cells[currentCellId][0]);
     console.log("xhr", xhr)
+    xhr.onloadend = () => fetch(true)
+
 }
 
 function processInput() {
     console.log("processInput")
-    let data = currentSheet.cells[currentCell]
-    if (data == null) {
-        data = currentSheet.cells[currentCell] = []
-    }
-    let f = inputElement.value
-    data[0] = f
-    data[1] = null
-    selectedElement().textContent = f
+    let value = inputElement.value
+    currentCellData[0] = value
+    currentCellData[1] = null
+    currentCellElement.textContent = value
 }
 
-function selectedElement() {
-    return document.getElementById(currentCell)
-}
 
 function selectCell(id) {
-    if (id == currentCell) {
+    let newElement = document.getElementById(id)
+    if (!newElement) {
+        return
+    }
+    let newData = currentSheet.cells[id]
+    if (newData == null) {
+        newData = currentSheet.cells[id] = []
+    }
+    let newlySelected = id != currentCellId
+    if (newlySelected) {
+        if (currentCellId != null) {
+            currentCellElement.classList.remove("focus")
+            currentCellElement.classList.remove("editing")
+            currentCellElement.innerText = nullToEmtpy(currentCellData[1])
+        }
+    } else {
         inputElement.focus()
-        processInput()
+    }
+
+    currentCellId = id
+    currentCellElement = newElement
+    currentCellData = newData
+    currentCellSavedFormula = currentCellData[0]
+    inputElement.value = nullToEmtpy(currentCellSavedFormula)
+
+    if (newlySelected) {
+        currentCellElement.classList.add("focus")
+        currentCellElement.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
+    }
+}
+
+function nullToEmtpy(s) {
+    return s == null ? "" : s
+}
+
+function tableKeyPress(event) {
+    if (document.activeElement == inputElement) {
         return
     }
 
-    selectedElement().style.background = ""
-    currentCell = id
-    selectedElement().style.background = "#ddf"
+    let letter = currentCellId.substring(0,1)
+    let number = parseInt(currentCellId.substring(1))
 
-    let data = currentSheet.cells[id]
-    if (data) {
-        inputElement.value = data[0]
-    } else {
-        inputElement.value = ""
+    console.log(event)
+
+    if (event.key == "ArrowDown") {
+        event.preventDefault()
+        selectCell(letter + (number + 1))
+    } else if (event.key == "ArrowUp" && number > 1) {
+        event.preventDefault()
+        selectCell(letter + (number - 1))
+    } else if (event.key == "Enter") {
+        event.preventDefault()
+        selectCell(currentCellId)
     }
+
 }
 
-
-function tableClick(event) {
-    selectCell(event.target.id)
-}
