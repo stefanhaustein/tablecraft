@@ -3,9 +3,8 @@ package org.kobjects.pi123.model
 import com.pi4j.Pi4J
 import com.pi4j.context.Context
 import java.io.File
-import java.io.FileReader
 import java.io.FileWriter
-import org.json.JSONObject
+import org.kobjects.pi123.toml.TomlParser
 
 object Model {
     val pi4J: Context
@@ -13,14 +12,16 @@ object Model {
 
     init {
         try {
-            val json = JSONObject(File("storage/model.json").readText())
-            for (name in json.keys()) {
-                val sheet = Sheet(name)
-                sheets[name] = sheet
-                sheet.parseJson(json.getJSONObject(name))
+            val toml = TomlParser.parse(File("storage/model.ini").readText())
+            for ((key, map) in toml) {
+                if (key.startsWith("sheets.") && key.endsWith(".cells")) {
+                    val name = key.substringAfter("sheets.").substringBeforeLast(".cells")
+                    val sheet = Sheet(name)
+                    sheets[name] = sheet
+                    sheet.parseToml(map)
+                }
             }
 
-            println("json: $json")
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
@@ -39,18 +40,12 @@ object Model {
 
     fun save() {
         File("storage").mkdir()
-        val writer = FileWriter("storage/model.json")
-        writer.write("{\n")
-        var first = true
+        val writer = FileWriter("storage/model.ini")
         for (sheet in sheets.values) {
-            if (first) {
-                first = false
-            } else {
-                writer.write(",\n")
-            }
-            writer.write("${sheet.name.quote()}: ${sheet.serializeValues(Sheet.ValueType.FORMULA)}")
+            writer.write("[sheets.${sheet.name}.cells]\n\n")
+            writer.write(sheet.serializeValues(Sheet.ValueType.FORMULA, true))
+            writer.write("\n")
         }
-        writer.write("\n}\n")
         writer.close()
     }
 

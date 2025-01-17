@@ -20,7 +20,6 @@ repositories {
 
 dependencies {
     implementation("org.kobjects.parsek:core:0.10.0")
-    implementation("org.json:json:20230227")
     implementation("com.pi4j:pi4j-core:2.7.0")
     implementation("com.pi4j:pi4j-plugin-raspberrypi:2.7.0")
     implementation("com.pi4j:pi4j-plugin-gpiod:2.7.0")
