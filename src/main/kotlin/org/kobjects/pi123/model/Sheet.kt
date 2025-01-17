@@ -5,20 +5,17 @@ class Sheet(var name: String) {
     val cells = mutableMapOf<String, Cell>()
 
     fun set(cellId: String, value: String) {
-        val cell = cells.getOrPut(cellId) { Cell(this, cellId) }
+        val cell = getOrCreateCell(cellId)
         cell.setValue(value)
     }
 
-    fun update() {
+    fun update(context: RuntimeContext) {
         for (cell in cells.values) {
-            cell.updateValue()
+            cell.getComputedValue(context)
         }
     }
 
     fun serializeValues(valueType: ValueType, toml: Boolean = false): String {
-        for (cell in cells.values) {
-            cell.updateValue()
-        }
         val sb = StringBuilder()
         for (cell in cells.values) {
             if (sb.isNotEmpty() && !toml) {
@@ -26,7 +23,7 @@ class Sheet(var name: String) {
             }
             val content = when (valueType) {
                 ValueType.FORMULA -> cell.rawValue
-                ValueType.COMPUTED_VALUE -> cell.computedValue
+                ValueType.COMPUTED_VALUE -> cell.computedValue_
             }
             if (toml) {
                 sb.append("${cell.id}.${valueType.name.take(1).lowercase()} = ${content.toString().quote()}\n")
@@ -54,6 +51,10 @@ class Sheet(var name: String) {
                 else -> throw IllegalStateException("Unrecognized suffix in $key = $value")
             }
         }
+    }
+
+    fun getOrCreateCell(cellId: String): Cell {
+        return cells.getOrPut(cellId) { Cell(this, cellId) }
     }
 
     enum class ValueType {

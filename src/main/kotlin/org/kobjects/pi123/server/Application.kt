@@ -7,6 +7,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.kobjects.pi123.model.Model
+import org.kobjects.pi123.model.RuntimeContext
 import org.kobjects.pi123.model.Sheet
 import java.io.File
 
@@ -25,7 +26,7 @@ fun Application.module() {
         }
         get("/sheet/{name}/computed") {
             val sheet = Model.sheets[call.parameters["name"]!!]!!
-            sheet.update()
+            sheet.update(RuntimeContext(System.nanoTime()))
             call.respondText(sheet.serializeValues(Sheet.ValueType.COMPUTED_VALUE), ContentType.Application.Json, HttpStatusCode.OK,)
         }
         get("/sheet/{name}/formulas") {

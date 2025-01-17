@@ -3,8 +3,8 @@ package org.kobjects.pi123.model.expression
 import com.pi4j.io.gpio.digital.DigitalInput
 import com.pi4j.io.gpio.digital.DigitalInputConfig
 import com.pi4j.io.gpio.digital.PullResistance
-import io.ktor.http.*
 import org.kobjects.pi123.model.Model
+import org.kobjects.pi123.model.RuntimeContext
 
 class DigitalInputExpression(
     val parameters: Map<String, Expression>
@@ -20,7 +20,7 @@ class DigitalInputExpression(
         val addressParameter = (parameters["address"] ?: parameters["0"])
         require(addressParameter is LiteralExpression)
 
-        val address = addressParameter.evalInt()
+        val address = (addressParameter.value as Number).toInt()
 
         config = DigitalInput.newConfigBuilder(Model.pi4J)
             .address(address)
@@ -30,7 +30,7 @@ class DigitalInputExpression(
 
     }
 
-    override fun eval() =  digitalInput.isOn()
+    override fun eval(context: RuntimeContext) =  digitalInput.isOn()
 
     override fun attach() {
         digitalInput = Model.pi4J.create(config)

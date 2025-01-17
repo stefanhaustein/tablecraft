@@ -1,14 +1,16 @@
 package org.kobjects.pi123.model.expression
 
+import org.kobjects.pi123.model.RuntimeContext
+
 abstract class Expression {
 
-    abstract fun eval(): Any?
+    abstract fun eval(context: RuntimeContext): Any
 
     abstract val children: Collection<Expression>
 
-    fun evalDouble(): Double = ((eval() ?: 0.0) as Number).toDouble()
+    fun evalDouble(context: RuntimeContext): Double = (eval(context) as Number).toDouble()
 
-    fun evalInt(): Int = ((eval() ?: 0) as Number).toInt()
+    fun evalInt(context: RuntimeContext): Int = (eval(context) as Number).toInt()
 
     open fun attach(): Unit = children.forEach {
         try {

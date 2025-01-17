@@ -5,8 +5,8 @@ import org.kobjects.parsek.expression.PrattParser
 import org.kobjects.pi123.model.Sheet
 import org.kobjects.pi123.model.expression.*
 
-object FormulaParser : PrattParser<Pi123Scanner, Sheet, Expression>(
-    { scanner, sheet -> FormulaParser.parsePrimary(scanner, sheet) },
+object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
+    { scanner, context -> FormulaParser.parsePrimary(scanner, context) },
     { _, _, name, operand -> UnaryOperatorExpression(name, operand) },
     { _, _, name, leftOperand, rightOperand -> BinaryOperatorExpression(name, leftOperand, rightOperand) },
     Operator.Prefix(2, "-"),
@@ -14,7 +14,7 @@ object FormulaParser : PrattParser<Pi123Scanner, Sheet, Expression>(
     Operator.Infix(0, "+", "-")
 ) {
 
-    fun parsePrimary(scanner: Pi123Scanner, sheet: Sheet): Expression =
+    fun parsePrimary(scanner: Pi123Scanner, context: ParsingContext): Expression =
         when (scanner.current.type) {
             Pi123TokenType.NUMBER -> LiteralExpression(scanner.consume().text.toDouble())
             Pi123TokenType.STRING -> {
@@ -24,15 +24,20 @@ object FormulaParser : PrattParser<Pi123Scanner, Sheet, Expression>(
             Pi123TokenType.IDENTIFIER -> {
                 val name = scanner.consume().text
                 if (scanner.tryConsume("(")) {
-                    val parameterList = parseParameterList(scanner, sheet)
+                    val parameterList = parseParameterList(scanner, context)
                     when (name.lowercase()) {
                         "din" -> DigitalInputExpression(parameterList)
                         else -> FunctionCallExpression(name, parameterList)
 
                     }
                 }
-                else
-                    CellReferenceExpression(sheet, name)
+                else {
+                    val cell = context.cell.sheet.getOrCreateCell(name)
+                    require(context.cell != cell) {
+                        "Self-reference not permitted"
+                    }
+                    CellReferenceExpression(context.cell, cell)
+                }
             }
             else -> {
                 throw IllegalStateException("Unexpected token in parsePrimary ${scanner.current}")
@@ -40,7 +45,7 @@ object FormulaParser : PrattParser<Pi123Scanner, Sheet, Expression>(
 
     }
 
-    fun parseParameterList(scanner: Pi123Scanner, sheet: Sheet): Map<String, Expression> {
+    fun parseParameterList(scanner: Pi123Scanner, context: ParsingContext): Map<String, Expression> {
         if (scanner.tryConsume(")")) {
             return emptyMap()
         }
@@ -53,7 +58,7 @@ object FormulaParser : PrattParser<Pi123Scanner, Sheet, Expression>(
                 name = scanner.consume().text
                 scanner.consume("=")
             }
-            val expression = FormulaParser.parseExpression(scanner, sheet)
+            val expression = FormulaParser.parseExpression(scanner, context)
             result[name] = expression
         } while (scanner.tryConsume(","))
         scanner.consume(")")
@@ -61,9 +66,9 @@ object FormulaParser : PrattParser<Pi123Scanner, Sheet, Expression>(
     }
 
 
-    fun parseExpression(value: String, sheet: Sheet): Expression {
+    fun parseExpression(value: String, context: ParsingContext): Expression {
         val scanner = Pi123Scanner(value)
-        val result = parseExpression(scanner, sheet)
+        val result = parseExpression(scanner, context)
         require(scanner.eof)
         return result
     }

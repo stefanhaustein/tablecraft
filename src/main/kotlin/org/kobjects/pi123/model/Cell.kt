@@ -1,31 +1,31 @@
 package org.kobjects.pi123.model
 
-import com.pi4j.io.gpio.digital.DigitalInput
-import com.pi4j.io.gpio.digital.DigitalStateChangeListener
-import com.pi4j.io.gpio.digital.DigitalStateChangeEvent
-import com.pi4j.io.gpio.digital.PullResistance
-import org.kobjects.parsek.tokenizer.RegularExpressions
 import org.kobjects.pi123.model.expression.Expression
 import org.kobjects.pi123.model.expression.LiteralExpression
 import org.kobjects.pi123.model.parser.FormulaParser
-import java.time.LocalDateTime
+import org.kobjects.pi123.model.parser.ParsingContext
 
 class Cell(
     val sheet: Sheet,
     val id: String
 ) {
     var rawValue: String = ""
-    var expression: Expression? = null
-    var computedValue: Any? = null
+    var expression: Expression = LiteralExpression(0.0)
+    var computedValue_: Any = 0.0
 
+    var tag = 0L
+
+    val depenencies = mutableListOf<Cell>()
+    val dependsOn = mutableListOf<Cell>()
 
 
     fun setValue(value: String) {
-        expression?.detach()
+        expression.detach()
         rawValue = value
         expression = if (value.startsWith("=")) {
             try {
-                val parsed = FormulaParser.parseExpression(value.substring(1), sheet)
+                val context = ParsingContext(this)
+                val parsed = FormulaParser.parseExpression(value.substring(1), context)
                 parsed.attach()
                 parsed
             } catch (e: Exception) {
@@ -40,9 +40,12 @@ class Cell(
         }
     }
 
-
-    fun updateValue() {
-        computedValue = expression?.eval()
+    fun getComputedValue(context: RuntimeContext): Any {
+        if (context.tag > tag) {
+            computedValue_ = expression.eval(context)
+            tag = context.tag
+        }
+        return computedValue_
     }
 
 

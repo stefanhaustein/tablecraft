@@ -1,9 +1,11 @@
 package org.kobjects.pi123.model.expression
 
+import org.kobjects.pi123.model.RuntimeContext
+
 class UnaryOperatorExpression(val name: String, val operand: Expression) : Expression() {
 
-    override fun eval(): Any {
-        val value = operand.eval()
+    override fun eval(context: RuntimeContext): Any {
+        val value = operand.eval(context)
         return when (value) {
             is Double -> {
                 when (name) {
