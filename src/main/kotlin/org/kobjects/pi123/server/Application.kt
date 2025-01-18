@@ -27,9 +27,9 @@ fun Application.module() {
             }
             call.respond(HttpStatusCode.OK, null)
         }
-        get("/sheet/{name}/{tag}") {
+        get("/sheet/{name}") {
             val name = call.parameters["name"]!!
-            val tag = call.parameters["tag"]!!.toLong()
+            val tag = call.request.queryParameters["tag"]!!.toLong()
 
             if (tag >= Model.modificationTag) {
                 suspendCoroutine<Unit> { continuation ->
@@ -44,7 +44,7 @@ fun Application.module() {
                 val sheet = Model.sheets[name]!!
                 sheet.serialize(tag, true)
             }
-            call.respondText("tag = ${Model.modificationTag}\n$result", ContentType.Application.Json, HttpStatusCode.OK,)
+            call.respondText("tag = ${Model.modificationTag}\n$result", ContentType.Text.Plain, HttpStatusCode.OK,)
         }
 
         /* get("/") {
