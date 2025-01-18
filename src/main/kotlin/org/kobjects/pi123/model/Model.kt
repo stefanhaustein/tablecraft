@@ -2,6 +2,7 @@ package org.kobjects.pi123.model
 
 import com.pi4j.Pi4J
 import com.pi4j.context.Context
+import com.pi4j.io.gpio.digital.DigitalOutput
 import java.io.File
 import java.io.FileWriter
 import org.kobjects.pi123.toml.TomlParser
@@ -17,6 +18,9 @@ object Model {
     val sheets = mutableMapOf<String, Sheet>("Sheet1" to Sheet("Sheet1"))
     val lock = ReentrantLock()
     val listeners = mutableSetOf<() -> Unit>()
+
+    val digitalOutput = mutableMapOf<Int, DigitalOutput>()
+
 
     @OptIn(ExperimentalContracts::class)
     inline fun <T> withLock(action: (RuntimeContext) -> T): T {

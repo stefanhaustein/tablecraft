@@ -22,7 +22,8 @@ abstract class Expression {
         }
         try {
             attach()
-        } finally {
+        } catch(e: Exception ) {
+            e.printStackTrace()
         }
     }
 
@@ -33,7 +34,8 @@ abstract class Expression {
         }
         try {
             detach()
-        } finally {
-        }
+        } catch(e: Exception ) {
+        e.printStackTrace()
+    }
     }
 }

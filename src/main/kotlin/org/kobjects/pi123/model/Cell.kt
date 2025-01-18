@@ -48,7 +48,11 @@ class Cell(
 
     fun getComputedValue(context: RuntimeContext): Any? {
         if (context.tag > tag) {
+            try {
             computedValue_ = expression.eval(context)
+            } catch(e: Exception) {
+                computedValue_ = e
+            }
             tag = context.tag
         }
         return computedValue_
