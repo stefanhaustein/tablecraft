@@ -48,5 +48,13 @@ class Cell(
         return computedValue_
     }
 
+    fun updateAllDependencies(context: RuntimeContext) {
+        if (context.tag > tag) {
+            getComputedValue(context)
+            for (dep in depenencies) {
+                dep.updateAllDependencies(context)
+            }
+        }
+    }
 
 }

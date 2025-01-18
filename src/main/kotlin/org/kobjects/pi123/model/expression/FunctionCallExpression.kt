@@ -9,7 +9,6 @@ class FunctionCallExpression(
     override fun eval(context: RuntimeContext): Any {
         return when (name) {
             "pi" -> Math.PI
-            "now" -> return System.currentTimeMillis().toDouble() / 86400000.0
             else -> throw UnsupportedOperationException(name)
         }
     }
