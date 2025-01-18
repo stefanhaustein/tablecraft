@@ -34,13 +34,10 @@ class DigitalInputExpression(
 
     override fun attach() {
         digitalInput = Model.pi4J.create(config)
-        super.attach()
-
     }
 
     override fun detach() {
         digitalInput.shutdown(Model.pi4J)
-        super.detach()
     }
 
 }

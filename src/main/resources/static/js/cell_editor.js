@@ -46,8 +46,6 @@ function sendInput() {
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send(currentSheet.cells[currentCellId][0]);
     console.log("xhr", xhr)
-    xhr.onloadend = () => fetch(true)
-
 }
 
 function processInput() {

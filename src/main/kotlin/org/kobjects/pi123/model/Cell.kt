@@ -4,29 +4,31 @@ import org.kobjects.pi123.model.expression.Expression
 import org.kobjects.pi123.model.expression.LiteralExpression
 import org.kobjects.pi123.model.parser.FormulaParser
 import org.kobjects.pi123.model.parser.ParsingContext
+import java.util.concurrent.atomic.AtomicReference
 
 class Cell(
     val sheet: Sheet,
     val id: String
 ) {
     var rawValue: String = ""
-    var expression: Expression = LiteralExpression(0.0)
-    var computedValue_: Any = 0.0
+    var expression: Expression = LiteralExpression(null)
+    var computedValue_: Any? = null
 
     var tag = 0L
+    var formulaTag = 0L
 
     val depenencies = mutableListOf<Cell>()
     val dependsOn = mutableListOf<Cell>()
 
 
-    fun setValue(value: String) {
-        expression.detach()
+    fun setValue(value: String, runtimeContext: RuntimeContext?) {
         rawValue = value
+        expression.detachAll()
         expression = if (value.startsWith("=")) {
             try {
                 val context = ParsingContext(this)
                 val parsed = FormulaParser.parseExpression(value.substring(1), context)
-                parsed.attach()
+                parsed.attachAll()
                 parsed
             } catch (e: Exception) {
                 LiteralExpression(e)
@@ -38,9 +40,13 @@ class Cell(
                 LiteralExpression(value)
             }
         }
+        if (runtimeContext != null) {
+            updateAllDependencies(runtimeContext)
+            Model.notifyContentUpdated(runtimeContext)
+        }
     }
 
-    fun getComputedValue(context: RuntimeContext): Any {
+    fun getComputedValue(context: RuntimeContext): Any? {
         if (context.tag > tag) {
             computedValue_ = expression.eval(context)
             tag = context.tag

@@ -1,34 +1,61 @@
-fetch(false)
+var currentTag = -1
+fetch()
 
 
-function fetch(computed) {
+function fetch() {
     var xmlhttp = new XMLHttpRequest();
-    var url = "sheet/" + currentSheet.name + (computed ?  "/computed" : "/formulas");
+    var url = "sheet/" + currentSheet.name + "/" + currentTag;
 
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            // console.log(this.responseText)
-            let json = JSON.parse(this.responseText);
-            updateCurrentSheet(computed, json)
+            updateCurrentSheet(this.responseText)
         }
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
-    // xmlhttp.onloadend = function () { setTimeout(fetch, 10000) }
+    xmlhttp.onloadend = function () {
+        setTimeout( fetch, 100)
+    }
 
 }
 
-function updateCurrentSheet(computed, json) {
+function updateCurrentSheet(responseText) {
+    let lines = responseText.split("\n")
     let cells = currentSheet.cells
-    for (const key in json) {
-        let cell = cells[key]
-        if (cell == null) {
-            cell = cells[key] = []
+    for (const line of lines) {
+        let cut = line.indexOf("=")
+        let rawKey = line.substring(0, cut).trim()
+        let value = line.substring(cut + 1).trim()
+        if (value.startsWith('"')) {
+            value = JSON.parse(value)
         }
-        document.getElementById(key).innerText = cell[computed? 1 : 0] = json[key]
+        cut = rawKey.indexOf(".")
+        if (cut == -1) {
+            if (rawKey == "tag") {
+                currentTag = value
+            } else {
+                console.log("unrecoginzed key", rawKey, value)
+            }
+        } else {
+            let key = rawKey.substring(0, cut).trim()
+            let suffix = rawKey.substring(cut + 1).trim()
+            let cell = cells[key]
+            if (cell == null) {
+                cell = cells[key] = []
+            }
+            switch (suffix) {
+                case "f":
+                    cell[0] = value
+                    break
+                case "c":
+                    cell[1] = value
+                    if (key != currentCellId || !currentCellElement.classList.contains("editing")) {
+                        document.getElementById(key).innerText = value
+                    }
+                    break
+                default:
+                    console.log("Unrecognized suffix: ", suffix, key, value)
+            }
+        }
     }
-    if (!computed) {
-        fetch(true)
-    }
-
 }

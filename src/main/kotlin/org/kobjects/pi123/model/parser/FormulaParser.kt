@@ -29,7 +29,6 @@ object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
                         "din" -> DigitalInputExpression(parameterList)
                         "now" -> NowExpression(context, parameterList)
                         else -> FunctionCallExpression(name, parameterList)
-
                     }
                 }
                 else {

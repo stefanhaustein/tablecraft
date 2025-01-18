@@ -4,34 +4,29 @@ package org.kobjects.pi123.model
 class Sheet(var name: String) {
     val cells = mutableMapOf<String, Cell>()
 
-    fun set(cellId: String, value: String) {
+    fun set(cellId: String, value: String, runtimeContext: RuntimeContext?) {
         val cell = getOrCreateCell(cellId)
-        cell.setValue(value)
+        cell.setValue(value, runtimeContext)
     }
 
-    fun update(context: RuntimeContext) {
+    fun updateAll(context: RuntimeContext) {
         for (cell in cells.values) {
             cell.getComputedValue(context)
         }
     }
 
-    fun serializeValues(valueType: ValueType, toml: Boolean = false): String {
+    fun serialize(tag: Long, includeComputed: Boolean): String {
         val sb = StringBuilder()
         for (cell in cells.values) {
-            if (sb.isNotEmpty() && !toml) {
-                sb.append(", ")
+            val id = cell.id
+            if (cell.formulaTag > tag) {
+                sb.append("$id.f = ${cell.rawValue.quote()}\n")
             }
-            val content = when (valueType) {
-                ValueType.FORMULA -> cell.rawValue
-                ValueType.COMPUTED_VALUE -> cell.computedValue_
-            }
-            if (toml) {
-                sb.append("${cell.id}.${valueType.name.take(1).lowercase()} = ${content.toString().quote()}\n")
-            } else {
-                sb.append("${cell.id.quote()}: ${content.toString().quote()}")
+            if (includeComputed && cell.tag > tag) {
+                sb.append("$id.c = ${cell.computedValue_.toString().quote()}\n")
             }
         }
-        return if (toml) sb.toString() else "{$sb}"
+        return sb.toString()
     }
 
     fun parseToml(cells: Map<String, Any>) {
@@ -47,7 +42,7 @@ class Sheet(var name: String) {
                 suffix = key.substring(cut + 1)
             }
             when (suffix) {
-                "f" -> set(name, value.toString())
+                "f" -> set(name, value.toString(), null)
                 else -> throw IllegalStateException("Unrecognized suffix in $key = $value")
             }
         }
