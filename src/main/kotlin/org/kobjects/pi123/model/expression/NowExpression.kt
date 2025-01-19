@@ -26,11 +26,10 @@ class NowExpression(context: ParsingContext, params: Map<String, Expression>) : 
         if (period > 0) {
             val timerTask = object : TimerTask() {
                 override fun run() {
-                    Model.lock.withLock {
-                        val context = RuntimeContext()
-                        println("timer $timerId update: ${context.tag}")
-                        target.updateAllDependencies(context)
-                        Model.notifyContentUpdated(context)
+                    Model.withLock {
+                        println("timer $timerId update: ${it.tag}")
+                        target.updateAllDependencies(it)
+                        Model.notifyContentUpdated(it)
                     }
                 }
             }

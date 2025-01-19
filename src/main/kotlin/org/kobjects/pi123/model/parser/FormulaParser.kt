@@ -26,7 +26,8 @@ object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
                 if (scanner.tryConsume("(")) {
                     val parameterList = parseParameterList(scanner, context)
                     when (name.lowercase()) {
-                        "din" -> DigitalInputExpression(parameterList)
+                        "din" -> DigitalInputExpression(context.cell, parameterList)
+                        "pwmin" -> PwmInputExpression(context.cell, parameterList)
                         "dout" -> DigitalOutputExpression(parameterList)
                         "now" -> NowExpression(context, parameterList)
                         else -> FunctionCallExpression(name, parameterList)

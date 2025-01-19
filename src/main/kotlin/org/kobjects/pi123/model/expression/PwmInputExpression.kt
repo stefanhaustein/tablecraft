@@ -5,13 +5,15 @@ import org.kobjects.pi123.model.Cell
 import org.kobjects.pi123.model.Model
 import org.kobjects.pi123.model.RuntimeContext
 
-class DigitalInputExpression(
+class PwmInputExpression(
     val target: Cell,
     val parameters: Map<String, Expression>
 ) : Expression() {
     lateinit var digitalInput: DigitalInput
     lateinit var listener: DigitalStateChangeListener
     val config: DigitalInputConfig
+    var value: Double = 0.0
+    var t0: Long = 0L
 
     override val children: Collection<Expression>
         get() = parameters.values
@@ -26,21 +28,27 @@ class DigitalInputExpression(
         config = DigitalInput.newConfigBuilder(Model.pi4J)
             .address(address)
             .pull(PullResistance.PULL_DOWN)
-            .debounce(1000L)
             .build()
 
     }
 
-    override fun eval(context: RuntimeContext) =  digitalInput.isOn()
+    override fun eval(context: RuntimeContext) =  value
 
     override fun attach() {
         digitalInput = Model.pi4J.create(config)
         listener = object : DigitalStateChangeListener {
             override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
-                Model.withLock {
-                    println("din update: $event")
-                    target.updateAllDependencies(it)
-                    Model.notifyContentUpdated(it)
+                if (event!!.state().isHigh) {
+                    t0 = System.currentTimeMillis()
+                    println("pwm went high at $t0")
+                } else {
+                    value = (System.currentTimeMillis() - t0).toDouble()
+                    println("pwm went low; dt: $value")
+                    Model.withLock {
+                        println("din update: $value")
+                        target.updateAllDependencies(it)
+                        Model.notifyContentUpdated(it)
+                    }
                 }
             }
         }
