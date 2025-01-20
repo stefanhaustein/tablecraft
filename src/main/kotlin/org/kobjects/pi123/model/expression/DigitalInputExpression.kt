@@ -24,6 +24,8 @@ class DigitalInputExpression(
         val address = (addressParameter.value as Number).toInt()
 
         config = DigitalInput.newConfigBuilder(Model.pi4J)
+            .id("DIN-$address")
+            .name("DIN-$address")
             .address(address)
             .pull(PullResistance.PULL_DOWN)
             .debounce(1000L)
@@ -35,6 +37,7 @@ class DigitalInputExpression(
 
     override fun attach() {
         digitalInput = Model.pi4J.create(config)
+        println("digitatlinput $digitalInput create for $config; adding listener")
         listener = object : DigitalStateChangeListener {
             override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
                 Model.withLock {
@@ -49,6 +52,7 @@ class DigitalInputExpression(
 
     override fun detach() {
         digitalInput.removeListener(listener)
+        println("shuttonhg down digitatlinput $digitalInput")
         digitalInput.shutdown(Model.pi4J)
     }
 

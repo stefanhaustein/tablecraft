@@ -26,10 +26,11 @@ class PwmInputExpression(
         val address = (addressParameter.value as Number).toInt()
 
         config = DigitalInput.newConfigBuilder(Model.pi4J)
+            .id("DIN-$address")
+            .name("DIN-$address")
             .address(address)
             .pull(PullResistance.PULL_DOWN)
             .build()
-
     }
 
     override fun eval(context: RuntimeContext) =  value
@@ -56,8 +57,11 @@ class PwmInputExpression(
     }
 
     override fun detach() {
+        println("Detach: $digitalInput")
         digitalInput.removeListener(listener)
+        Model.pi4J.shutdown<DigitalInput>(digitalInput.id())
         digitalInput.shutdown(Model.pi4J)
+        println("Sucessfully detached")
     }
 
 }
