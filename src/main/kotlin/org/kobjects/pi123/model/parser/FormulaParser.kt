@@ -2,7 +2,7 @@ package org.kobjects.pi123.model.parser
 
 import org.kobjects.parsek.expression.Operator
 import org.kobjects.parsek.expression.PrattParser
-import org.kobjects.pi123.model.Sheet
+import org.kobjects.pi123.model.Model
 import org.kobjects.pi123.model.expression.*
 
 object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
@@ -26,11 +26,15 @@ object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
                 if (scanner.tryConsume("(")) {
                     val parameterList = parseParameterList(scanner, context)
                     when (name.lowercase()) {
-                        "din" -> DigitalInputExpression(context.cell, parameterList)
-                        "pwmin" -> PwmInputExpression(context.cell, parameterList)
-                        "dout" -> DigitalOutputExpression(parameterList)
                         "now" -> NowExpression(context, parameterList)
-                        else -> FunctionCallExpression(name, parameterList)
+                        else -> {
+                            val functionSpec = Model.functionMap[name.lowercase()]
+                            if (functionSpec != null) {
+                                PluginFunctionCallExpression.create(context.cell, functionSpec, parameterList)
+                            } else {
+                                BuiltinFunctionCallExpression(name, parameterList)
+                            }
+                        }
                     }
                 }
                 else {

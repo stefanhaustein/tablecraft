@@ -22,8 +22,10 @@ class DigitalOutputInstance(
         digitalOutput.setState(value)
     }
 
-    override fun detach() {
+    override fun attach() {
+    }
 
+    override fun detach() {
     }
 
 

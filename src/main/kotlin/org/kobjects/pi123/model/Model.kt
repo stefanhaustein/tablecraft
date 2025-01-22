@@ -3,6 +3,9 @@ package org.kobjects.pi123.model
 import com.pi4j.Pi4J
 import com.pi4j.context.Context
 import com.pi4j.io.gpio.digital.DigitalOutput
+import org.kobjects.pi123.pluginapi.FunctionSpec
+import org.kobjects.pi123.pluginapi.Plugin
+import org.kobjects.pi123.plugins.pi4j.Pi4jPlugin
 import java.io.File
 import java.io.FileWriter
 import org.kobjects.pi123.toml.TomlParser
@@ -21,6 +24,19 @@ object Model {
 
     val digitalOutput = mutableMapOf<Int, DigitalOutput>()
 
+    val functionMap = mutableMapOf<String, FunctionSpec>()
+    val plugins = mutableListOf<Plugin>()
+
+    fun addPlugin(plugin: Plugin) {
+        plugins.add(plugin)
+        for (function in plugin.functionSpecs) {
+            functionMap[function.name] = function
+        }
+    }
+
+    init {
+        addPlugin(Pi4jPlugin())
+    }
 
     @OptIn(ExperimentalContracts::class)
     inline fun <T> withLock(action: (RuntimeContext) -> T): T {

@@ -9,16 +9,25 @@ class DigitalInputInstance(
     val callback: ((Any) -> Unit)?
 ) : FunctionInstance, DigitalStateChangeListener {
 
-    val digitalInput: DigitalInput = plugin.digitalInputs.getOrPut(address) {
-        plugin.pi4J.create(DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
+    var digitalInput: DigitalInput? = null
+
+    override fun attach() {
+       digitalInput = plugin.digitalInputs.getOrPut(address) {
+            plugin.pi4J.create(DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
+        }
+        digitalInput?.addListener(this)
     }
 
     override fun apply(params: Map<String, Any>) =
-        digitalInput.isOn
+        digitalInput?.isOn ?: false
 
 
     override fun detach() {
-        digitalInput.removeListener(this)
+        digitalInput?.removeListener(this)
+    }
+
+    override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
+        callback?.invoke(digitalInput?.isOn ?: false)
     }
 
 
@@ -35,10 +44,6 @@ class DigitalInputInstance(
             return DigitalInputInstance(plugin, address, callback)
         }
 
-    }
-
-    override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
-        callback?.invoke(digitalInput.isOn)
     }
 
 }
