@@ -6,42 +6,30 @@ import org.kobjects.pi123.pluginapi.FunctionInstance
 
 class DigitalOutputInstance(
     val plugin: Pi4jPlugin,
-    val address: Int
+    val configuration: Map<String, Any>
 ) : FunctionInstance {
 
-    val digitalOutput: DigitalOutput = plugin.digitalOutputs.getOrPut(address) {
-        plugin.pi4J.create(DigitalOutputConfig.newBuilder(plugin.pi4J).address(address).build())
-    }
+    var pin: PinManager? = null
 
-    override fun apply(params: Map<String, Any>) {
+    override fun apply(params: Map<String, Any>): Any {
         val value = when(val raw = params["value"]) {
             is Boolean -> raw
             is Number -> raw.toDouble() != 0.0
-            else -> throw IllegalArgumentException("Unsupported value type for digital input: $raw")
+            else -> throw IllegalArgumentException("Unsupported value type for digital input: $raw; all params: $params")
         }
-        digitalOutput.setState(value)
+        pin!!.setState(value)
+        return value
     }
 
     override fun attach() {
+        pin = plugin.getPin(PinType.DIGITAL_OUTPUT, configuration)
+        println("Attached pin: $pin")
     }
 
     override fun detach() {
     }
 
 
-    companion object {
-
-        fun create(
-            plugin: Pi4jPlugin,
-            configuration: Map<String, Any>
-        ): DigitalOutputInstance {
-            require(configuration.size == 1)
-            val address = (configuration["address"] as Number).toInt()
-
-            return DigitalOutputInstance(plugin, address)
-        }
-
-    }
 
 
 }

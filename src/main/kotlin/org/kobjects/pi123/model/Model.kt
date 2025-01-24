@@ -17,7 +17,6 @@ import kotlin.contracts.contract
 
 object Model {
     var modificationTag: Long = 0
-    lateinit var pi4J: Context
     val sheets = mutableMapOf<String, Sheet>("Sheet1" to Sheet("Sheet1"))
     val lock = ReentrantLock()
     val listeners = mutableSetOf<() -> Unit>()
@@ -48,12 +47,6 @@ object Model {
     }
 
     init {
-        try {
-            pi4J = Pi4J.newAutoContext()
-            println("pi4j: $pi4J")
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
         withLock { runtimeContext ->
             try {
                 val toml = TomlParser.parse(File("storage/model.ini").readText())

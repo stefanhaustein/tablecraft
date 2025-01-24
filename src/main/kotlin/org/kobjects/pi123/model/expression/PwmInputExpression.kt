@@ -8,7 +8,7 @@ import org.kobjects.pi123.model.RuntimeContext
 class PwmInputExpression(
     val target: Cell,
     val parameters: Map<String, Expression>
-) : Expression() {
+) /* : Expression() {
     lateinit var digitalInput: DigitalInput
     lateinit var listener: DigitalStateChangeListener
     val config: DigitalInputConfig
@@ -60,8 +60,8 @@ class PwmInputExpression(
         println("Detach: $digitalInput")
         digitalInput.removeListener(listener)
         Model.pi4J.shutdown<DigitalInput>(digitalInput.id())
-        digitalInput.shutdown(Model.pi4J)
+        //digitalInput.shutdown(Model.pi4J)
         println("Sucessfully detached")
     }
 
-}
+}*/

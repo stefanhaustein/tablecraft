@@ -51,6 +51,7 @@ class Cell(
             try {
             computedValue_ = expression.eval(context)
             } catch(e: Exception) {
+                e.printStackTrace()
                 computedValue_ = e
             }
             tag = context.tag

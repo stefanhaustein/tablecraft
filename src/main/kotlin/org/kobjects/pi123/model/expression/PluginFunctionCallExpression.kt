@@ -20,6 +20,14 @@ class PluginFunctionCallExpression(
         update()
     }
 
+    override fun attach() {
+        functionInstance.attach()
+    }
+
+    override fun detach() {
+        functionInstance.detach()
+    }
+
     fun update() {
         Model.withLock {
             cell.updateAllDependencies(it)
