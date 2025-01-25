@@ -1,3 +1,6 @@
+import {currentSheet} from "./model.js";
+import {currentCellId, currentCellElement} from "./cell_editor.js"
+
 var currentTag = -1
 fetch()
 
@@ -33,22 +36,22 @@ function updateCurrentSheet(responseText) {
         if (cut == -1) {
             if (rawKey == "tag") {
                 currentTag = value
-            } else {
-                console.log("unrecoginzed key", rawKey, value)
+            } else if (rawKey != "") {
+                console.log("unrecognized key", rawKey, value)
             }
         } else {
             let key = rawKey.substring(0, cut).trim()
             let suffix = rawKey.substring(cut + 1).trim()
             let cell = cells[key]
             if (cell == null) {
-                cell = cells[key] = []
+                cell = cells[key] = {}
             }
             switch (suffix) {
                 case "f":
-                    cell[0] = value
+                    cell.f = value
                     break
                 case "c":
-                    cell[1] = value
+                    cell.c = value
                     if (key != currentCellId || !currentCellElement.classList.contains("editing")) {
                         document.getElementById(key).innerText = value
                     }

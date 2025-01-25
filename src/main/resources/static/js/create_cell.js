@@ -1,3 +1,6 @@
+import { addInputElements } from "./lib/form_builder.js";
+
+
 let createElement = document.getElementById("create")
 createElement.addEventListener("change", createCellContent)
 

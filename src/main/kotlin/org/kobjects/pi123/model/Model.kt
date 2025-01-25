@@ -91,5 +91,5 @@ object Model {
         listeners.clear()
     }
 
-    fun functionsToJson() = functionMap.values.joinToString(",\n", "[\n", "\n]") { it.toJson() }
+    fun functionsToJson() = functionMap.values.joinToString(",\n", "[\n", "\n]\n") { it.toJson() }
 }

@@ -1,21 +1,21 @@
-function addInputElements(rootElement, schema, value) {
-    for (const key in schema) {
+export function addInputElements(rootElement, schema, values) {
+    for (const entry of schema) {
         let label = document.createElement("label")
         label.style.display = "block"
-        label.innerText = key
+        let name = entry["name"]
+        label.innerText = name
         rootElement.appendChild(label)
 
-        let elementSchema = schema[key]
-        let inputElement = createInputElement(elementSchema, key, value)
+        let inputElement = createInputElement(entry, name, values)
         rootElement.appendChild(inputElement)
 
     }
 }
 
-function createInputElement(schema, key, value) {
+function createInputElement(schema, key, values) {
 
     let options = getOptions(schema)
-    let elementValue = value[key]
+    let elementValue = values[key]
     if (elementValue == null) {
         elementValue = schema.defaultValue
     }
@@ -37,8 +37,8 @@ function createInputElement(schema, key, value) {
         result.value = elementValue
     }
     result.addEventListener("change", () => {
-        value[key] = result.value
-        console.log("updated result: ", value)
+        values[key] = result.value
+        console.log("updated result: ", values)
     })
     return result
 }

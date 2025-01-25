@@ -1,6 +1,8 @@
-let currentCellId = null
-let currentCellElement = null
-let currentCellData = []
+import {currentSheet} from "./model.js";
+
+export let currentCellId = null
+export let currentCellElement = null
+let currentCellData = {}
 
 document.getElementById("tbody").addEventListener(
     "click", (event) => selectCell(event.target.id))
@@ -29,11 +31,11 @@ inputElement.addEventListener("keydown", (event) => {
 })
 inputElement.addEventListener("focus", () => {
   currentCellElement.classList.add("editing")
-  currentCellElement.innerText = nullToEmtpy(currentCellData[0])
+  currentCellElement.innerText = nullToEmtpy(currentCellData["f"])
 })
 inputElement.addEventListener("blur", () => {
     currentCellElement.classList.remove("editing")
-    currentCellElement.innerText = nullToEmtpy(currentCellData[1])
+    currentCellElement.innerText = nullToEmtpy(currentCellData["c"])
 })
 
 selectCell("A1")
@@ -44,15 +46,15 @@ function sendInput() {
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "update/" + currentSheet.name + "!" + currentCellId, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(currentSheet.cells[currentCellId][0]);
+    xhr.send(currentSheet.cells[currentCellId]["f"]);
     console.log("xhr", xhr)
 }
 
 function processInput() {
     console.log("processInput")
     let value = inputElement.value
-    currentCellData[0] = value
-    currentCellData[1] = null
+    currentCellData["f"] = value
+    currentCellData["c"] = null
     currentCellElement.textContent = value
 }
 
@@ -64,14 +66,14 @@ function selectCell(id) {
     }
     let newData = currentSheet.cells[id]
     if (newData == null) {
-        newData = currentSheet.cells[id] = []
+        newData = currentSheet.cells[id] = {}
     }
     let newlySelected = id != currentCellId
     if (newlySelected) {
         if (currentCellId != null) {
             currentCellElement.classList.remove("focus")
             currentCellElement.classList.remove("editing")
-            currentCellElement.innerText = nullToEmtpy(currentCellData[1])
+            currentCellElement.innerText = nullToEmtpy(currentCellData["c"])
         }
     } else {
         inputElement.focus()
@@ -80,7 +82,7 @@ function selectCell(id) {
     currentCellId = id
     currentCellElement = newElement
     currentCellData = newData
-    currentCellSavedFormula = currentCellData[0]
+    let currentCellSavedFormula = currentCellData["f"]
     inputElement.value = nullToEmtpy(currentCellSavedFormula)
 
     if (newlySelected) {

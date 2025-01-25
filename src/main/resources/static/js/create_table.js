@@ -1,3 +1,5 @@
+import {currentSheet} from "./model.js";
+
 let thead = document.getElementById("thead")
 for (let col = 0; col < 27; col++) {
     let th = document.createElement("th")
@@ -17,7 +19,7 @@ for (let col = 0; col < 27; col++) {
 }
 let tbody = document.getElementById("tbody")
 for (let row = 1; row < 100; row++) {
-    tr = document.createElement("tr")
+    let tr = document.createElement("tr")
     tbody.appendChild(tr)
     let th = document.createElement("th")
     th.style.left = "0"
