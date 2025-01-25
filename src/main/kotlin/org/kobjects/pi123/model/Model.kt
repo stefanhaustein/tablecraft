@@ -21,8 +21,6 @@ object Model {
     val lock = ReentrantLock()
     val listeners = mutableSetOf<() -> Unit>()
 
-    val digitalOutput = mutableMapOf<Int, DigitalOutput>()
-
     val functionMap = mutableMapOf<String, FunctionSpec>()
     val plugins = mutableListOf<Plugin>()
 
@@ -92,4 +90,6 @@ object Model {
         for (listener in listeners) {listener()}
         listeners.clear()
     }
+
+    fun functionsToJson() = functionMap.values.joinToString(",\n", "[\n", "\n]") { it.toJson() }
 }

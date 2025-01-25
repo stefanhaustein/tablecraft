@@ -46,6 +46,9 @@ fun Application.module() {
             }
             call.respondText("tag = ${Model.modificationTag}\n$result", ContentType.Text.Plain, HttpStatusCode.OK,)
         }
+        get("functions") {
+            call.respondText(Model.functionsToJson())
+        }
 
         /* get("/") {
              call.respondText("Hello World!")
