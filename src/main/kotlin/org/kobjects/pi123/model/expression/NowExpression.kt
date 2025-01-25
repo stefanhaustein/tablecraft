@@ -5,7 +5,6 @@ import org.kobjects.pi123.model.RuntimeContext
 import org.kobjects.pi123.model.parser.ParsingContext
 import java.util.Timer
 import java.util.TimerTask
-import kotlin.concurrent.withLock
 
 class NowExpression(context: ParsingContext, params: Map<String, Expression>) : Expression() {
 

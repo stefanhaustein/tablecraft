@@ -1,7 +1,6 @@
 package org.kobjects.pi123.plugins.pi4j
 
-import com.pi4j.io.gpio.digital.*
-import io.ktor.util.*
+
 import org.kobjects.pi123.pluginapi.FunctionInstance
 
 class DigitalOutputInstance(
