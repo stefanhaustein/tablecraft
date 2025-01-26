@@ -18,7 +18,7 @@ export let currentCellData = {}
 export let currentCellSavedFormula = null
 export var functions = {}
 
-let inputElement = document.getElementById("current")
+let formulaInputElement = document.getElementById("formulaInput")
 
 
 let req = new XMLHttpRequest()
@@ -42,7 +42,7 @@ function transformFunction(f) {
 }
 
 export function setCurrentCellFormula(value) {
-    inputElement.value = value
+    formulaInputElement.value = value
 }
 
 export function selectCell(id, editMode) {
@@ -67,14 +67,14 @@ export function selectCell(id, editMode) {
     currentCellId = id
     currentCellElement = newElement
     currentCellData = newData
-    inputElement.value = nullToEmtpy(currentCellSavedFormula)
+    formulaInputElement.value = nullToEmtpy(currentCellSavedFormula)
 
     if (newlySelected) {
         currentCellElement.classList.add("focus")
     }
 
     if (editMode) {
-        inputElement.focus()
+        formulaInputElement.focus()
         currentCellElement.classList.remove("focus")
         currentCellElement.classList.add("editing")
         currentCellElement.innerText = nullToEmtpy(currentCellData["f"])

@@ -1,6 +1,6 @@
 import {currentSheet} from "./model.js";
 
-let thead = document.getElementById("thead")
+let thead = document.getElementById("spreadsheetTHead")
 for (let col = 0; col < 27; col++) {
     let th = document.createElement("th")
     th.style.top = 0
@@ -17,7 +17,7 @@ for (let col = 0; col < 27; col++) {
     }
     thead.appendChild(th)
 }
-let tbody = document.getElementById("tbody")
+let tbody = document.getElementById("spreadsheetTBody")
 for (let row = 1; row < 100; row++) {
     let tr = document.createElement("tr")
     tbody.appendChild(tr)

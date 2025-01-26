@@ -3,11 +3,11 @@ import {currentCellElement, currentCellId, selectCell} from "./model.js";
 
 document.addEventListener("keydown", tableKeyPress)
 
-let tbodyElement = document.getElementById("tbody")
+let spreadsheetTBodyElement = document.getElementById("spreadsheetTBody")
 
-tbodyElement.addEventListener(
+spreadsheetTBodyElement.addEventListener(
     "click", (event) => selectCell(event.target.id, false))
-tbodyElement.addEventListener(
+spreadsheetTBodyElement.addEventListener(
     "dblclick", (event) => selectCell(event.target.id, true))
 
 

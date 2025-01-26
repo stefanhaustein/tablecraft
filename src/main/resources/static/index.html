@@ -7,7 +7,7 @@
 <body style="width:100%; height:100%; border:0; padding:0; margin:0; display: flex;  flex-direction: column;">
     <div style="display:flex; flex: none">
         <input type="button" value="⟳" onclick="fetch(true);" style="width:33px" />
-        <input id="current" style="flex-grow: 1" list="functions">
+        <input id="formulaInput" style="flex-grow: 1" list="functions">
         <datalist id="functions"></datalist>
         <select id="panelSelect" style="width:208px">
             <option>About</option>
@@ -15,10 +15,10 @@
         </select>
     </div>
     <div style="display:flex; flex-grow: 1; height: 0">
-        <div id="tableViewport" style="overflow: scroll; flex-grow: 1; height:100%" >
-            <table id="table" style="table-layout: fixed; border-spacing: 0">
-                <thead><tr id = "thead"></tr></thead>
-            <tbody id = "tbody"></tbody>
+        <div id="spreadsheetViewport" style="overflow: scroll; flex-grow: 1; height:100%" >
+            <table id="spreadsheetTable" style="table-layout: fixed; border-spacing: 0">
+                <thead><tr id ="spreadsheetTHead"></tr></thead>
+            <tbody id ="spreadsheetTBody"></tbody>
             </table>
         </div>
         <div id="panel" >
@@ -33,7 +33,7 @@
 
     <script type="module" src="js/model.js"></script>
     <script type="module" src="js/table_setup.js"></script>
-    <script type="module" src="js/parameter_editor.js"></script>
+    <script type="module" src="js/parameter_panel_editor.js"></script>
     <script type="module" src="js/input_controller.js"></script>
     <script type="module" src="js/panel_controller.js"></script>
     <script type="module" src="js/table_controller.js"></script>

@@ -4,20 +4,20 @@ import {nullToEmtpy} from "./lib/util.js";
 //document.getElementById("tableViewport").addEventListener("keydown", tableKeyPress)
 //document.getElementById("table").addEventListener("keydown", tableKeyPress)
 
-let inputElement = document.getElementById("current")
+let formulaInputElement = document.getElementById("formulaInput")
 
-inputElement.addEventListener("change", sendInput)
-inputElement.addEventListener("input", processInput)
-inputElement.addEventListener("keydown", (event) => {
+formulaInputElement.addEventListener("change", sendInput)
+formulaInputElement.addEventListener("input", processInput)
+formulaInputElement.addEventListener("keydown", (event) => {
     if (event.key == "Enter") {
         event.preventDefault()
         event.stopPropagation()
-        inputElement.blur()
+        formulaInputElement.blur()
         sendInput()
         selectCell(currentCellId, false)
     } else if (event.key == "Escape") {
-        inputElement.value = nullToEmtpy(currentCellSavedFormula)
-        inputElement.blur()
+        formulaInputElement.value = nullToEmtpy(currentCellSavedFormula)
+        formulaInputElement.blur()
         sendInput()
         selectCell(currentCellId, false)
     } else {
@@ -25,7 +25,7 @@ inputElement.addEventListener("keydown", (event) => {
         processInput()
     }
 })
-inputElement.addEventListener("focus", () => {
+formulaInputElement.addEventListener("focus", () => {
   selectCell(currentCellId, true)
 })
 /*
@@ -48,7 +48,7 @@ function sendInput() {
 
 function processInput() {
     console.log("processInput")
-    let value = inputElement.value
+    let value = formulaInputElement.value
     currentCellData["f"] = value
     currentCellData["c"] = null
     currentCellElement.textContent = value

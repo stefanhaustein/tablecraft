@@ -3,10 +3,10 @@ import {InputController} from "./lib/form_builder.js";
 import {tokenize} from "./lib/expression_tokenizer.js";
 import {selectPanel} from "./panel_controller.js";
 
-let currentElement = document.getElementById("current")
+let formulaInputElement = document.getElementById("formulaInput")
 
-currentElement.addEventListener("change", considerUpdatingFunctionTab)
-currentElement.addEventListener("input", considerUpdatingFunctionTab)
+formulaInputElement.addEventListener("change", considerUpdatingFunctionTab)
+formulaInputElement.addEventListener("input", considerUpdatingFunctionTab)
 
 let parameterPanelElement = document.getElementById("ParametersPanel")
 let currentFunction = null
@@ -14,7 +14,7 @@ let currentController = null
 let currentParameters = {}
 
 function considerUpdatingFunctionTab() {
-    let currentInput = currentElement.value
+    let currentInput = formulaInputElement.value
     console.log("currentInput:", currentInput)
     let name = ""
     let found = null
