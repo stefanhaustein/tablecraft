@@ -9,10 +9,9 @@
         <input type="button" value="⟳" onclick="fetch(true);" style="width:33px" />
         <input id="current" style="flex-grow: 1" list="functions">
         <datalist id="functions"></datalist>
-        <select id="create">
-            <option>Σ</option>
-            <option>din</option>
-            <option>dout</option>
+        <select id="panelSelect" style="width:208px">
+            <option>About</option>
+            <option>Parameters</option>
         </select>
     </div>
     <div style="display:flex; flex-grow: 1; height: 0">
@@ -22,19 +21,22 @@
             <tbody id = "tbody"></tbody>
             </table>
         </div>
-        <div id="details" >
-            <div id="functionPanel" style="display: none; width:200px"></div>
+        <div id="panel" >
+            <div id="AboutPanel" style="width:200px">
+                Pi 1-2-3
+            </div>
+            <div id="ParametersPanel" style="display: none; width:200px"></div>
         </div>
     </div>
     <dialog id="dialog">
     </dialog>
-    <script type="module" src="js/lib/expression_tokenizer.js"></script>
-    <script type="module" src="js/lib/util.js"></script>
-    <script type="module" src="js/lib/form_builder.js"></script>
+
     <script type="module" src="js/model.js"></script>
     <script type="module" src="js/create_table.js"></script>
     <script type="module" src="js/cell_editor.js"></script>
-    <script type="module" src="js/function_editor.js"></script>
+    <script type="module" src="js/parameter_editor.js"></script>
     <script type="module" src="js/sync.js"></script>
+    <script type="module" src="js/panel_controller.js"></script>
+    <script type="module" src="js/table_controller.js"></script>
 </body>
 </html>

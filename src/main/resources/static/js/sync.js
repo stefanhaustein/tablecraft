@@ -53,7 +53,12 @@ function updateCurrentSheet(responseText) {
                 case "c":
                     cell.c = value
                     if (key != currentCellId || !currentCellElement.classList.contains("editing")) {
-                        document.getElementById(key).innerText = value
+                        let element = document.getElementById(key)
+                        if (element != null) {
+                            element.innerText = value
+                        } else {
+                            console.log("Element '" + key + "' not found for line '" + line + "'")
+                        }
                     }
                     break
                 default:

@@ -1,34 +1,58 @@
-import {currentCellElement, currentCellId} from "./model.js";
-
+import {currentCellElement, currentCellId, selectCell} from "./model.js";
 
 
 document.addEventListener("keydown", tableKeyPress)
 
+let tbodyElement = document.getElementById("tbody")
 
+tbodyElement.addEventListener(
+    "click", (event) => selectCell(event.target.id, false))
+tbodyElement.addEventListener(
+    "dblclick", (event) => selectCell(event.target.id, true))
+
+
+function selectAndScrollCurrentIntoView(cellId) {
+    selectCell(cellId, false)
+    currentCellElement.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
+}
 
 function tableKeyPress(event) {
-    if (document.activeElement == inputElement) {
+
+    if (event.target != document.body) {
         return
     }
 
     let letter = currentCellId.substring(0,1)
     let number = parseInt(currentCellId.substring(1))
 
-    console.log(event)
+    let matched = true
+    switch (event.key) {
+        case "ArrowDown":
+            selectAndScrollCurrentIntoView(letter + (number + 1))
+            break
 
-    if (event.key == "ArrowDown") {
-        event.preventDefault()
-        selectCell(letter + (number + 1))
-        currentCellElement.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
-    } else if (event.key == "ArrowUp" && number > 1) {
-        event.preventDefault()
-        selectCell(letter + (number - 1))
-        currentCellElement.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
-    } else if (event.key == "Enter") {
-        event.preventDefault()
-        selectCell(currentCellId)
+        case "ArrowUp":
+            selectAndScrollCurrentIntoView(letter + (number - 1))
+            break
+
+        case "ArrowLeft":
+            selectAndScrollCurrentIntoView(String.fromCodePoint(letter.codePointAt(0) - 1) + number)
+            break
+
+        case "ArrowRight":
+            selectAndScrollCurrentIntoView(String.fromCodePoint(letter.codePointAt(0) + 1) + number)
+            break
+
+        case "Enter":
+            selectCell(currentCellId, true)
+            break
+
+        default:
+            matched = false
     }
-
+    if (matched) {
+        event.preventDefault()
+    }
 }
 
 

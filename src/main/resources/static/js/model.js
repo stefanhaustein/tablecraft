@@ -15,6 +15,7 @@ export var currentSheet = model.sheets["Sheet1"]
 export let currentCellId = null
 export let currentCellElement = null
 export let currentCellData = {}
+export let currentCellSavedFormula = null
 export var functions = {}
 
 let inputElement = document.getElementById("current")
@@ -44,7 +45,7 @@ export function setCurrentCellFormula(value) {
     inputElement.value = value
 }
 
-export function selectCell(id) {
+export function selectCell(id, editMode) {
     let newElement = document.getElementById(id)
     if (!newElement) {
         return
@@ -60,18 +61,27 @@ export function selectCell(id) {
             currentCellElement.classList.remove("editing")
             currentCellElement.innerText = nullToEmtpy(currentCellData["c"])
         }
-    } else {
-        inputElement.focus()
+        currentCellSavedFormula = newData["f"]
     }
 
     currentCellId = id
     currentCellElement = newElement
     currentCellData = newData
-    let currentCellSavedFormula = currentCellData["f"]
     inputElement.value = nullToEmtpy(currentCellSavedFormula)
 
     if (newlySelected) {
         currentCellElement.classList.add("focus")
+    }
+
+    if (editMode) {
+        inputElement.focus()
+        currentCellElement.classList.remove("focus")
+        currentCellElement.classList.add("editing")
+        currentCellElement.innerText = nullToEmtpy(currentCellData["f"])
+    } else {
+        currentCellElement.classList.remove("editing")
+        currentCellElement.classList.add("focus")
+        currentCellElement.innerText = nullToEmtpy(currentCellData["c"])
     }
 }
 

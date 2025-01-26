@@ -1,8 +1,6 @@
-import {currentSheet, currentCellId, currentCellData, currentCellElement, selectCell} from "./model.js";
+import {currentSheet, currentCellId, currentCellData, currentCellElement, currentCellSavedFormula, selectCell} from "./model.js";
 import {nullToEmtpy} from "./lib/util.js";
 
-document.getElementById("tbody").addEventListener(
-    "click", (event) => selectCell(event.target.id))
 //document.getElementById("tableViewport").addEventListener("keydown", tableKeyPress)
 //document.getElementById("table").addEventListener("keydown", tableKeyPress)
 
@@ -16,23 +14,25 @@ inputElement.addEventListener("keydown", (event) => {
         event.stopPropagation()
         inputElement.blur()
         sendInput()
+        selectCell(currentCellId, false)
     } else if (event.key == "Escape") {
         inputElement.value = nullToEmtpy(currentCellSavedFormula)
         inputElement.blur()
         sendInput()
+        selectCell(currentCellId, false)
     } else {
         console.log(event.key)
         processInput()
     }
 })
 inputElement.addEventListener("focus", () => {
-  currentCellElement.classList.add("editing")
-  currentCellElement.innerText = nullToEmtpy(currentCellData["f"])
+  selectCell(currentCellId, true)
 })
+/*
 inputElement.addEventListener("blur", () => {
     currentCellElement.classList.remove("editing")
     currentCellElement.innerText = nullToEmtpy(currentCellData["c"])
-})
+})*/
 
 selectCell("A1")
 
