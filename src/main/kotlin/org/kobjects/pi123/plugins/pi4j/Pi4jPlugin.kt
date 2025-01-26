@@ -30,15 +30,18 @@ class Pi4jPlugin : Plugin {
     override val functionSpecs = listOf(
         FunctionSpec(
             "din",
+            "Digital Input",
             listOf(ParameterSpec("address", ParameterKind.CONFIGURATION, Type.INT))
         ) { configuration, callback -> DigitalInputInstance(this, configuration, callback) },
         FunctionSpec(
             "pwmin",
+            "PWM Input",
             listOf(ParameterSpec("address", ParameterKind.CONFIGURATION, Type.INT))
         ) { configuration, callback -> PwmInputInstance(this, configuration, callback) },
 
         FunctionSpec(
             "dout",
+            "Digital Output",
             listOf(
                 ParameterSpec("address", ParameterKind.CONFIGURATION, Type.INT),
                 ParameterSpec("value", ParameterKind.RUNTIME, Type.INT),

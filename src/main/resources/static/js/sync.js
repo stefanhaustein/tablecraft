@@ -1,5 +1,5 @@
-import {currentSheet} from "./model.js";
-import {currentCellId, currentCellElement} from "./cell_editor.js"
+import {currentSheet, currentCellId, currentCellElement} from "./model.js";
+
 
 var currentTag = -1
 fetch()
