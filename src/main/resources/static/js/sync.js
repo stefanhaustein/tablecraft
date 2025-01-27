@@ -1,4 +1,4 @@
-import {currentSheet, currentCellId, currentCellElement} from "./model.js";
+import {currentSheet, currentCellId, currentCellElement, renderComputedValue} from "./model.js";
 
 
 var currentTag = -1
@@ -55,7 +55,7 @@ function updateCurrentSheet(responseText) {
                     if (key != currentCellId || !currentCellElement.classList.contains("editing")) {
                         let element = document.getElementById(key)
                         if (element != null) {
-                            element.innerText = value
+                            renderComputedValue(element, cell)
                         } else {
                             console.log("Element '" + key + "' not found for line '" + line + "'")
                         }

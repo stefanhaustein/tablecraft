@@ -1,5 +1,7 @@
 package org.kobjects.pi123.model
 
+import kotlinx.datetime.*
+import kotlinx.datetime.format.char
 import org.kobjects.pi123.model.expression.Expression
 import org.kobjects.pi123.model.expression.LiteralExpression
 import org.kobjects.pi123.model.parser.FormulaParser
@@ -65,6 +67,54 @@ class Cell(
             for (dep in depenencies) {
                 dep.updateAllDependencies(context)
             }
+        }
+    }
+
+    fun serializeValue(sb: StringBuilder) {
+        val value = computedValue_
+        sb.append('"')
+        if (value is Unit || value == null) {
+            // empty
+        } else if (value is Boolean) {
+            sb.append("c:${value.toString().uppercase()}")
+        } else if (value is Number) {
+            sb.append("r:")
+            sb.append(value)
+        } else if (value is Exception) {
+            sb.append("e:")
+            sb.append(value)
+        } else if (value is Instant) {
+            sb.append("r:")
+            val localDateTime = value.toLocalDateTime(TimeZone.currentSystemDefault())
+           /* sb.append(localDateTime.date.format(LocalDate.Formats.ISO))
+            sb.append(' ') */
+            sb.append(localDateTime.time.format(TIME_FORMAT_SECONDS))
+        } else {
+            sb.append("l:")
+            sb.append(value.toString().escape())
+        }
+        sb.append('"')
+
+    }
+
+    fun serialize(sb: StringBuilder, tag: Long, includeComputed: Boolean) {
+        val id = id
+        if (formulaTag > tag) {
+            sb.append("$id.f = ${rawValue.quote()}\n")
+        }
+        if (includeComputed && this.tag > tag) {
+            sb.append("$id.c = ")
+            serializeValue(sb)
+            sb.append('\n')
+        }
+    }
+
+    companion object {
+        val TIME_FORMAT_MINUTES = LocalTime.Format {
+            hour(); char(':'); minute(); // char(':'); second()
+        }
+        val TIME_FORMAT_SECONDS = LocalTime.Format {
+            hour(); char(':'); minute(); char(':'); second()
         }
     }
 

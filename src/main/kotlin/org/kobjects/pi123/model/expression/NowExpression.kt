@@ -1,5 +1,6 @@
 package org.kobjects.pi123.model.expression
 
+import kotlinx.datetime.Clock
 import org.kobjects.pi123.model.Model
 import org.kobjects.pi123.model.RuntimeContext
 import org.kobjects.pi123.model.parser.ParsingContext
@@ -14,7 +15,7 @@ class NowExpression(context: ParsingContext, params: Map<String, Expression>) : 
     val timerId = timerCounter++
 
     override fun eval(context: RuntimeContext): Any {
-        return System.currentTimeMillis().toDouble() / 86400000.0
+        return Clock.System.now()
     }
 
     override val children: Collection<Expression>

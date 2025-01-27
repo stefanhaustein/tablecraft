@@ -18,13 +18,7 @@ class Sheet(var name: String) {
     fun serialize(tag: Long, includeComputed: Boolean): String {
         val sb = StringBuilder()
         for (cell in cells.values) {
-            val id = cell.id
-            if (cell.formulaTag > tag) {
-                sb.append("$id.f = ${cell.rawValue.quote()}\n")
-            }
-            if (includeComputed && cell.tag > tag) {
-                sb.append("$id.c = ${cell.computedValue_.toString().quote()}\n")
-            }
+            cell.serialize(sb, tag, includeComputed)
         }
         return sb.toString()
     }

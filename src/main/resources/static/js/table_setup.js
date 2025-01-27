@@ -1,5 +1,3 @@
-import {currentSheet} from "./model.js";
-
 let thead = document.getElementById("spreadsheetTHead")
 for (let col = 0; col < 27; col++) {
     let th = document.createElement("th")
@@ -30,10 +28,6 @@ for (let row = 1; row < 100; row++) {
         let td = document.createElement("td")
         let id = String.fromCharCode(col + 64) + row
         td.id = id
-        let data = currentSheet.cells[id]
-        if (data) {
-            td.textContent = data[1] || data[0]
-        }
         tr.appendChild(td)
     }
 

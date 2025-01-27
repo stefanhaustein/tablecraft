@@ -1,5 +1,6 @@
 package org.kobjects.pi123.model.expression
 
+import kotlinx.datetime.Instant
 import org.kobjects.pi123.model.RuntimeContext
 
 class BinaryOperatorExpression(
@@ -11,7 +12,9 @@ class BinaryOperatorExpression(
     override fun eval(context: RuntimeContext): Any {
         val l = leftOperand.eval(context) ?: 0.0
         return when (l) {
-            is Double -> {
+            is Double,
+            is Instant -> {
+                val l = toDouble(l)
                 val r = rightOperand.evalDouble(context)
                 when (name) {
                     "+" -> l + r

@@ -1,8 +1,7 @@
 package org.kobjects.pi123.model
 
-fun String.quote(): String {
+fun String.escape(): String {
     val sb = StringBuilder()
-    sb.append('"')
     for (i in this.indices) {
         when (val c = this[i]) {
             '"' -> sb.append("\\\"")
@@ -13,6 +12,8 @@ fun String.quote(): String {
             else -> sb.append(c)
         }
     }
-    sb.append('"')
     return sb.toString()
 }
+
+
+fun String.quote() = """"${escape()}""""

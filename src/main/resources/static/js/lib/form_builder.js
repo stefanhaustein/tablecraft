@@ -25,7 +25,7 @@ export class InputController {
             let label = document.createElement("label")
             label.style.display = "block"
             let name = entry["name"]
-            label.innerText = name
+            label.textContent = name
             rootElement.appendChild(label)
 
             let inputController = createFormElement(entry, name)
@@ -72,7 +72,7 @@ function createFormElement(schema, key) {
         result = document.createElement("select")
         for (let i in options) {
             let optionElement = document.createElement("option")
-            optionElement.innerText = options[i]
+            optionElement.textContent = options[i]
             result.appendChild(optionElement)
         }
         if (schema.required) {

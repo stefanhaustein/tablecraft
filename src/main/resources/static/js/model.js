@@ -45,6 +45,31 @@ export function setCurrentCellFormula(value) {
     formulaInputElement.value = value
 }
 
+export function renderComputedValue(targetElement, cellData) {
+    let value = cellData["c"]
+    if (value == null || value == "") {
+        targetElement.textContent = ""
+        targetElement.style.textAlign = ""
+    } else if (value.startsWith("l:")) {
+        targetElement.textContent = value.substring(2)
+        targetElement.style.textAlign = ""
+    } else if (value.startsWith("r:")) {
+        targetElement.textContent = value.substring(2)
+        targetElement.style.textAlign = "right"
+    } else if (value.startsWith("c:")) {
+        targetElement.textContent = value.substring(2)
+        targetElement.style.textAlign = "center"
+    } else {
+        let abbr = document.createElement("abbr")
+        abbr.setAttribute("title", value.startsWith("e:") ? value.substring(2) : value)
+        abbr.textContent = "#REF"
+        abbr.style.color = "red"
+        targetElement.textContent = ""
+        targetElement.appendChild(abbr)
+        targetElement.style.textAlign = "center"
+    }
+}
+
 export function selectCell(id, editMode) {
     let newElement = document.getElementById(id)
     if (!newElement) {
@@ -59,7 +84,7 @@ export function selectCell(id, editMode) {
         if (currentCellId != null) {
             currentCellElement.classList.remove("focus")
             currentCellElement.classList.remove("editing")
-            currentCellElement.innerText = nullToEmtpy(currentCellData["c"])
+            renderComputedValue(currentCellElement, currentCellData)
         }
         currentCellSavedFormula = newData["f"]
     }
@@ -77,11 +102,11 @@ export function selectCell(id, editMode) {
         formulaInputElement.focus()
         currentCellElement.classList.remove("focus")
         currentCellElement.classList.add("editing")
-        currentCellElement.innerText = nullToEmtpy(currentCellData["f"])
+        currentCellElement.textContent = nullToEmtpy(currentCellData["f"])
     } else {
         currentCellElement.classList.remove("editing")
         currentCellElement.classList.add("focus")
-        currentCellElement.innerText = nullToEmtpy(currentCellData["c"])
+        renderComputedValue(currentCellElement, currentCellData)
     }
 }
 
