@@ -3,6 +3,7 @@ package org.kobjects.pi123.model.parser
 import org.kobjects.parsek.expression.Operator
 import org.kobjects.parsek.expression.PrattParser
 import org.kobjects.pi123.model.Model
+import org.kobjects.pi123.model.builtin.NowFunction
 import org.kobjects.pi123.model.expression.*
 
 object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
@@ -26,7 +27,7 @@ object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
                 if (scanner.tryConsume("(")) {
                     val parameterList = parseParameterList(scanner, context)
                     when (name.lowercase()) {
-                        "now" -> NowExpression(context, parameterList)
+
                         else -> {
                             val functionSpec = Model.functionMap[name.lowercase()]
                             if (functionSpec != null) {
@@ -37,12 +38,16 @@ object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
                         }
                     }
                 }
-                else {
-                    val cell = context.cell.sheet.getOrCreateCell(name)
-                    require(context.cell != cell) {
-                        "Self-reference not permitted"
+                else when (name.lowercase()) {
+                    "true" -> LiteralExpression(true)
+                    "false" -> LiteralExpression(false)
+                    else -> {
+                        val cell = context.cell.sheet.getOrCreateCell(name)
+                        require(context.cell != cell) {
+                            "Self-reference not permitted"
+                        }
+                        CellReferenceExpression(context.cell, cell)
                     }
-                    CellReferenceExpression(context.cell, cell)
                 }
             }
             else -> {

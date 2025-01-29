@@ -6,9 +6,9 @@ document.addEventListener("keydown", tableKeyPress)
 let spreadsheetTBodyElement = document.getElementById("spreadsheetTBody")
 
 spreadsheetTBodyElement.addEventListener(
-    "click", (event) => selectCell(event.target.id, false))
+    "click", (event) => selectCell(event.target.id || event.target.parentNode.id, false))
 spreadsheetTBodyElement.addEventListener(
-    "dblclick", (event) => selectCell(event.target.id, true))
+    "dblclick", (event) => selectCell(event.target.id|| event.target.parentNode.id, true))
 
 
 function selectAndScrollCurrentIntoView(cellId) {

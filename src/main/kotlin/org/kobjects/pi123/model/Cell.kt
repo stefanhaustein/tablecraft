@@ -36,10 +36,16 @@ class Cell(
                 LiteralExpression(e)
             }
         } else {
-            try {
-                LiteralExpression(value.toDouble())
-            } catch (e: Exception) {
-                LiteralExpression(value)
+            when (value.lowercase()) {
+                "true" -> LiteralExpression(true)
+                "false" -> LiteralExpression(false)
+                else -> {
+                    try {
+                        LiteralExpression(value.toDouble())
+                    } catch (e: Exception) {
+                        LiteralExpression(value)
+                    }
+                }
             }
         }
         if (runtimeContext != null) {

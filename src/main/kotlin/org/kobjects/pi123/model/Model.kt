@@ -3,6 +3,7 @@ package org.kobjects.pi123.model
 import com.pi4j.Pi4J
 import com.pi4j.context.Context
 import com.pi4j.io.gpio.digital.DigitalOutput
+import org.kobjects.pi123.model.builtin.BuiltinFunctions
 import org.kobjects.pi123.pluginapi.FunctionSpec
 import org.kobjects.pi123.pluginapi.Plugin
 import org.kobjects.pi123.plugins.pi4j.Pi4jPlugin
@@ -32,6 +33,7 @@ object Model {
     }
 
     init {
+        addPlugin(BuiltinFunctions)
         addPlugin(Pi4jPlugin())
     }
 

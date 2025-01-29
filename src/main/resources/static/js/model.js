@@ -60,7 +60,7 @@ export function renderComputedValue(targetElement, cellData) {
         targetElement.textContent = value.substring(2)
         targetElement.style.textAlign = "center"
     } else {
-        let abbr = document.createElement("abbr")
+        let abbr = document.createElement("span")
         abbr.setAttribute("title", value.startsWith("e:") ? value.substring(2) : value)
         abbr.textContent = "#REF"
         abbr.style.color = "red"
