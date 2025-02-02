@@ -7,7 +7,7 @@ object BuiltinFunctions : Plugin {
         FunctionSpec(
             "now",
             "The current local time",
-            listOf(ParameterSpec("interval", ParameterKind.CONFIGURATION, Type.DOUBLE)),
+            listOf(ParameterSpec("interval", ParameterKind.CONFIGURATION, Type.NUMBER)),
             NowFunction::create),
 
         FunctionSpec(
@@ -18,13 +18,13 @@ object BuiltinFunctions : Plugin {
         FunctionSpec(
             "toff",
             "Delayed off",
-            listOf(ParameterSpec("input", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("delay", ParameterKind.CONFIGURATION, Type.DOUBLE)),
+            listOf(ParameterSpec("input", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("delay", ParameterKind.CONFIGURATION, Type.NUMBER)),
             TOnOffFunction::createToff),
 
         FunctionSpec(
             "ton",
             "Delayed on",
-            listOf(ParameterSpec("input", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("delay", ParameterKind.CONFIGURATION, Type.DOUBLE)),
+            listOf(ParameterSpec("input", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("delay", ParameterKind.CONFIGURATION, Type.NUMBER)),
             TOnOffFunction::createTon),
 
         FunctionSpec(

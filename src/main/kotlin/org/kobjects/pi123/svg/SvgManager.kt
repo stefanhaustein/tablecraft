@@ -31,7 +31,7 @@ class SvgManager(root: File) : Plugin {
                 val spec = FunctionSpec(
                     name.replace("/", "."),
                     "Image",
-                    svg.getParameters()) { SvgFunction(name, svg) }
+                    svg.parameters) { SvgFunction(name, svg) }
                 result.add(spec)
             }
             return result

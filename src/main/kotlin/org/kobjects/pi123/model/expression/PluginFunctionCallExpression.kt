@@ -40,11 +40,10 @@ class PluginFunctionCallExpression(
             val expr = it.value.first
             when (it.value.second) {
                 Type.INT -> expr.evalInt(context)
-                Type.DOUBLE -> expr.evalDouble(context)
+                Type.NUMBER -> expr.evalDouble(context)
                 Type.BOOLEAN -> expr.evalBoolean(context)
                 Type.TEXT -> expr.eval(context).toString()
             }
-
         })
     }
 
@@ -53,8 +52,7 @@ class PluginFunctionCallExpression(
         fun create(cell: Cell, functionSpec: FunctionSpec, parameters: Map<String, Expression>): PluginFunctionCallExpression {
             val mappedConfig = mutableMapOf<String, Any>()
             val mappedParameters = mutableMapOf<String, Pair<Expression, Type>>()
-            var index = 0
-            for (specParam in functionSpec.parameters) {
+            for ((index, specParam) in functionSpec.parameters.withIndex()) {
                 val actualParameter = parameters[specParam.name] ?: parameters["$index"]
                 require(actualParameter != null) { "Parameter ${specParam.name} not found in $parameters" }
                 when (specParam.kind) {
@@ -64,7 +62,6 @@ class PluginFunctionCallExpression(
                     }
                     ParameterKind.RUNTIME -> mappedParameters[specParam.name] = actualParameter to specParam.type
                 }
-                index++
             }
             return PluginFunctionCallExpression(cell, functionSpec, mappedConfig, mappedParameters)
         }

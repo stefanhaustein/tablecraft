@@ -8,12 +8,14 @@ import org.kobjects.pi123.model.expression.*
 
 object ExpressionParser : PrattParser<ExpressionScanner, Map<String, Any>, Any>(
     { scanner, context -> ExpressionParser.parsePrimary(scanner, context) },
-    { scanner, context, name, operand -> evalUnary(name, operand) },
-    { scanner, context, name, leftOperand, rightOperand -> if (name == "?") processTernary(scanner, context, leftOperand, rightOperand) else evalBinary(name, leftOperand, rightOperand) },
+    { scanner, context, name, operand ->
+        if (name == "?") processTernary(scanner, context, operand)
+        else evalUnary(name, operand) },
+    { _, _, name, leftOperand, rightOperand ->  evalBinary(name, leftOperand, rightOperand) },
     Operator.Prefix(3, "-"),
     Operator.Infix(2, "*", "/"),
     Operator.Infix(1, "+", "-"),
-    Operator.Infix(0, "?")
+    Operator.Suffix(0, "?")
 ) {
 
 
@@ -54,7 +56,8 @@ fun evalBinary(name: String, leftOperand: Any, rightOperand: Any): Expression {
     }
 }
 
-fun processTernary(scanner: ExpressionScanner, context: Map<String, Any>, condition: Any, trueValue: Any): Any {
+fun processTernary(scanner: ExpressionScanner, context: Map<String, Any>, condition: Any): Any {
+    val trueValue = ExpressionParser.parseExpression(scanner, context, 0)
     scanner.consume(":")
     val falseValue = ExpressionParser.parseExpression(scanner, context, 0)
     return if (condition as Boolean) trueValue else falseValue

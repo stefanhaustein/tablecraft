@@ -15,27 +15,44 @@ class ParameterizableSvg(
     val path: String,
     val document: Document
 ) {
-
-    fun getParameters(): List<ParameterSpec> {
-        val result = mutableListOf<ParameterSpec>()
+    val parameters: List<ParameterSpec> = buildList {
         val childNodes = document.documentElement.childNodes
         for (i in 0 until childNodes.length) {
             val child = childNodes.item(i)
-            if (child.nodeType == Node.ELEMENT_NODE && child.nodeName.equals("def") && child.namespaceURI == PARAM_NAMESPACE) {
+            if (child.nodeType == Node.ELEMENT_NODE && child.localName.equals("def") && child.namespaceURI == PARAM_NAMESPACE) {
+                val name = child.attributes.getNamedItem("name")!!.nodeValue
+                val typeName = child.attributes.getNamedItem("type")!!.nodeValue
+                val type = when(typeName) {
+                    "String" -> Type.TEXT
+                    "Number" -> Type.NUMBER
+                    "Boolean" -> Type.BOOLEAN
+                    else -> throw IllegalArgumentException("Unrecognized type: $typeName")
+                }
                 val spec = ParameterSpec(
-                        child.attributes.getNamedItem("name")!!.nodeValue,
-                        ParameterKind.RUNTIME,
-                        Type.DOUBLE)
-                result.add(spec)
+                    name,
+                    ParameterKind.RUNTIME,
+                    type)
+                add(spec)
             }
         }
-        return result
     }
 
-    fun parameterized(params: Map<String, String>): Document {
-        // TODO: Convert types
+    val parameterTypes: Map<String, Type> = parameters.map { Pair(it.name, it.type) }.toMap()
 
-        return if (params.isEmpty()) document else parameterizedCopy(params)
+
+    fun parameterized(params: Map<String, String>): Document {
+        val convertedParameters = mutableMapOf<String, Any>()
+        for ((key, value) in params) {
+            val type = parameterTypes[key]
+            when (type) {
+                null -> System.err.println("Unexpected Parameter $key")
+                Type.TEXT -> convertedParameters[key] = value
+                Type.NUMBER -> convertedParameters[key] = value.toDouble()
+                Type.BOOLEAN -> convertedParameters[key] = value.toBoolean()
+                Type.INT -> System.err.println("Parameter $key: Int type not supported for SVG Parameterization")
+            }
+        }
+        return if (params.isEmpty()) document else parameterizedCopy(convertedParameters)
     }
 
     fun parameterizedCopy(params: Map<String, Any>): Document {
@@ -59,7 +76,7 @@ class ParameterizableSvg(
         fun load(file: File, path: String): ParameterizableSvg {
             val builder = createDocumentBuilder()
             val doc: Document = builder.parse(file)
-            return ParameterizableSvg(path.substring(path.lastIndexOf('.')), doc)
+            return ParameterizableSvg(path.substring(0, path.lastIndexOf('.')), doc)
         }
 
         fun parameterize(element: Element, params: Map<String, Any>) {
