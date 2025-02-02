@@ -9,7 +9,7 @@ graphicsPanelElement.addEventListener("click", event => {
         let cut = src.indexOf("//")
         cut = src.indexOf("/", cut + 2)
 
-        setCurrentCellFormula("image(\"" + src.substring(cut) + "\")")
+        setCurrentCellFormula("=image(\"" + src.substring(cut) + "\")")
     }
 
 })

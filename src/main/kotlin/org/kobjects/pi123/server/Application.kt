@@ -55,7 +55,11 @@ fun Application.module() {
             println("Svg requested: $name; available: ${Model.svgs.map}")
             val svg = Model.svgs.map[name]
             println("Found: $svg")
-            call.respondText(svg!!.document.documentElement.serialize(), ContentType.Image.SVG)
+
+            val parameterMap = call.request.queryParameters.entries().map { Pair(it.key, it.value.first()) }.toMap()
+            val parameterized = svg!!.parameterized(parameterMap)
+
+            call.respondText(parameterized.documentElement.serialize(), ContentType.Image.SVG)
         }
 
         /* get("/") {
