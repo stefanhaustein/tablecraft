@@ -1,5 +1,6 @@
 package org.kobjects.pi123.model.builtin
 
+import org.kobjects.pi123.pluginapi.FunctionHost
 import org.kobjects.pi123.pluginapi.FunctionInstance
 import java.util.Timer
 import java.util.TimerTask
@@ -7,7 +8,7 @@ import java.util.TimerTask
 class TOnOffFunction(
     val delayedState: Boolean,
     val delay: Double,
-    val listener: (Any) -> Unit
+    val host: FunctionHost,
 ) : FunctionInstance {
 
     val timer = Timer()
@@ -27,7 +28,7 @@ class TOnOffFunction(
             task = object : TimerTask() {
                 override fun run() {
                     outputState = delayedState
-                    listener(delayedState)
+                    host.notifyValueChanged(delayedState)
                     task = null
                 }
             }
@@ -44,12 +45,12 @@ class TOnOffFunction(
 
 
     companion object {
-        fun createTon(params: Map<String, Any>, listener: ((Any) -> Unit)): TOnOffFunction {
-            return TOnOffFunction(true, (params["delay"] as Number).toDouble(), listener)
+        fun createTon(host: FunctionHost): TOnOffFunction {
+            return TOnOffFunction(true, (host.configuration["delay"] as Number).toDouble(), host)
         }
 
-        fun createToff(params: Map<String, Any>, listener: ((Any) -> Unit)): TOnOffFunction {
-            return TOnOffFunction(false, (params["delay"] as Number).toDouble(), listener)
+        fun createToff(host: FunctionHost): TOnOffFunction {
+            return TOnOffFunction(false, (host.configuration["delay"] as Number).toDouble(), host)
         }
     }
 }

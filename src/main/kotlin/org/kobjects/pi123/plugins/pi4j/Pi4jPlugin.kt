@@ -10,8 +10,7 @@ class Pi4jPlugin : Plugin {
     val pi4J = Pi4J.newAutoContext()
 
     val pins = mutableMapOf<Int, PinManager>()
-    val digitalInputs = mutableMapOf<Int, DigitalInput>()
-    val digitalOutputs = mutableMapOf<Int, DigitalOutput>()
+
 
     fun getPin(type: PinType, configuration: Map<String, Any>): PinManager {
         val address = (configuration["address"] as Number).toInt()
@@ -32,12 +31,12 @@ class Pi4jPlugin : Plugin {
             "din",
             "Digital Input",
             listOf(ParameterSpec("address", ParameterKind.CONFIGURATION, Type.INT))
-        ) { configuration, callback -> DigitalInputInstance(this, configuration, callback) },
+        ) {  DigitalInputInstance(this, it) },
         FunctionSpec(
             "pwmin",
             "PWM Input",
             listOf(ParameterSpec("address", ParameterKind.CONFIGURATION, Type.INT))
-        ) { configuration, callback -> PwmInputInstance(this, configuration, callback) },
+        ) { PwmInputInstance(this, it) },
 
         FunctionSpec(
             "dout",
@@ -46,7 +45,7 @@ class Pi4jPlugin : Plugin {
                 ParameterSpec("address", ParameterKind.CONFIGURATION, Type.INT),
                 ParameterSpec("value", ParameterKind.RUNTIME, Type.INT),
                 )
-        ) { configuration, _ -> DigitalOutputInstance(this, configuration) },
+        ) { DigitalOutputInstance(this, it.configuration) },
     )
 
 }

@@ -6,6 +6,7 @@ import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.html.dom.serialize
 import org.kobjects.pi123.model.Model
 import org.kobjects.pi123.model.Sheet
 import java.io.File
@@ -28,7 +29,7 @@ fun Application.module() {
             call.respond(HttpStatusCode.OK, null)
         }
         get("/sheet/{name}") {
-            val name = call.parameters["name"]!!
+            val name = call.parameters["name"]
             val tag = call.request.queryParameters["tag"]!!.toLong()
 
             if (tag >= Model.modificationTag) {
@@ -48,6 +49,13 @@ fun Application.module() {
         }
         get("functions") {
             call.respondText(Model.functionsToJson())
+        }
+        get("img/{name...}") {
+            val name = call.parameters.getAll("name")!!.joinToString("/")
+            println("Svg requested: $name; available: ${Model.svgs.map}")
+            val svg = Model.svgs.map[name]
+            println("Found: $svg")
+            call.respondText(svg!!.document.documentElement.serialize(), ContentType.Image.SVG)
         }
 
         /* get("/") {

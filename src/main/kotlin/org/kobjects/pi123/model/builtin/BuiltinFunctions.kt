@@ -11,15 +11,28 @@ object BuiltinFunctions : Plugin {
             NowFunction::create),
 
         FunctionSpec(
-            "ton",
-            "Delayed on",
-            listOf(ParameterSpec("input", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("delay", ParameterKind.CONFIGURATION, Type.DOUBLE)),
-            TOnOffFunction::createTon),
+            "pi",
+            "The value of pi",
+            emptyList()) { PiFunction },
 
         FunctionSpec(
             "toff",
             "Delayed off",
             listOf(ParameterSpec("input", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("delay", ParameterKind.CONFIGURATION, Type.DOUBLE)),
             TOnOffFunction::createToff),
+
+        FunctionSpec(
+            "ton",
+            "Delayed on",
+            listOf(ParameterSpec("input", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("delay", ParameterKind.CONFIGURATION, Type.DOUBLE)),
+            TOnOffFunction::createTon),
+
+        FunctionSpec(
+            "image",
+            "Image reference",
+            listOf(ParameterSpec("source", ParameterKind.CONFIGURATION, Type.TEXT)),
+            ImageFunction::create),
+
+
     )
 }

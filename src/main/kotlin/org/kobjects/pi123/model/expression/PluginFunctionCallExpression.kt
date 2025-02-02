@@ -3,6 +3,7 @@ package org.kobjects.pi123.model.expression
 import org.kobjects.pi123.model.Cell
 import org.kobjects.pi123.model.Model
 import org.kobjects.pi123.model.RuntimeContext
+import org.kobjects.pi123.pluginapi.FunctionHost
 import org.kobjects.pi123.pluginapi.FunctionSpec
 import org.kobjects.pi123.pluginapi.ParameterKind
 import org.kobjects.pi123.pluginapi.Type
@@ -10,16 +11,14 @@ import org.kobjects.pi123.pluginapi.Type
 class PluginFunctionCallExpression(
     val cell: Cell,
     functionSpec: FunctionSpec,
-    configuration: Map<String, Any>,
+    override val configuration: Map<String, Any>,
     val parameters: Map<String, Pair<Expression, Type>>
-): Expression() {
+): Expression(), FunctionHost {
 
     override val children: Collection<Expression>
         get() = parameters.values.map { it.first }
 
-    val functionInstance = functionSpec.createFn(configuration) {
-        update()
-    }
+    val functionInstance = functionSpec.createFn(this)
 
     override fun attach() {
         functionInstance.attach()
@@ -29,7 +28,7 @@ class PluginFunctionCallExpression(
         functionInstance.detach()
     }
 
-    fun update() {
+    override fun notifyValueChanged(newValue: Any) {
         Model.withLock {
             cell.updateAllDependencies(it)
             Model.notifyContentUpdated(it)

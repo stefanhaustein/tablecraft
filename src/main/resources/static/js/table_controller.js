@@ -1,18 +1,20 @@
-import {currentCellElement, currentCellId, selectCell} from "./model.js";
-
+import {currentCellElement, currentCellId, selectCell, setEditMode, EditMode} from "./shared_state.js"
 
 document.addEventListener("keydown", tableKeyPress)
 
 let spreadsheetTBodyElement = document.getElementById("spreadsheetTBody")
 
 spreadsheetTBodyElement.addEventListener(
-    "click", (event) => selectCell(event.target.id || event.target.parentNode.id, false))
+    "click", (event) => selectCell(event.target.id || event.target.parentNode.id))
 spreadsheetTBodyElement.addEventListener(
-    "dblclick", (event) => selectCell(event.target.id|| event.target.parentNode.id, true))
+    "dblclick", (event) => {
+        selectCell(event.target.id|| event.target.parentNode.id)
+        setEditMode(EditMode.INPUT)
+    })
 
 
 function selectAndScrollCurrentIntoView(cellId) {
-    selectCell(cellId, false)
+    selectCell(cellId)
     currentCellElement.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
 }
 

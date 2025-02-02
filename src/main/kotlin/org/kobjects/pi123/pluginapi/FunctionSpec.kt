@@ -6,7 +6,7 @@ data class FunctionSpec(
     val name: String,
     val description: String,
     val parameters: List<ParameterSpec>,
-    val createFn: (configuration: Map<String, Any>, listener: ((Any) -> Unit)) -> FunctionInstance
+    val createFn: (host: FunctionHost) -> FunctionInstance
 ) {
 
     fun toJson() =

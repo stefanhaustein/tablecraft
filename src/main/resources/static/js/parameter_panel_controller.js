@@ -1,7 +1,6 @@
-import {functions, setCurrentCellFormula} from "./model.js";
+import {functions, setCurrentCellFormula, selectPanel} from "./shared_state.js";
 import {InputController} from "./lib/form_builder.js";
 import {tokenize} from "./lib/expression_tokenizer.js";
-import {selectPanel} from "./panel_controller.js";
 
 let formulaInputElement = document.getElementById("formulaInput")
 

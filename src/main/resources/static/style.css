@@ -1,32 +1,93 @@
-* {
-    font-family: Sans-Serif;
-    font-size: 12px;
-}
 
 html {
     box-sizing: border-box;
 }
+
 *, *:before, *:after {
     box-sizing: inherit;
+    font-family: "PT Sans Narrow", serif;
+    font-size: 17px;
 }
 
-th {
+#formulaInput {
+    height: 36px;
+}
+
+
+#dialog label {
+    justify-self: right;
+}
+
+.boxGraphics img {
+    width: 48px;
+    height: 36px;
+}
+
+/* Adding 1px for the border... */
+
+#spreadsheetTable {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+
+#spreadsheetTable tr {
+    height: 35px;
+    min-height: 35px;
+    max-height: 35px;
+}
+
+#spreadsheetTable th,
+#spreadsheetTable td {
+    padding: 0 3px;
+    min-width: 73px;
+    width: 73px;
+    max-width: 73px;
+    min-height: 35px;
+    height: 35px;
+    max-height: 35px;
+}
+
+#spreadsheetTable img {
+    widht: 72px;
+    height: 36px;
+    display: block;
+}
+
+#spreadsheetTable th {
     font-weight: normal;
     border-right: 1px solid #888;
     border-bottom: 1px solid #888;
     background-color: #fff;
 }
-td {
+
+#spreadsheetTable td {
     border-right:1px solid #eee;
     border-bottom:1px solid #eee;
 }
-td.focus {
+
+#spreadsheetTable td.focus {
     outline: 2px solid #88f;
 }
-td.editing {
+
+#spreadsheetTable td.editing {
     outline: 2px solid #ddf;
 }
 
-#dialog label {
-    justify-self: right;
+#spreadsheetTable td.c {
+    text-align: center;
 }
+
+#spreadsheetTable td.e {
+    color: red;
+    text-align: center;
+}
+
+#spreadsheetTable td.i {
+    padding: 0;
+}
+
+#spreadsheetTable td.r {
+    text-align: right;
+}
+

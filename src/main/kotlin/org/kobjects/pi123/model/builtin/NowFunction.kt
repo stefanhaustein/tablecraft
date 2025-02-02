@@ -1,13 +1,14 @@
 package org.kobjects.pi123.model.builtin
 
 import kotlinx.datetime.Clock
+import org.kobjects.pi123.pluginapi.FunctionHost
 import org.kobjects.pi123.pluginapi.FunctionInstance
 import java.util.Timer
 import java.util.TimerTask
 
 class NowFunction(
     val updateInterval: Double,
-    val listener: (Any) -> Unit
+    val host: FunctionHost,
 ) : FunctionInstance {
 
     val timer = Timer()
@@ -24,7 +25,7 @@ class NowFunction(
         if (period > 0) {
             task = object : TimerTask() {
                 override fun run() {
-                    listener(Clock.System.now())
+                    host.notifyValueChanged(Clock.System.now())
                 }
             }
             timer.schedule(task, period, period)
@@ -45,8 +46,8 @@ class NowFunction(
     companion object {
         var timerCounter = 0
 
-        fun create(params: Map<String, Any>, listener: ((Any) -> Unit)): NowFunction {
-            return NowFunction((params["interval"] as Number).toDouble(), listener)
+        fun create(host: FunctionHost): NowFunction {
+            return NowFunction((host.configuration["interval"] as Number).toDouble(), host)
         }
 
     }

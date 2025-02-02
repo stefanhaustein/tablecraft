@@ -1,5 +1,5 @@
-import {currentSheet, currentCellId, currentCellElement, renderComputedValue} from "./model.js";
-
+import {renderComputedValue} from "./lib/util.js";
+import {currentSheet, currentCellId, currentCellElement} from "./shared_state.js";
 
 var currentTag = -1
 fetch()
@@ -57,7 +57,7 @@ function updateCurrentSheet(responseText) {
                         if (element != null) {
                             renderComputedValue(element, cell)
                         } else {
-                            console.log("Element '" + key + "' not found for line '" + line + "'")
+                            console.log("Sync issue: Element '" + key + "' not found for line '" + line + "'")
                         }
                     }
                     break

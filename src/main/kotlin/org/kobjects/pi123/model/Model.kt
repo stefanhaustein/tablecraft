@@ -7,6 +7,7 @@ import org.kobjects.pi123.model.builtin.BuiltinFunctions
 import org.kobjects.pi123.pluginapi.FunctionSpec
 import org.kobjects.pi123.pluginapi.Plugin
 import org.kobjects.pi123.plugins.pi4j.Pi4jPlugin
+import org.kobjects.pi123.svg.SvgManager
 import java.io.File
 import java.io.FileWriter
 import org.kobjects.pi123.toml.TomlParser
@@ -25,6 +26,8 @@ object Model {
     val functionMap = mutableMapOf<String, FunctionSpec>()
     val plugins = mutableListOf<Plugin>()
 
+    val svgs = SvgManager(File("src/main/resources/static/img"))
+
     fun addPlugin(plugin: Plugin) {
         plugins.add(plugin)
         for (function in plugin.functionSpecs) {
@@ -35,6 +38,7 @@ object Model {
     init {
         addPlugin(BuiltinFunctions)
         addPlugin(Pi4jPlugin())
+        addPlugin(svgs)
     }
 
     @OptIn(ExperimentalContracts::class)
@@ -77,7 +81,7 @@ object Model {
 
     fun save() {
         File("storage").mkdir()
-        val writer = FileWriter("storage/model.ini")
+        val writer = FileWriter("storage/core.ini")
         for (sheet in sheets.values) {
             writer.write("[sheets.${sheet.name}.cells]\n\n")
             writer.write(sheet.serialize(-1, false))

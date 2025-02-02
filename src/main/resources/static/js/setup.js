@@ -1,3 +1,10 @@
+import {functions} from "./shared_state.js";
+
+// Handles all dynamic / async setup, depends on core.
+
+// Generate the spreadsheet content
+
+
 let thead = document.getElementById("spreadsheetTHead")
 for (let col = 0; col < 27; col++) {
     let th = document.createElement("th")
@@ -6,11 +13,7 @@ for (let col = 0; col < 27; col++) {
     if (col == 0) {
         th.style.left = 0
         th.style.zIndex = 1
-        th.style.width = "33px"
-        th.style.minWidth = "33px"
     } else {
-        th.style.width = "100px"
-        th.style.minWidth = "100px"
         th.textContent = String.fromCharCode(col + 64)
     }
     thead.appendChild(th)
@@ -30,5 +33,26 @@ for (let row = 1; row < 100; row++) {
         td.id = id
         tr.appendChild(td)
     }
+}
 
+// Request the function specifications available
+
+let req = new XMLHttpRequest()
+req.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        let rawFunctions = JSON.parse(this.responseText)
+        let datalist = document.getElementById("functions")
+        for (let f of rawFunctions) {
+            let optionElement = document.createElement("option")
+            optionElement.text = "=" + f["name"] + "("
+            datalist.appendChild(optionElement)
+            functions[f["name"]] = transformFunctionSpec(f)
+        }
+    }};
+req.open('GET', "functions", true);
+req.send()
+
+
+function transformFunctionSpec(f) {
+    return f
 }

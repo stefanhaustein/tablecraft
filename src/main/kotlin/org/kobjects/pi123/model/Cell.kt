@@ -2,6 +2,7 @@ package org.kobjects.pi123.model
 
 import kotlinx.datetime.*
 import kotlinx.datetime.format.char
+import org.kobjects.pi123.model.builtin.ImageReference
 import org.kobjects.pi123.model.expression.Expression
 import org.kobjects.pi123.model.expression.LiteralExpression
 import org.kobjects.pi123.model.parser.FormulaParser
@@ -79,26 +80,23 @@ class Cell(
     fun serializeValue(sb: StringBuilder) {
         val value = computedValue_
         sb.append('"')
-        if (value is Unit || value == null) {
-            // empty
-        } else if (value is Boolean) {
-            sb.append("c:${value.toString().uppercase()}")
-        } else if (value is Number) {
-            sb.append("r:")
-            sb.append(value)
-        } else if (value is Exception) {
-            sb.append("e:")
-            sb.append(value)
-        } else if (value is Instant) {
-            sb.append("r:")
-            val localDateTime = value.toLocalDateTime(TimeZone.currentSystemDefault())
-           /* sb.append(localDateTime.date.format(LocalDate.Formats.ISO))
-            sb.append(' ') */
-            sb.append(localDateTime.time.format(TIME_FORMAT_SECONDS))
-        } else {
-            sb.append("l:")
-            sb.append(value.toString().escape())
+        when (value) {
+            null,
+                is Unit -> {}
+            is Boolean -> sb.append("c:${value.toString().uppercase()}")
+            is Double -> sb.append("r:").append(value.toFloat())
+            is Number -> sb.append("r:$value")
+            is Exception -> sb.append("e:$value")
+            is ImageReference -> sb.append("i:${value.source}")
+            is Instant -> {
+                sb.append("r:")
+                val localDateTime = value.toLocalDateTime(TimeZone.currentSystemDefault())
+                /* sb.append(localDateTime.date.format(LocalDate.Formats.ISO))
+                 sb.append(' ') */
+                sb.append(localDateTime.time.format(TIME_FORMAT_SECONDS))
+            }
         }
+
         sb.append('"')
 
     }

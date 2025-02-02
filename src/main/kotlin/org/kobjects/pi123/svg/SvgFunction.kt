@@ -1,15 +1,20 @@
-package org.kobjects.pi123.model.builtin
+package org.kobjects.pi123.svg
 
 import org.kobjects.pi123.pluginapi.FunctionInstance
 
-object PiFunction : FunctionInstance {
+class SvgFunction(
+    val path: String,
+    val parameterizableSvg: ParameterizableSvg
+) : FunctionInstance {
     override fun attach() {
+
     }
 
     override fun apply(params: Map<String, Any>): Any {
-        return Math.PI
+        TODO("Not yet implemented")
     }
 
     override fun detach() {
+
     }
 }
