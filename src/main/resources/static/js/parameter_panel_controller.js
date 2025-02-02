@@ -1,38 +1,52 @@
-import {functions, setCurrentCellFormula, selectPanel} from "./shared_state.js";
+import {
+    functions,
+    setCurrentCellFormula,
+    selectPanel,
+    addCellContentChangeListener,
+    addCellSelectionListener, currentCellData
+} from "./shared_state.js";
 import {InputController} from "./lib/form_builder.js";
 import {tokenize} from "./lib/expression_tokenizer.js";
-
-let formulaInputElement = document.getElementById("formulaInput")
-
-formulaInputElement.addEventListener("change", considerUpdatingFunctionTab)
-formulaInputElement.addEventListener("input", considerUpdatingFunctionTab)
 
 let parameterPanelElement = document.getElementById("ParametersPanel")
 let currentFunction = null
 let currentController = null
 let currentParameters = {}
 
-function considerUpdatingFunctionTab() {
-    let currentInput = formulaInputElement.value
+addCellContentChangeListener("panel", (newValue, source) => {
+    updateTabAndConsiderShowing()
+})
+
+addCellSelectionListener(() => {
+    updateTabAndConsiderShowing()
+})
+
+function updateTabAndConsiderShowing() {
+    if (updateParameterTab()) {
+        selectPanel("Parameters")
+    }
+}
+
+function updateParameterTab() {
+    let currentInput = currentCellData["f"]
     console.log("currentInput:", currentInput)
     let name = ""
     let found = null
     let cut = -1
 
-    if (currentInput.startsWith("=")) {
+    if (currentInput != null && currentInput.startsWith("=")) {
         cut = currentInput.indexOf("(")
         name = currentInput.substring(1, cut === -1 ? currentInput.length : cut)
         found = functions[name]
     }
 
     if (found == null) {
-        parameterPanelElement.textContent = "(Parameter editor not available for the current cell content)"
+        parameterPanelElement.textContent = "N/A"
         currentFunction = null
-        return;
+        return false;
     }
 
     if (currentFunction !== found) {
-        selectPanel("Parameters")
         parameterPanelElement.textContent = found["description"] || ""
         currentController = InputController.create(parameterPanelElement, found["params"])
         currentFunction = found
@@ -58,6 +72,8 @@ function considerUpdatingFunctionTab() {
     currentParameters = cut === -1 ? {} : extractParameters(currentInput.substring(cut + 1))
 
     currentController.setValues(currentParameters)
+
+    return true
 }
 
 function extractParameters(expr) {

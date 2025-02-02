@@ -20,13 +20,21 @@ export let EditMode = makeEnum(["NONE", "INPUT", "PANEL"])
 
 let currentEditMode = EditMode.NONE
 
-let cellSelectionListeners = {} // new id, edit mode, source
 let cellContentChangeListeners = {}  // new content, source
+let cellSelectionListeners = [] // new id, edit mode
 
 let formulaInputElement = document.getElementById("formulaInput")
 let committedFormula = null
 
 selectCell("A1")
+
+export function addCellSelectionListener(listener) {
+    cellSelectionListeners.push(listener)
+}
+
+export function addCellContentChangeListener(name, listener) {
+    cellContentChangeListeners[name] = listener
+}
 
 export function commitCurrentCell() {
     let commitValue = currentCellData["f"]
@@ -71,6 +79,7 @@ export function setEditMode(editMode) {
             formulaInputElement.focus()
         }
     }
+    notifySelectionListeners()
 }
 
 
@@ -103,6 +112,13 @@ export function selectCell(id) {
 
     if (newlySelected) {
         currentCellElement.classList.add("focus")
+        notifySelectionListeners()
+    }
+}
+
+function notifySelectionListeners() {
+    for (let listener of cellSelectionListeners) {
+        listener(currentCellId)
     }
 }
 
