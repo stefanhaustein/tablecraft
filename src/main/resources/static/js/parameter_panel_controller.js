@@ -3,7 +3,7 @@ import {
     setCurrentCellFormula,
     selectPanel,
     addCellContentChangeListener,
-    addCellSelectionListener, currentCellData
+    addCellSelectionListener, currentCellData, setEditMode, EditMode
 } from "./shared_state.js";
 import {InputController} from "./lib/form_builder.js";
 import {tokenize} from "./lib/expression_tokenizer.js";
@@ -19,6 +19,11 @@ addCellContentChangeListener("panel", (newValue, source) => {
 
 addCellSelectionListener(() => {
     updateTabAndConsiderShowing()
+})
+
+
+parameterPanelElement.addEventListener("focusin", event => {
+    setEditMode(EditMode.PANEL)
 })
 
 function updateTabAndConsiderShowing() {
@@ -63,43 +68,52 @@ function updateParameterTab() {
                     }
                     s += key + "=" + value
                 }
-                s += ")"
-                setCurrentCellFormula(s)
             }
+            s += ")"
+            setCurrentCellFormula(s)
         })
     }
 
-    currentParameters = cut === -1 ? {} : extractParameters(currentInput.substring(cut + 1))
+    currentParameters = cut === -1 ? {} : extractParameters(currentInput.substring(cut + 1), currentFunction.params)
 
     currentController.setValues(currentParameters)
 
     return true
 }
 
-function extractParameters(expr) {
+function extractParameters(expr, expectedParams) {
     let result = {}
     let tokens = tokenize(expr) || []
+    let expectedParameterIndex = 0
 
-    console.log(tokens)
-    let lastIdentifier = ""
+    console.log(currentFunction)
+    let parameterName = ""
     let collecting = false
     let collected = ""
     let depth = 0
 
-    for (let token of tokens) {
+    for (let i = 0; i < tokens.length; i++) { // in loop uses strings
+        let token = tokens[i]
         if (collecting) {
-            if (depth == 0 && token == "," || token == ")") {
+            if (depth == 0 && (token == "," || token == ")")) {
                 collecting = false
-                result[lastIdentifier] = collected
+                result[parameterName] = collected
+            } else {
+                collected += token
             }
-            collected += token
         } else if (depth == 0) {
-            if (/[a-zA-Z]+/.test(token)) {
-                lastIdentifier = token
-            } else if (token == "=") {
+            if (/[a-zA-Z]+/.test(token) && tokens[i + 1] == "=") {
+                parameterName = token
+                i++
                 collected = ""
+            } else {
+                let param = expectedParams[expectedParameterIndex]
+                parameterName = param != null ? param.name : (""+expectedParameterIndex)
+                collected = token
                 collecting = true
+                expectedParameterIndex++
             }
+            collecting = true
         }
 
         switch (token) {
@@ -117,7 +131,7 @@ function extractParameters(expr) {
     }
 
     if (collecting) {
-        result[lastIdentifier] = collected
+        result[parameterName] = collected
     }
 
     return result
