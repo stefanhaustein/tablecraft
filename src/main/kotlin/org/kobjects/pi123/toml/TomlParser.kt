@@ -1,6 +1,7 @@
 package org.kobjects.pi123.toml
 
 import io.netty.handler.codec.http.HttpResponseStatus.parseLine
+import kotlin.math.exp
 
 object TomlParser {
 
@@ -24,7 +25,7 @@ object TomlParser {
                     val raw = line.substring(cut + 1).trim()
                     val value = if (raw.startsWith("\"")) {
                         require(raw.endsWith("\""))
-                        raw.substring(1, raw.length - 1)
+                        unescape(raw.substring(1, raw.length - 1))
                     } else {
                         raw.toDouble()
                     }
@@ -40,4 +41,25 @@ object TomlParser {
         return result.toMap()
     }
 
+
+    fun unescape(s: String): String {
+        val sb = StringBuilder()
+        var escape = false
+        for (c in s) {
+            if (c == '\\') {
+                escape = true
+            } else if (escape) {
+                sb.append (when (c) {
+                    'n' -> '\n'
+                    'r' -> '\r'
+                    't' -> '\t'
+                    'b' -> '\b'
+                    'f' -> '\u000C'
+                    else -> c
+                })
+                escape = false
+            } else sb.append(c)
+        }
+        return sb.toString()
+    }
 }

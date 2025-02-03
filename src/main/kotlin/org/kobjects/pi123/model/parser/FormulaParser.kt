@@ -3,7 +3,6 @@ package org.kobjects.pi123.model.parser
 import org.kobjects.parsek.expression.Operator
 import org.kobjects.parsek.expression.PrattParser
 import org.kobjects.pi123.model.Model
-import org.kobjects.pi123.model.builtin.NowFunction
 import org.kobjects.pi123.model.expression.*
 
 object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
@@ -21,6 +20,13 @@ object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
             Pi123TokenType.STRING -> {
                 val text = scanner.consume().text
                 LiteralExpression(text.substring(1, text.length - 1))
+            }
+            Pi123TokenType.CELL_IDENTIFIER -> {
+                val cell = context.cell.sheet.getOrCreateCell(scanner.consume().text)
+                require(context.cell != cell) {
+                    "Self-reference not permitted"
+                }
+                CellReferenceExpression(context.cell, cell)
             }
             Pi123TokenType.IDENTIFIER -> {
                 val name = scanner.consume().text
@@ -42,11 +48,7 @@ object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
                     "true" -> LiteralExpression(true)
                     "false" -> LiteralExpression(false)
                     else -> {
-                        val cell = context.cell.sheet.getOrCreateCell(name)
-                        require(context.cell != cell) {
-                            "Self-reference not permitted"
-                        }
-                        CellReferenceExpression(context.cell, cell)
+                        throw IllegalArgumentException("Unknown function '$name'")
                     }
                 }
             }

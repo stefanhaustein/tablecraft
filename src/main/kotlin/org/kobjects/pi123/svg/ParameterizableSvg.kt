@@ -12,7 +12,6 @@ import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
 
 class ParameterizableSvg(
-    val path: String,
     val document: Document
 ) {
     val parameters: List<ParameterSpec> = buildList {
@@ -73,10 +72,10 @@ class ParameterizableSvg(
             return factory.newDocumentBuilder()
         }
 
-        fun load(file: File, path: String): ParameterizableSvg {
+        fun load(file: File): ParameterizableSvg {
             val builder = createDocumentBuilder()
             val doc: Document = builder.parse(file)
-            return ParameterizableSvg(path.substring(0, path.lastIndexOf('.')), doc)
+            return ParameterizableSvg(doc)
         }
 
         fun parameterize(element: Element, params: Map<String, Any>) {

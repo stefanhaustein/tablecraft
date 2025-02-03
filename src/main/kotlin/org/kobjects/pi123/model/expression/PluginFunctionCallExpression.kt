@@ -54,14 +54,18 @@ class PluginFunctionCallExpression(
             val mappedParameters = mutableMapOf<String, Pair<Expression, Type>>()
             for ((index, specParam) in functionSpec.parameters.withIndex()) {
                 val actualParameter = parameters[specParam.name] ?: parameters["$index"]
-                require(actualParameter != null) { "Parameter ${specParam.name} not found in $parameters" }
-                when (specParam.kind) {
-                    ParameterKind.CONFIGURATION -> {
-                        require(actualParameter is LiteralExpression) { "Literal expression required for configuration parameter ${specParam.name}" }
-                        mappedConfig[specParam.name] = actualParameter.value!!
+                if (actualParameter != null) {
+                    when (specParam.kind) {
+                        ParameterKind.CONFIGURATION -> {
+                            require(actualParameter is LiteralExpression) { "Literal expression required for configuration parameter ${specParam.name}" }
+                            mappedConfig[specParam.name] = actualParameter.value!!
+                        }
+                        ParameterKind.RUNTIME -> mappedParameters[specParam.name] = actualParameter to specParam.type
                     }
-                    ParameterKind.RUNTIME -> mappedParameters[specParam.name] = actualParameter to specParam.type
+                } else if (specParam.required) {
+                    throw IllegalStateException("Parameter '${specParam.name}' not found in $parameters")
                 }
+
             }
             return PluginFunctionCallExpression(cell, functionSpec, mappedConfig, mappedParameters)
         }

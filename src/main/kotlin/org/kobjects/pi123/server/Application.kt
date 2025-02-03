@@ -50,9 +50,9 @@ fun Application.module() {
             call.respondText(Model.functionsToJson())
         }
         get("img/{name...}") {
-            val name = call.parameters.getAll("name")!!.joinToString("/")
-            println("Svg requested: $name; available: ${Model.svgs.map}")
-            val svg = Model.svgs.map[name]
+            val path = call.parameters.getAll("name")!!.joinToString("/")
+            println("Svg requested: $path; available: ${Model.svgs.map}")
+            val svg = Model.svgs.map["img/$path"]
             println("Found: $svg")
 
             val parameterMap = call.request.queryParameters.entries().map { Pair(it.key, it.value.first()) }.toMap()

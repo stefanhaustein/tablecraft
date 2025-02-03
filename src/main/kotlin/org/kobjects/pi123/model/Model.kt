@@ -81,7 +81,7 @@ object Model {
 
     fun save() {
         File("storage").mkdir()
-        val writer = FileWriter("storage/core.ini")
+        val writer = FileWriter("storage/model.ini")
         for (sheet in sheets.values) {
             writer.write("[sheets.${sheet.name}.cells]\n\n")
             writer.write(sheet.serialize(-1, false))
