@@ -8,7 +8,7 @@ import {
 import {InputController} from "./lib/form_builder.js";
 import {tokenize} from "./lib/expression_tokenizer.js";
 
-let parameterPanelElement = document.getElementById("ParametersPanel")
+let functionPanelElement = document.getElementById("FunctionPanel")
 let currentFunction = null
 let currentController = null
 let currentParameters = {}
@@ -22,13 +22,13 @@ addCellSelectionListener(() => {
 })
 
 
-parameterPanelElement.addEventListener("focusin", event => {
+functionPanelElement.addEventListener("focusin", event => {
     setEditMode(EditMode.PANEL)
 })
 
 function updateTabAndConsiderShowing() {
     if (updateParameterTab()) {
-        selectPanel("Parameters")
+        selectPanel("Function")
     }
 }
 
@@ -46,15 +46,28 @@ function updateParameterTab() {
     }
 
     if (found == null) {
-        parameterPanelElement.textContent = "N/A"
+        functionPanelElement.textContent = "N/A"
         currentFunction = null
         return false;
     }
 
     if (currentFunction !== found) {
-        parameterPanelElement.textContent = found["description"] || ""
-        currentController = InputController.create(parameterPanelElement, found["params"])
+        functionPanelElement.textContent = ""
+
+        let titleElement = document.createElement("div")
+        titleElement.className = "subtitle"
+        titleElement.textContent = found.name
+        functionPanelElement.appendChild(titleElement)
+
+        currentController = InputController.create(functionPanelElement, found["params"])
         currentFunction = found
+
+        if (found.description != "") {
+            let descriptionElement = document.createElement("p")
+            descriptionElement.textContent = found.description
+            functionPanelElement.appendChild(descriptionElement)
+        }
+
 
         currentController.addListener((key, value) => {
             currentParameters[key] = value

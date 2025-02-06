@@ -23,6 +23,15 @@ html {
     height: 36px;
 }
 
+.subtitle {
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+
+#sidePanel > div {
+    padding: 5px;
+}
+
 /* Adding 1px for the border... */
 
 #spreadsheetTable {
@@ -31,11 +40,6 @@ html {
 }
 
 
-#spreadsheetTable tr {
-    height: 35px;
-    min-height: 35px;
-    max-height: 35px;
-}
 
 #spreadsheetTable th,
 #spreadsheetTable td {
@@ -43,9 +47,9 @@ html {
     min-width: 73px;
     width: 73px;
     max-width: 73px;
-    min-height: 35px;
-    height: 35px;
-    max-height: 35px;
+    min-height: 37px;
+    height: 37px;
+    max-height: 37px;
     overflow: hidden;
     white-space: nowrap;
 }

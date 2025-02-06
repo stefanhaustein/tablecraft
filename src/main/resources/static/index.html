@@ -15,7 +15,7 @@
         <datalist id="functions"></datalist>
         <select id="panelSelect" style="width:208px">
             <option>About</option>
-            <option>Parameters</option>
+            <option value="Function">Function Details</option>
             <option>Graphics</option>
         </select>
     </div>
@@ -26,11 +26,15 @@
             <tbody id="spreadsheetTBody"></tbody>
             </table>
         </div>
-        <div id="panel" >
+        <div id="sidePanel" >
             <div id="AboutPanel" style="width:200px">
-                Pi 1-2-3
+                <div class="subtitle">Pi 1-2-3</div>
+
+                    Use a spreadsheet-like interface
+                    to control simple IoT projects.
             </div>
-            <div id="ParametersPanel" style="display: none; width:200px"></div>
+            <div id="FunctionPanel" style="display: none; width:200px"></div>
+            <div id="SimulationPanel" style="display: none; width:20px">N/A</div>
             <div id="GraphicsPanel" style="display: none; width:200px">
                 <table class="boxGraphics">
                     <tr>
@@ -63,7 +67,7 @@
     <script type="module" src="js/setup.js"></script>
     <script type="module" src="js/formula_input_controller.js"></script>
     <script type="module" src="js/table_controller.js"></script>
-    <script type="module" src="js/parameter_panel_controller.js"></script>
+    <script type="module" src="js/formula_panel_controller.js"></script>
     <script type="module" src="js/graphics_panel_controller.js"></script>
     <script type="module" src="js/sync.js"></script>
 </body>
