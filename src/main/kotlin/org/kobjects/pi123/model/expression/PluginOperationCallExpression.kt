@@ -3,22 +3,22 @@ package org.kobjects.pi123.model.expression
 import org.kobjects.pi123.model.Cell
 import org.kobjects.pi123.model.Model
 import org.kobjects.pi123.model.RuntimeContext
-import org.kobjects.pi123.pluginapi.FunctionHost
-import org.kobjects.pi123.pluginapi.FunctionSpec
+import org.kobjects.pi123.pluginapi.OperationHost
+import org.kobjects.pi123.pluginapi.OperationSpec
 import org.kobjects.pi123.pluginapi.ParameterKind
 import org.kobjects.pi123.pluginapi.Type
 
-class PluginFunctionCallExpression(
+class PluginOperationCallExpression(
     val cell: Cell,
-    functionSpec: FunctionSpec,
+    operationSpec: OperationSpec,
     override val configuration: Map<String, Any>,
     val parameters: Map<String, Pair<Expression, Type>>
-): Expression(), FunctionHost {
+): Expression(), OperationHost {
 
     override val children: Collection<Expression>
         get() = parameters.values.map { it.first }
 
-    val functionInstance = functionSpec.createFn(this)
+    val functionInstance = operationSpec.createFn(this)
 
     override fun attach() {
         functionInstance.attach()
@@ -43,16 +43,17 @@ class PluginFunctionCallExpression(
                 Type.NUMBER -> expr.evalDouble(context)
                 Type.BOOLEAN -> expr.evalBoolean(context)
                 Type.TEXT -> expr.eval(context).toString()
+                else -> expr.eval(context)!!
             }
         })
     }
 
 
     companion object {
-        fun create(cell: Cell, functionSpec: FunctionSpec, parameters: Map<String, Expression>): PluginFunctionCallExpression {
+        fun create(cell: Cell, operationSpec: OperationSpec, parameters: Map<String, Expression>): PluginOperationCallExpression {
             val mappedConfig = mutableMapOf<String, Any>()
             val mappedParameters = mutableMapOf<String, Pair<Expression, Type>>()
-            for ((index, specParam) in functionSpec.parameters.withIndex()) {
+            for ((index, specParam) in operationSpec.parameters.withIndex()) {
                 val actualParameter = parameters[specParam.name] ?: parameters["$index"]
                 if (actualParameter != null) {
                     when (specParam.kind) {
@@ -67,7 +68,7 @@ class PluginFunctionCallExpression(
                 }
 
             }
-            return PluginFunctionCallExpression(cell, functionSpec, mappedConfig, mappedParameters)
+            return PluginOperationCallExpression(cell, operationSpec, mappedConfig, mappedParameters)
         }
     }
 

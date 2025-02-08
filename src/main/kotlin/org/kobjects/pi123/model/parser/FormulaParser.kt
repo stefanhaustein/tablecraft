@@ -37,7 +37,7 @@ object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
                         else -> {
                             val functionSpec = Model.functionMap[name.lowercase()]
                             if (functionSpec != null) {
-                                PluginFunctionCallExpression.create(context.cell, functionSpec, parameterList)
+                                PluginOperationCallExpression.create(context.cell, functionSpec, parameterList)
                             } else {
                                 BuiltinFunctionCallExpression(name, parameterList)
                             }

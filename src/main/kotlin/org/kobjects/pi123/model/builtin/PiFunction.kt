@@ -1,8 +1,8 @@
 package org.kobjects.pi123.model.builtin
 
-import org.kobjects.pi123.pluginapi.FunctionInstance
+import org.kobjects.pi123.pluginapi.OperationInstance
 
-object PiFunction : FunctionInstance {
+object PiFunction : OperationInstance {
     override fun attach() {
     }
 

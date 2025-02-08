@@ -8,7 +8,7 @@ class CellReferenceExpression(
     val cell: Cell
 ) : Expression() {
 
-    override fun eval(context: RuntimeContext): Any? {
+    override fun eval(context: RuntimeContext): Any {
         try {
             return cell.getComputedValue(context)
         } catch (e: Exception) {

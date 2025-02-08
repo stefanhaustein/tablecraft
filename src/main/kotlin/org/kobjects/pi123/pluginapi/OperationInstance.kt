@@ -1,6 +1,6 @@
 package org.kobjects.pi123.pluginapi
 
-interface FunctionInstance {
+interface OperationInstance {
 
     fun attach()
 

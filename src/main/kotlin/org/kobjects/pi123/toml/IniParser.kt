@@ -1,9 +1,6 @@
 package org.kobjects.pi123.toml
 
-import io.netty.handler.codec.http.HttpResponseStatus.parseLine
-import kotlin.math.exp
-
-object TomlParser {
+object IniParser {
 
     fun parse(input: String): Map<String, Map<String, Any>> {
         val result = mutableMapOf<String, Map<String, Any>>()

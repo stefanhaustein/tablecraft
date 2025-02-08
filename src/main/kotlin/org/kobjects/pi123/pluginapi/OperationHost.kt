@@ -1,6 +1,6 @@
 package org.kobjects.pi123.pluginapi
 
-interface FunctionHost {
+interface OperationHost {
     val configuration: Map<String, Any>
     fun notifyValueChanged(newValue: Any)
 }

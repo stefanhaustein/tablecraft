@@ -42,3 +42,10 @@ export function makeEnum(arr){
     }
     return Object.freeze(obj);
 }
+
+export function sendJson(path, data) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", path, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(data))
+}

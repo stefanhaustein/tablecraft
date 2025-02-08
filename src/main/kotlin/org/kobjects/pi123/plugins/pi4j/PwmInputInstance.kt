@@ -1,13 +1,12 @@
 package org.kobjects.pi123.plugins.pi4j
 
-import com.pi4j.io.gpio.digital.*
-import org.kobjects.pi123.pluginapi.FunctionHost
-import org.kobjects.pi123.pluginapi.FunctionInstance
+import org.kobjects.pi123.pluginapi.OperationHost
+import org.kobjects.pi123.pluginapi.OperationInstance
 
 class PwmInputInstance(
     val plugin: Pi4jPlugin,
-    val host: FunctionHost,
-) : FunctionInstance {
+    val host: OperationHost,
+) : OperationInstance {
 
     var pin: PinManager? = null
     var t0: Long = 0

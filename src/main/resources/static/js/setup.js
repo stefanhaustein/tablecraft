@@ -41,18 +41,20 @@ let req = new XMLHttpRequest()
 req.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
         let rawFunctions = JSON.parse(this.responseText)
-        let datalist = document.getElementById("functions")
+        let functionSelectElement = document.getElementById("functions")
+        let portSelectElement = document.getElementById("portSelect")
         for (let f of rawFunctions) {
             let optionElement = document.createElement("option")
-            optionElement.text = "=" + f["name"] + "("
-            datalist.appendChild(optionElement)
-            functions[f["name"]] = transformFunctionSpec(f)
+            // console.log("received function spec", f)
+            if (f.kind == "PORT_CONSTRUCTOR") {
+                optionElement.text = f.name
+                portSelectElement.appendChild(optionElement)
+            } else {
+                optionElement.text = "=" + f.name + "("
+                functionSelectElement.appendChild(optionElement)
+            }
+            functions[f.name] = f
         }
     }};
 req.open('GET', "functions", true);
 req.send()
-
-
-function transformFunctionSpec(f) {
-    return f
-}

@@ -1,11 +1,11 @@
 package org.kobjects.pi123.svg
 
 import org.kobjects.pi123.model.builtin.ImageReference
-import org.kobjects.pi123.pluginapi.FunctionInstance
+import org.kobjects.pi123.pluginapi.OperationInstance
 
 class SvgFunction(
     val path: String,
-) : FunctionInstance {
+) : OperationInstance {
     override fun attach() {
 
     }

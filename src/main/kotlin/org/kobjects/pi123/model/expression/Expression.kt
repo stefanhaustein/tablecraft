@@ -6,7 +6,7 @@ import kotlin.time.DurationUnit
 
 abstract class Expression {
 
-    abstract fun eval(context: RuntimeContext): Any?
+    abstract fun eval(context: RuntimeContext): Any
 
     abstract val children: Collection<Expression>
 

@@ -1,9 +1,6 @@
 package org.kobjects.pi123.plugins.pi4j
 
 import com.pi4j.Pi4J
-import com.pi4j.io.gpio.digital.DigitalInput
-import com.pi4j.io.gpio.digital.DigitalOutput
-import org.kobjects.pi123.model.Model
 import org.kobjects.pi123.pluginapi.*
 
 class Pi4jPlugin : Plugin {
@@ -26,19 +23,25 @@ class Pi4jPlugin : Plugin {
         throw IllegalStateException("Pin #$address is in use with a different configuration: $pin; requested: $type/$configuration")
     }
 
-    override val functionSpecs = listOf(
-        FunctionSpec(
+    override val operationSpecs = listOf(
+        OperationSpec(
+            OperationKind.PORT_CONSTRUCTOR,
+            Type.BOOLEAN,
             "din",
             "Configures the given pin address for digital input and reports a high value as TRUE and a low value as FALSE.",
             listOf(ParameterSpec("address", ParameterKind.CONFIGURATION, Type.INT))
         ) {  DigitalInputInstance(this, it) },
-        FunctionSpec(
+        OperationSpec(
+            OperationKind.PORT_CONSTRUCTOR,
+            Type.NUMBER,
             "pwmin",
             "Configures the given pin address for input and reports the pulse width in seconds.",
             listOf(ParameterSpec("address", ParameterKind.CONFIGURATION, Type.INT))
         ) { PwmInputInstance(this, it) },
 
-        FunctionSpec(
+        OperationSpec(
+            OperationKind.PORT_CONSTRUCTOR,
+            Type.BOOLEAN,
             "dout",
             "Configures the given pin address for digital output and sets it to 'high' for a TRUE value and to 'low' for a FALSE or 0 value.",
             listOf(

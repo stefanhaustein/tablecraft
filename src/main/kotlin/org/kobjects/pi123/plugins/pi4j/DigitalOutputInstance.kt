@@ -1,12 +1,12 @@
 package org.kobjects.pi123.plugins.pi4j
 
 
-import org.kobjects.pi123.pluginapi.FunctionInstance
+import org.kobjects.pi123.pluginapi.OperationInstance
 
 class DigitalOutputInstance(
     val plugin: Pi4jPlugin,
     val configuration: Map<String, Any>
-) : FunctionInstance {
+) : OperationInstance {
 
     var pin: PinManager? = null
 

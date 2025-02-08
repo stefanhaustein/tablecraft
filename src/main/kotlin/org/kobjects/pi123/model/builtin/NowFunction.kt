@@ -1,15 +1,15 @@
 package org.kobjects.pi123.model.builtin
 
 import kotlinx.datetime.Clock
-import org.kobjects.pi123.pluginapi.FunctionHost
-import org.kobjects.pi123.pluginapi.FunctionInstance
+import org.kobjects.pi123.pluginapi.OperationHost
+import org.kobjects.pi123.pluginapi.OperationInstance
 import java.util.Timer
 import java.util.TimerTask
 
 class NowFunction(
     val updateInterval: Double,
-    val host: FunctionHost,
-) : FunctionInstance {
+    val host: OperationHost,
+) : OperationInstance {
 
     val timer = Timer()
     val timerId = timerCounter++
@@ -46,7 +46,7 @@ class NowFunction(
     companion object {
         var timerCounter = 0
 
-        fun create(host: FunctionHost): NowFunction {
+        fun create(host: OperationHost): NowFunction {
             return NowFunction((host.configuration["interval"] as Number).toDouble(), host)
         }
 

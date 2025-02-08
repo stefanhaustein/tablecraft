@@ -7,6 +7,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.dom.serialize
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import org.kobjects.pi123.model.Model
 import java.io.File
 import kotlin.coroutines.resume
@@ -26,6 +28,15 @@ fun Application.module() {
                 Model.save()
             }
             call.respond(HttpStatusCode.OK, null)
+        }
+        post("/definePort/{name}") {
+            val name = call.parameters["name"]!!
+            val jsonText = call.receiveText()
+            println("Received JSON: $jsonText")
+            val jsonSpec = Json.parseToJsonElement(jsonText) as JsonObject
+            Model.withLock {
+                Model.definePort(name, jsonSpec)
+            }
         }
         get("/sheet/{name}") {
             val name = call.parameters["name"]

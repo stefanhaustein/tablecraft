@@ -1,16 +1,18 @@
 package org.kobjects.pi123.model
 
-import com.pi4j.Pi4J
-import com.pi4j.context.Context
-import com.pi4j.io.gpio.digital.DigitalOutput
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.kobjects.pi123.model.builtin.BuiltinFunctions
-import org.kobjects.pi123.pluginapi.FunctionSpec
+import org.kobjects.pi123.pluginapi.OperationSpec
+import org.kobjects.pi123.pluginapi.ParameterKind
 import org.kobjects.pi123.pluginapi.Plugin
 import org.kobjects.pi123.plugins.pi4j.Pi4jPlugin
 import org.kobjects.pi123.svg.SvgManager
 import java.io.File
 import java.io.FileWriter
-import org.kobjects.pi123.toml.TomlParser
+import org.kobjects.pi123.toml.IniParser
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlin.contracts.ExperimentalContracts
@@ -23,14 +25,15 @@ object Model {
     val lock = ReentrantLock()
     val listeners = mutableSetOf<() -> Unit>()
 
-    val functionMap = mutableMapOf<String, FunctionSpec>()
+    val functionMap = mutableMapOf<String, OperationSpec>()
     val plugins = mutableListOf<Plugin>()
+    val ports = mutableMapOf<String, Port>()
 
     val svgs = SvgManager(File("src/main/resources/static/img"))
 
     fun addPlugin(plugin: Plugin) {
         plugins.add(plugin)
-        for (function in plugin.functionSpecs) {
+        for (function in plugin.operationSpecs) {
             functionMap[function.name] = function
         }
     }
@@ -53,13 +56,17 @@ object Model {
     init {
         withLock { runtimeContext ->
             try {
-                val toml = TomlParser.parse(File("storage/model.ini").readText())
+                val toml = IniParser.parse(File("storage/model.ini").readText())
                 for ((key, map) in toml) {
                     if (key.startsWith("sheets.") && key.endsWith(".cells")) {
                         val name = key.substringAfter("sheets.").substringBeforeLast(".cells")
                         val sheet = Sheet(name)
                         sheets[name] = sheet
                         sheet.parseToml(map)
+                    } else if (key == "ports") {
+                        for ((name, value) in map) {
+                            definePort(name, Json.parseToJsonElement(value.toString()) as JsonObject)
+                        }
                     }
                 }
             } catch (ex: Exception) {
@@ -82,6 +89,13 @@ object Model {
     fun save() {
         File("storage").mkdir()
         val writer = FileWriter("storage/model.ini")
+        writer.write("[ports]\n\n")
+
+        for (port in ports.values) {
+            writer.write("${port.name} = ${port.toJson().quote()}\n")
+        }
+        writer.write("\n")
+
         for (sheet in sheets.values) {
             writer.write("[sheets.${sheet.name}.cells]\n\n")
             writer.write(sheet.serialize(-1, false))
@@ -98,4 +112,24 @@ object Model {
     }
 
     fun functionsToJson() = functionMap.values.joinToString(",\n", "[\n", "\n]\n") { it.toJson() }
+
+    fun definePort(name: String, jsonSpec: JsonObject) {
+        val type = jsonSpec["type"]!!.jsonPrimitive.content
+        val constructorSpecification = functionMap[type]!!
+
+        val configuration = mutableMapOf<String, Any>()
+        val jsonConfig = jsonSpec["configuration"]!!.jsonObject
+
+        for (paramSpec in constructorSpecification.parameters) {
+            if (paramSpec.kind == ParameterKind.CONFIGURATION) {
+                configuration[paramSpec.name] = paramSpec.type.fromString(jsonConfig[paramSpec.name]!!.jsonPrimitive.content)
+            }
+        }
+
+        val port = Port(name, constructorSpecification, configuration.toMap())
+        ports[name] = port
+        functionMap[name] = port.specification
+
+        save()
+    }
 }

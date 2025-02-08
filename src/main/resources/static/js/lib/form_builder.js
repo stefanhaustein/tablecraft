@@ -18,6 +18,16 @@ export class InputController {
         }
     }
 
+    getValues() {
+        let result = {}
+        for (let name in this.elementControllers) {
+            result[name] = this.elementControllers[name].getValue()
+        }
+        return result
+    }
+
+
+
     static create(rootElement, schema) {
         let result = {}
         let listeners = []

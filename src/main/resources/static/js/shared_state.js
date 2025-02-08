@@ -39,10 +39,7 @@ export function addCellContentChangeListener(name, listener) {
 export function commitCurrentCell() {
     let commitValue = currentCellData["f"]
     committedFormula = commitValue
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", "update/" + currentSheet.name + "!" + currentCellId, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(commitValue);
+    sendJson("update/" + currentSheet.name + "!" + currentCellId, commitValue)
 }
 
 

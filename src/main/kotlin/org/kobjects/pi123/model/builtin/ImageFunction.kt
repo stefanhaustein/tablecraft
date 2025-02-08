@@ -1,9 +1,9 @@
 package org.kobjects.pi123.model.builtin
 
-import org.kobjects.pi123.pluginapi.FunctionHost
-import org.kobjects.pi123.pluginapi.FunctionInstance
+import org.kobjects.pi123.pluginapi.OperationHost
+import org.kobjects.pi123.pluginapi.OperationInstance
 
-class ImageFunction(source: String) : FunctionInstance {
+class ImageFunction(source: String) : OperationInstance {
 
     val image = ImageReference(source)
 
@@ -17,6 +17,6 @@ class ImageFunction(source: String) : FunctionInstance {
 
 
     companion object {
-        fun create(host: FunctionHost) = ImageFunction(host.configuration["source"] as String)
+        fun create(host: OperationHost) = ImageFunction(host.configuration["source"] as String)
     }
 }

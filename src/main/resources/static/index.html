@@ -16,6 +16,8 @@
         <select id="panelSelect" style="width:208px">
             <option>About</option>
             <option value="Function">Function Details</option>
+            <option value="Ports">IO Ports</option>
+            <option value="Simulation">Simulation</option>
             <option>Graphics</option>
         </select>
     </div>
@@ -32,6 +34,9 @@
 
                     Use a spreadsheet-like interface
                     to control simple IoT projects.
+            </div>
+            <div id="PortsPanel" style="display:none; width: 200px">
+                <select id="portSelect"><option>Add Port</option></select>
             </div>
             <div id="FunctionPanel" style="display: none; width:200px"></div>
             <div id="SimulationPanel" style="display: none; width:20px">N/A</div>
@@ -69,6 +74,7 @@
     <script type="module" src="js/table_controller.js"></script>
     <script type="module" src="js/formula_panel_controller.js"></script>
     <script type="module" src="js/graphics_panel_controller.js"></script>
+    <script type="module" src="js/port_panel_controller.js"></script>
     <script type="module" src="js/sync.js"></script>
 </body>
 </html>

@@ -48,7 +48,7 @@ class ParameterizableSvg(
                 Type.TEXT -> convertedParameters[key] = value
                 Type.NUMBER -> convertedParameters[key] = value.toDouble()
                 Type.BOOLEAN -> convertedParameters[key] = value.toBoolean()
-                Type.INT -> System.err.println("Parameter $key: Int type not supported for SVG Parameterization")
+                else -> System.err.println("Parameter $key: Int type not supported for SVG Parameterization")
             }
         }
         return if (params.isEmpty()) document else parameterizedCopy(convertedParameters)

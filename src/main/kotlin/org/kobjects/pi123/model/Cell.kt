@@ -14,8 +14,8 @@ class Cell(
     val id: String
 ) {
     var rawValue: String = ""
-    var expression: Expression = LiteralExpression(null)
-    var computedValue_: Any? = null
+    var expression: Expression = LiteralExpression(Unit)
+    var computedValue_: Any = Unit
 
     var tag = 0L
     var formulaTag = 0L
@@ -55,7 +55,7 @@ class Cell(
         }
     }
 
-    fun getComputedValue(context: RuntimeContext): Any? {
+    fun getComputedValue(context: RuntimeContext): Any {
         if (context.tag > tag) {
             try {
             computedValue_ = expression.eval(context)
