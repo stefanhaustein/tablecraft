@@ -11,7 +11,7 @@ function fetch() {
 
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            updateCurrentSheet(this.responseText)
+            proccessUpdateResponseText(this.responseText)
         }
     };
     xmlhttp.open("GET", url, true);
@@ -19,27 +19,52 @@ function fetch() {
     xmlhttp.onloadend = function () {
         setTimeout( fetch, 100)
     }
-
 }
 
-function updateCurrentSheet(responseText) {
+function proccessUpdateResponseText(responseText) {
     let lines = responseText.split("\n")
-    let cells = currentSheet.cells
+    let sectionMap = {}
+    let sectionTitle = ""
     for (const line of lines) {
-        let cut = line.indexOf("=")
-        let rawKey = line.substring(0, cut).trim()
-        let value = line.substring(cut + 1).trim()
-        if (value.startsWith('"')) {
-            value = JSON.parse(value)
-        }
-        cut = rawKey.indexOf(".")
-        if (cut == -1) {
-            if (rawKey == "tag") {
-                currentTag = value
-            } else if (rawKey != "") {
-                console.log("unrecognized key", rawKey, value)
-            }
+        let trimmed = line.trim()
+        if (trimmed.length == 0) {
+            // skip
+        } else if (trimmed.startsWith("[")) {
+            processSection(sectionTitle, sectionMap)
+            sectionTitle = trimmed.substring(1, trimmed.length - 1)
+            sectionMap = {}
         } else {
+            let eq = trimmed.indexOf("=")
+            let col = trimmed.indexOf(":")
+            let cut = eq == -1 ? col : (col == -1 ? eq : Math.min(col, eq))
+            if (cut != -1) {
+                let key = trimmed.substring(0, cut).trim()
+                let value = JSON.parse(trimmed.substring(cut + 1))
+                sectionMap[key] = value
+            }
+        }
+    }
+    processSection(sectionTitle, sectionMap)
+}
+
+function processSection(name, map) {
+    if (name == "") {
+        currentTag = map["tag"]
+    } else if (name.startsWith("sheets")) {
+        processSheetUpdate(map)
+    } else {
+        console.log("Unrecognizes section: ", name, map)
+    }
+}
+
+function processSheetUpdate(map) {
+    let cells = currentSheet.cells
+    for (const rawKey in map) {
+        let cut = rawKey.indexOf(".")
+        if (cut == -1) {
+            console.log("unrecognized key", rawKey, value)
+        } else {
+            let value = map[rawKey]
             let key = rawKey.substring(0, cut).trim()
             let suffix = rawKey.substring(cut + 1).trim()
             let cell = cells[key]

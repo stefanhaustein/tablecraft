@@ -97,7 +97,6 @@ object Model {
         writer.write("\n")
 
         for (sheet in sheets.values) {
-            writer.write("[sheets.${sheet.name}.cells]\n\n")
             writer.write(sheet.serialize(-1, false))
             writer.write("\n")
         }

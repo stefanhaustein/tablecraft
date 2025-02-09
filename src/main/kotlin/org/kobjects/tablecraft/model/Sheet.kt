@@ -16,7 +16,7 @@ class Sheet(var name: String) {
     }
 
     fun serialize(tag: Long, includeComputed: Boolean): String {
-        val sb = StringBuilder()
+        val sb = StringBuilder("[sheets.$name.cells]\n\n")
         for (cell in cells.values) {
             cell.serialize(sb, tag, includeComputed)
         }
