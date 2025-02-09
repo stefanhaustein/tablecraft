@@ -23,6 +23,15 @@ html {
     height: 36px;
 }
 
+.portTitle {
+    padding-top: 5px;
+}
+.portDescription {
+    text-indent: 12px;
+    padding-bottom: 5px;
+}
+
+
 .subtitle {
     font-weight: bold;
     padding-bottom: 5px;

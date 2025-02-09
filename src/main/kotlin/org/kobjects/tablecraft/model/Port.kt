@@ -5,14 +5,17 @@ import org.kobjects.tablecraft.pluginapi.*
 class Port(
     val name: String,
     val portConstructor: OperationSpec,
-    val configuration: Map<String, Any>
+    val configuration: Map<String, Any>,
+    val tag: Long = 0,
 ) {
     val specification = OperationSpec(OperationKind.PORT_INSTANCE,
         portConstructor.returnType,
         name,
-        "${portConstructor.name} instance",
+        "${portConstructor.name}; ${configuration.entries.joinToString { "${it.key}=${it.value}" }}",
         portConstructor.parameters.filter { it.kind != ParameterKind.CONFIGURATION },
-        ::createInstance)
+        tag,
+        ::createInstance,
+    )
 
 
     fun createInstance(host: OperationHost): OperationInstance {

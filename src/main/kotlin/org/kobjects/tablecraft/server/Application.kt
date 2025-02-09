@@ -35,7 +35,7 @@ fun Application.module() {
             println("Received JSON: $jsonText")
             val jsonSpec = Json.parseToJsonElement(jsonText) as JsonObject
             Model.withLock {
-                Model.definePort(name, jsonSpec)
+                Model.definePort(name, jsonSpec, it)
             }
         }
         get("/sheet/{name}") {
@@ -53,7 +53,7 @@ fun Application.module() {
             }
             val result = Model.withLock {
                 val sheet = Model.sheets[name]!!
-                sheet.serialize(tag, true)
+                Model.serializeFunctions(tag) + "\n" + sheet.serialize(tag, true)
             }
             call.respondText("tag = ${Model.modificationTag}\n$result", ContentType.Text.Plain, HttpStatusCode.OK,)
         }

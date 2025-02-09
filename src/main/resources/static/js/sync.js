@@ -1,5 +1,5 @@
 import {renderComputedValue} from "./lib/util.js";
-import {currentSheet, currentCellId, currentCellElement} from "./shared_state.js";
+import {currentSheet, currentCellId, currentCellElement, functions} from "./shared_state.js";
 
 var currentTag = -1
 fetch()
@@ -50,6 +50,8 @@ function proccessUpdateResponseText(responseText) {
 function processSection(name, map) {
     if (name == "") {
         currentTag = map["tag"]
+    } else if (name == "functions") {
+        processFunctionsUpdate(map)
     } else if (name.startsWith("sheets")) {
         processSheetUpdate(map)
     } else {
@@ -91,4 +93,53 @@ function processSheetUpdate(map) {
             }
         }
     }
+}
+
+function processFunctionsUpdate(map) {
+    let functionSelectElement = document.getElementById("functions")
+    let portSelectElement = document.getElementById("portSelect")
+    let portListElement = document.getElementById("portList")
+    for (let name in map) {
+        let f = map[name]
+        let optionElement = document.getElementById("foe." + name)
+        let newAddition = optionElement == null
+        if (newAddition) {
+            optionElement = document.createElement("option")
+            optionElement.id = "foe." + name
+            if (f.kind == "PORT_CONSTRUCTOR") {
+                optionElement.text = f.name
+                portSelectElement.appendChild(optionElement)
+            } else {
+                optionElement.text = "=" + f.name + "("
+                functionSelectElement.appendChild(optionElement)
+
+                if (f.kind == "PORT_INSTANCE") {
+                    let entryElement = document.createElement("div")
+                    let description = f.description
+                    let title = name
+                    let cut = f.description.indexOf(';')
+                    if (cut != -1) {
+                        title += ": " + description.substring(0, cut).trim()
+                        description = description.substring(cut + 1).trim()
+                    }
+                    let entryTitleElement = document.createElement("div")
+                    entryTitleElement.className = "portTitle"
+                    entryTitleElement.textContent = title
+                    entryElement.appendChild(entryTitleElement)
+
+                    let entryBodyElement = document.createElement("div")
+                    entryBodyElement.className = "portDescription"
+                    entryBodyElement.textContent = description
+                    entryElement.appendChild(entryBodyElement)
+
+                    portListElement.appendChild(entryElement)
+                }
+            }
+        }
+
+        // console.log("received function spec", f)
+        functions[f.name] = f
+    }
+
+
 }

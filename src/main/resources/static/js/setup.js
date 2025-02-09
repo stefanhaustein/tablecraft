@@ -4,7 +4,6 @@ import {functions} from "./shared_state.js";
 
 // Generate the spreadsheet content
 
-
 let thead = document.getElementById("spreadsheetTHead")
 for (let col = 0; col < 27; col++) {
     let th = document.createElement("th")
@@ -34,27 +33,3 @@ for (let row = 1; row < 100; row++) {
         tr.appendChild(td)
     }
 }
-
-// Request the function specifications available
-
-let req = new XMLHttpRequest()
-req.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-        let rawFunctions = JSON.parse(this.responseText)
-        let functionSelectElement = document.getElementById("functions")
-        let portSelectElement = document.getElementById("portSelect")
-        for (let f of rawFunctions) {
-            let optionElement = document.createElement("option")
-            // console.log("received function spec", f)
-            if (f.kind == "PORT_CONSTRUCTOR") {
-                optionElement.text = f.name
-                portSelectElement.appendChild(optionElement)
-            } else {
-                optionElement.text = "=" + f.name + "("
-                functionSelectElement.appendChild(optionElement)
-            }
-            functions[f.name] = f
-        }
-    }};
-req.open('GET', "functions", true);
-req.send()

@@ -20,6 +20,8 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 object Model {
+    val STORAGE_FILE = File("storage/model.ini")
+
     var modificationTag: Long = 0
     val sheets = mutableMapOf<String, Sheet>("Sheet1" to Sheet("Sheet1"))
     val lock = ReentrantLock()
@@ -56,7 +58,7 @@ object Model {
     init {
         withLock { runtimeContext ->
             try {
-                val toml = IniParser.parse(File("storage/model.ini").readText())
+                val toml = IniParser.parse(STORAGE_FILE.readText())
                 for ((key, map) in toml) {
                     if (key.startsWith("sheets.") && key.endsWith(".cells")) {
                         val name = key.substringAfter("sheets.").substringBeforeLast(".cells")
@@ -87,8 +89,8 @@ object Model {
     }
 
     fun save() {
-        File("storage").mkdir()
-        val writer = FileWriter("storage/model.ini")
+        STORAGE_FILE.mkdirs()
+        val writer = FileWriter(STORAGE_FILE)
         writer.write("[ports]\n\n")
 
         for (port in ports.values) {
@@ -112,7 +114,18 @@ object Model {
 
     fun functionsToJson() = functionMap.values.joinToString(",\n", "[\n", "\n]\n") { it.toJson() }
 
-    fun definePort(name: String, jsonSpec: JsonObject) {
+    fun serializeFunctions(tag: Long): String {
+        val sb = StringBuilder()
+        for (function in functionMap.values) {
+            if (function.tag > tag) {
+                sb.append(function.name).append(": ").append(function.toJson()).append('\n')
+            }
+        }
+        return if (sb.isEmpty()) "" else "[functions]\n\n$sb"
+    }
+
+
+    fun definePort(name: String, jsonSpec: JsonObject, runtimeContext: RuntimeContext? = null) {
         val type = jsonSpec["type"]!!.jsonPrimitive.content
         val constructorSpecification = functionMap[type]!!
 
@@ -125,7 +138,7 @@ object Model {
             }
         }
 
-        val port = Port(name, constructorSpecification, configuration.toMap())
+        val port = Port(name, constructorSpecification, configuration.toMap(), runtimeContext?.tag ?: 0L)
         ports[name] = port
         functionMap[name] = port.specification
 

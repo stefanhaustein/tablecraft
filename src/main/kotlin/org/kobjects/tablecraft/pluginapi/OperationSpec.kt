@@ -8,7 +8,8 @@ data class OperationSpec(
     val name: String,
     val description: String,
     val parameters: List<ParameterSpec>,
-    val createFn: (host: OperationHost) -> OperationInstance
+    val tag: Long = 0,
+    val createFn: (host: OperationHost) -> OperationInstance,
 ) {
     fun toJson(): String {
         val filteredParams = parameters.filter { kind != OperationKind.PORT_CONSTRUCTOR || it.kind != ParameterKind.RUNTIME }
