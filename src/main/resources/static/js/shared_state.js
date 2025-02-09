@@ -1,4 +1,4 @@
-import {makeEnum, nullToEmtpy, renderComputedValue} from "./lib/util.js";
+import {makeEnum, nullToEmtpy, renderComputedValue, sendText} from "./lib/util.js";
 
 export var model = {
     sheets: {
@@ -39,7 +39,7 @@ export function addCellContentChangeListener(name, listener) {
 export function commitCurrentCell() {
     let commitValue = currentCellData["f"]
     committedFormula = commitValue
-    sendJson("update/" + currentSheet.name + "!" + currentCellId, commitValue)
+    sendText("update/" + currentSheet.name + "!" + currentCellId, commitValue)
 }
 
 
