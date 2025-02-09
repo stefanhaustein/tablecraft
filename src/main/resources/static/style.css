@@ -18,6 +18,25 @@ html {
     justify-self: right;
 }
 
+.dialogTitle {
+    font-weight: bold;
+}
+
+.dialogButton {
+    float: right;
+    margin-left: 10px;
+}
+
+.dialogFields {
+    display: grid;
+    grid-template-columns: auto auto;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    grid-column-gap: 5px;
+    grid-row-gap: 5px;
+    align-items: center;
+}
+
 .boxGraphics img {
     width: 48px;
     height: 36px;

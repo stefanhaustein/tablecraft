@@ -115,6 +115,7 @@ function processFunctionsUpdate(map) {
 
                 if (f.kind == "PORT_INSTANCE") {
                     let entryElement = document.createElement("div")
+                    entryElement.id = "port." + f.name
                     let description = f.description
                     let title = name
                     let cut = f.description.indexOf(';')
