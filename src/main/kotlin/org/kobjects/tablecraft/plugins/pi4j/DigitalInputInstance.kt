@@ -1,31 +1,40 @@
 package org.kobjects.tablecraft.plugins.pi4j
 
+import com.pi4j.io.gpio.digital.*
 import org.kobjects.tablecraft.pluginapi.OperationHost
 import org.kobjects.tablecraft.pluginapi.OperationInstance
 
 class DigitalInputInstance(
     val plugin: Pi4jPlugin,
     val host: OperationHost,
-) : OperationInstance {
+) : OperationInstance, Pi4JPort, DigitalStateChangeListener {
 
-    var pin: PinManager? = null
+    var digitalInput: DigitalInput? = null
+    var value = false
 
     override fun attach() {
-       pin = plugin.getPin(PinType.DIGITAL_INPUT, host.configuration)
-        println("Attached: $pin")
-
-        pin!!.listeners.add (host::notifyValueChanged)
-
+        plugin.addPort(this)
+        attachPort()
     }
 
-    override fun apply(params: Map<String, Any>): Any =
-        pin?.getState() ?: Unit
+    override fun attachPort() {
+        val address = (host.configuration["address"] as Number).toInt()
+        digitalInput = plugin.pi4J.create(DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
+        digitalInput?.addListener(this)
+    }
+
+    override fun apply(params: Map<String, Any>): Any = value
+
+    override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
+        host.notifyValueChanged(event!!.state().isHigh())
+    }
 
     override fun detach() {
-        pin?.listeners?.remove(host::notifyValueChanged)
+        detachPort()
+        plugin.removePort(this)
     }
 
-
-
-
+    override fun detachPort() {
+        digitalInput?.removeListener(this)
+    }
 }

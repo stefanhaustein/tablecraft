@@ -6,8 +6,6 @@ import org.kobjects.tablecraft.pluginapi.*
 class Pi4jPlugin : Plugin {
     var pi4J = Pi4J.newAutoContext()
 
-    val pins = mutableMapOf<Int, PinManager>()
-
     val ports = mutableListOf<Pi4JPort>()
 
     fun addPort(port: Pi4JPort) {
@@ -21,20 +19,6 @@ class Pi4jPlugin : Plugin {
         }
         pi4J.shutdown()
         pi4J = Pi4J.newAutoContext()
-    }
-
-    fun getPin(type: PinType, configuration: Map<String, Any>): PinManager {
-        val address = (configuration["address"] as Number).toInt()
-        val pin = pins[address]
-        if (pin == null) {
-            val newPin = PinManager(this, type, address, configuration)
-            pins[address] = newPin
-            return newPin
-        }
-        if (pin.type == type && pin.configuration == configuration) {
-            return pin
-        }
-        throw IllegalStateException("Pin #$address is in use with a different configuration: $pin; requested: $type/$configuration")
     }
 
     override val operationSpecs = listOf(
