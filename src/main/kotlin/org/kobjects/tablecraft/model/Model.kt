@@ -141,7 +141,6 @@ object Model {
         val port = Port(name, constructorSpecification, configuration.toMap(), runtimeContext?.tag ?: 0L)
         ports[name] = port
         functionMap[name] = port.specification
-
         save()
     }
 }

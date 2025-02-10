@@ -4,10 +4,24 @@ import com.pi4j.Pi4J
 import org.kobjects.tablecraft.pluginapi.*
 
 class Pi4jPlugin : Plugin {
-    val pi4J = Pi4J.newAutoContext()
+    var pi4J = Pi4J.newAutoContext()
 
     val pins = mutableMapOf<Int, PinManager>()
 
+    val ports = mutableListOf<Pi4JPort>()
+
+    fun addPort(port: Pi4JPort) {
+        ports.add(port)
+    }
+
+    fun removePort(remove: Pi4JPort) {
+        ports.remove(remove)
+        for (port in ports) {
+            port.detachPort()
+        }
+        pi4J.shutdown()
+        pi4J = Pi4J.newAutoContext()
+    }
 
     fun getPin(type: PinType, configuration: Map<String, Any>): PinManager {
         val address = (configuration["address"] as Number).toInt()
