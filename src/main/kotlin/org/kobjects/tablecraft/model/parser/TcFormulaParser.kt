@@ -5,8 +5,8 @@ import org.kobjects.parsek.expression.PrattParser
 import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.model.expression.*
 
-object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
-    { scanner, context -> FormulaParser.parsePrimary(scanner, context) },
+object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
+    { scanner, context -> TcFormulaParser.parsePrimary(scanner, context) },
     { _, _, name, operand -> UnaryOperatorExpression(name, operand) },
     { _, _, name, leftOperand, rightOperand -> BinaryOperatorExpression(name, leftOperand, rightOperand) },
     Operator.Prefix(2, "-"),
@@ -14,21 +14,21 @@ object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
     Operator.Infix(0, "+", "-")
 ) {
 
-    fun parsePrimary(scanner: Pi123Scanner, context: ParsingContext): Expression =
+    fun parsePrimary(scanner: TcScanner, context: ParsingContext): Expression =
         when (scanner.current.type) {
-            Pi123TokenType.NUMBER -> LiteralExpression(scanner.consume().text.toDouble())
-            Pi123TokenType.STRING -> {
+            TcTokenType.NUMBER -> LiteralExpression(scanner.consume().text.toDouble())
+            TcTokenType.STRING -> {
                 val text = scanner.consume().text
                 LiteralExpression(text.substring(1, text.length - 1))
             }
-            Pi123TokenType.CELL_IDENTIFIER -> {
+            TcTokenType.CELL_IDENTIFIER -> {
                 val cell = context.cell.sheet.getOrCreateCell(scanner.consume().text)
                 require(context.cell != cell) {
                     "Self-reference not permitted"
                 }
                 CellReferenceExpression(context.cell, cell)
             }
-            Pi123TokenType.IDENTIFIER -> {
+            TcTokenType.IDENTIFIER -> {
                 val name = scanner.consume().text
                 if (scanner.tryConsume("(")) {
                     val parameterList = parseParameterList(scanner, context)
@@ -58,7 +58,7 @@ object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
 
     }
 
-    fun parseParameterList(scanner: Pi123Scanner, context: ParsingContext): Map<String, Expression> {
+    fun parseParameterList(scanner: TcScanner, context: ParsingContext): Map<String, Expression> {
         if (scanner.tryConsume(")")) {
             return emptyMap()
         }
@@ -66,12 +66,12 @@ object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
         var index = 0
         do {
             var name = (index++).toString()
-            if (scanner.current.type == Pi123TokenType.IDENTIFIER &&
+            if (scanner.current.type == TcTokenType.IDENTIFIER &&
                 scanner.lookAhead(1).text == "=") {
                 name = scanner.consume().text
                 scanner.consume("=")
             }
-            val expression = FormulaParser.parseExpression(scanner, context)
+            val expression = TcFormulaParser.parseExpression(scanner, context)
             result[name] = expression
         } while (scanner.tryConsume(","))
         scanner.consume(")")
@@ -80,7 +80,7 @@ object FormulaParser : PrattParser<Pi123Scanner, ParsingContext, Expression>(
 
 
     fun parseExpression(value: String, context: ParsingContext): Expression {
-        val scanner = Pi123Scanner(value)
+        val scanner = TcScanner(value)
         val result = parseExpression(scanner, context)
         require(scanner.eof)
         return result

@@ -19,7 +19,14 @@ class Port(
 
 
     fun createInstance(host: OperationHost): OperationInstance {
-        throw UnsupportedOperationException()
+        return portConstructor.createFn(object : OperationHost {
+            override val configuration: Map<String, Any>
+                get() = this@Port.configuration
+
+            override fun notifyValueChanged(newValue: Any) {
+                host.notifyValueChanged(newValue)
+            }
+        })
     }
 
 
@@ -28,5 +35,6 @@ class Port(
 
         return """{"name":${name.quote()}, "type":${portConstructor.name.quote()}, "configuration": {$configJson} } """
     }
+
 
 }

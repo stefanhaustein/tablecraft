@@ -5,7 +5,7 @@ import kotlinx.datetime.format.char
 import org.kobjects.tablecraft.model.builtin.ImageReference
 import org.kobjects.tablecraft.model.expression.Expression
 import org.kobjects.tablecraft.model.expression.LiteralExpression
-import org.kobjects.tablecraft.model.parser.FormulaParser
+import org.kobjects.tablecraft.model.parser.TcFormulaParser
 import org.kobjects.tablecraft.model.parser.ParsingContext
 
 class Cell(
@@ -29,7 +29,7 @@ class Cell(
         expression = if (value.startsWith("=")) {
             try {
                 val context = ParsingContext(this)
-                val parsed = FormulaParser.parseExpression(value.substring(1), context)
+                val parsed = TcFormulaParser.parseExpression(value.substring(1), context)
                 parsed.attachAll()
                 parsed
             } catch (e: Exception) {

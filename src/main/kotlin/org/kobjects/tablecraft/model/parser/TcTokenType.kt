@@ -1,6 +1,6 @@
 package org.kobjects.tablecraft.model.parser
 
-enum class Pi123TokenType {
+enum class TcTokenType {
     EOF,
     NUMBER,
     IDENTIFIER,
