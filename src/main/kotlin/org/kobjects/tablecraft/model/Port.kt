@@ -6,7 +6,7 @@ class Port(
     val name: String,
     val portConstructor: OperationSpec,
     override val configuration: Map<String, Any>,
-    val tag: Long = 0,
+    tag: Long = 0,
 ): OperationHost {
     val specification = OperationSpec(OperationKind.PORT_INSTANCE,
         portConstructor.returnType,

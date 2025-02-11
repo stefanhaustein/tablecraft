@@ -100,10 +100,8 @@ function showPortDialog(constructorSpec, name, instanceSpec) {
         let deleteButton = document.createElement("button")
         deleteButton.textContent = "Delete"
         deleteButton.className = "dialogButton"
-        cancelButton.addEventListener("click", () => {
-            sendJson("definePort/" + name, {
-                previousName: name,
-            })
+        deleteButton.addEventListener("click", () => {
+            sendJson("updatePort", {previousName: name})
             dialogElement.close()
         })
         buttonDiv.appendChild(deleteButton)
@@ -115,8 +113,7 @@ function showPortDialog(constructorSpec, name, instanceSpec) {
 
 
 function sendPort(name, constructorName, definition, previousName) {
-    sendJson("definePort", {
-        name: name,
+    sendJson("updatePort?name=" + name, {
         type: constructorName,
         previousName: previousName,
         configuration: definition

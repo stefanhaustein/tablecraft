@@ -101,40 +101,56 @@ function processFunctionsUpdate(map) {
     let portListElement = document.getElementById("portList")
     for (let name in map) {
         let f = map[name]
-        let optionElement = document.getElementById("foe." + name)
-        let newAddition = optionElement == null
-        if (newAddition) {
-            optionElement = document.createElement("option")
-            optionElement.id = "foe." + name
+        if (f.kind == "TOMBSTONE") {
+            let optionElement = document.getElementById("op." + name)
+            if (optionElement != null) {
+                optionElement.parentElement.removeChild(optionElement)
+            }
+            let entryElement = document.getElementById("port." + name)
+            if (entryElement != null) {
+                entryElement.parentElement.removeChild(entryElement)
+            }
+        } else {
+           let optionElement = document.getElementById("op." + name)
+            let newAddition = optionElement == null
+            if (newAddition) {
+                optionElement = document.createElement("option")
+                optionElement.id = "op." + name
+                let target = f.kind == "PORT_CONSTRUCTOR" ? portSelectElement : functionSelectElement
+                target.appendChild(optionElement)
+            }
+
             if (f.kind == "PORT_CONSTRUCTOR") {
                 optionElement.text = f.name
-                portSelectElement.appendChild(optionElement)
             } else {
                 optionElement.text = "=" + f.name + "("
-                functionSelectElement.appendChild(optionElement)
+            }
 
-                if (f.kind == "PORT_INSTANCE") {
-                    let entryElement = document.createElement("div")
+            if (f.kind == "PORT_INSTANCE") {
+                let entryElement = document.getElementById("port." + name)
+                if (entryElement == null) {
+                    entryElement = document.createElement("div")
                     entryElement.id = "port." + f.name
-                    let description = f.description
-                    let title = name
-                    let cut = f.description.indexOf(';')
-                    if (cut != -1) {
-                        title += ": " + description.substring(0, cut).trim()
-                        description = description.substring(cut + 1).trim()
-                    }
-                    let entryTitleElement = document.createElement("div")
-                    entryTitleElement.className = "portTitle"
-                    entryTitleElement.textContent = title
-                    entryElement.appendChild(entryTitleElement)
-
-                    let entryBodyElement = document.createElement("div")
-                    entryBodyElement.className = "portDescription"
-                    entryBodyElement.textContent = description
-                    entryElement.appendChild(entryBodyElement)
-
                     portListElement.appendChild(entryElement)
+                } else {
+                    entryElement.textContent = ""
                 }
+                let description = f.description
+                let title = name
+                let cut = f.description.indexOf(';')
+                if (cut != -1) {
+                    title += ": " + description.substring(0, cut).trim()
+                    description = description.substring(cut + 1).trim()
+                }
+                let entryTitleElement = document.createElement("div")
+                entryTitleElement.className = "portTitle"
+                entryTitleElement.textContent = title
+                entryElement.appendChild(entryTitleElement)
+
+                let entryBodyElement = document.createElement("div")
+                entryBodyElement.className = "portDescription"
+                entryBodyElement.textContent = description
+                entryElement.appendChild(entryBodyElement)
             }
         }
 

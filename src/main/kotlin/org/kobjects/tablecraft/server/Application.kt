@@ -29,14 +29,16 @@ fun Application.module() {
             }
             call.respond(HttpStatusCode.OK, null)
         }
-        post("/definePort/{name}") {
-            val name = call.parameters["name"]
+        post("/updatePort") {
+            val name = call.request.queryParameters["name"]
             val jsonText = call.receiveText()
             println("Received JSON: $jsonText")
             val jsonSpec = Json.parseToJsonElement(jsonText) as JsonObject
             Model.withLock {
                 Model.definePort(name, jsonSpec, it)
+                Model.notifyContentUpdated(it)
             }
+            call.respond(HttpStatusCode.OK, null)
         }
         get("/sheet/{name}") {
             val name = call.parameters["name"]

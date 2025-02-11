@@ -12,6 +12,7 @@ class PwmInputInstance(
     var digitalInput: DigitalInput? = null
     var t0: Long = 0
     var value: Double = 0.0
+    var error: Exception? = null
 
     override fun attach() {
         plugin.addPort(this)
@@ -20,7 +21,13 @@ class PwmInputInstance(
 
     override fun attachPort() {
         val address = (host.configuration["address"] as Number).toInt()
-        digitalInput = plugin.pi4J.create(DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
+        try {
+            digitalInput = plugin.pi4J.create(DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
+            error = null
+        } catch (e: Exception) {
+            error = e
+            digitalInput = null
+        }
         digitalInput?.addListener(this)
     }
 

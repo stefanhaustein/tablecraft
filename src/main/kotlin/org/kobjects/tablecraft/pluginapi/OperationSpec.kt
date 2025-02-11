@@ -16,5 +16,13 @@ data class OperationSpec(
         val convertedParams = filteredParams.joinToString { it.toJson() }
         return """{"name":${name.quote()},"kind":"$kind","returnType":"$returnType","description":${description.quote()},"params":[$convertedParams]}"""
     }
+
+    companion object {
+        fun createTombstone(name: String, tag: Long) = OperationSpec(
+            OperationKind.TOMBSTONE, Type.NUMBER, name, "Deleted Operation '$name'.", emptyList(), tag
+        ) {
+            throw UnsupportedOperationException("Tombstone for '$name' can't be instantiated.")
+        }
+    }
 }
 

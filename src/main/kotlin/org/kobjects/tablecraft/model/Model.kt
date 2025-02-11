@@ -129,29 +129,28 @@ object Model {
         val previousName = jsonSpec["previousName"]?.jsonPrimitive?.content
 
         if (!previousName.isNullOrBlank()) {
-            functionMap.remove(previousName)
-            val previousPort = ports[previousName]
-            if (previousPort != null) {
-                previousPort.
-            }
+            require(runtimeContext != null)
+            functionMap[previousName] = OperationSpec.createTombstone(previousName, runtimeContext.tag)
+            ports.remove(previousName)?.delete()
         }
 
+        if (!name.isNullOrBlank()) {
+            val type = jsonSpec["type"]!!.jsonPrimitive.content
+            val constructorSpecification = functionMap[type]!!
 
-        val type = jsonSpec["type"]!!.jsonPrimitive.content
-        val constructorSpecification = functionMap[type]!!
+            val configuration = mutableMapOf<String, Any>()
+            val jsonConfig = jsonSpec["configuration"]!!.jsonObject
 
-        val configuration = mutableMapOf<String, Any>()
-        val jsonConfig = jsonSpec["configuration"]!!.jsonObject
-
-        for (paramSpec in constructorSpecification.parameters) {
-            if (paramSpec.kind == ParameterKind.CONFIGURATION) {
-                configuration[paramSpec.name] = paramSpec.type.fromString(jsonConfig[paramSpec.name]!!.jsonPrimitive.content)
+            for (paramSpec in constructorSpecification.parameters) {
+                if (paramSpec.kind == ParameterKind.CONFIGURATION) {
+                    configuration[paramSpec.name] = paramSpec.type.fromString(jsonConfig[paramSpec.name]!!.jsonPrimitive.content)
+                }
             }
-        }
 
-        val port = Port(name, constructorSpecification, configuration.toMap(), runtimeContext?.tag ?: 0L)
-        ports[name] = port
-        functionMap[name] = port.specification
+            val port = Port(name, constructorSpecification, configuration.toMap(), runtimeContext?.tag ?: 0L)
+            ports[name] = port
+            functionMap[name] = port.specification
+        }
         save()
     }
 }
