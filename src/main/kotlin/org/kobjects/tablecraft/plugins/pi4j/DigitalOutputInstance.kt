@@ -10,6 +10,7 @@ class DigitalOutputInstance(
 )  : OperationInstance, Pi4JPort {
 
     var digitalOutput: DigitalOutput? = null
+    var error: Exception? = null
 
     override fun attach() {
         plugin.addPort(this)
@@ -18,10 +19,20 @@ class DigitalOutputInstance(
 
     override fun attachPort() {
         val address = (configuration["address"] as Number).toInt()
-        digitalOutput = plugin.pi4J.create(DigitalOutputConfig.newBuilder(plugin.pi4J).address(address).build())
+        try {
+            digitalOutput = plugin.pi4J.create(DigitalOutputConfig.newBuilder(plugin.pi4J).address(address).build())
+            error = null
+        } catch (e: Exception) {
+            e.printStackTrace()
+            error = e
+            digitalOutput = null
+        }
     }
 
     override fun apply(params: Map<String, Any>): Any {
+        if (error != null) {
+            throw error!!
+        }
         val value = when(val raw = params["value"]) {
             is Boolean -> raw
             is Number -> raw.toDouble() != 0.0
