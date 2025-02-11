@@ -125,7 +125,18 @@ object Model {
     }
 
 
-    fun definePort(name: String, jsonSpec: JsonObject, runtimeContext: RuntimeContext? = null) {
+    fun definePort(name: String?, jsonSpec: JsonObject, runtimeContext: RuntimeContext? = null) {
+        val previousName = jsonSpec["previousName"]?.jsonPrimitive?.content
+
+        if (!previousName.isNullOrBlank()) {
+            functionMap.remove(previousName)
+            val previousPort = ports[previousName]
+            if (previousPort != null) {
+                previousPort.
+            }
+        }
+
+
         val type = jsonSpec["type"]!!.jsonPrimitive.content
         val constructorSpecification = functionMap[type]!!
 

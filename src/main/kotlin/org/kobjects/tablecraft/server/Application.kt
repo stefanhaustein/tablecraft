@@ -30,7 +30,7 @@ fun Application.module() {
             call.respond(HttpStatusCode.OK, null)
         }
         post("/definePort/{name}") {
-            val name = call.parameters["name"]!!
+            val name = call.parameters["name"]
             val jsonText = call.receiveText()
             println("Received JSON: $jsonText")
             val jsonSpec = Json.parseToJsonElement(jsonText) as JsonObject
