@@ -3,7 +3,7 @@ import {
     setCurrentCellFormula,
     selectPanel,
     addCellContentChangeListener,
-    addCellSelectionListener, currentCellData, setEditMode, EditMode
+    addCellSelectionListener, currentCellData, setEditMode, EditMode, currentCellElement, commitCurrentCell
 } from "./shared_state.js";
 import {InputController} from "./lib/form_builder.js";
 import {extractParameters} from "./lib/expressions.js";
@@ -27,8 +27,13 @@ functionPanelElement.addEventListener("focusin", event => {
 })
 
 function updateTabAndConsiderShowing() {
-    if (updateParameterTab()) {
-        selectPanel("Function")
+    let supported = updateParameterTab()
+    if (supported) {
+        if (currentCellData.f.startsWith("=image")) {
+            selectPanel("Graphics")
+        } else {
+            selectPanel("Function")
+        }
     }
 }
 
@@ -84,6 +89,7 @@ function updateParameterTab() {
             }
             s += ")"
             setCurrentCellFormula(s)
+            commitCurrentCell()
         })
     }
 

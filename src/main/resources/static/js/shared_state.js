@@ -46,9 +46,9 @@ export function commitCurrentCell() {
 export function setCurrentCellFormula(value, source) {
     currentCellData["f"] = value
     currentCellData["c"] = null
-    if (currentEditMode != EditMode.NONE) {
+    /*if (currentEditMode != EditMode.NONE) {
         currentCellElement.textContent = value
-    }
+    }*/
     if (source != "input") {
         formulaInputElement.value = value
     }
@@ -67,11 +67,11 @@ export function setEditMode(editMode) {
     if (editMode == EditMode.NONE) {
         currentCellElement.classList.remove("editing")
         currentCellElement.classList.add("focus")
-        renderComputedValue(currentCellElement, currentCellData)
+     //   renderComputedValue(currentCellElement, currentCellData)
     } else {
-        currentCellElement.classList.remove("c", "e", "i", "r", "focus")
+        currentCellElement.classList.remove(/*"c", "e", "i", "r",*/ "focus")
         currentCellElement.classList.add("editing")
-        currentCellElement.textContent = nullToEmtpy(currentCellData["f"])
+   //     currentCellElement.textContent = nullToEmtpy(currentCellData["f"])
         if (editMode == EditMode.INPUT) {
             formulaInputElement.focus()
         }

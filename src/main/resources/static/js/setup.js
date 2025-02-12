@@ -1,8 +1,5 @@
-import {functions} from "./shared_state.js";
-
-// Handles all dynamic / async setup, depends on core.
-
 // Generate the spreadsheet content
+// Needs to be loaded first, so shared_state can select the first cell
 
 let thead = document.getElementById("spreadsheetTHead")
 for (let col = 0; col < 27; col++) {

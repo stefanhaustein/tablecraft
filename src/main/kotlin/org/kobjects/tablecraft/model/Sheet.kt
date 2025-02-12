@@ -25,19 +25,23 @@ class Sheet(var name: String) {
 
     fun parseToml(cells: Map<String, Any>) {
         for ((key, value) in cells) {
-            val cut = key.indexOf(".")
-            val name: String
-            val suffix: String
-            if (cut == -1) {
-                name = key
-                suffix = "f"
-            } else {
-                name = key.substring(0, cut)
-                suffix = key.substring(cut + 1)
-            }
-            when (suffix) {
-                "f" -> set(name, value.toString(), null)
-                else -> throw IllegalStateException("Unrecognized suffix in $key = $value")
+            try {
+                val cut = key.indexOf(".")
+                val name: String
+                val suffix: String
+                if (cut == -1) {
+                    name = key
+                    suffix = "f"
+                } else {
+                    name = key.substring(0, cut)
+                    suffix = key.substring(cut + 1)
+                }
+                when (suffix) {
+                    "f" -> set(name, value.toString(), null)
+                    else -> throw IllegalStateException("Unrecognized suffix in $key = $value")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }

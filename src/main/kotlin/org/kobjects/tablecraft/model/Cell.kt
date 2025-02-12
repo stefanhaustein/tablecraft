@@ -78,15 +78,14 @@ class Cell(
 
     fun serializeValue(sb: StringBuilder) {
         val value = computedValue_
-        sb.append('"')
         when (value) {
             null,
                 is Unit -> {}
-            is Boolean -> sb.append("c:${value.toString().uppercase()}")
-            is Double -> sb.append("r:").append(value.toFloat())
-            is Number -> sb.append("r:$value")
-            is Exception -> sb.append("e:$value")
-            is ImageReference -> sb.append("i:${value.source}")
+            is Boolean -> sb.append("\"c:${value.toString().uppercase()}\"")
+            is Double -> sb.append("\"r:").append(value.toFloat()).append('"')
+            is Number -> sb.append("\"r:$value\"")
+            is Exception -> sb.append("\"e:$value\"")
+            is ImageReference -> sb.append("i:${value.source}".quote())
             is Instant -> {
                 sb.append("r:")
                 val localDateTime = value.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -94,10 +93,8 @@ class Cell(
                  sb.append(' ') */
                 sb.append(localDateTime.time.format(TIME_FORMAT_SECONDS))
             }
+            else -> sb.append("l:$value".quote())
         }
-
-        sb.append('"')
-
     }
 
     fun serialize(sb: StringBuilder, tag: Long, includeComputed: Boolean) {

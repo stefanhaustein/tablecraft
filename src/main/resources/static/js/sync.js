@@ -79,13 +79,12 @@ function processSheetUpdate(map) {
                     break
                 case "c":
                     cell.c = value
-                    if (key != currentCellId || !currentCellElement.classList.contains("editing")) {
-                        let element = document.getElementById(key)
-                        if (element != null) {
-                            renderComputedValue(element, cell)
-                        } else {
-                            console.log("Sync issue: Element '" + key + "' not found for line '" + line + "'")
-                        }
+
+                    let element = document.getElementById(key)
+                    if (element != null) {
+                        renderComputedValue(element, cell)
+                    } else {
+                        console.log("Sync issue: Element '" + key + "' not found for line '" + line + "'")
                     }
                     break
                 default:

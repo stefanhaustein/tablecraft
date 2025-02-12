@@ -44,18 +44,7 @@ object Model {
         addPlugin(BuiltinFunctions)
         addPlugin(Pi4jPlugin())
         addPlugin(svgs)
-    }
 
-    @OptIn(ExperimentalContracts::class)
-    inline fun <T> withLock(action: (RuntimeContext) -> T): T {
-        contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
-        return lock.withLock {
-            val runtimeContext = RuntimeContext()
-            action(runtimeContext)
-        }
-    }
-
-    init {
         withLock { runtimeContext ->
             try {
                 val toml = IniParser.parse(STORAGE_FILE.readText())
@@ -67,7 +56,11 @@ object Model {
                         sheet.parseToml(map)
                     } else if (key == "ports") {
                         for ((name, value) in map) {
-                            definePort(name, Json.parseToJsonElement(value.toString()) as JsonObject)
+                            try {
+                                definePort(name, Json.parseToJsonElement(value.toString()) as JsonObject)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
                         }
                     }
                 }
@@ -78,6 +71,15 @@ object Model {
             for (sheet in sheets.values) {
                 sheet.updateAll(runtimeContext)
             }
+        }
+    }
+
+    @OptIn(ExperimentalContracts::class)
+    inline fun <T> withLock(action: (RuntimeContext) -> T): T {
+        contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
+        return lock.withLock {
+            val runtimeContext = RuntimeContext()
+            action(runtimeContext)
         }
     }
 

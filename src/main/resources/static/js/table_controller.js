@@ -46,7 +46,7 @@ function tableKeyPress(event) {
             break
 
         case "Enter":
-            selectCell(currentCellId, true)
+            setEditMode(EditMode.INPUT)
             break
 
         default:

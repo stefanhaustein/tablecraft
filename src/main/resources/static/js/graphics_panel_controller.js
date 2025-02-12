@@ -1,4 +1,4 @@
-import {setCurrentCellFormula} from "./shared_state.js";
+import {commitCurrentCell, setCurrentCellFormula} from "./shared_state.js";
 
 let graphicsPanelElement = document.getElementById("GraphicsPanel")
 
@@ -16,6 +16,7 @@ graphicsPanelElement.addEventListener("click", event => {
             let cut2 = path.lastIndexOf(".")
             setCurrentCellFormula("=" + path.substring(1, cut2).replaceAll("/", ".") + "()")
         }
+        commitCurrentCell()
     }
 
 })
