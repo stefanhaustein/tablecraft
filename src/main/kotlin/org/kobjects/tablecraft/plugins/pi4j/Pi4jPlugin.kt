@@ -47,6 +47,19 @@ class Pi4jPlugin : Plugin {
                 ParameterSpec("value", ParameterKind.RUNTIME, Type.INT),
                 )
         ) { DigitalOutputInstance(this, it.configuration) },
+
+        OperationSpec(
+            OperationKind.PORT_CONSTRUCTOR,
+            Type.TEXT,
+            "lcddisplay",
+            "Configures the size of a lcd display",
+            listOf(
+                ParameterSpec("width", ParameterKind.CONFIGURATION, Type.INT),
+                ParameterSpec("height", ParameterKind.CONFIGURATION, Type.INT),
+                ParameterSpec("x", ParameterKind.RUNTIME, Type.INT),
+                ParameterSpec("y", ParameterKind.RUNTIME, Type.INT),
+                ParameterSpec("text", ParameterKind.RUNTIME, Type.TEXT)),
+        ) { LcdInstance(this, it.configuration) },
     )
 
 }

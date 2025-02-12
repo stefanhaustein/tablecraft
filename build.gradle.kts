@@ -25,6 +25,7 @@ dependencies {
     implementation("com.pi4j:pi4j-core:2.7.0")
     implementation("com.pi4j:pi4j-plugin-raspberrypi:2.7.0")
     implementation("com.pi4j:pi4j-plugin-gpiod:2.7.0")
+    implementation("com.pi4j:pi4j-plugin-linuxfs:2.7.0")
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.html.builder)
     implementation(libs.kotlinx.html)
