@@ -5,10 +5,9 @@ let thead = document.getElementById("spreadsheetTHead")
 for (let col = 0; col < 27; col++) {
     let th = document.createElement("th")
     th.style.top = 0
-    th.style.position = "sticky"
     if (col == 0) {
         th.style.left = 0
-        th.style.zIndex = 1
+        th.style.zIndex = 3
     } else {
         th.textContent = String.fromCharCode(col + 64)
     }
@@ -20,7 +19,6 @@ for (let row = 1; row < 100; row++) {
     tbody.appendChild(tr)
     let th = document.createElement("th")
     th.style.left = "0"
-    th.style.position = "sticky"
     th.textContent = row
     tr.appendChild(th)
     for(let col = 1; col < 27; col++) {

@@ -1,6 +1,6 @@
 package org.kobjects.tablecraft.plugins.pi4j
 
-import com.pi4j.catalog.components.LcdDisplay
+
 import freenove.I2CLCD1602
 import org.kobjects.tablecraft.pluginapi.OperationInstance
 

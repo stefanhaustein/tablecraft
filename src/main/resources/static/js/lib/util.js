@@ -6,13 +6,16 @@ export function nullToEmtpy(s) {
 export function renderComputedValue(targetElement, cellData) {
     let value = cellData["c"]
     let classes = targetElement.classList
-    classes.remove("c", "e", "i", "r")
+    classes.remove("c", "e", "i", "r", "l")
     targetElement.removeAttribute("title")
 
     if (value == null || value == "") {
         targetElement.textContent = ""
     } else if (value.startsWith("l:")) {
         targetElement.textContent = value.substring(2)
+        if (value.length > 2) {
+            classes.add("l")
+        }
     } else if (value.startsWith("r:")) {
         targetElement.textContent = value.substring(2)
         classes.add("r")

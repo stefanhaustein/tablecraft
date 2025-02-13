@@ -93,6 +93,8 @@ html {
     border-right: 1px solid #888;
     border-bottom: 1px solid #888;
     background-color: #fff;
+    position: sticky;
+    z-index: 2;
 }
 
 #spreadsheetTable td {
@@ -104,8 +106,28 @@ html {
     outline: 2px solid #88f;
 }
 
+#spreadsheetTable td.focus,
+#spreadsheetTable td.editing {
+    position: relative;
+    z-index: 1;
+}
+
 #spreadsheetTable td.editing {
     outline: 2px solid #ddf;
+}
+
+#spreadsheetTable td.c,
+#spreadsheetTable td.e,
+#spreadsheetTable td.i,
+#spreadsheetTable td.l,
+#spreadsheetTable td.r {
+    position: relative;
+    background: white;
+}
+
+#spreadsheetTable td.l {
+    overflow: visible;
+    white-space: nowrap;
 }
 
 #spreadsheetTable td.c {
