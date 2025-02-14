@@ -1,139 +1,6 @@
 package freenove;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import com.pi4j.Pi4J;
-import com.pi4j.context.Context;
-import com.pi4j.io.i2c.I2C;
-import com.pi4j.io.i2c.I2CConfig;
-import com.pi4j.io.i2c.I2CConfigBuilder;
-import com.pi4j.io.i2c.I2CProvider;
-
-class IIC {
-    protected String dev;
-    protected int handle;
-    protected int slave;
-    protected byte[] out;
-    protected boolean transmitting;
-
-    private Context pi4j;
-    I2CConfigBuilder i2cConfigBuilder;
-    I2CProvider i2CProvider;
-    I2CConfig i2cConfig;
-    I2C i2c;
-    int bus = 1;
-
-    public IIC(int bus) {
-        this.bus = bus;
-        constructor();
-    }
-
-    public IIC(String s) {
-        String b = s.split("i2c-")[1];
-        try {
-            this.bus = Integer.parseInt(b);
-        } catch (Exception e) {
-            this.bus = 1;
-        }
-        constructor();
-    }
-
-    private void constructor() {
-        pi4j = Pi4J.newAutoContext();
-        i2CProvider = pi4j.provider("linuxfs-i2c");
-        i2cConfigBuilder = I2C.newConfigBuilder(pi4j).bus(bus);
-    }
-
-    public void beginTransmission(int address) {
-        if (i2cConfig == null) {
-            i2cConfig = i2cConfigBuilder.device(address).build();
-        }
-
-        if (i2c == null) {
-            i2c = i2CProvider.create(i2cConfig);
-        }
-    }
-
-    public void write(int b) {
-        i2c.write(b);
-    }
-
-    public byte read() {
-        return i2c.readByte();
-    }
-
-    public byte[] read(int size) {
-        return i2c.readByteBuffer(size).array();
-    }
-
-    public void endTransmission() {
-        i2c.close();
-    }
-
-    public static String[] list() {
-        ArrayList<String> devs = new ArrayList<String>();
-        File dir = new File("/dev");
-        File[] files = dir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.getName().startsWith("i2c-")) {
-                    devs.add(file.getName());
-                }
-            }
-        }
-        String[] tmp = devs.toArray(new String[devs.size()]);
-        Arrays.sort(tmp);
-        return tmp;
-    }
-}
-
-class PCF8574 {
-    private int address;
-    private IIC i2c;
-    private int currValue;
-
-    public PCF8574(int addr) {
-        address = addr;
-        i2c = new IIC(IIC.list()[0]);
-        currValue = 0;
-    }
-
-    public int digitalRead(int pin) {
-        int val = readByte();
-        return ((val & (1 << pin)) == (1 << pin)) ? 1 : 0;
-    }
-
-    public int readByte() {
-        return currValue;
-    }
-
-    public void digitalWrite(int pin, int val) {
-        int value = currValue;
-        if (val == 1) {
-            value |= (1 << pin);
-        } else if (val == 0) {
-            value &= ~(1 << pin);
-        } else {
-            return;
-        }
-        writeByte(value);
-    }
-
-    public void writeByte(int data) {
-        currValue = data;
-        i2c.beginTransmission(address);
-        i2c.write(data);
-        i2c.endTransmission();
-    }
-
-    public int getCurrentValue() {
-        return currValue;
-    }
-}
-
-class Freenove_LCD1602 {
+public class Freenove_LCD1602 {
     final public int // HD44780U commands
             CLEAR = 0x01,
             HOME = 0x02,
@@ -162,7 +29,7 @@ class Freenove_LCD1602 {
             DISPLAYMOVE = 0x08,
             CURSORMOVE = 0x00;
 
-    final public int[] rowOff = { 0x00, 0x40, 0x14, 0x54 };
+    final public int[] rowOff = {0x00, 0x40, 0x14, 0x54};
     private int func = 0, control = 0;
     PCF8574 pcf;
     private int rows, cols, rsPin, enPin, rwPin;
@@ -183,6 +50,14 @@ class Freenove_LCD1602 {
         } else {
             return value;
         }
+    }
+
+    public Freenove_LCD1602() {
+        this(0x27);
+    }
+
+    public Freenove_LCD1602(int address) {
+        this(new PCF8574(address));
     }
 
     public Freenove_LCD1602(PCF8574 ipcf) {
@@ -357,46 +232,4 @@ class Freenove_LCD1602 {
         displayMode &= ~ENTRY_SH;
         putCommand(ENTRY | displayMode);
     }
-}
-
-public class I2CLCD1602 {
-
-    private final PCF8574 pcf;
-    private final Freenove_LCD1602 lcd;
-
-    public I2CLCD1602() {
-        this(0x27);
-    }
-
-    public I2CLCD1602(int address) {
-        pcf = new PCF8574(address);
-        lcd = new Freenove_LCD1602(pcf);
-    }
-
-    public void printAt(int x, int y, String text) {
-        lcd.position(x, y); // show time on the lcd display
-        lcd.puts(text);
-    }
-
-/*
-
-    public static void main(String[] args) throws Exception {
-
-        lcd.position(0, 0); // show time on the lcd display
-        lcd.puts("Hello World.");
-        try {
-            int count = 0;
-            while (true) {
-                String buf = "Count: " + count;
-                lcd.position(0, 1); // show time on the lcd display
-                lcd.puts(buf);
-                Thread.sleep(1000);
-                count++;
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
- */
 }
