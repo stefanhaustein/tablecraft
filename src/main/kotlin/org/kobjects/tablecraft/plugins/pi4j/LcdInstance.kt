@@ -1,7 +1,7 @@
 package org.kobjects.tablecraft.plugins.pi4j
 
 
-import freenove.I2CLCD1602
+import freenove.Freenove_LCD1602
 import org.kobjects.tablecraft.pluginapi.OperationInstance
 
 class LcdInstance(
@@ -10,7 +10,7 @@ class LcdInstance(
 )  : OperationInstance, Pi4JPort {
 
     var error: Exception? = null
-    var display: I2CLCD1602? = null
+    var display: Freenove_LCD1602? = null
 
     override fun attach() {
         plugin.addPort(this)
@@ -21,7 +21,7 @@ class LcdInstance(
         val width = (configuration["width"] as Number).toInt()
         val height = (configuration["height"] as Number).toInt()
         try {
-            display = I2CLCD1602()
+            display = Freenove_LCD1602()
             error = null
         } catch (e: Exception) {
             e.printStackTrace()
@@ -34,7 +34,8 @@ class LcdInstance(
         val x = (params["x"] as Number).toInt()
         val y = (params["y"] as Number).toInt()
         val text = params["text"].toString()
-        display?.printAt(x, y, text)
+        display?.position(x, y)
+        display?.puts(text)
         return text
     }
 
