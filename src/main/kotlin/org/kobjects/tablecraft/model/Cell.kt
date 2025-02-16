@@ -41,7 +41,7 @@ class Cell(
                 "false" -> LiteralExpression(false)
                 else -> {
                     try {
-                        LiteralExpression(value.toDouble())
+                        LiteralExpression(Values.parseNumber(value))
                     } catch (e: Exception) {
                         LiteralExpression(value)
                     }

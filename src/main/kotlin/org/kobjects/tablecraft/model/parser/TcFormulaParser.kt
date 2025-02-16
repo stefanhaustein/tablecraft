@@ -9,14 +9,21 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
     { scanner, context -> TcFormulaParser.parsePrimary(scanner, context) },
     { _, _, name, operand -> UnaryOperatorExpression(name, operand) },
     { _, _, name, leftOperand, rightOperand -> BinaryOperatorExpression(name, leftOperand, rightOperand) },
-    Operator.Prefix(2, "-"),
-    Operator.Infix(1, "*", "/"),
-    Operator.Infix(0, "+", "-")
+    Operator.Infix(7, "."),
+    Operator.Prefix(6, "-"),
+    Operator.Suffix(5, "%"),
+    Operator.Infix(4, "^"),
+    Operator.Infix(3, "*", "/"),
+    Operator.Infix(2, "+", "-"),
+    Operator.Infix(1, "&"),
+    Operator.Infix(0, "=", "<>", "<=", "=>", "<", ">")
 ) {
 
     fun parsePrimary(scanner: TcScanner, context: ParsingContext): Expression =
         when (scanner.current.type) {
-            TcTokenType.NUMBER -> LiteralExpression(scanner.consume().text.toDouble())
+            TcTokenType.NUMBER -> if (scanner.current.text.contains(".")
+                || scanner.current.text.contains("e")
+                || scanner.current.text.contains("E")) LiteralExpression(scanner.consume().text.toDouble()) else LiteralExpression(scanner.consume().text.toInt())
             TcTokenType.STRING -> {
                 val text = scanner.consume().text
                 LiteralExpression(text.substring(1, text.length - 1))
@@ -30,26 +37,36 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
             }
             TcTokenType.IDENTIFIER -> {
                 val name = scanner.consume().text
-                if (scanner.tryConsume("(")) {
-                    val parameterList = parseParameterList(scanner, context)
-                    when (name.lowercase()) {
-
-                        else -> {
-                            val functionSpec = Model.functionMap[name.lowercase()]
-                            if (functionSpec != null) {
-                                PluginOperationCallExpression.create(context.cell, functionSpec, parameterList)
-                            } else {
-                                BuiltinFunctionCallExpression(name, parameterList)
-                            }
+                val parameterList = if (scanner.tryConsume("(")) parseParameterList(scanner, context) else emptyMap()
+                when (name.lowercase()) {
+                    "true" -> {
+                        require(parameterList.isEmpty()) {
+                            "Unexpected parameter(s) for 'TRUE'"
                         }
+                        LiteralExpression(true)
+                    }
+                    "false" -> {
+                        require(parameterList.isEmpty()) {
+                            "Unexpected parameter(s) for 'TRUE'"
+                        }
+                        LiteralExpression(false)
+                    }
+                    else -> {
+                        val functionSpec = Model.functionMap[name.lowercase()]
+                        require (functionSpec != null) {
+                            "Unresolved function '$name'"
+                        }
+                        PluginOperationCallExpression.create(context.cell, functionSpec, parameterList)
                     }
                 }
-                else when (name.lowercase()) {
-                    "true" -> LiteralExpression(true)
-                    "false" -> LiteralExpression(false)
-                    else -> {
-                        throw IllegalArgumentException("Unknown function '$name'")
-                    }
+            }
+            TcTokenType.SYMBOL -> {
+                if (scanner.tryConsume("(")) {
+                    val result = parsePrimary(scanner, context)
+                    scanner.consume(")")
+                    result
+                } else {
+                    throw IllegalStateException("Unexpected token in parsePrimary ${scanner.current}")
                 }
             }
             else -> {

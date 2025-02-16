@@ -24,7 +24,7 @@ object BuiltinFunctions : Plugin {
             OperationKind.FUNCTION,
             Type.BOOLEAN,
             "toff",
-            "Delayed off",
+            "Timed off",
             listOf(ParameterSpec("input", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("delay", ParameterKind.CONFIGURATION, Type.NUMBER)),
             0,
             TOnOffFunction::createToff),
@@ -33,10 +33,30 @@ object BuiltinFunctions : Plugin {
             OperationKind.FUNCTION,
             Type.BOOLEAN,
             "ton",
-            "Delayed on",
+            "Timed on",
             listOf(ParameterSpec("input", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("delay", ParameterKind.CONFIGURATION, Type.NUMBER)),
             0,
             TOnOffFunction::createTon),
+
+
+        OperationSpec(
+            OperationKind.FUNCTION,
+            Type.BOOLEAN,
+            "rs",
+            "RS-Flipflop",
+            listOf(ParameterSpec("r", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("s", ParameterKind.RUNTIME, Type.BOOLEAN)),
+            0,
+            FlipflopFunction::createRs),
+
+        OperationSpec(
+            OperationKind.FUNCTION,
+            Type.BOOLEAN,
+            "sr",
+            "SR-Flipflop",
+            listOf(ParameterSpec("r", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("s", ParameterKind.RUNTIME, Type.BOOLEAN)),
+            0,
+            FlipflopFunction::createSr),
+
 
         OperationSpec(
             OperationKind.FUNCTION,
