@@ -17,7 +17,7 @@ class Port(
         ::createInstance,
     )
 
-    val physicalPort = portConstructor.createFn(this)
+    val physicalPort = portConstructor.createFn(this) as OperationInstance
     val clients = mutableListOf<Client>()
 
     init {

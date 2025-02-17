@@ -3,10 +3,7 @@ package org.kobjects.tablecraft.model.expression
 import org.kobjects.tablecraft.model.Cell
 import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.model.RuntimeContext
-import org.kobjects.tablecraft.pluginapi.OperationHost
-import org.kobjects.tablecraft.pluginapi.OperationSpec
-import org.kobjects.tablecraft.pluginapi.ParameterKind
-import org.kobjects.tablecraft.pluginapi.Type
+import org.kobjects.tablecraft.pluginapi.*
 
 class PluginOperationCallExpression(
     val cell: Cell,
@@ -18,7 +15,7 @@ class PluginOperationCallExpression(
     override val children: Collection<Expression>
         get() = parameters.values.map { it.first }
 
-    val functionInstance = operationSpec.createFn(this)
+    val functionInstance = operationSpec.createFn(this) as OperationInstance
 
     override fun attach() {
         functionInstance.attach()
