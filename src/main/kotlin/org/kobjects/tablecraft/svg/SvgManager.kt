@@ -1,9 +1,6 @@
 package org.kobjects.tablecraft.svg
 
-import org.kobjects.tablecraft.pluginapi.OperationKind
-import org.kobjects.tablecraft.pluginapi.OperationSpec
-import org.kobjects.tablecraft.pluginapi.Plugin
-import org.kobjects.tablecraft.pluginapi.Type
+import org.kobjects.tablecraft.pluginapi.*
 import java.io.File
 
 class SvgManager(root: File) : Plugin {
@@ -26,6 +23,7 @@ class SvgManager(root: File) : Plugin {
         }
     }
 
+    override val portSpecs = emptyList<PortSpec>()
     override val operationSpecs: List<OperationSpec>
         get() {
             val result = mutableListOf<OperationSpec>()

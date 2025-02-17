@@ -21,6 +21,7 @@ class Pi4jPlugin : Plugin {
         pi4J = Pi4J.newAutoContext()
     }
 
+    override val portSpecs = emptyList<PortSpec>()
     override val operationSpecs = listOf(
         OperationSpec(
             OperationKind.PORT_CONSTRUCTOR,

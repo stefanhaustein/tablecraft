@@ -1,11 +1,27 @@
 package org.kobjects.tablecraft.plugins.mqtt
 
-import io.github.davidepianca98.MQTTClient
-import io.github.davidepianca98.mqtt.MQTTVersion
-import io.github.davidepianca98.mqtt.Subscription
-import io.github.davidepianca98.mqtt.packets.Qos
-import io.github.davidepianca98.mqtt.packets.mqttv5.SubscriptionOptions
 
+import org.kobjects.tablecraft.pluginapi.*
+
+
+class MqttPlugin : Plugin {
+    override val portSpecs = listOf<PortSpec>(
+        PortSpec(
+            "mqtt",
+            "A Mqtt client",
+            listOf(
+                ParameterSpec("address", ParameterKind.CONFIGURATION, Type.TEXT, required = true),
+                ParameterSpec("port", ParameterKind.CONFIGURATION, Type.INT, required = true),
+            )
+        ) { name, configuration ->
+            MqttPort(name, configuration)
+        })
+
+    override val operationSpecs = emptyList<OperationSpec>()
+}
+
+
+/*
 fun main() {
     val client = MQTTClient(
         MQTTVersion.MQTT5,
@@ -20,3 +36,4 @@ fun main() {
     client.publish(false, Qos.EXACTLY_ONCE, "/randomTopic", "hello".encodeToByteArray().toUByteArray())
     client.run() // Blocking method, use step() if you don't want to block the thread
 }
+*/
