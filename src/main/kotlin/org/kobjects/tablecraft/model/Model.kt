@@ -8,6 +8,7 @@ import org.kobjects.tablecraft.model.builtin.BuiltinFunctions
 import org.kobjects.tablecraft.pluginapi.OperationSpec
 import org.kobjects.tablecraft.pluginapi.ParameterKind
 import org.kobjects.tablecraft.pluginapi.Plugin
+import org.kobjects.tablecraft.plugins.mqtt.MqttPlugin
 import org.kobjects.tablecraft.plugins.pi4j.Pi4jPlugin
 import org.kobjects.tablecraft.svg.SvgManager
 import java.io.File
@@ -44,6 +45,7 @@ object Model {
         addPlugin(BuiltinFunctions)
         addPlugin(Pi4jPlugin())
         addPlugin(svgs)
+        addPlugin(MqttPlugin)
 
         withLock { runtimeContext ->
             try {
@@ -121,6 +123,13 @@ object Model {
         for (function in functionMap.values) {
             if (function.tag > tag) {
                 sb.append(function.name).append(": ").append(function.toJson()).append('\n')
+            }
+        }
+        for (plugin in plugins) {
+            for (portSpec in plugin.portSpecs) {
+                if (portSpec.tag > tag) {
+                    sb.append(portSpec.name).append(": ").append(portSpec.toJson()).append('\n')
+                }
             }
         }
         return if (sb.isEmpty()) "" else "[functions]\n\n$sb"
