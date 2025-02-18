@@ -13,8 +13,8 @@ object MqttPlugin : Plugin {
                 ParameterSpec("address", ParameterKind.CONFIGURATION, Type.TEXT, required = true),
                 ParameterSpec("port", ParameterKind.CONFIGURATION, Type.INT, required = true),
             )
-        ) { name, configuration ->
-            MqttPort(name, configuration)
+        ) { name, configuration, tag ->
+            MqttPort(name, configuration, tag)
         })
 
     override val operationSpecs = emptyList<OperationSpec>()

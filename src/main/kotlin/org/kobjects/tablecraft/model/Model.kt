@@ -5,9 +5,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.kobjects.tablecraft.model.builtin.BuiltinFunctions
-import org.kobjects.tablecraft.pluginapi.OperationSpec
-import org.kobjects.tablecraft.pluginapi.ParameterKind
-import org.kobjects.tablecraft.pluginapi.Plugin
+import org.kobjects.tablecraft.pluginapi.*
 import org.kobjects.tablecraft.plugins.mqtt.MqttPlugin
 import org.kobjects.tablecraft.plugins.pi4j.Pi4jPlugin
 import org.kobjects.tablecraft.svg.SvgManager
@@ -30,7 +28,9 @@ object Model {
 
     val functionMap = mutableMapOf<String, OperationSpec>()
     val plugins = mutableListOf<Plugin>()
-    val ports = mutableMapOf<String, Port>()
+    val legacyPorts = mutableMapOf<String, Port>()
+    val portSpecMap = mutableMapOf<String, PortSpec>()
+    val portInstanceMap = mutableMapOf<String, PortInstance>()
 
     val svgs = SvgManager(File("src/main/resources/static/img"))
 
@@ -38,6 +38,9 @@ object Model {
         plugins.add(plugin)
         for (function in plugin.operationSpecs) {
             functionMap[function.name] = function
+        }
+        for (portSpec in plugin.portSpecs) {
+            portSpecMap[portSpec.name] = portSpec
         }
     }
 
@@ -97,7 +100,7 @@ object Model {
         val writer = FileWriter(STORAGE_FILE)
         writer.write("[ports]\n\n")
 
-        for (port in ports.values) {
+        for (port in legacyPorts.values) {
             writer.write("${port.name} = ${port.toJson().quote()}\n")
         }
         writer.write("\n")
@@ -127,7 +130,7 @@ object Model {
         }
         for (plugin in plugins) {
             for (portSpec in plugin.portSpecs) {
-                if (portSpec.tag > tag) {
+                if (tag <= 0) {
                     sb.append(portSpec.name).append(": ").append(portSpec.toJson()).append('\n')
                 }
             }
@@ -142,25 +145,38 @@ object Model {
         if (!previousName.isNullOrBlank()) {
             require(runtimeContext != null)
             functionMap[previousName] = OperationSpec.createTombstone(previousName, runtimeContext.tag)
-            ports.remove(previousName)?.delete()
+            legacyPorts.remove(previousName)?.delete()
         }
 
         if (!name.isNullOrBlank()) {
             val type = jsonSpec["type"]!!.jsonPrimitive.content
-            val constructorSpecification = functionMap[type]!!
-
             val configuration = mutableMapOf<String, Any>()
             val jsonConfig = jsonSpec["configuration"]!!.jsonObject
-
-            for (paramSpec in constructorSpecification.parameters) {
-                if (paramSpec.kind == ParameterKind.CONFIGURATION) {
-                    configuration[paramSpec.name] = paramSpec.type.fromString(jsonConfig[paramSpec.name]!!.jsonPrimitive.content)
+            val constructorSpecification = functionMap[type]
+            if (constructorSpecification != null) {
+                for (paramSpec in constructorSpecification.parameters) {
+                    if (paramSpec.kind == ParameterKind.CONFIGURATION) {
+                        configuration[paramSpec.name] =
+                            paramSpec.type.fromString(jsonConfig[paramSpec.name]!!.jsonPrimitive.content)
+                    }
+                }
+                val port = Port(name, constructorSpecification, configuration.toMap(), runtimeContext?.tag ?: 0L)
+                legacyPorts[name] = port
+                functionMap[name] = port.specification
+            } else {
+                val portSpec = portSpecMap[type]!!
+                for (paramSpec in portSpec.parameters) {
+                    if (paramSpec.kind == ParameterKind.CONFIGURATION) {
+                        configuration[paramSpec.name] =
+                            paramSpec.type.fromString(jsonConfig[paramSpec.name]!!.jsonPrimitive.content)
+                    }
+                }
+                val port = portSpec.createFn(name, configuration, runtimeContext?.tag ?: 0L)
+                portInstanceMap[name] = port
+                for (f in port.operationSpecs) {
+                    functionMap[f.name] = f
                 }
             }
-
-            val port = Port(name, constructorSpecification, configuration.toMap(), runtimeContext?.tag ?: 0L)
-            ports[name] = port
-            functionMap[name] = port.specification
         }
         save()
     }

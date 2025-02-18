@@ -14,7 +14,7 @@ class MqttPublisher(val port: MqttPort, config: Map<String, Any>) : OperationIns
     @OptIn(ExperimentalUnsignedTypes::class)
     override fun apply(params: Map<String, Any>): Any {
         val payload = params["payload"].toString()
-        port.client.publish(false, Qos.EXACTLY_ONCE, topic, payload.toByteArray().toUByteArray())
+        port.client?.publish(false, Qos.EXACTLY_ONCE, topic, payload.toByteArray().toUByteArray())
         return payload
     }
 

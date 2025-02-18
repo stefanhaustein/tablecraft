@@ -7,18 +7,28 @@ import org.kobjects.tablecraft.pluginapi.*
 
 class MqttPort(
     override val name: String,
-    config: Map<String, Any>
+    config: Map<String, Any>,
+    override val tag: Long
 ) : PortInstance {
 
-    val client: MQTTClient
+    var client: MQTTClient? = null
+    var exception: Exception? = null
     val listeners = mutableMapOf<String, MutableSet<OperationHost>>()
 
     init {
-        client = MQTTClient(MQTTVersion.MQTT5, config["address"].toString(), config["port"]!! as Int, null) {
-            println("MQTT packet received: $it")
-        }
         Thread {
-            client.run()
+            try {
+                client = MQTTClient(MQTTVersion.MQTT5, config["address"].toString(), config["port"]!! as Int, null) {
+                    println("MQTT packet received: $it")
+                }
+                for (topic in listeners.keys) {
+                    client!!.subscribe(listOf(Subscription(topic)))
+                }
+                client!!.run()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                exception = e
+            }
         }.start()
     }
 
@@ -28,7 +38,8 @@ class MqttPort(
             Type.TEXT,
             "$name.subscribe",
             "Subscribe to the given topic and receive update messages",
-            listOf(ParameterSpec("topic", ParameterKind.CONFIGURATION, Type.TEXT, true))
+            listOf(ParameterSpec("topic", ParameterKind.CONFIGURATION, Type.TEXT, true)),
+            tag
         ) {
             MqttSubscription(this, it)
         },
@@ -40,7 +51,8 @@ class MqttPort(
             listOf(
                 ParameterSpec("topic", ParameterKind.CONFIGURATION, Type.TEXT, true),
                 ParameterSpec("payload", ParameterKind.RUNTIME, Type.TEXT, true),
-                )
+                ),
+            tag
         ) {
             MqttPublisher(this, it.configuration)
         }
@@ -48,7 +60,7 @@ class MqttPort(
 
     fun addListener(topic: String, operationHost: OperationHost) {
         val hosts = listeners.getOrPut(topic) {
-            client.subscribe(listOf(Subscription(topic)))
+            client?.subscribe(listOf(Subscription(topic)))
             mutableSetOf()
         }
         hosts.add(operationHost)
@@ -59,7 +71,7 @@ class MqttPort(
         if (hosts != null) {
             hosts.remove(operationHost)
             if (hosts.isEmpty()) {
-                client.unsubscribe(listOf(topic))
+                client?.unsubscribe(listOf(topic))
             }
         }
     }
