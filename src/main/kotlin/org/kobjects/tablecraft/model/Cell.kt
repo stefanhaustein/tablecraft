@@ -118,4 +118,6 @@ class Cell(
         }
     }
 
+
+    override fun toString() = rawValue
 }

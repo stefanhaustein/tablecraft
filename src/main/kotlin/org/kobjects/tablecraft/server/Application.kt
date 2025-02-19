@@ -56,7 +56,7 @@ fun Application.module() {
             }
             val result = Model.withLock {
                 val sheet = Model.sheets[name]!!
-                Model.serializeFunctions(tag) + "\n" + sheet.serialize(tag, true)
+                Model.serializeFunctions(tag) + "\n" + Model.serializePorts(tag) + "\n" + sheet.serialize(tag, true)
             }
             call.respondText("tag = ${Model.modificationTag}\n$result", ContentType.Text.Plain, HttpStatusCode.OK,)
         }

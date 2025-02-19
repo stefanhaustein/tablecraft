@@ -28,6 +28,7 @@ abstract class Expression {
         try {
             attach()
         } catch(e: Exception ) {
+            System.err.println("Error attaching $this")
             e.printStackTrace()
         }
     }

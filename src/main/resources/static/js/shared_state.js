@@ -11,6 +11,7 @@ export var model = {
 }
 
 export var functions = {}
+export var ports = {}
 export var currentSheet = model.sheets["Sheet1"]
 export let currentCellId = null
 export let currentCellElement = null

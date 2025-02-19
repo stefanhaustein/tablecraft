@@ -41,6 +41,7 @@ class Sheet(var name: String) {
                     else -> throw IllegalStateException("Unrecognized suffix in $key = $value")
                 }
             } catch (e: Exception) {
+                System.err.println("Error parsing cell $key = $value")
                 e.printStackTrace()
             }
         }

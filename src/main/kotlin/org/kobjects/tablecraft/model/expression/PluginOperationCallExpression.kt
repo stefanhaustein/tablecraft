@@ -69,4 +69,6 @@ class PluginOperationCallExpression(
         }
     }
 
+    override fun toString() = "$functionInstance configuration: $configuration parameters: $parameters cell: $cell"
+
 }

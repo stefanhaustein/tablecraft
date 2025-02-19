@@ -1,4 +1,4 @@
-import {functions} from "./shared_state.js";
+import {functions, ports} from "./shared_state.js";
 import {InputController} from "./lib/form_builder.js";
 import {sendJson} from "./lib/util.js";
 import {extractParameters} from "./lib/expressions.js";
@@ -29,7 +29,7 @@ function editPort(event) {
         console.log("Target element id not recognized: ", entryElement)
     }
     let name = id.substring("port.".length)
-    let portSpec = functions[name]
+    let portSpec = ports[name]
     let instanceSpec = portSpec.configuration
     let constructorSpec = null
     if (instanceSpec == null) {

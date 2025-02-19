@@ -124,6 +124,7 @@ object Model {
         listeners.clear()
     }
 
+
     fun serializeFunctions(tag: Long): String {
         val sb = StringBuilder()
         for (function in functionMap.values) {
@@ -138,13 +139,19 @@ object Model {
                 }
             }
         }
+        return if (sb.isEmpty()) "" else "[functions]\n\n$sb"
+    }
+
+    fun serializePorts(tag: Long): String {
+        val sb = StringBuilder()
         for (port in portInstanceMap.values) {
             if (port.tag > tag) {
                 sb.append(port.name).append(": ").append(port.toJson()).append('\n')
             }
         }
-        return if (sb.isEmpty()) "" else "[functions]\n\n$sb"
+        return if (sb.isEmpty()) "" else "[ports]\n\n$sb"
     }
+
 
 
     fun definePort(name: String?, jsonSpec: JsonObject, runtimeContext: RuntimeContext? = null) {
