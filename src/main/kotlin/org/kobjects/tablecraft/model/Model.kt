@@ -103,6 +103,11 @@ object Model {
         for (port in legacyPorts.values) {
             writer.write("${port.name} = ${port.toJson().quote()}\n")
         }
+
+        for (port in portInstanceMap.values) {
+            writer.write("${port.name} = ${port.toJson().quote()}\n")
+        }
+
         writer.write("\n")
 
         for (sheet in sheets.values) {
@@ -119,8 +124,6 @@ object Model {
         listeners.clear()
     }
 
-    fun functionsToJson() = functionMap.values.joinToString(",\n", "[\n", "\n]\n") { it.toJson() }
-
     fun serializeFunctions(tag: Long): String {
         val sb = StringBuilder()
         for (function in functionMap.values) {
@@ -133,6 +136,11 @@ object Model {
                 if (tag <= 0) {
                     sb.append(portSpec.name).append(": ").append(portSpec.toJson()).append('\n')
                 }
+            }
+        }
+        for (port in portInstanceMap.values) {
+            if (port.tag > tag) {
+                sb.append(port.name).append(": ").append(port.toJson()).append('\n')
             }
         }
         return if (sb.isEmpty()) "" else "[functions]\n\n$sb"
@@ -178,6 +186,5 @@ object Model {
                 }
             }
         }
-        save()
     }
 }

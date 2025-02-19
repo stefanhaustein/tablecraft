@@ -7,7 +7,7 @@ import org.kobjects.tablecraft.pluginapi.*
 
 class MqttPort(
     override val name: String,
-    config: Map<String, Any>,
+    override val configuration: Map<String, Any>,
     override val tag: Long
 ) : PortInstance {
 
@@ -15,10 +15,13 @@ class MqttPort(
     var exception: Exception? = null
     val listeners = mutableMapOf<String, MutableSet<OperationHost>>()
 
+    override val type: String
+        get() = "mqtt"
+
     init {
         Thread {
             try {
-                client = MQTTClient(MQTTVersion.MQTT5, config["address"].toString(), config["port"]!! as Int, null) {
+                client = MQTTClient(MQTTVersion.MQTT5, configuration["address"].toString(), configuration["port"]!! as Int, null) {
                     println("MQTT packet received: $it")
                 }
                 for (topic in listeners.keys) {
@@ -34,7 +37,7 @@ class MqttPort(
 
     override val operationSpecs: List<OperationSpec> = listOf(
         OperationSpec(
-            OperationKind.PORT_INSTANCE,
+            OperationKind.FUNCTION,
             Type.TEXT,
             "$name.subscribe",
             "Subscribe to the given topic and receive update messages",
@@ -44,7 +47,7 @@ class MqttPort(
             MqttSubscription(this, it)
         },
         OperationSpec(
-            OperationKind.PORT_INSTANCE,
+            OperationKind.FUNCTION,
             Type.TEXT,
         "$name.publish",
         "Publish / update a message for a given topic",

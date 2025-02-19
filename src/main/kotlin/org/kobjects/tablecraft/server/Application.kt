@@ -37,6 +37,7 @@ fun Application.module() {
             Model.withLock {
                 Model.definePort(name, jsonSpec, it)
                 Model.notifyContentUpdated(it)
+                Model.save()
             }
             call.respond(HttpStatusCode.OK, null)
         }
@@ -58,9 +59,6 @@ fun Application.module() {
                 Model.serializeFunctions(tag) + "\n" + sheet.serialize(tag, true)
             }
             call.respondText("tag = ${Model.modificationTag}\n$result", ContentType.Text.Plain, HttpStatusCode.OK,)
-        }
-        get("functions") {
-            call.respondText(Model.functionsToJson())
         }
         get("img/{name...}") {
             val path = call.parameters.getAll("name")!!.joinToString("/")

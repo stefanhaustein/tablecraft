@@ -30,12 +30,17 @@ function editPort(event) {
     }
     let name = id.substring("port.".length)
     let portSpec = functions[name]
-    let description = portSpec.description
-    let cut = description.indexOf(";")
-    let constructorName = description.substring(0, cut).trim()
-    let constructorSpec = functions[constructorName]
-
-    let instanceSpec = extractParameters(description.substring(cut + 1), constructorSpec["params"])
+    let instanceSpec = portSpec.configuration
+    let constructorSpec = null
+    if (instanceSpec == null) {
+        let description = portSpec.description
+        let cut = description.indexOf(";")
+        let constructorName = description.substring(0, cut).trim()
+        instanceSpec = extractParameters(description.substring(cut + 1), constructorSpec["params"])
+        constructorSpec = functions[constructorName]
+    } else {
+        constructorSpec = functions[portSpec.type]
+    }
 
     showPortDialog(constructorSpec, name, instanceSpec)
 }

@@ -119,13 +119,33 @@ function processFunctionsUpdate(map) {
                 target.appendChild(optionElement)
             }
 
-            if (f.kind == "PORT_CONSTRUCTOR") {
+            if (f.kind == "PORT_CONSTRUCTOR" || f.kind == "PORT") {
                 optionElement.text = f.name
             } else {
                 optionElement.text = "=" + f.name + "("
             }
 
-            if (f.kind == "PORT_INSTANCE") {
+            if (f.kind == "PORT") {
+                let entryElement = document.getElementById("port." + name)
+                if (entryElement == null) {
+                    entryElement = document.createElement("div")
+                    entryElement.id = "port." + f.name
+                    portListElement.appendChild(entryElement)
+                } else {
+                    entryElement.textContent = ""
+                }
+                let title = name + ": " + f.type
+
+                let entryTitleElement = document.createElement("div")
+                entryTitleElement.className = "portTitle"
+                entryTitleElement.textContent = title
+                entryElement.appendChild(entryTitleElement)
+
+                let entryBodyElement = document.createElement("div")
+                entryBodyElement.className = "portDescription"
+                entryBodyElement.textContent = Object.entries(f.configuration).map(([key, value]) => key + "=" + value).join(", ")
+                entryElement.appendChild(entryBodyElement)
+            } else if (f.kind == "PORT_INSTANCE") {
                 let entryElement = document.getElementById("port." + name)
                 if (entryElement == null) {
                     entryElement = document.createElement("div")
