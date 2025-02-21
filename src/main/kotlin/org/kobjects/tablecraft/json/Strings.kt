@@ -1,4 +1,4 @@
-package org.kobjects.tablecraft.model
+package org.kobjects.tablecraft.json
 
 fun String.escape(): String {
     val sb = StringBuilder()

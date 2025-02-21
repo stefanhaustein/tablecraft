@@ -2,6 +2,7 @@ package org.kobjects.tablecraft.model
 
 import kotlinx.datetime.*
 import kotlinx.datetime.format.char
+import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.model.builtin.ImageReference
 import org.kobjects.tablecraft.model.expression.Expression
 import org.kobjects.tablecraft.model.expression.LiteralExpression

@@ -1,5 +1,6 @@
 package org.kobjects.tablecraft.model
 
+import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.pluginapi.*
 
 class Port(

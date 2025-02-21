@@ -86,7 +86,7 @@ function processSheetUpdate(map) {
                     if (element != null) {
                         renderComputedValue(element, cell)
                     } else {
-                        console.log("Sync issue: Element '" + key + "' not found for line '" + line + "'")
+                        console.log("Sync issue: Element '" + key + "' not found for line '" + rawKey + "=" + value + "'")
                     }
                     break
                 default:

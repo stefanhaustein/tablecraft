@@ -1,6 +1,6 @@
 package org.kobjects.tablecraft.pluginapi
 
-import org.kobjects.tablecraft.model.quote
+import org.kobjects.tablecraft.json.quote
 
 interface PortInstance {
     val type: String

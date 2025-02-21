@@ -1,9 +1,5 @@
 package org.kobjects.tablecraft.model
 
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import org.kobjects.tablecraft.model.builtin.BuiltinFunctions
 import org.kobjects.tablecraft.pluginapi.*
 import org.kobjects.tablecraft.plugins.mqtt.MqttPlugin
@@ -11,7 +7,7 @@ import org.kobjects.tablecraft.plugins.pi4j.Pi4jPlugin
 import org.kobjects.tablecraft.svg.SvgManager
 import java.io.File
 import java.io.FileWriter
-import org.kobjects.tablecraft.toml.IniParser
+import org.kobjects.tablecraft.tomson.TomsonParser
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlin.contracts.ExperimentalContracts
@@ -19,7 +15,7 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 object Model {
-    val STORAGE_FILE = File("storage/model.ini")
+    val STORAGE_FILE = File("storage/model.tomson")
 
     var modificationTag: Long = 0
     val sheets = mutableMapOf<String, Sheet>("Sheet1" to Sheet("Sheet1"))
@@ -52,7 +48,7 @@ object Model {
 
         withLock { runtimeContext ->
             try {
-                val toml = IniParser.parse(STORAGE_FILE.readText())
+                val toml = TomsonParser.parse(STORAGE_FILE.readText())
                 for ((key, map) in toml) {
                     if (key.startsWith("sheets.") && key.endsWith(".cells")) {
                         val name = key.substringAfter("sheets.").substringBeforeLast(".cells")
@@ -62,7 +58,7 @@ object Model {
                     } else if (key == "ports") {
                         for ((name, value) in map) {
                             try {
-                                definePort(name, Json.parseToJsonElement(value.toString()) as JsonObject)
+                                definePort(name, value as Map<String, Any>)
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
@@ -101,11 +97,11 @@ object Model {
         writer.write("[ports]\n\n")
 
         for (port in legacyPorts.values) {
-            writer.write("${port.name} = ${port.toJson().quote()}\n")
+            writer.write("${port.name} = ${port.toJson()}\n")
         }
 
         for (port in portInstanceMap.values) {
-            writer.write("${port.name} = ${port.toJson().quote()}\n")
+            writer.write("${port.name} = ${port.toJson()}\n")
         }
 
         writer.write("\n")
@@ -154,8 +150,8 @@ object Model {
 
 
 
-    fun definePort(name: String?, jsonSpec: JsonObject, runtimeContext: RuntimeContext? = null) {
-        val previousName = jsonSpec["previousName"]?.jsonPrimitive?.content
+    fun definePort(name: String?, jsonSpec: Map<String, Any>, runtimeContext: RuntimeContext? = null) {
+        val previousName = jsonSpec["previousName"] as String?
 
         if (!previousName.isNullOrBlank()) {
             require(runtimeContext != null)
@@ -164,15 +160,15 @@ object Model {
         }
 
         if (!name.isNullOrBlank()) {
-            val type = jsonSpec["type"]!!.jsonPrimitive.content
+            val type = jsonSpec["type"].toString()
             val configuration = mutableMapOf<String, Any>()
-            val jsonConfig = jsonSpec["configuration"]!!.jsonObject
+            val jsonConfig = jsonSpec["configuration"] as Map<String, Any>
             val constructorSpecification = functionMap[type]
             if (constructorSpecification != null) {
                 for (paramSpec in constructorSpecification.parameters) {
                     if (paramSpec.kind == ParameterKind.CONFIGURATION) {
                         configuration[paramSpec.name] =
-                            paramSpec.type.fromString(jsonConfig[paramSpec.name]!!.jsonPrimitive.content)
+                            paramSpec.type.fromString(jsonConfig[paramSpec.name].toString())
                     }
                 }
                 val port = Port(name, constructorSpecification, configuration.toMap(), runtimeContext?.tag ?: 0L)
@@ -183,7 +179,7 @@ object Model {
                 for (paramSpec in portSpec.parameters) {
                     if (paramSpec.kind == ParameterKind.CONFIGURATION) {
                         configuration[paramSpec.name] =
-                            paramSpec.type.fromString(jsonConfig[paramSpec.name]!!.jsonPrimitive.content)
+                            paramSpec.type.fromString(jsonConfig[paramSpec.name].toString())
                     }
                 }
                 val port = portSpec.createFn(name, configuration, runtimeContext?.tag ?: 0L)

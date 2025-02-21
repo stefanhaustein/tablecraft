@@ -9,6 +9,7 @@ import io.ktor.server.routing.*
 import kotlinx.html.dom.serialize
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import org.kobjects.tablecraft.json.JsonParser
 import org.kobjects.tablecraft.model.Model
 import java.io.File
 import kotlin.coroutines.resume
@@ -33,9 +34,9 @@ fun Application.module() {
             val name = call.request.queryParameters["name"]
             val jsonText = call.receiveText()
             println("Received JSON: $jsonText")
-            val jsonSpec = Json.parseToJsonElement(jsonText) as JsonObject
+            val jsonSpec = JsonParser.parse(jsonText)
             Model.withLock {
-                Model.definePort(name, jsonSpec, it)
+                Model.definePort(name, jsonSpec as Map<String, Any>, it)
                 Model.notifyContentUpdated(it)
                 Model.save()
             }
