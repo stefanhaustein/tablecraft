@@ -7,7 +7,7 @@ fetch()
 
 function fetch() {
     var xmlhttp = new XMLHttpRequest();
-    var url = "sheet/" + currentSheet.name + "?tag=" + currentTag;
+    var url = "data?tag=" + currentTag;
 
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {

@@ -12,6 +12,7 @@ import kotlinx.serialization.json.JsonObject
 import org.kobjects.tablecraft.json.JsonParser
 import org.kobjects.tablecraft.model.Model
 import java.io.File
+import java.io.StringWriter
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -42,9 +43,10 @@ fun Application.module() {
             }
             call.respond(HttpStatusCode.OK, null)
         }
-        get("/sheet/{name}") {
-            val name = call.parameters["name"]
-            val tag = call.request.queryParameters["tag"]!!.toLong()
+        get("/data") {
+            val rawTag = call.request.queryParameters["tag"]?.toLong()
+            val forClient = rawTag != null
+            val tag = rawTag ?: -1
 
             if (tag >= Model.modificationTag) {
                 suspendCoroutine<Unit> { continuation ->
@@ -56,10 +58,15 @@ fun Application.module() {
                 }
             }
             val result = Model.withLock {
-                val sheet = Model.sheets[name]!!
-                Model.serializeFunctions(tag) + "\n" + Model.serializePorts(tag) + "\n" + sheet.serialize(tag, true)
+                val writer = StringWriter()
+                if (forClient) {
+                    writer.write("tag = ${Model.modificationTag}\n\n")
+                }
+                Model.serialize(writer, forClient, tag)
+                writer.close()
+                writer.toString()
             }
-            call.respondText("tag = ${Model.modificationTag}\n$result", ContentType.Text.Plain, HttpStatusCode.OK,)
+            call.respondText(result, ContentType.Text.Plain, HttpStatusCode.OK,)
         }
         get("img/{name...}") {
             val path = call.parameters.getAll("name")!!.joinToString("/")

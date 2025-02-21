@@ -8,6 +8,7 @@ import org.kobjects.tablecraft.svg.SvgManager
 import java.io.File
 import java.io.FileWriter
 import org.kobjects.tablecraft.tomson.TomsonParser
+import java.io.Writer
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlin.contracts.ExperimentalContracts
@@ -15,7 +16,7 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 object Model {
-    val STORAGE_FILE = File("storage/model.tomson")
+    val STORAGE_FILE = File("storage/data.tc")
 
     var modificationTag: Long = 0
     val sheets = mutableMapOf<String, Sheet>("Sheet1" to Sheet("Sheet1"))
@@ -91,25 +92,26 @@ object Model {
         sheet.set(name.substring(cut + 1), value, runtimeContext)
     }
 
-    fun save() {
-        STORAGE_FILE.mkdirs()
-        val writer = FileWriter(STORAGE_FILE)
-        writer.write("[ports]\n\n")
-
-        for (port in legacyPorts.values) {
-            writer.write("${port.name} = ${port.toJson()}\n")
+    fun serialize(writer: Writer, forClient: Boolean = false, tag: Long = -1) {
+        if (forClient) {
+            writer.write(serializeFunctions(tag))
         }
 
-        for (port in portInstanceMap.values) {
-            writer.write("${port.name} = ${port.toJson()}\n")
-        }
+        writer.write(serializePorts(tag))
 
         writer.write("\n")
 
         for (sheet in sheets.values) {
-            writer.write(sheet.serialize(-1, false))
+            writer.write(sheet.serialize(tag, forClient))
             writer.write("\n")
         }
+    }
+
+
+    fun save() {
+        STORAGE_FILE.mkdirs()
+        val writer = FileWriter(STORAGE_FILE)
+        serialize(writer)
         writer.close()
     }
 
