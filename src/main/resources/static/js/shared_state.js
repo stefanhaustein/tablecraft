@@ -143,5 +143,5 @@ export function selectPanel(name) {
     panelSelectElement.value = name
 
     currentPanelElement = document.getElementById(name + "Panel")
-    currentPanelElement.style.display = ""
+    currentPanelElement.style.display = "block"
 }

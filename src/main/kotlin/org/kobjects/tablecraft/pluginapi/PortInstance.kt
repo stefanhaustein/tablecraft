@@ -16,4 +16,18 @@ interface PortInstance {
         return """{"name":${name.quote()}, "kind":"PORT", "type":${type.quote()}, "configuration": {$configJson} } """
     }
 
+    class Tombstone(
+        override val name: String,
+        override val tag: Long
+    ): PortInstance {
+        override val type: String
+            get() = "Tombstone"
+
+        override val operationSpecs: List<OperationSpec>
+            get() = emptyList()
+        override val configuration: Map<String, Any>
+            get() = emptyMap()
+
+    }
+
 }

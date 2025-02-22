@@ -13,6 +13,15 @@ object JsonParser {
         }
     }
 
+    fun parseObject(serialized: String): Map<String, Any> {
+        try {
+            val json = Json.parseToJsonElement(serialized)
+            return convertObject(json.jsonObject)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Error parsing JSON from '$serialized'", e)
+        }
+    }
+
     fun convertObject(jsonObject: JsonObject): Map<String, Any> {
         val map = mutableMapOf<String, Any>()
         for ((key, value) in jsonObject.entries) {

@@ -11,16 +11,20 @@
 </head>
 <body style="width:100%; height:100%; border:0; padding:0; margin:0; display: flex;  flex-direction: column;">
     <div style="display:flex; flex: none">
-        <input type="button" value="⟳" onclick="fetch(true);" style="width:72px" />
+        <select id="menuSelect" style="width:72px">
+            <option>Menu</option>
+            <option>Load</option>
+            <option>Save</option>
+        </select>
         <input id="formulaInput" style="flex-grow: 1" list="functions">
         <datalist id="functions"></datalist>
         <select id="panelSelect" style="width:208px">
             <option>About</option>
-            <option>Menu</option>
             <option value="Function">Function Details</option>
             <option value="Ports">IO Ports</option>
-            <option value="Simulation">Simulation</option>
+            <option>Simulation</option>
             <option>Graphics</option>
+            <option>Hide</option>
         </select>
     </div>
     <div style="display:flex; flex-grow: 1; height: 0">
@@ -31,55 +35,72 @@
             </table>
         </div>
         <div id="sidePanel" >
-            <div id="AboutPanel" style="width:200px">
+            <div id="AboutPanel">
                 <div class="subtitle">TableCraft</div>
 
                     <center><img src="TableCraft.png" width="150" /></center>
                     Utilize a spreadsheet interface
                     to control simple IoT projects.
             </div>
-            <div id="MenuPanel" style="width:200px; display: none">
-                <p />
-                <center>
-                <a href="data" download="data.tc"><button style="width:90%;">Save</button></a>
-                </center>
-                <p />
-                <center>
-                <button style="width:90%;">Load</button>
-                </center>
-            </div>
-            <div id="PortsPanel" style="display:none; width: 200px">
+            <div id="PortsPanel">
                 <select id="portSelect"><option>Add Port</option></select>
                 <div id="portList"></div>
             </div>
-            <div id="FunctionPanel" style="display: none; width:200px"></div>
-            <div id="SimulationPanel" style="display: none; width:20px">N/A</div>
-            <div id="GraphicsPanel" style="display: none; width:200px">
+            <div id="FunctionPanel"></div>
+            <div id="SimulationPanel">N/A</div>
+            <div id="GraphicsPanel">
                 <table class="boxGraphics">
                     <tr>
-                        <td><image src="img/line/br.svg" /></td>
-                        <td><image src="img/line/hb.svg" /></td>
-                        <td><image src="img/line/bl.svg" /></td>
+                        <td><img src="img/line/br.svg" /></td>
+                        <td><img src="img/line/hb.svg" /></td>
+                        <td><img src="img/line/bl.svg" /></td>
                     </tr><tr>
-                        <td><image src="img/line/vr.svg" /></td>
-                        <td><image src="img/line/hv.svg" /></td>
-                        <td><image src="img/line/vl.svg" /></td>
+                        <td><img src="img/line/vr.svg" /></td>
+                        <td><img src="img/line/hv.svg" /></td>
+                        <td><img src="img/line/vl.svg" /></td>
                     </tr><tr>
-                        <td><image src="img/line/v.svg" /></td>
-                        <td><image src="img/line/h.svg" /></td>
-                        <td><image src="img/line/v.svg" /></td>
+                        <td><img src="img/line/v.svg" /></td>
+                        <td><img src="img/line/h.svg" /></td>
+                        <td><img src="img/line/v.svg" /></td>
                     </tr><tr>
-                        <td><image src="img/line/tr.svg" /></td>
-                        <td><image src="img/line/ht.svg" /></td>
-                        <td><image src="img/line/tl.svg" /></td>
+                        <td><img src="img/line/tr.svg" /></td>
+                        <td><img src="img/line/ht.svg" /></td>
+                        <td><img src="img/line/tl.svg" /></td>
                     </tr>
                 </table>
                 <hr />
-                <image src="img/circuit/lamp.svg" width="72" heigh="36"/>
+                <img src="img/circuit/lamp.svg" width="72" heigh="36"/>
             </div>
+            <div id="HidePanel" style="width:0"></div>
         </div>
     </div>
     <dialog id="dialog">
+    </dialog>
+
+    <dialog id="uploadDialog">
+        <div clase="dialogTitle">Load Spreadsheet</div>
+        <div class="dialogFields">
+            <label for="uploadFileInput"></label>
+            <input id="uploadFileInput" type="file" />
+        </div>
+        <div class="dialogButtons">
+            <button id="uploadButton">Load</button>
+            <button id="uploadCancel">Cancel</button>
+        </div>
+    </dialog>
+
+    <dialog id="downloadDialog">
+        <div class="dialogTitle">Save Spreadsheet</div>
+        <div class="dialogFields">
+            <label for="downloadFileNameInput">File Name</label>
+            <input id="downloadFileNameInput" value="data"/>
+        </div>
+        <div class="dialogButtons">
+            <a href="data" download="data.tc" id="downloadLink">
+                <button id="downloadButton">Save</button>
+            </a>
+            <button id="downloadCancel">Cancel</button>
+        </div>
     </dialog>
 
     <script type="module" src="js/setup.js"></script>
@@ -89,6 +110,7 @@
     <script type="module" src="js/formula_panel_controller.js"></script>
     <script type="module" src="js/graphics_panel_controller.js"></script>
     <script type="module" src="js/port_panel_controller.js"></script>
+    <script type="module" src="js/menu_controller.js"></script>
     <script type="module" src="js/sync.js"></script>
 </body>
 </html>

@@ -51,6 +51,12 @@ class Sheet(var name: String) {
         return cells.getOrPut(cellId) { Cell(this, cellId) }
     }
 
+    fun clear(runtimeContext: RuntimeContext) {
+        for (cell in cells.values) {
+            cell.setValue("", runtimeContext)
+        }
+    }
+
     enum class ValueType {
         FORMULA, COMPUTED_VALUE
     }

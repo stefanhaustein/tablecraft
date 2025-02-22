@@ -25,7 +25,7 @@ object Model {
 
     val functionMap = mutableMapOf<String, OperationSpec>()
     val plugins = mutableListOf<Plugin>()
-    val legacyPorts = mutableMapOf<String, Port>()
+
     val portSpecMap = mutableMapOf<String, PortSpec>()
     val portInstanceMap = mutableMapOf<String, PortInstance>()
 
@@ -48,31 +48,7 @@ object Model {
         addPlugin(MqttPlugin)
 
         withLock { runtimeContext ->
-            try {
-                val toml = TomsonParser.parse(STORAGE_FILE.readText())
-                for ((key, map) in toml) {
-                    if (key.startsWith("sheets.") && key.endsWith(".cells")) {
-                        val name = key.substringAfter("sheets.").substringBeforeLast(".cells")
-                        val sheet = Sheet(name)
-                        sheets[name] = sheet
-                        sheet.parseToml(map)
-                    } else if (key == "ports") {
-                        for ((name, value) in map) {
-                            try {
-                                definePort(name, value as Map<String, Any>)
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        }
-                    }
-                }
-            } catch (ex: Exception) {
-                ex.printStackTrace()
-            }
-
-            for (sheet in sheets.values) {
-                sheet.updateAll(runtimeContext)
-            }
+            loadData(STORAGE_FILE.readText(), runtimeContext)
         }
     }
 
@@ -85,6 +61,33 @@ object Model {
         }
     }
 
+    fun loadData(data: String, runtimeContext: RuntimeContext) {
+        try {
+            val toml = TomsonParser.parse(data)
+            for ((key, map) in toml) {
+                if (key.startsWith("sheets.") && key.endsWith(".cells")) {
+                    val name = key.substringAfter("sheets.").substringBeforeLast(".cells")
+                    val sheet = Sheet(name)
+                    sheets[name] = sheet
+                    sheet.parseToml(map)
+                } else if (key == "ports") {
+                    for ((name, value) in map) {
+                        try {
+                            definePort(name, value as Map<String, Any>)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+
+        for (sheet in sheets.values) {
+            sheet.updateAll(runtimeContext)
+        }
+    }
 
     fun set(name: String, value: String, runtimeContext: RuntimeContext?) {
         val cut = name.indexOf("!")
@@ -108,7 +111,7 @@ object Model {
     }
 
 
-    fun save() {
+    fun save(runtimeContext: RuntimeContext) {
         STORAGE_FILE.mkdirs()
         val writer = FileWriter(STORAGE_FILE)
         serialize(writer)
@@ -150,46 +153,45 @@ object Model {
         return if (sb.isEmpty()) "" else "[ports]\n\n$sb"
     }
 
-
+    fun deletePort(name: String, runtimeContext: RuntimeContext) {
+        portInstanceMap[name] = PortInstance.Tombstone(name, runtimeContext.tag)
+    }
 
     fun definePort(name: String?, jsonSpec: Map<String, Any>, runtimeContext: RuntimeContext? = null) {
         val previousName = jsonSpec["previousName"] as String?
 
         if (!previousName.isNullOrBlank()) {
             require(runtimeContext != null)
-            functionMap[previousName] = OperationSpec.createTombstone(previousName, runtimeContext.tag)
-            legacyPorts.remove(previousName)?.delete()
+            deletePort(previousName, runtimeContext)
         }
 
         if (!name.isNullOrBlank()) {
             val type = jsonSpec["type"].toString()
             val configuration = mutableMapOf<String, Any>()
             val jsonConfig = jsonSpec["configuration"] as Map<String, Any>
-            val constructorSpecification = functionMap[type]
-            if (constructorSpecification != null) {
-                for (paramSpec in constructorSpecification.parameters) {
-                    if (paramSpec.kind == ParameterKind.CONFIGURATION) {
-                        configuration[paramSpec.name] =
-                            paramSpec.type.fromString(jsonConfig[paramSpec.name].toString())
-                    }
-                }
-                val port = Port(name, constructorSpecification, configuration.toMap(), runtimeContext?.tag ?: 0L)
-                legacyPorts[name] = port
-                functionMap[name] = port.specification
-            } else {
-                val portSpec = portSpecMap[type]!!
-                for (paramSpec in portSpec.parameters) {
-                    if (paramSpec.kind == ParameterKind.CONFIGURATION) {
-                        configuration[paramSpec.name] =
-                            paramSpec.type.fromString(jsonConfig[paramSpec.name].toString())
-                    }
-                }
-                val port = portSpec.createFn(name, configuration, runtimeContext?.tag ?: 0L)
-                portInstanceMap[name] = port
-                for (f in port.operationSpecs) {
-                    functionMap[f.name] = f
+
+            val portSpec = portSpecMap[type]!!
+            for (paramSpec in portSpec.parameters) {
+                if (paramSpec.kind == ParameterKind.CONFIGURATION) {
+                   configuration[paramSpec.name] =
+                       paramSpec.type.fromString(jsonConfig[paramSpec.name].toString())
                 }
             }
+            val port = portSpec.createFn(name, configuration, runtimeContext?.tag ?: 0L)
+            portInstanceMap[name] = port
+            for (f in port.operationSpecs) {
+               functionMap[f.name] = f
+            }
+        }
+    }
+
+    fun clearAll(runtimeContext: RuntimeContext) {
+        for (key in portInstanceMap.keys.toList()) {
+            deletePort(key, runtimeContext)
+        }
+
+        for (sheet in sheets.values) {
+            sheet.clear(runtimeContext)
         }
     }
 }

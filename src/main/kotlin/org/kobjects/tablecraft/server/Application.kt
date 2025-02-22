@@ -2,10 +2,12 @@ package org.kobjects.tablecraft.server
 
 import io.ktor.server.application.*
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.utils.io.*
 import kotlinx.html.dom.serialize
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -27,7 +29,7 @@ fun Application.module() {
             val text = call.receiveText()
             Model.withLock {
                 Model.set(cell, text, it)
-                Model.save()
+                Model.save(it)
             }
             call.respond(HttpStatusCode.OK, null)
         }
@@ -35,11 +37,21 @@ fun Application.module() {
             val name = call.request.queryParameters["name"]
             val jsonText = call.receiveText()
             println("Received JSON: $jsonText")
-            val jsonSpec = JsonParser.parse(jsonText)
+            val jsonSpec = JsonParser.parseObject(jsonText)
             Model.withLock {
-                Model.definePort(name, jsonSpec as Map<String, Any>, it)
+                Model.definePort(name, jsonSpec, it)
                 Model.notifyContentUpdated(it)
-                Model.save()
+                Model.save(it)
+            }
+            call.respond(HttpStatusCode.OK, null)
+        }
+        post("/upload") {
+            val fileItem = call.receiveMultipart().readPart() as PartData.FileItem
+            val data = fileItem.provider().toByteArray().toString(Charsets.UTF_8)
+            Model.withLock {
+                Model.clearAll(it)
+                Model.loadData(data, it)
+                Model.save(it)
             }
             call.respond(HttpStatusCode.OK, null)
         }
