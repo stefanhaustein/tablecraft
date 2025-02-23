@@ -38,9 +38,8 @@ export function addCellContentChangeListener(name, listener) {
 }
 
 export function commitCurrentCell() {
-    let commitValue = currentCellData["f"]
-    committedFormula = commitValue
-    sendText("update/" + currentSheet.name + "!" + currentCellId, commitValue)
+    committedFormula = currentCellData.f
+    sendJson("update/" + currentSheet.name + "!" + currentCellId, currentCellData)
 }
 
 

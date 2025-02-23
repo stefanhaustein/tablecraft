@@ -26,22 +26,7 @@ class Sheet(var name: String) {
     fun parseToml(cells: Map<String, Any>) {
         for ((key, value) in cells) {
             try {
-                val cut = key.indexOf(".")
-                val name: String
-                val suffix: String
-                if (cut == -1) {
-                    name = key
-                    suffix = "f"
-                } else {
-                    name = key.substring(0, cut)
-                    suffix = key.substring(cut + 1)
-                }
-                val cell = getOrCreateCell(name)
-                when (suffix) {
-                    "f" -> cell.setValue(value.toString(), null)
-                    "v" -> cell.setValidation(value as Map<String, Any?>, null)
-                    else -> throw IllegalStateException("Unrecognized suffix in $key = $value")
-                }
+                getOrCreateCell(key).setJson(value as Map<String, Any>, null)
             } catch (e: Exception) {
                 System.err.println("Error parsing cell $key = $value")
                 e.printStackTrace()

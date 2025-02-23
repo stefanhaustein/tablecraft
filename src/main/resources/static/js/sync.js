@@ -65,37 +65,24 @@ function processSection(name, map) {
 function processSheetUpdate(map) {
     let cells = currentSheet.cells
     for (const rawKey in map) {
-        let cut = rawKey.indexOf(".")
-        if (cut == -1) {
-            console.log("unrecognized key", rawKey, value)
-        } else {
-            let value = map[rawKey]
-            let key = rawKey.substring(0, cut).trim()
-            let suffix = rawKey.substring(cut + 1).trim()
+        let value = map[rawKey]
+        if (rawKey.endsWith(".c")) {
+            let key = rawKey.substring(0, rawKey.length - 2)
             let cell = cells[key]
             if (cell == null) {
                 cell = cells[key] = {}
             }
-            switch (suffix) {
-                case "f":
-                    cell.f = value
-                    break
-                case "v":
-                    cell.v = value
-                    break
-                case "c":
-                    cell.c = value
-
-                    let element = document.getElementById(key)
-                    if (element != null) {
-                        renderComputedValue(element, cell)
-                    } else {
-                        console.log("Sync issue: Element '" + key + "' not found for line '" + rawKey + "=" + value + "'")
-                    }
-                    break
-                default:
-                    console.log("Unrecognized suffix: ", suffix, key, value)
+            cell.c = value
+            let element = document.getElementById(key)
+            if (element != null) {
+                renderComputedValue(element, cell)
+            } else {
+                console.log("Sync issue: Element '" + key + "' not found for line '" + key + "=" + value + "'")
             }
+        } else if (rawKey.indexOf(".") == -1) {
+            cells[rawKey] = value
+        } else {
+            console.log("Unrecognized suffix for key ", rawKey, "value", value)
         }
     }
 }

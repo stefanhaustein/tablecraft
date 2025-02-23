@@ -89,11 +89,10 @@ object Model {
         }
     }
 
-    fun set(name: String, value: String, runtimeContext: RuntimeContext?) {
+    fun getOrCreate(name: String): Cell {
         val cut = name.indexOf("!")
         val sheet = sheets[name.substring(0, cut)]!!
-        val cell = sheet.getOrCreateCell(name.substring(cut + 1))
-        cell.setValue(value, runtimeContext)
+        return sheet.getOrCreateCell(name.substring(cut + 1))
     }
 
     fun serialize(writer: Writer, forClient: Boolean = false, tag: Long = -1) {

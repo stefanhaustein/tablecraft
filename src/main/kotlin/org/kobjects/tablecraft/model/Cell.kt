@@ -26,6 +26,17 @@ class Cell(
     val depenencies = mutableListOf<Cell>()
     val dependsOn = mutableListOf<Cell>()
 
+    fun setJson(json: Map<String, Any?>, runtimeContext: RuntimeContext?) {
+       val formula = json["f"]
+       if (formula != null) {
+           setValue(formula.toString(), runtimeContext)
+       }
+       val validation = json["v"]
+       if (validation != null) {
+           setValidation(validation as Map<String, Any?>, runtimeContext)
+       }
+    }
+
 
     fun setValue(value: String, runtimeContext: RuntimeContext?) {
         rawValue = value
@@ -111,12 +122,12 @@ class Cell(
     fun serialize(sb: StringBuilder, tag: Long, includeComputed: Boolean) {
         val id = id
         if (formulaTag > tag) {
-            sb.append("$id.f = ${rawValue.quote()}\n")
+            sb.append("""$id = {"f": ${rawValue.quote()}""")
             if (validation != null) {
-                sb.append("$id.v = ")
+                sb.append(""", "v":""")
                 validation.toJson(sb)
-                sb.append('\n')
             }
+            sb.append("}\n")
         }
         if (includeComputed && this.tag > tag) {
             sb.append("$id.c = ")

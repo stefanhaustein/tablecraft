@@ -27,8 +27,9 @@ fun Application.module() {
         post("/update/{cell}") {
             val cell = call.parameters["cell"]!!
             val text = call.receiveText()
+            val json = JsonParser.parseObject(text)
             Model.withLock {
-                Model.set(cell, text, it)
+                Model.getOrCreate(cell).setJson(json, it)
                 Model.save(it)
             }
             call.respond(HttpStatusCode.OK, null)
