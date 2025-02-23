@@ -1,19 +1,20 @@
 package org.kobjects.tablecraft.pluginapi
 
+import org.kobjects.tablecraft.json.ToJson
 import org.kobjects.tablecraft.json.quote
+import org.kobjects.tablecraft.json.toJson
 
-interface PortInstance {
+interface PortInstance: ToJson {
     val type: String
     val name: String
     val tag: Long
     val operationSpecs: List<OperationSpec>
     val configuration: Map<String, Any>
 
-
-    fun toJson(): String {
-        val configJson = configuration.entries.joinToString {  "${it.key.quote()}: ${it.value.toString().quote()}" }
-
-        return """{"name":${name.quote()}, "kind":"PORT", "type":${type.quote()}, "configuration": {$configJson} } """
+    override fun toJson(sb: StringBuilder) {
+        sb.append("""{"name":${name.quote()}, "kind":"PORT", "type":${type.quote()}, "configuration": """)
+        configuration.toJson(sb)
+        sb.append("}")
     }
 
     class Tombstone(

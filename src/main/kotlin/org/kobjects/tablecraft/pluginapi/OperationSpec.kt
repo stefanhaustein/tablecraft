@@ -1,5 +1,6 @@
 package org.kobjects.tablecraft.pluginapi
 
+import org.kobjects.tablecraft.json.ToJson
 import org.kobjects.tablecraft.json.quote
 
 data class OperationSpec(
@@ -10,11 +11,20 @@ data class OperationSpec(
     val parameters: List<ParameterSpec>,
     val tag: Long = 0,
     val createFn: (host: OperationHost) -> OperationInstance,
-) {
-    fun toJson(): String {
-        val filteredParams = parameters.filter { kind != OperationKind.PORT_CONSTRUCTOR || it.kind != ParameterKind.RUNTIME }
-        val convertedParams = filteredParams.joinToString { it.toJson() }
-        return """{"name":${name.quote()},"kind":"$kind","returnType":"$returnType","description":${description.quote()},"params":[$convertedParams]}"""
+) : ToJson {
+
+    override fun toJson(sb: StringBuilder) {
+        sb.append("""{"name":${name.quote()},"kind":"$kind","returnType":"$returnType","description":${description.quote()},"params":[""")
+        var first = true
+        for (param in parameters.filter { kind != OperationKind.PORT_CONSTRUCTOR || it.kind != ParameterKind.RUNTIME }) {
+            if (first) {
+                first = false
+            } else {
+                sb.append(",")
+            }
+            param.toJson(sb)
+        }
+        sb.append("]}")
     }
 
     companion object {

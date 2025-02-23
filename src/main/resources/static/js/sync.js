@@ -39,7 +39,8 @@ function proccessUpdateResponseText(responseText) {
             let cut = eq == -1 ? col : (col == -1 ? eq : Math.min(col, eq))
             if (cut != -1) {
                 let key = trimmed.substring(0, cut).trim()
-                let value = JSON.parse(trimmed.substring(cut + 1))
+                let rawValue = trimmed.substring(cut + 1).trim()
+                let value = rawValue == "" ? null : JSON.parse(rawValue)
                 sectionMap[key] = value
             }
         }
@@ -78,6 +79,9 @@ function processSheetUpdate(map) {
             switch (suffix) {
                 case "f":
                     cell.f = value
+                    break
+                case "v":
+                    cell.v = value
                     break
                 case "c":
                     cell.c = value

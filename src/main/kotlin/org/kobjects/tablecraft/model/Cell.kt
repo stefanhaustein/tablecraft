@@ -3,6 +3,7 @@ package org.kobjects.tablecraft.model
 import kotlinx.datetime.*
 import kotlinx.datetime.format.char
 import org.kobjects.tablecraft.json.quote
+import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.model.builtin.ImageReference
 import org.kobjects.tablecraft.model.expression.Expression
 import org.kobjects.tablecraft.model.expression.LiteralExpression
@@ -14,6 +15,8 @@ class Cell(
     val id: String
 ) {
     var rawValue: String = ""
+    var validation: Map<String, Any?>? = null
+
     var expression: Expression = LiteralExpression(Unit)
     var computedValue_: Any = Unit
 
@@ -51,6 +54,13 @@ class Cell(
         }
         if (runtimeContext != null) {
             updateAllDependencies(runtimeContext)
+            Model.notifyContentUpdated(runtimeContext)
+        }
+    }
+
+    fun setValidation(validation: Map<String, Any?>?, runtimeContext: RuntimeContext?) {
+        this.validation = validation
+        if (runtimeContext != null) {
             Model.notifyContentUpdated(runtimeContext)
         }
     }
@@ -102,6 +112,11 @@ class Cell(
         val id = id
         if (formulaTag > tag) {
             sb.append("$id.f = ${rawValue.quote()}\n")
+            if (validation != null) {
+                sb.append("$id.v = ")
+                validation.toJson(sb)
+                sb.append('\n')
+            }
         }
         if (includeComputed && this.tag > tag) {
             sb.append("$id.c = ")
@@ -109,6 +124,8 @@ class Cell(
             sb.append('\n')
         }
     }
+
+    override fun toString() = rawValue
 
     companion object {
         val TIME_FORMAT_MINUTES = LocalTime.Format {
@@ -119,6 +136,4 @@ class Cell(
         }
     }
 
-
-    override fun toString() = rawValue
 }

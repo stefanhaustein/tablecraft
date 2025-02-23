@@ -1,5 +1,6 @@
 package org.kobjects.tablecraft.pluginapi
 
+import org.kobjects.tablecraft.json.ToJson
 import org.kobjects.tablecraft.json.quote
 
 data class ParameterSpec(
@@ -7,9 +8,9 @@ data class ParameterSpec(
     val kind: ParameterKind,
     val type: Type,
     val required: Boolean = false
-) {
+) : ToJson {
 
-    fun toJson(): String =
-        """{"name":${name.quote()},"kind":${kind.toString().quote()},"type":${type.toString().quote()}}""".trimMargin()
-
+    override fun toJson(sb: StringBuilder) {
+        sb.append("""{"name":${name.quote()},"kind":${kind.toString().quote()},"type":${type.toString().quote()}}""")
+    }
 }

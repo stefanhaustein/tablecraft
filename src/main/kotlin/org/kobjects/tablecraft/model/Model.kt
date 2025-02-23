@@ -92,7 +92,8 @@ object Model {
     fun set(name: String, value: String, runtimeContext: RuntimeContext?) {
         val cut = name.indexOf("!")
         val sheet = sheets[name.substring(0, cut)]!!
-        sheet.set(name.substring(cut + 1), value, runtimeContext)
+        val cell = sheet.getOrCreateCell(name.substring(cut + 1))
+        cell.setValue(value, runtimeContext)
     }
 
     fun serialize(writer: Writer, forClient: Boolean = false, tag: Long = -1) {
@@ -130,13 +131,18 @@ object Model {
         val sb = StringBuilder()
         for (function in functionMap.values) {
             if (function.tag > tag) {
-                sb.append(function.name).append(": ").append(function.toJson()).append('\n')
+                sb.append(function.name).append(": ")
+                function.toJson(sb)
+                sb.append('\n')
             }
         }
+        sb.append('\n')
         for (plugin in plugins) {
             for (portSpec in plugin.portSpecs) {
                 if (tag <= 0) {
-                    sb.append(portSpec.name).append(": ").append(portSpec.toJson()).append('\n')
+                    sb.append(portSpec.name).append(": ")
+                    portSpec.toJson(sb)
+                    sb.append('\n')
                 }
             }
         }
@@ -147,7 +153,9 @@ object Model {
         val sb = StringBuilder()
         for (port in portInstanceMap.values) {
             if (port.tag > tag) {
-                sb.append(port.name).append(": ").append(port.toJson()).append('\n')
+                sb.append(port.name).append(": ")
+                port.toJson(sb)
+                sb.append('\n')
             }
         }
         return if (sb.isEmpty()) "" else "[ports]\n\n$sb"

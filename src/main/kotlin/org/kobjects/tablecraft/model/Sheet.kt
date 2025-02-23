@@ -36,8 +36,10 @@ class Sheet(var name: String) {
                     name = key.substring(0, cut)
                     suffix = key.substring(cut + 1)
                 }
+                val cell = getOrCreateCell(name)
                 when (suffix) {
-                    "f" -> set(name, value.toString(), null)
+                    "f" -> cell.setValue(value.toString(), null)
+                    "v" -> cell.setValidation(value as Map<String, Any?>, null)
                     else -> throw IllegalStateException("Unrecognized suffix in $key = $value")
                 }
             } catch (e: Exception) {

@@ -1,3 +1,16 @@
+/*
+    Schema example:
+
+    [
+        {
+            name: "fooness",
+            options: ["foo", "bar", "baz", "foobar"]
+        }, {
+            name: "Sometext",
+        }
+    ]
+ */
+
 
 export class InputController {
     constructor(elementControllers, listeners) {
