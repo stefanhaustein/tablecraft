@@ -4,7 +4,13 @@ export function nullToEmtpy(s) {
 
 
 export function renderComputedValue(targetElement, cellData) {
+    let validation = cellData["v"]
+    if (validation != null && validation["values"] != null) {
+        renderSelect(targetElement, cellData)
+        return
+    }
     let value = cellData["c"]
+
     let classes = targetElement.classList
     classes.remove("c", "e", "i", "r", "l")
     targetElement.removeAttribute("title")
@@ -37,6 +43,34 @@ export function renderComputedValue(targetElement, cellData) {
         classes.add("e")
     }
 }
+
+function renderSelect(targetElement, cellData) {
+    targetElement.textContent = ""
+    let selectElement = document.createElement("select")
+    selectElement.style.width = "100%"
+    selectElement.style.height = "100%"
+    let options = cellData["v"]["values"]
+    let value = cellData["c"]
+    let found = false
+    for (let option of options) {
+        let optionElement = document.createElement("option")
+        optionElement.textContent = option["label"]
+        let optionValue = option["value"]
+        optionElement.value = option["value"]
+        if (optionValue == value) {
+            optionElement.setAttribute("selected")
+            found = true
+        }
+        selectElement.appendChild(optionElement)
+    }
+    if (!found) {
+        let optionElement = document.createElement("option")
+        optionElement.textContent = "REF: " + value
+        selectElement.appendChild(optionElement)
+    }
+    targetElement.appendChild(selectElement)
+}
+
 
 export function makeEnum(arr){
     let obj = Object.create(null);
