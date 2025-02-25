@@ -7,7 +7,7 @@ import org.kobjects.tablecraft.pluginapi.*
 
 class PluginOperationCallExpression(
     val cell: Cell,
-    operationSpec: OperationSpec,
+    val operationSpec: OperationSpec,
     override val configuration: Map<String, Any>,
     val parameters: Map<String, Pair<Expression, Type>>
 ): Expression(), OperationHost {
@@ -18,10 +18,16 @@ class PluginOperationCallExpression(
     val functionInstance = operationSpec.createFn(this) as OperationInstance
 
     override fun attach() {
+        if (operationSpec.kind == OperationKind.INPUT_PORT) {
+            Model.inputPortMap.getOrPut(operationSpec.name) { mutableSetOf() }.add(this)
+        }
         functionInstance.attach()
     }
 
     override fun detach() {
+        if (operationSpec.kind == OperationKind.INPUT_PORT) {
+            Model.inputPortMap[operationSpec.name]?.remove(this)
+        }
         functionInstance.detach()
     }
 
@@ -40,7 +46,7 @@ class PluginOperationCallExpression(
                 Type.NUMBER -> expr.evalDouble(context)
                 Type.BOOLEAN -> expr.evalBoolean(context)
                 Type.TEXT -> expr.eval(context).toString()
-                else -> expr.eval(context)!!
+                else -> expr.eval(context)
             }
         })
     }

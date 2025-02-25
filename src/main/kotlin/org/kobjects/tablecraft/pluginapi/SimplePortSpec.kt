@@ -21,7 +21,7 @@ fun SimplePortSpec(
         override val configuration = instanceConfiguration
         override val operationSpecs = listOf(
             OperationSpec(
-                OperationKind.FUNCTION,
+                if (parameters.isEmpty()) OperationKind.INPUT_PORT else OperationKind.FUNCTION,
                 returnType,
                 instanceName,
                 description,

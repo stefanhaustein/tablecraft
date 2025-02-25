@@ -34,6 +34,16 @@ fun Application.module() {
             }
             call.respond(HttpStatusCode.OK, null)
         }
+        post("/portSimulation") {
+            val name = call.request.queryParameters["name"]
+            val jsonText = call.receiveText()
+            println("Received JSON: $jsonText")
+            val value = JsonParser.parse(jsonText)
+            Model.withLock {
+                Model.setSimulationValue(name, value, it)
+            }
+            call.respond(HttpStatusCode.OK, null)
+        }
         post("/updatePort") {
             val name = call.request.queryParameters["name"]
             val jsonText = call.receiveText()

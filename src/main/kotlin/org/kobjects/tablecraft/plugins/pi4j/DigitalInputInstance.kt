@@ -3,6 +3,7 @@ package org.kobjects.tablecraft.plugins.pi4j
 import com.pi4j.io.gpio.digital.*
 import org.kobjects.tablecraft.pluginapi.OperationHost
 import org.kobjects.tablecraft.pluginapi.OperationInstance
+import org.kobjects.tablecraft.pluginapi.OperationKind
 
 class DigitalInputInstance(
     val plugin: Pi4jPlugin,
@@ -50,4 +51,5 @@ class DigitalInputInstance(
     override fun detachPort() {
         digitalInput?.removeListener(this)
     }
+
 }

@@ -16,6 +16,7 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 object Model {
+
     val STORAGE_FILE = File("storage/data.tc")
 
     var modificationTag: Long = 0
@@ -28,6 +29,9 @@ object Model {
 
     val portSpecMap = mutableMapOf<String, PortSpec>()
     val portInstanceMap = mutableMapOf<String, PortInstance>()
+
+    val inputPortMap = mutableMapOf<String, MutableSet<OperationHost>>()
+    val simulationValueMap = mutableMapOf<String, Any>()
 
     val svgs = SvgManager(File("src/main/resources/static/img"))
 
@@ -199,6 +203,13 @@ object Model {
 
         for (sheet in sheets.values) {
             sheet.clear(runtimeContext)
+        }
+    }
+
+    fun setSimulationValue(name: String, value: Any, runtimeContext: RuntimeContext) {
+        simulationValueMap[name] = value
+        for (host in inputPortMap[name] ?: emptySet<OperationHost>()) {
+            host.notifyValueChanged(value)
         }
     }
 }
