@@ -102,20 +102,19 @@ class Cell(
         val value = computedValue_
         when (value) {
             null,
-                is Unit -> {}
-            is Boolean -> sb.append("\"c:${value.toString().uppercase()}\"")
-            is Double -> sb.append("\"r:").append(value.toFloat()).append('"')
-            is Number -> sb.append("\"r:$value\"")
-            is Exception -> sb.append("\"e:$value\"")
-            is ImageReference -> sb.append("i:${value.source}".quote())
+                is Unit -> {sb.append("null")}
+            is Boolean -> sb.append(value.toString())
+            is Double -> sb.append(value.toFloat())
+            is Number -> sb.append(value)
+            is Exception -> sb.append("""{"type": "err", "msg": ${(value::class.simpleName.toString() + value.message).quote()}}""")
+            is ImageReference -> sb.append("""{"type": "img", "src":${value.source.quote()}}""")
             is Instant -> {
-                sb.append("r:")
                 val localDateTime = value.toLocalDateTime(TimeZone.currentSystemDefault())
                 /* sb.append(localDateTime.date.format(LocalDate.Formats.ISO))
                  sb.append(' ') */
-                sb.append(localDateTime.time.format(TIME_FORMAT_SECONDS))
+                sb.append("""{"type": "instant", "rendered":${localDateTime.time.format(TIME_FORMAT_SECONDS).quote()}}""")
             }
-            else -> sb.append("l:$value".quote())
+            else -> sb.append(value.toString().quote())
         }
     }
 

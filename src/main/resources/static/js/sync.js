@@ -1,4 +1,4 @@
-import {renderComputedValue} from "./lib/util.js";
+import {renderComputedValue} from "./cell_renderer.js";
 import {currentSheet, ports, functions} from "./shared_state.js";
 
 var currentTag = -1

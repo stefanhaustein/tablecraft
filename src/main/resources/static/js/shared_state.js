@@ -1,4 +1,6 @@
-import {makeEnum, nullToEmtpy, renderComputedValue, sendJson} from "./lib/util.js";
+import {makeEnum, sendJson} from "./lib/util.js";
+import {nullToEmtpy} from "./lib/values.js";
+import {renderComputedValue} from "./cell_renderer.js";
 
 export var model = {
     sheets: {

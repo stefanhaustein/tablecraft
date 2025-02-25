@@ -1,5 +1,5 @@
-import {nullToEmtpy} from "./lib/util.js";
 import {EditMode, setCurrentCellFormula, setEditMode, commitCurrentCell} from "./shared_state.js";
+import {nullToEmtpy} from "./lib/values.js";
 
 
 let formulaInputElement = document.getElementById("formulaInput")

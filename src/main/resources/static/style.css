@@ -75,7 +75,6 @@ html {
 
 #spreadsheetTable th,
 #spreadsheetTable td {
-    padding: 0 3px;
     min-width: 73px;
     width: 73px;
     max-width: 73px;
@@ -131,6 +130,7 @@ html {
 
 #spreadsheetTable td.l {
     overflow: visible;
+    padding: 0 3px;
     white-space: nowrap;
 }
 
@@ -148,6 +148,7 @@ html {
 }
 
 #spreadsheetTable td.r {
+    padding: 0 3px;
     text-align: right;
 }
 
