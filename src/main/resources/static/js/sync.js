@@ -90,13 +90,17 @@ function processSheetUpdate(map) {
 function processFunctionsUpdate(map) {
     let functionSelectElement = document.getElementById("functions")
     let portSelectElement = document.getElementById("portSelect")
-    let portListElement = document.getElementById("portList")
+    let simulationListElement = document.getElementById("simulationList")
     for (let name in map) {
         let f = map[name]
         let optionElement = document.getElementById("op." + name)
+        let simulationElement = document.getElementById("sim." + name)
         if (f.kind == "TOMBSTONE") {
             if (optionElement != null) {
                 optionElement.parentElement.removeChild(optionElement)
+            }
+            if (simulationElement != null) {
+                simulationListElement.removeChild(simulationElement)
             }
             let entryElement = document.getElementById("port." + name)
             if (entryElement != null) {
@@ -109,6 +113,18 @@ function processFunctionsUpdate(map) {
                 optionElement.id = "op." + name
                 let target = f.kind == "PORT_CONSTRUCTOR" ? portSelectElement : functionSelectElement
                 target.appendChild(optionElement)
+
+                if (f.kind == "INPUT_PORT") {
+                    simulationElement = document.createElement("div")
+                    simulationElement.id = "sim." + name
+                    let label = document.createElement("label")
+                    label.textContent = name
+                    simulationElement.appendChild(label)
+                    let input = document.createElement("input")
+                    simulationElement.appendChild(input)
+                    simulationListElement.appendChild(simulationElement)
+                }
+
             }
 
             if (f.kind == "PORT_CONSTRUCTOR") {
@@ -116,6 +132,7 @@ function processFunctionsUpdate(map) {
             } else {
                 optionElement.text = "=" + f.name + "("
             }
+
         }
 
         // console.log("received function spec", f)

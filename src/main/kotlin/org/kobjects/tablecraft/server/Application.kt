@@ -35,7 +35,7 @@ fun Application.module() {
             call.respond(HttpStatusCode.OK, null)
         }
         post("/portSimulation") {
-            val name = call.request.queryParameters["name"]
+            val name = call.request.queryParameters["name"]!!
             val jsonText = call.receiveText()
             println("Received JSON: $jsonText")
             val value = JsonParser.parse(jsonText)
