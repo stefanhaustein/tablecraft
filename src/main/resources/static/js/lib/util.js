@@ -6,6 +6,11 @@ export function makeEnum(arr){
     return Object.freeze(obj);
 }
 
+export function camelCase(s) {
+    return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase()
+}
+
+
 export function sendJson(path, data) {
     let xhr = new XMLHttpRequest();
     xhr.open("POST", path, true);

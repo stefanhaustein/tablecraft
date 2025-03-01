@@ -1,5 +1,7 @@
 import {renderComputedValue} from "./cell_renderer.js";
-import {currentSheet, ports, functions} from "./shared_state.js";
+import {currentSheet, ports, functions, currentCellId, currentCellData} from "./shared_state.js";
+import {FormController} from "./forms/form_builder.js";
+import {sendJson, camelCase} from "./lib/util.js";
 
 var currentTag = -1
 fetch()
@@ -117,11 +119,16 @@ function processFunctionsUpdate(map) {
                 if (f.kind == "INPUT_PORT") {
                     simulationElement = document.createElement("div")
                     simulationElement.id = "sim." + name
-                    let label = document.createElement("label")
-                    label.textContent = name
-                    simulationElement.appendChild(label)
-                    let input = document.createElement("input")
-                    simulationElement.appendChild(input)
+
+                    let schema = {
+                        type: camelCase(f.returnType),
+                        name: name
+                    }
+                    let controller = FormController.create(simulationElement, [schema])
+                    controller.addListener((name, value) => {
+                        sendJson("portSimulation?name=" + name, value)
+                    })
+
                     simulationListElement.appendChild(simulationElement)
                 }
 

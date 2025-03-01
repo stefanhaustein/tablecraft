@@ -39,6 +39,12 @@ class PluginOperationCallExpression(
     }
 
     override fun eval(context: RuntimeContext): Any {
+        if (Model.simulationMode_) {
+            val value = Model.simulationValueMap[operationSpec.name]
+            if (value != null) {
+                return value
+            }
+        }
         return functionInstance.apply(parameters.mapValues {
             val expr = it.value.first
             when (it.value.second) {

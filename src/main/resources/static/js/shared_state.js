@@ -31,6 +31,11 @@ let committedFormula = null
 
 selectCell("A1")
 
+document.getElementById("simulationMode").addEventListener("change", (event) =>{
+    let checked = event.target.checked
+    sendJson("/simulationMode", checked)
+})
+
 export function addCellSelectionListener(listener) {
     cellSelectionListeners.push(listener)
 }

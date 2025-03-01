@@ -1,5 +1,5 @@
 import {functions, ports} from "./shared_state.js";
-import {InputController} from "./lib/form_builder.js";
+import {FormController} from "./forms/form_builder.js";
 import {sendJson} from "./lib/util.js";
 import {extractParameters} from "./lib/expressions.js";
 
@@ -74,7 +74,7 @@ function showPortDialog(constructorSpec, name, instanceSpec) {
     inputDiv.appendChild(typeNameElement)
 
 
-    let configurationController = InputController.create(inputDiv, constructorSpec["params"])
+    let configurationController = FormController.create(inputDiv, constructorSpec["params"])
 
     if (instanceSpec != null) {
         configurationController.setValues(instanceSpec)

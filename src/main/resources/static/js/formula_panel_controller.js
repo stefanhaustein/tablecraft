@@ -5,7 +5,7 @@ import {
     addCellContentChangeListener,
     addCellSelectionListener, currentCellData, setEditMode, EditMode, currentCellElement, commitCurrentCell
 } from "./shared_state.js";
-import {InputController} from "./lib/form_builder.js";
+import {FormController} from "./forms/form_builder.js";
 import {extractParameters} from "./lib/expressions.js";
 
 let functionPanelElement = document.getElementById("FunctionPanel")
@@ -64,7 +64,7 @@ function updateParameterTab() {
         titleElement.textContent = found.name
         functionPanelElement.appendChild(titleElement)
 
-        currentController = InputController.create(functionPanelElement, found["params"])
+        currentController = FormController.create(functionPanelElement, found["params"])
         currentFunction = found
 
         if (found.description != "") {

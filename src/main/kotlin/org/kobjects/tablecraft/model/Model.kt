@@ -20,6 +20,8 @@ object Model {
     val STORAGE_FILE = File("storage/data.tc")
 
     var modificationTag: Long = 0
+    var simulationMode_: Boolean = false
+
     val sheets = mutableMapOf<String, Sheet>("Sheet1" to Sheet("Sheet1"))
     val lock = ReentrantLock()
     val listeners = mutableSetOf<() -> Unit>()
@@ -35,15 +37,6 @@ object Model {
 
     val svgs = SvgManager(File("src/main/resources/static/img"))
 
-    fun addPlugin(plugin: Plugin) {
-        plugins.add(plugin)
-        for (function in plugin.operationSpecs) {
-            functionMap[function.name] = function
-        }
-        for (portSpec in plugin.portSpecs) {
-            portSpecMap[portSpec.name] = portSpec
-        }
-    }
 
     init {
         addPlugin(BuiltinFunctions)
@@ -55,6 +48,29 @@ object Model {
             loadData(STORAGE_FILE.readText(), runtimeContext)
         }
     }
+
+    fun addPlugin(plugin: Plugin) {
+        plugins.add(plugin)
+        for (function in plugin.operationSpecs) {
+            functionMap[function.name] = function
+        }
+        for (portSpec in plugin.portSpecs) {
+            portSpecMap[portSpec.name] = portSpec
+        }
+    }
+
+    fun setSimulationMode(value: Boolean) {
+        simulationMode_ = value
+        for ((name, ports) in inputPortMap) {
+            val value = simulationValueMap[name]
+            if (value != null) {
+                for (port in ports) {
+                    port.notifyValueChanged(value)
+                }
+            }
+        }
+    }
+
 
     @OptIn(ExperimentalContracts::class)
     inline fun <T> withLock(action: (RuntimeContext) -> T): T {
@@ -69,7 +85,9 @@ object Model {
         try {
             val toml = TomsonParser.parse(data)
             for ((key, map) in toml) {
-                if (key.startsWith("sheets.") && key.endsWith(".cells")) {
+                if (key.isEmpty()) {
+                    setSimulationMode(map["simulationMode"] as Boolean? ?: false)
+                } else if (key.startsWith("sheets.") && key.endsWith(".cells")) {
                     val name = key.substringAfter("sheets.").substringBeforeLast(".cells")
                     val sheet = Sheet(name)
                     sheets[name] = sheet
@@ -100,6 +118,8 @@ object Model {
     }
 
     fun serialize(writer: Writer, forClient: Boolean = false, tag: Long = -1) {
+        writer.write("simulationMode = $simulationMode_\n\n")
+
         if (forClient) {
             writer.write(serializeFunctions(tag))
         }
