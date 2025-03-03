@@ -3,7 +3,6 @@ package org.kobjects.tablecraft.model.builtin
 import org.kobjects.tablecraft.pluginapi.*
 
 object BuiltinFunctions : Plugin {
-    override val portSpecs = emptyList<PortSpec>()
     override val operationSpecs = listOf(
         OperationSpec(
             OperationKind.FUNCTION,

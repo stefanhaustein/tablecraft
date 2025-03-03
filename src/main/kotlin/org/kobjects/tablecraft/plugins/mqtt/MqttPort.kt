@@ -6,17 +6,15 @@ import io.github.davidepianca98.mqtt.Subscription
 import org.kobjects.tablecraft.pluginapi.*
 
 class MqttPort(
-    override val name: String,
-    override val configuration: Map<String, Any>,
-    override val tag: Long
-) : PortInstance {
+    val name: String,
+     val configuration: Map<String, Any>,
+     val tag: Long
+)  {
 
     var client: MQTTClient? = null
     var exception: Exception? = null
     val listeners = mutableMapOf<String, MutableSet<OperationHost>>()
 
-    override val type: String
-        get() = "mqtt"
 
     init {
         Thread {
@@ -35,7 +33,7 @@ class MqttPort(
         }.start()
     }
 
-    override val operationSpecs: List<OperationSpec> = listOf(
+    val operationSpecs: List<OperationSpec> = listOf(
         OperationSpec(
             OperationKind.FUNCTION,
             Type.TEXT,

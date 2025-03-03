@@ -15,20 +15,16 @@ class PluginOperationCallExpression(
     override val children: Collection<Expression>
         get() = parameters.values.map { it.first }
 
-    val functionInstance = operationSpec.createFn(this) as OperationInstance
+    val operationInstance = operationSpec.createFn(this) as OperationInstance
 
     override fun attach() {
-        if (operationSpec.kind == OperationKind.INPUT_PORT) {
-            Model.inputPortMap.getOrPut(operationSpec.name) { mutableSetOf() }.add(this)
-        }
-        functionInstance.attach()
+
+        operationInstance.attach()
     }
 
     override fun detach() {
-        if (operationSpec.kind == OperationKind.INPUT_PORT) {
-            Model.inputPortMap[operationSpec.name]?.remove(this)
-        }
-        functionInstance.detach()
+
+        operationInstance.detach()
     }
 
     override fun notifyValueChanged(newValue: Any) {
@@ -45,7 +41,7 @@ class PluginOperationCallExpression(
                 return value
             }
         }
-        return functionInstance.apply(parameters.mapValues {
+        return operationInstance.apply(parameters.mapValues {
             val expr = it.value.first
             when (it.value.second) {
                 Type.INT -> expr.evalInt(context)
@@ -81,6 +77,6 @@ class PluginOperationCallExpression(
         }
     }
 
-    override fun toString() = "$functionInstance configuration: $configuration parameters: $parameters cell: $cell"
+    override fun toString() = "$operationInstance configuration: $configuration parameters: $parameters cell: $cell"
 
 }

@@ -4,7 +4,7 @@ package org.kobjects.tablecraft.plugins.mqtt
 import org.kobjects.tablecraft.pluginapi.*
 
 
-object MqttPlugin : Plugin {
+object MqttPlugin /* : Plugin {
     override val portSpecs = listOf<PortSpec>(
         PortSpec(
             "mqtt",
@@ -18,10 +18,7 @@ object MqttPlugin : Plugin {
         })
 
     override val operationSpecs = emptyList<OperationSpec>()
-}
 
-
-/*
 fun main() {
     val client = MQTTClient(
         MQTTVersion.MQTT5,

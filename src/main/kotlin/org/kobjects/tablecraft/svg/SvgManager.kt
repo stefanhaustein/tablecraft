@@ -22,8 +22,6 @@ class SvgManager(root: File) : Plugin {
             }
         }
     }
-
-    override val portSpecs = emptyList<PortSpec>()
     override val operationSpecs: List<OperationSpec>
         get() {
             val result = mutableListOf<OperationSpec>()

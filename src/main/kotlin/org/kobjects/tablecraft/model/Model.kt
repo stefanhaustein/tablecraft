@@ -29,10 +29,7 @@ object Model {
     val functionMap = mutableMapOf<String, OperationSpec>()
     val plugins = mutableListOf<Plugin>()
 
-    val portSpecMap = mutableMapOf<String, PortSpec>()
-    val portInstanceMap = mutableMapOf<String, PortInstance>()
-
-    val inputPortMap = mutableMapOf<String, MutableSet<OperationHost>>()
+    val portMap = mutableMapOf<String, Port>()
     val simulationValueMap = mutableMapOf<String, Any>()
 
     val svgs = SvgManager(File("src/main/resources/static/img"))
@@ -42,7 +39,7 @@ object Model {
         addPlugin(BuiltinFunctions)
         addPlugin(Pi4jPlugin())
         addPlugin(svgs)
-        addPlugin(MqttPlugin)
+        // addPlugin(MqttPlugin)
 
         withLock { runtimeContext ->
             loadData(STORAGE_FILE.readText(), runtimeContext)
@@ -54,21 +51,19 @@ object Model {
         for (function in plugin.operationSpecs) {
             functionMap[function.name] = function
         }
-        for (portSpec in plugin.portSpecs) {
-            portSpecMap[portSpec.name] = portSpec
-        }
     }
 
     fun setSimulationMode(value: Boolean) {
         simulationMode_ = value
-        for ((name, ports) in inputPortMap) {
+        /*
+        for ((name, ports) in portMap) {
             val value = simulationValueMap[name]
             if (value != null) {
-                for (port in ports) {
-                    port.notifyValueChanged(value)
-                }
+                port.notifyValueChanged(value)
             }
         }
+
+         */
     }
 
 
@@ -159,22 +154,12 @@ object Model {
                 sb.append('\n')
             }
         }
-        sb.append('\n')
-        for (plugin in plugins) {
-            for (portSpec in plugin.portSpecs) {
-                if (tag <= 0) {
-                    sb.append(portSpec.name).append(": ")
-                    portSpec.toJson(sb)
-                    sb.append('\n')
-                }
-            }
-        }
         return if (sb.isEmpty()) "" else "[functions]\n\n$sb"
     }
 
     fun serializePorts(tag: Long): String {
         val sb = StringBuilder()
-        for (port in portInstanceMap.values) {
+        for (port in portMap.values) {
             if (port.tag > tag) {
                 sb.append(port.name).append(": ")
                 port.toJson(sb)
@@ -185,7 +170,7 @@ object Model {
     }
 
     fun deletePort(name: String, runtimeContext: RuntimeContext) {
-        portInstanceMap[name] = PortInstance.Tombstone(name, runtimeContext.tag)
+        portMap[name] = Port(name, "tombstone", emptyMap(), runtimeContext.tag)
     }
 
     fun definePort(name: String?, jsonSpec: Map<String, Any>, runtimeContext: RuntimeContext? = null) {
@@ -198,26 +183,15 @@ object Model {
 
         if (!name.isNullOrBlank()) {
             val type = jsonSpec["type"].toString()
-            val configuration = mutableMapOf<String, Any>()
-            val jsonConfig = jsonSpec["configuration"] as Map<String, Any>
+            val config = jsonSpec["configuration"] as Map<String, Any>
 
-            val portSpec = portSpecMap[type]!!
-            for (paramSpec in portSpec.parameters) {
-                if (paramSpec.kind == ParameterKind.CONFIGURATION) {
-                   configuration[paramSpec.name] =
-                       paramSpec.type.fromString(jsonConfig[paramSpec.name].toString())
-                }
-            }
-            val port = portSpec.createFn(name, configuration, runtimeContext?.tag ?: 0L)
-            portInstanceMap[name] = port
-            for (f in port.operationSpecs) {
-               functionMap[f.name] = f
-            }
+            val port = Port(name, type, config, runtimeContext?.tag ?: 0)
+            portMap[name] = port
         }
     }
 
     fun clearAll(runtimeContext: RuntimeContext) {
-        for (key in portInstanceMap.keys.toList()) {
+        for (key in portMap.keys.toList()) {
             deletePort(key, runtimeContext)
         }
 
@@ -228,8 +202,11 @@ object Model {
 
     fun setSimulationValue(name: String, value: Any, runtimeContext: RuntimeContext) {
         simulationValueMap[name] = value
-        for (host in inputPortMap[name] ?: emptySet<OperationHost>()) {
+        /*
+        for (host in portMap[name] ?: emptySet<OperationHost>()) {
             host.notifyValueChanged(value)
         }
+
+         */
     }
 }

@@ -36,4 +36,5 @@ object Values {
         else -> throw IllegalArgumentException("Not convertible to boolean: ${value::class.qualifiedName}: '$value'")
     }
 
+
 }
