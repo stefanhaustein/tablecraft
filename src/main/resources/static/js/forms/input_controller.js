@@ -51,7 +51,7 @@ export class InputController {
         if (options) {
             return "Enum"
         }
-        return elementSchema || "String"
+        return this.schema || "String"
     }
 
     getOptions() {

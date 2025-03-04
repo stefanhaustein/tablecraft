@@ -113,9 +113,10 @@ function processFunctionsUpdate(map) {
             if (newAddition) {
                 optionElement = document.createElement("option")
                 optionElement.id = "op." + name
-                let target = f.kind == "PORT_CONSTRUCTOR" ? portSelectElement : functionSelectElement
+                let target = f.kind.endsWith("_PORT") ? portSelectElement : functionSelectElement
                 target.appendChild(optionElement)
 
+                /* Move to port handling
                 if (f.kind == "INPUT_PORT") {
                     simulationElement = document.createElement("div")
                     simulationElement.id = "sim." + name
@@ -131,10 +132,11 @@ function processFunctionsUpdate(map) {
 
                     simulationListElement.appendChild(simulationElement)
                 }
+                 */
 
             }
 
-            if (f.kind == "PORT_CONSTRUCTOR") {
+            if (f.kind.endsWith("_PORT")) {
                 optionElement.text = f.name
             } else {
                 optionElement.text = "=" + f.name + "("
@@ -164,7 +166,7 @@ function processPortsUpdate(map) {
             } else {
                 entryElement.textContent = ""
             }
-            let title = name + ": " + f.type
+            let title = name + " (" + f.type + ")"
 
             let entryTitleElement = document.createElement("div")
             entryTitleElement.className = "portTitle"
@@ -173,7 +175,7 @@ function processPortsUpdate(map) {
 
             let entryBodyElement = document.createElement("div")
             entryBodyElement.className = "portDescription"
-            entryBodyElement.textContent = Object.entries(f.configuration).map(([key, value]) => key + "=" + value).join(", ")
+            entryBodyElement.textContent = f["expression"]
             entryElement.appendChild(entryBodyElement)
         }
 

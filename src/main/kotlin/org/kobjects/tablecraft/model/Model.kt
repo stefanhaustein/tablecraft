@@ -170,7 +170,7 @@ object Model {
     }
 
     fun deletePort(name: String, runtimeContext: RuntimeContext) {
-        portMap[name] = Port(name, "tombstone", emptyMap(), runtimeContext.tag)
+        portMap[name] = Port(name, null, "tombstone", emptyMap(), runtimeContext.tag)
     }
 
     fun definePort(name: String?, jsonSpec: Map<String, Any>, runtimeContext: RuntimeContext? = null) {
@@ -178,14 +178,19 @@ object Model {
 
         if (!previousName.isNullOrBlank()) {
             require(runtimeContext != null)
-            deletePort(previousName, runtimeContext)
+            try {
+                deletePort(previousName, runtimeContext)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
         if (!name.isNullOrBlank()) {
             val type = jsonSpec["type"].toString()
             val config = jsonSpec["configuration"] as Map<String, Any>
+            val expression = jsonSpec["expression"] as String?
 
-            val port = Port(name, type, config, runtimeContext?.tag ?: 0)
+            val port = Port(name, expression, type, config, runtimeContext?.tag ?: 0)
             portMap[name] = port
         }
     }

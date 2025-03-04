@@ -1,7 +1,6 @@
 import {functions, ports} from "./shared_state.js";
 import {FormController} from "./forms/form_builder.js";
 import {sendJson} from "./lib/util.js";
-import {extractParameters} from "./lib/expressions.js";
 
 let portSelectElement = document.getElementById("portSelect")
 let portListElement = document.getElementById("portList")
@@ -30,23 +29,14 @@ function editPort(event) {
     }
     let name = id.substring("port.".length)
     let portSpec = ports[name]
-    let instanceSpec = portSpec.configuration
-    let constructorSpec = null
-    if (instanceSpec == null) {
-        let description = portSpec.description
-        let cut = description.indexOf(";")
-        let constructorName = description.substring(0, cut).trim()
-        instanceSpec = extractParameters(description.substring(cut + 1), constructorSpec["params"])
-        constructorSpec = functions[constructorName]
-    } else {
-        constructorSpec = functions[portSpec.type]
-    }
+    let constructorSpec = functions[portSpec.type]
 
-    showPortDialog(constructorSpec, name, instanceSpec)
+    showPortDialog(constructorSpec, portSpec)
 }
 
-function showPortDialog(constructorSpec, name, instanceSpec) {
+function showPortDialog(constructorSpec, portSpec) {
 
+    let instanceSpec = portSpec != null ? portSpec["configuration"] : {}
     dialogElement.textContent = ""
     let dialogTitleElement = document.createElement("div")
     dialogTitleElement.className = "dialogTitle"
@@ -56,17 +46,17 @@ function showPortDialog(constructorSpec, name, instanceSpec) {
     let inputDiv = document.createElement("div")
     inputDiv.className = "dialogFields"
 
+    let portSchema = [{"name": "name"}]
+    if (constructorSpec["kind"] == "OUTPUT_PORT") {
+        portSchema.push({"name": "expression"})
+    }
+    let previousName = portSpec["name"]
 
-    let nameLabelElement = document.createElement("label")
-    nameLabelElement.textContent = "Name"
-    inputDiv.appendChild(nameLabelElement)
-
-    let nameInputElement = document.createElement("input")
-    nameInputElement.value = name || ""
-    inputDiv.appendChild(nameInputElement)
+    let portFormController = FormController.create(inputDiv, portSchema)
+    portFormController.setValues(portSpec)
 
     let typeLabelElement = document.createElement("label")
-    typeLabelElement.textContent = "Type"
+    typeLabelElement.textContent = "binding"
     inputDiv.appendChild(typeLabelElement)
 
     let typeNameElement = document.createElement("div")
@@ -74,10 +64,10 @@ function showPortDialog(constructorSpec, name, instanceSpec) {
     inputDiv.appendChild(typeNameElement)
 
 
-    let configurationController = FormController.create(inputDiv, constructorSpec["params"])
+    let bindingFormController = FormController.create(inputDiv, constructorSpec["params"])
 
     if (instanceSpec != null) {
-        configurationController.setValues(instanceSpec)
+        bindingFormController.setValues(instanceSpec)
     }
 
     dialogElement.appendChild(inputDiv)
@@ -88,8 +78,11 @@ function showPortDialog(constructorSpec, name, instanceSpec) {
     okButton.textContent = "Ok"
     okButton.className = "dialogButton"
     okButton.addEventListener("click", () => {
-        let values = configurationController.getValues()
-        if (sendPort(nameInputElement.value.trim(), constructorSpec.name, values, name)) {
+        let values = portFormController.getValues()
+        values["configuration"] = bindingFormController.getValues()
+        values["type"] = constructorSpec["name"]
+        values["previousName"] = previousName
+        if (sendPort(values)) {
             dialogElement.close()
         }
     })
@@ -117,11 +110,7 @@ function showPortDialog(constructorSpec, name, instanceSpec) {
 }
 
 
-function sendPort(name, constructorName, definition, previousName) {
-    sendJson("updatePort?name=" + name, {
-        type: constructorName,
-        previousName: previousName,
-        configuration: definition
-    })
+function sendPort(definition) {
+    sendJson("updatePort?name=" + definition["name"], definition)
     return true
 }

@@ -7,6 +7,7 @@ import org.kobjects.tablecraft.pluginapi.*
 
 class Port(
     val name: String,
+    val expression: String?,
     val bindingName: String,
     override val configuration: Map<String, Any>,
     val tag: Long = 0,
@@ -55,6 +56,10 @@ class Port(
     override fun toJson(sb: StringBuilder) {
         sb.append("""{"name":${name.quote()}, "type":${bindingName.quote()}, "configuration": """)
         configuration.toJson(sb)
+        if (expression != null) {
+            sb.append(""", "expression":${expression.quote()}""")
+        }
+
         sb.append("}")
     }
 
