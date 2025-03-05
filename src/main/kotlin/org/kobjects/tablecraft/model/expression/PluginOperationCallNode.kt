@@ -1,18 +1,18 @@
 package org.kobjects.tablecraft.model.expression
 
-import org.kobjects.tablecraft.model.Cell
+import org.kobjects.tablecraft.model.Expression
 import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.model.RuntimeContext
 import org.kobjects.tablecraft.pluginapi.*
 
-class PluginOperationCallExpression(
-    val cell: Cell,
+class PluginOperationCallNode(
+    val expressionHolder: Expression,
     val operationSpec: OperationSpec,
     override val configuration: Map<String, Any>,
-    val parameters: Map<String, Pair<Expression, Type>>
-): Expression(), OperationHost {
+    val parameters: Map<String, Pair<Node, Type>>
+): Node(), OperationHost {
 
-    override val children: Collection<Expression>
+    override val children: Collection<Node>
         get() = parameters.values.map { it.first }
 
     val operationInstance = operationSpec.createFn(this) as OperationInstance
@@ -29,7 +29,7 @@ class PluginOperationCallExpression(
 
     override fun notifyValueChanged(newValue: Any) {
         Model.withLock {
-            cell.updateAllDependencies(it)
+            expressionHolder.updateAllDependencies(it)
             Model.notifyContentUpdated(it)
         }
     }
@@ -55,15 +55,15 @@ class PluginOperationCallExpression(
 
 
     companion object {
-        fun create(cell: Cell, operationSpec: OperationSpec, parameters: Map<String, Expression>): PluginOperationCallExpression {
+        fun create(expressionHolder: Expression, operationSpec: OperationSpec, parameters: Map<String, Node>): PluginOperationCallNode {
             val mappedConfig = mutableMapOf<String, Any>()
-            val mappedParameters = mutableMapOf<String, Pair<Expression, Type>>()
+            val mappedParameters = mutableMapOf<String, Pair<Node, Type>>()
             for ((index, specParam) in operationSpec.parameters.withIndex()) {
                 val actualParameter = parameters[specParam.name] ?: parameters["$index"]
                 if (actualParameter != null) {
                     when (specParam.kind) {
                         ParameterKind.CONFIGURATION -> {
-                            require(actualParameter is LiteralExpression) { "Literal expression required for configuration parameter ${specParam.name}" }
+                            require(actualParameter is LiteralNode) { "Literal expression required for configuration parameter ${specParam.name}" }
                             mappedConfig[specParam.name] = actualParameter.value!!
                         }
                         ParameterKind.RUNTIME -> mappedParameters[specParam.name] = actualParameter to specParam.type
@@ -73,10 +73,10 @@ class PluginOperationCallExpression(
                 }
 
             }
-            return PluginOperationCallExpression(cell, operationSpec, mappedConfig, mappedParameters)
+            return PluginOperationCallNode(expressionHolder, operationSpec, mappedConfig, mappedParameters)
         }
     }
 
-    override fun toString() = "$operationInstance configuration: $configuration parameters: $parameters cell: $cell"
+    override fun toString() = "$operationInstance configuration: $configuration parameters: $parameters cell: $expressionHolder"
 
 }

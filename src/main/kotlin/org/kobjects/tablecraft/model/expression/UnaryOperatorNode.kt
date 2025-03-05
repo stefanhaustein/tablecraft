@@ -2,7 +2,7 @@ package org.kobjects.tablecraft.model.expression
 
 import org.kobjects.tablecraft.model.RuntimeContext
 
-class UnaryOperatorExpression(val name: String, val operand: Expression) : Expression() {
+class UnaryOperatorNode(val name: String, val operand: Node) : Node() {
 
     override fun eval(context: RuntimeContext): Any {
         val value = operand.eval(context)
@@ -17,6 +17,6 @@ class UnaryOperatorExpression(val name: String, val operand: Expression) : Expre
         }
     }
 
-    override val children: Collection<Expression>
+    override val children: Collection<Node>
         get() = emptyList()
 }

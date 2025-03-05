@@ -19,7 +19,7 @@ object ExpressionParser : PrattParser<ExpressionScanner, Map<String, Any>, Any>(
 
     fun parsePrimary(scanner: ExpressionScanner, context: Map<String, Any>): Any =
         when (scanner.current.type) {
-            ExpressionTokenType.NUMBER -> LiteralExpression(scanner.consume().text.toDouble())
+            ExpressionTokenType.NUMBER -> LiteralNode(scanner.consume().text.toDouble())
             ExpressionTokenType.STRING -> {
                 val text = scanner.consume().text
                 text.substring(1, text.length - 1)
@@ -48,7 +48,7 @@ object ExpressionParser : PrattParser<ExpressionScanner, Map<String, Any>, Any>(
     }
 }
 
-fun evalBinary(name: String, leftOperand: Any, rightOperand: Any): Expression {
+fun evalBinary(name: String, leftOperand: Any, rightOperand: Any): Node {
     when (name) {
         else -> throw UnsupportedOperationException("Binary operator $name")
     }

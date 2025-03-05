@@ -3,7 +3,7 @@ package org.kobjects.tablecraft.model
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
-import org.kobjects.tablecraft.model.expression.Expression.Companion.ZERO_TIME
+import org.kobjects.tablecraft.model.expression.Node.Companion.ZERO_TIME
 import kotlin.time.DurationUnit
 
 object Values {

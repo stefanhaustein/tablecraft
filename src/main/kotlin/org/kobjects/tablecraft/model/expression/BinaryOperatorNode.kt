@@ -1,14 +1,13 @@
 package org.kobjects.tablecraft.model.expression
 
-import kotlinx.datetime.Instant
 import org.kobjects.tablecraft.model.RuntimeContext
 import org.kobjects.tablecraft.model.Values
 
-class BinaryOperatorExpression(
+class BinaryOperatorNode(
     val name: String,
-    val leftOperand: Expression,
-    val rightOperand: Expression
-): Expression() {
+    val leftOperand: Node,
+    val rightOperand: Node
+): Node() {
 
     override fun eval(context: RuntimeContext): Any {
         val l = leftOperand.eval(context) ?: 0.0
@@ -55,6 +54,6 @@ class BinaryOperatorExpression(
         }
     }
 
-    override val children: Collection<Expression>
+    override val children: Collection<Node>
         get() = listOf(leftOperand, rightOperand)
 }

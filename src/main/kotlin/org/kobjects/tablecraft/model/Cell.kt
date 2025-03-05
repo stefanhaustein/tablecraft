@@ -5,26 +5,12 @@ import kotlinx.datetime.format.char
 import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.model.builtin.ImageReference
-import org.kobjects.tablecraft.model.expression.Expression
-import org.kobjects.tablecraft.model.expression.LiteralExpression
-import org.kobjects.tablecraft.model.parser.TcFormulaParser
-import org.kobjects.tablecraft.model.parser.ParsingContext
 
 class Cell(
     val sheet: Sheet,
     val id: String
-) {
-    var rawValue: String = ""
-    var validation: Map<String, Any?>? = null
+) : Expression() {
 
-    var expression: Expression = LiteralExpression(Unit)
-    var computedValue_: Any = Unit
-
-    var tag = 0L
-    var formulaTag = 0L
-
-    val depenencies = mutableListOf<Cell>()
-    val dependsOn = mutableListOf<Cell>()
 
     fun setJson(json: Map<String, Any?>, runtimeContext: RuntimeContext?) {
        val formula = json["f"]
@@ -38,37 +24,6 @@ class Cell(
     }
 
 
-    fun setValue(value: String, runtimeContext: RuntimeContext?) {
-        rawValue = value
-        expression.detachAll()
-        expression = if (value.startsWith("=")) {
-            try {
-                val context = ParsingContext(this)
-                val parsed = TcFormulaParser.parseExpression(value.substring(1), context)
-                parsed.attachAll()
-                parsed
-            } catch (e: Exception) {
-                LiteralExpression(e)
-            }
-        } else {
-            when (value.lowercase()) {
-                "true" -> LiteralExpression(true)
-                "false" -> LiteralExpression(false)
-                else -> {
-                    try {
-                        LiteralExpression(Values.parseNumber(value))
-                    } catch (e: Exception) {
-                        LiteralExpression(value)
-                    }
-                }
-            }
-        }
-        if (runtimeContext != null) {
-            updateAllDependencies(runtimeContext)
-            Model.notifyContentUpdated(runtimeContext)
-        }
-    }
-
     fun setValidation(validation: Map<String, Any?>?, runtimeContext: RuntimeContext?) {
         this.validation = validation
         if (runtimeContext != null) {
@@ -76,27 +31,6 @@ class Cell(
         }
     }
 
-    fun getComputedValue(context: RuntimeContext): Any {
-        if (context.tag > tag) {
-            try {
-            computedValue_ = expression.eval(context)
-            } catch(e: Exception) {
-                e.printStackTrace()
-                computedValue_ = e
-            }
-            tag = context.tag
-        }
-        return computedValue_
-    }
-
-    fun updateAllDependencies(context: RuntimeContext) {
-        if (context.tag > tag) {
-            getComputedValue(context)
-            for (dep in depenencies) {
-                dep.updateAllDependencies(context)
-            }
-        }
-    }
 
     fun serializeValue(sb: StringBuilder) {
         val value = computedValue_

@@ -3,10 +3,10 @@ package org.kobjects.tablecraft.model.expression;
 import org.kobjects.tablecraft.model.Cell
 import org.kobjects.tablecraft.model.RuntimeContext
 
-class CellReferenceExpression(
+class CellReferenceNode(
     val source: Cell,
     val cell: Cell
-) : Expression() {
+) : Node() {
 
     override fun eval(context: RuntimeContext): Any {
         try {
@@ -17,7 +17,7 @@ class CellReferenceExpression(
         }
     }
 
-    override val children: Collection<Expression>
+    override val children: Collection<Node>
         get() = emptyList()
 
     override fun attach() {

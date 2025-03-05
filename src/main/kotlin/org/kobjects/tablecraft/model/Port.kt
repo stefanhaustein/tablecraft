@@ -7,7 +7,6 @@ import org.kobjects.tablecraft.pluginapi.*
 
 class Port(
     val name: String,
-    val expression: String?,
     val bindingName: String,
     override val configuration: Map<String, Any>,
     val tag: Long = 0,
@@ -17,6 +16,7 @@ class Port(
     val implementation = specification.createFn(this)
     val attached = mutableSetOf<PortAdapter>()
     var error: Exception? = null
+    var expression: Expression? = null
 
     var value: Any = when(specification.returnType) {
         Type.INT -> 0
@@ -46,6 +46,16 @@ class Port(
         }
     }
 
+
+    fun setExpression(rawExpression: String, runtimeContext: RuntimeContext?) {
+        val expression = Expression()
+        expression.setValue(rawExpression, runtimeContext)
+        expression.changeListeners.add {
+            notifyValueChanged(expression.computedValue_)
+        }
+        this.expression = expression
+    }
+
     override fun notifyValueChanged(newValue: Any) {
         value = newValue
         for (adapter in attached) {
@@ -57,7 +67,7 @@ class Port(
         sb.append("""{"name":${name.quote()}, "type":${bindingName.quote()}, "configuration": """)
         configuration.toJson(sb)
         if (expression != null) {
-            sb.append(""", "expression":${expression.quote()}""")
+            sb.append(""", "expression":${expression!!.rawValue.quote()}""")
         }
 
         sb.append("}")

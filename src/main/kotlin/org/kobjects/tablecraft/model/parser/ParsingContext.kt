@@ -1,6 +1,6 @@
 package org.kobjects.tablecraft.model.parser
 
-import org.kobjects.tablecraft.model.Cell
+import org.kobjects.tablecraft.model.Expression
 
-class ParsingContext(val cell: Cell) {
+class ParsingContext(val expressionHolder: Expression) {
 }

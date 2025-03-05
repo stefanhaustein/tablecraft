@@ -3,13 +3,12 @@ package org.kobjects.tablecraft.model.expression
 import kotlinx.datetime.*
 import org.kobjects.tablecraft.model.RuntimeContext
 import org.kobjects.tablecraft.model.Values
-import kotlin.time.DurationUnit
 
-abstract class Expression {
+abstract class Node {
 
     abstract fun eval(context: RuntimeContext): Any
 
-    abstract val children: Collection<Expression>
+    abstract val children: Collection<Node>
 
     fun evalDouble(context: RuntimeContext): Double = Values.toDouble(eval(context))
 
