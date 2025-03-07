@@ -14,6 +14,8 @@ export var model = {
 
 export var functions = {}
 export var ports = {}
+export var portValues = {}
+export var simulationValues = {}
 export var currentSheet = model.sheets["Sheet1"]
 export let currentCellId = null
 export let currentCellElement = null
@@ -33,6 +35,15 @@ selectCell("A1")
 
 document.getElementById("simulationMode").addEventListener("change", (event) =>{
     let checked = event.target.checked
+    for (let name in ports) {
+        let simulationValueElement = document.getElementById("port." + name + ".simulationValue")
+        if (simulationValueElement != null) {
+            let valueElement =  document.getElementById("port." + name + ".value")
+            valueElement.style.display = checked ? "none" : "block"
+            simulationValueElement.style.display = checked ? "block" : "none"
+        }
+    }
+
     sendJson("/simulationMode", checked)
 })
 

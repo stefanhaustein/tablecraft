@@ -3,6 +3,7 @@ package org.kobjects.tablecraft.model
 import org.kobjects.tablecraft.json.ToJson
 import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.json.toJson
+import org.kobjects.tablecraft.model.Model.simulationValueMap
 import org.kobjects.tablecraft.pluginapi.*
 
 class Port(
@@ -14,17 +15,18 @@ class Port(
 
     val specification = Model.functionMap[bindingName]!!
     val implementation = specification.createFn(this)
-    val attached = mutableSetOf<PortAdapter>()
+    val dependencies = mutableSetOf<PortDependency>()
     var error: Exception? = null
     var expression: Expression? = null
 
-    var value: Any = when(specification.returnType) {
-        Type.INT -> 0
-        Type.NUMBER -> 0.0
-        Type.BOOLEAN -> false
-        Type.TEXT -> ""
-        else -> throw UnsupportedOperationException("port type")
-    }
+    private var value_: Any = (if (Model.simulationMode_) Model.simulationValueMap[name] else null) ?:
+        when(specification.returnType) {
+            Type.INT -> 0
+            Type.NUMBER -> 0.0
+            Type.BOOLEAN -> false
+            Type.TEXT -> ""
+            else -> throw UnsupportedOperationException("port type")
+        }
 
     init {
         try {
@@ -42,24 +44,36 @@ class Port(
             else listOf(ParameterSpec("value", ParameterKind.RUNTIME, specification.returnType)),
             tag
         ) {
-            PortAdapter(it)
+            PortDependency(it)
         }
     }
+
+    val value: Any
+        get() = if (Model.simulationMode_) simulationValueMap[name] ?: Unit else value_
 
 
     fun setExpression(rawExpression: String, runtimeContext: RuntimeContext?) {
         val expression = Expression()
-        expression.setValue(rawExpression, runtimeContext)
+        expression.setFormula(rawExpression, runtimeContext)
         expression.changeListeners.add {
             notifyValueChanged(expression.computedValue_)
         }
         this.expression = expression
     }
 
+    // Incoming from ports
     override fun notifyValueChanged(newValue: Any) {
-        value = newValue
-        for (adapter in attached) {
-            adapter.host.notifyValueChanged(value)
+        if (Model.simulationMode_) {
+            for (adapter in dependencies) {
+                adapter.host.notifyValueChanged(value)
+            }
+        } else {
+            if (value_ != newValue) {
+                value_ = newValue
+                for (adapter in dependencies) {
+                    adapter.host.notifyValueChanged(value)
+                }
+            }
         }
     }
 
@@ -73,9 +87,9 @@ class Port(
         sb.append("}")
     }
 
-    inner class PortAdapter(val host: OperationHost) : OperationInstance {
+    inner class PortDependency(val host: OperationHost) : OperationInstance {
         override fun attach() {
-            attached.add(this)
+            dependencies.add(this)
         }
 
         override fun apply(params: Map<String, Any>): Any {
@@ -83,7 +97,7 @@ class Port(
         }
 
         override fun detach() {
-            attached.remove(this)
+            dependencies.remove(this)
         }
 
     }

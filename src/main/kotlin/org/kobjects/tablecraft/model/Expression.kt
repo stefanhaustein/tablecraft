@@ -4,6 +4,7 @@ import org.kobjects.tablecraft.model.expression.Node
 import org.kobjects.tablecraft.model.expression.LiteralNode
 import org.kobjects.tablecraft.model.parser.ParsingContext
 import org.kobjects.tablecraft.model.parser.TcFormulaParser
+import org.kobjects.tablecraft.pluginapi.RuntimeContext
 
 open class Expression {
 
@@ -13,7 +14,7 @@ open class Expression {
     var expression: Node = LiteralNode(Unit)
     var computedValue_: Any = Unit
 
-    var tag = 0L
+    var valueTag = 0L
     var formulaTag = 0L
 
     val depenencies = mutableListOf<Expression>()
@@ -21,7 +22,7 @@ open class Expression {
     val changeListeners = mutableListOf<()->Unit>()
 
     fun getComputedValue(context: RuntimeContext): Any {
-        if (context.tag > tag) {
+        if (context.tag > valueTag) {
             try {
                 val newValue = expression.eval(context)
                 if (newValue != computedValue_) {
@@ -34,12 +35,15 @@ open class Expression {
                 e.printStackTrace()
                 computedValue_ = e
             }
-            tag = context.tag
+            valueTag = context.tag
         }
         return computedValue_
     }
 
-    fun setValue(value: String, runtimeContext: RuntimeContext?) {
+    fun setFormula(value: String, runtimeContext: RuntimeContext?) {
+        if (rawValue == value) {
+            return
+        }
         rawValue = value
         expression.detachAll()
         expression = if (value.startsWith("=")) {
@@ -65,6 +69,8 @@ open class Expression {
             }
         }
         if (runtimeContext != null) {
+            formulaTag = runtimeContext.tag
+
             updateAllDependencies(runtimeContext)
             Model.notifyContentUpdated(runtimeContext)
         }
@@ -72,7 +78,7 @@ open class Expression {
 
 
     fun updateAllDependencies(context: RuntimeContext) {
-        if (context.tag > tag) {
+        if (context.tag > valueTag) {
             getComputedValue(context)
             for (dep in depenencies) {
                 dep.updateAllDependencies(context)

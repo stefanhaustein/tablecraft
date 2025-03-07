@@ -25,7 +25,9 @@ function editPort(event) {
     let entryElement = event.target.parentNode
     let id = entryElement.id
     if (!id.startsWith("port.")) {
-        console.log("Target element id not recognized: ", entryElement)
+        // Clicked on input; not handled here.
+        // console.log("Target element id not recognized: ", entryElement)
+        return
     }
     let name = id.substring("port.".length)
     let portSpec = ports[name]

@@ -1,6 +1,6 @@
 package org.kobjects.tablecraft.model.expression
 
-import org.kobjects.tablecraft.model.RuntimeContext
+import org.kobjects.tablecraft.pluginapi.RuntimeContext
 
 class UnaryOperatorNode(val name: String, val operand: Node) : Node() {
 

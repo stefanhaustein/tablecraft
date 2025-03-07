@@ -1,7 +1,16 @@
 import {renderComputedValue} from "./cell_renderer.js";
-import {currentSheet, ports, functions, currentCellId, currentCellData} from "./shared_state.js";
+import {
+    currentSheet,
+    ports,
+    functions,
+    currentCellId,
+    currentCellData,
+    portValues,
+    simulationValues
+} from "./shared_state.js";
 import {FormController} from "./forms/form_builder.js";
 import {sendJson, camelCase} from "./lib/util.js";
+import {InputController} from "./forms/input_controller.js";
 
 var currentTag = -1
 fetch()
@@ -51,18 +60,61 @@ function proccessUpdateResponseText(responseText) {
 }
 
 function processSection(name, map) {
-    if (name == "") {
-        currentTag = map["tag"]
-    } else if (name == "ports") {
-        processPortsUpdate(map)
-    } else if (name == "functions") {
-        processFunctionsUpdate(map)
-    } else if (name.startsWith("sheets")) {
+    if (name.startsWith("sheets")) {
         processSheetUpdate(map)
-    } else {
-        console.log("Unrecognizes section: ", name, map)
+    } else switch (name) {
+        case "":
+            currentTag = map["tag"]
+            let simulationMode = map["simulationMode"]
+            if (simulationMode != null) {
+                document.getElementById("simulationMode").checked = simulationMode
+            }
+            break
+        case "functions":
+            processFunctionsUpdate(map)
+            break
+        case "ports":
+            processPortsUpdate(map)
+            break
+        case "portValues":
+            processPortValues(map)
+            break
+        case "simulationValues":
+            processSimulationValues(map)
+            break
+        default:
+            console.log("Unrecognizes section: ", name, map)
     }
 }
+
+function processPortValues(map) {
+    for (let key in map) {
+        let value = map[key]
+        portValues[key] = value
+        let target = document.getElementById("port." + key + ".value")
+        if (target != null) {
+            target.textContent = value
+        }
+    }
+}
+
+function processSimulationValues(map) {
+    for (let key in map) {
+        let value = map[key]
+        simulationValues[key] = value
+        let port = ports[key]
+        if (port != null) {
+            let controller = port.valueController
+            if (controller != null) {
+                controller.setValue(value)
+            }
+        }
+    }
+}
+
+
+
+
 
 function processSheetUpdate(map) {
     let cells = currentSheet.cells
@@ -92,17 +144,12 @@ function processSheetUpdate(map) {
 function processFunctionsUpdate(map) {
     let functionSelectElement = document.getElementById("functions")
     let portSelectElement = document.getElementById("portSelect")
-    let simulationListElement = document.getElementById("simulationList")
     for (let name in map) {
         let f = map[name]
         let optionElement = document.getElementById("op." + name)
-        let simulationElement = document.getElementById("sim." + name)
         if (f.kind == "TOMBSTONE") {
             if (optionElement != null) {
                 optionElement.parentElement.removeChild(optionElement)
-            }
-            if (simulationElement != null) {
-                simulationListElement.removeChild(simulationElement)
             }
             let entryElement = document.getElementById("port." + name)
             if (entryElement != null) {
@@ -173,10 +220,34 @@ function processPortsUpdate(map) {
             entryTitleElement.textContent = title
             entryElement.appendChild(entryTitleElement)
 
-            let entryBodyElement = document.createElement("div")
-            entryBodyElement.className = "portDescription"
-            entryBodyElement.textContent = f["expression"]
-            entryElement.appendChild(entryBodyElement)
+            let spec = functions[f.type]
+            console.log("adding port", f, spec)
+
+            let showValue = true
+            if (spec.kind == "OUTPUT_PORT") {
+                let entryExpressionElement = document.createElement("div")
+                entryExpressionElement.className = "portExpression"
+                entryExpressionElement.textContent = f["expression"]
+                entryElement.appendChild(entryExpressionElement)
+            } else {
+                let entryValueElement = document.createElement("div")
+                entryValueElement.id = "port." + name + ".simulationValue"
+                entryValueElement.className = "portSimulationValue"
+                let controller = f.valueController = new InputController({type: camelCase(spec.returnType)})
+                entryValueElement.appendChild(controller.element)
+                controller.addListener((value, source) => {
+                    sendJson("portSimulation?name=" + name, value)
+                })
+                showValue = !document.getElementById("simulationMode").checked
+                entryValueElement.style.display =  showValue ? "none" : "block"
+                entryElement.appendChild(entryValueElement)
+            }
+
+            let entryValueElement = document.createElement("div")
+            entryValueElement.id = "port." + name + ".value"
+            entryValueElement.className = "portValue"
+            entryValueElement.style.display =  showValue ? "block" : "none"
+            entryElement.appendChild(entryValueElement)
         }
 
         // console.log("received function spec", f)

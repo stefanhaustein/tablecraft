@@ -1,8 +1,8 @@
 package org.kobjects.tablecraft.model
 
+import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.model.builtin.BuiltinFunctions
 import org.kobjects.tablecraft.pluginapi.*
-import org.kobjects.tablecraft.plugins.mqtt.MqttPlugin
 import org.kobjects.tablecraft.plugins.pi4j.Pi4jPlugin
 import org.kobjects.tablecraft.svg.SvgManager
 import java.io.File
@@ -55,15 +55,12 @@ object Model {
 
     fun setSimulationMode(value: Boolean) {
         simulationMode_ = value
-        /*
-        for ((name, ports) in portMap) {
-            val value = simulationValueMap[name]
-            if (value != null) {
-                port.notifyValueChanged(value)
+        for (port in portMap.values) {
+            val simulationValue = simulationValueMap[port.name]
+            if (simulationValue != null) {
+                port.notifyValueChanged(simulationValue)
             }
         }
-
-         */
     }
 
 
@@ -119,7 +116,7 @@ object Model {
             writer.write(serializeFunctions(tag))
         }
 
-        writer.write(serializePorts(tag))
+        serializePorts(writer, tag)
 
         writer.write("\n")
 
@@ -157,16 +154,34 @@ object Model {
         return if (sb.isEmpty()) "" else "[functions]\n\n$sb"
     }
 
-    fun serializePorts(tag: Long): String {
-        val sb = StringBuilder()
+    fun serializePorts(writer: Writer, tag: Long) {
+        val definitions = StringBuilder()
+        val values = StringBuilder()
         for (port in portMap.values) {
             if (port.tag > tag) {
-                sb.append(port.name).append(": ")
-                port.toJson(sb)
-                sb.append('\n')
+                definitions.append(port.name).append(": ")
+                port.toJson(definitions)
+                definitions.append('\n')
+            }
+            if (port.expression?.valueTag ?: -1 > tag) {
+                values.append("${port.name}: ${port.value.toJson()}\n")
             }
         }
-        return if (sb.isEmpty()) "" else "[ports]\n\n$sb"
+
+        if (definitions.isNotEmpty()) {
+            writer.write("[ports]\n\n$definitions\n")
+        }
+        if (values.isNotEmpty()) {
+            writer.write("[portValues]\n\n$values\n")
+        }
+
+        if (simulationValueMap.isNotEmpty()) {
+            writer.write("[simulationValues]\n\n")
+            for ((key, value) in simulationValueMap) {
+                writer.write("$key: ${value.toJson()}\n")
+            }
+            writer.write("\n")
+        }
     }
 
     fun deletePort(name: String, runtimeContext: RuntimeContext) {
@@ -210,11 +225,8 @@ object Model {
 
     fun setSimulationValue(name: String, value: Any, runtimeContext: RuntimeContext) {
         simulationValueMap[name] = value
-        /*
-        for (host in portMap[name] ?: emptySet<OperationHost>()) {
-            host.notifyValueChanged(value)
+        if (simulationMode_) {
+            portMap[name]?.notifyValueChanged(value)
         }
-
-         */
     }
 }

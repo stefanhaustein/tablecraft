@@ -5,6 +5,7 @@ import kotlinx.datetime.format.char
 import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.model.builtin.ImageReference
+import org.kobjects.tablecraft.pluginapi.RuntimeContext
 
 class Cell(
     val sheet: Sheet,
@@ -15,7 +16,7 @@ class Cell(
     fun setJson(json: Map<String, Any?>, runtimeContext: RuntimeContext?) {
        val formula = json["f"]
        if (formula != null) {
-           setValue(formula.toString(), runtimeContext)
+           setFormula(formula.toString(), runtimeContext)
        }
        val validation = json["v"]
        if (validation != null) {
@@ -62,7 +63,7 @@ class Cell(
             }
             sb.append("}\n")
         }
-        if (includeComputed && this.tag > tag) {
+        if (includeComputed && this.valueTag > tag) {
             sb.append("$id.c = ")
             serializeValue(sb)
             sb.append('\n')

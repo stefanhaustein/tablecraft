@@ -1,7 +1,7 @@
 package org.kobjects.tablecraft.model.expression
 
 import kotlinx.datetime.*
-import org.kobjects.tablecraft.model.RuntimeContext
+import org.kobjects.tablecraft.pluginapi.RuntimeContext
 import org.kobjects.tablecraft.model.Values
 
 abstract class Node {

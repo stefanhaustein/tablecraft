@@ -1,12 +1,14 @@
 package org.kobjects.tablecraft.model
 
+import org.kobjects.tablecraft.pluginapi.RuntimeContext
+
 
 class Sheet(var name: String) {
     val cells = mutableMapOf<String, Cell>()
 
     fun set(cellId: String, value: String, runtimeContext: RuntimeContext?) {
         val cell = getOrCreateCell(cellId)
-        cell.setValue(value, runtimeContext)
+        cell.setFormula(value, runtimeContext)
     }
 
     fun updateAll(context: RuntimeContext) {
@@ -40,7 +42,7 @@ class Sheet(var name: String) {
 
     fun clear(runtimeContext: RuntimeContext) {
         for (cell in cells.values) {
-            cell.setValue("", runtimeContext)
+            cell.setFormula("", runtimeContext)
         }
     }
 

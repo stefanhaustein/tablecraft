@@ -46,8 +46,8 @@ html {
 .portTitle {
     padding-top: 5px;
 }
-.portDescription {
-    text-indent: 12px;
+.portExpression, .portValue, .portSimulationValue {
+    padding-left: 12px;
     padding-bottom: 5px;
 }
 

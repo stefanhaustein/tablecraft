@@ -1,7 +1,7 @@
 package org.kobjects.tablecraft.model.expression;
 
 import org.kobjects.tablecraft.model.Cell
-import org.kobjects.tablecraft.model.RuntimeContext
+import org.kobjects.tablecraft.pluginapi.RuntimeContext
 
 class CellReferenceNode(
     val source: Cell,

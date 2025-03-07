@@ -2,7 +2,7 @@ package org.kobjects.tablecraft.model.expression
 
 import org.kobjects.tablecraft.model.Expression
 import org.kobjects.tablecraft.model.Model
-import org.kobjects.tablecraft.model.RuntimeContext
+import org.kobjects.tablecraft.pluginapi.RuntimeContext
 import org.kobjects.tablecraft.pluginapi.*
 
 class PluginOperationCallNode(
@@ -35,12 +35,6 @@ class PluginOperationCallNode(
     }
 
     override fun eval(context: RuntimeContext): Any {
-        if (Model.simulationMode_) {
-            val value = Model.simulationValueMap[operationSpec.name]
-            if (value != null) {
-                return value
-            }
-        }
         return operationInstance.apply(parameters.mapValues {
             val expr = it.value.first
             when (it.value.second) {

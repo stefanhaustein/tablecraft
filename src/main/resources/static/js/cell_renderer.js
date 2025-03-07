@@ -17,25 +17,29 @@ export function renderComputedValue(targetElement, cellData) {
         case "number": classes.add("r"); break;
         case "boolean": classes.add("c"); break;
         case "object":
-            classes.add("l");
-            switch (value["type"]) {
-                case "img":
-                    targetElement.textContent = ""
-                    let img = document.createElement("img")
-                    img.src = value["src"]
-                    targetElement.appendChild(img)
-                    classes.add("i")
-                    break
-                case "err":
-                    let abbr = document.createElement("span")
-                    targetElement.setAttribute("title", value["msg"])
-                    abbr.textContent = "#REF"
-                    targetElement.textContent = ""
-                    targetElement.appendChild(abbr)
-                    classes.add("e")
-                    break;
-                default:
-                    targetElement.textContent = JSON.stringify(value)
+            if (value == null) {
+                targetElement.textContent = ""
+            } else {
+                classes.add("l");
+                switch (value["type"]) {
+                    case "img":
+                        targetElement.textContent = ""
+                        let img = document.createElement("img")
+                        img.src = value["src"]
+                        targetElement.appendChild(img)
+                        classes.add("i")
+                        break
+                    case "err":
+                        let abbr = document.createElement("span")
+                        targetElement.setAttribute("title", value["msg"])
+                        abbr.textContent = "#REF"
+                        targetElement.textContent = ""
+                        targetElement.appendChild(abbr)
+                        classes.add("e")
+                        break;
+                    default:
+                        targetElement.textContent = JSON.stringify(value)
+                }
             }
             return;
     }

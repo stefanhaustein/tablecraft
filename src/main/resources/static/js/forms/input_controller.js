@@ -9,6 +9,7 @@ export class InputController {
 
     constructor(schema) {
         this.schema = schema
+        this.listeners = []
 
         let options = this.getOptions()
 
@@ -22,8 +23,18 @@ export class InputController {
         } else {
             this.element = document.createElement("input")
         }
+
+        this.element.addEventListener("change", () => {
+            for (let listener of this.listeners) {
+                listener(this.getValue(), this)
+            }
+        })
     }
 
+
+    addListener(listener) {
+        this.listeners.push(listener)
+    }
 
     getValue() {
         switch(this.getType()) {
@@ -40,7 +51,13 @@ export class InputController {
     }
 
     setValue(value) {
-        this.element.value = value
+        switch (this.getType()) {
+            case "Boolean":
+                this.element.value = value ? "True" : "False"
+                break
+            default:
+                this.element.value = value
+        }
     }
 
     getType() {
