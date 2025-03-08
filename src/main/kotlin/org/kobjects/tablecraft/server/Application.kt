@@ -9,10 +9,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.utils.io.*
 import kotlinx.html.dom.serialize
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import org.kobjects.tablecraft.json.JsonParser
 import org.kobjects.tablecraft.model.Model
+import org.kobjects.tablecraft.pluginapi.ModificationToken
 import java.io.File
 import java.io.StringWriter
 import kotlin.coroutines.resume
@@ -28,9 +27,9 @@ fun Application.module() {
             val cell = call.parameters["cell"]!!
             val text = call.receiveText()
             val json = JsonParser.parseObject(text)
-            Model.withLock {
-                Model.getOrCreate(cell).setJson(json, it)
-                Model.save(it)
+            ModificationToken.applySynchronizedWithToken { token ->
+                Model.getOrCreate(cell).setJson(json, token)
+                Model.save(token)
             }
             call.respond(HttpStatusCode.OK, null)
         }
@@ -46,7 +45,7 @@ fun Application.module() {
             val jsonText = call.receiveText()
             println("Received JSON: $jsonText")
             val value = JsonParser.parse(jsonText)
-            Model.withLock {
+            ModificationToken.applySynchronizedWithToken {
                 Model.setSimulationValue(name, value, it)
             }
             call.respond(HttpStatusCode.OK, null)
@@ -56,7 +55,7 @@ fun Application.module() {
             val jsonText = call.receiveText()
             println("Received JSON: $jsonText")
             val jsonSpec = JsonParser.parseObject(jsonText)
-            Model.withLock {
+            ModificationToken.applySynchronizedWithToken {
                 Model.definePort(name, jsonSpec, it)
                 Model.notifyContentUpdated(it)
                 Model.save(it)
@@ -66,7 +65,7 @@ fun Application.module() {
         post("/upload") {
             val fileItem = call.receiveMultipart().readPart() as PartData.FileItem
             val data = fileItem.provider().toByteArray().toString(Charsets.UTF_8)
-            Model.withLock {
+            ModificationToken.applySynchronizedWithToken {
                 Model.clearAll(it)
                 Model.loadData(data, it)
                 Model.save(it)
@@ -80,14 +79,14 @@ fun Application.module() {
 
             if (tag >= Model.modificationTag) {
                 suspendCoroutine<Unit> { continuation ->
-                    Model.withLock {
+                    ModificationToken.applySynchronizedWithToken {
                         Model.listeners.add {
                             continuation.resume(Unit)
                         }
                     }
                 }
             }
-            val result = Model.withLock {
+            val result = ModificationToken.applySynchronizedWithToken {
                 val writer = StringWriter()
                 if (forClient) {
                     writer.write("tag = ${Model.modificationTag}\n\n")

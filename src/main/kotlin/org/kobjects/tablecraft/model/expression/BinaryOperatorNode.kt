@@ -1,6 +1,6 @@
 package org.kobjects.tablecraft.model.expression
 
-import org.kobjects.tablecraft.pluginapi.RuntimeContext
+import org.kobjects.tablecraft.pluginapi.ModificationToken
 import org.kobjects.tablecraft.model.Values
 
 class BinaryOperatorNode(
@@ -9,7 +9,7 @@ class BinaryOperatorNode(
     val rightOperand: Node
 ): Node() {
 
-    override fun eval(context: RuntimeContext): Any {
+    override fun eval(context: ModificationToken): Any {
         val l = leftOperand.eval(context) ?: 0.0
         val r = rightOperand.eval(context) ?: 0.0
 

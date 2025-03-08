@@ -1,17 +1,17 @@
 package org.kobjects.tablecraft.model
 
-import org.kobjects.tablecraft.pluginapi.RuntimeContext
+import org.kobjects.tablecraft.pluginapi.ModificationToken
 
 
 class Sheet(var name: String) {
     val cells = mutableMapOf<String, Cell>()
 
-    fun set(cellId: String, value: String, runtimeContext: RuntimeContext?) {
+    fun set(cellId: String, value: String, modificationToken: ModificationToken?) {
         val cell = getOrCreateCell(cellId)
-        cell.setFormula(value, runtimeContext)
+        cell.setFormula(value, modificationToken)
     }
 
-    fun updateAll(context: RuntimeContext) {
+    fun updateAll(context: ModificationToken) {
         for (cell in cells.values) {
             cell.getComputedValue(context)
         }
@@ -40,9 +40,9 @@ class Sheet(var name: String) {
         return cells.getOrPut(cellId) { Cell(this, cellId) }
     }
 
-    fun clear(runtimeContext: RuntimeContext) {
+    fun clear(modificationToken: ModificationToken) {
         for (cell in cells.values) {
-            cell.setFormula("", runtimeContext)
+            cell.setFormula("", modificationToken)
         }
     }
 

@@ -9,11 +9,6 @@ import java.io.File
 import java.io.FileWriter
 import org.kobjects.tablecraft.tomson.TomsonParser
 import java.io.Writer
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 
 object Model {
 
@@ -23,7 +18,6 @@ object Model {
     var simulationMode_: Boolean = false
 
     val sheets = mutableMapOf<String, Sheet>("Sheet1" to Sheet("Sheet1"))
-    val lock = ReentrantLock()
     val listeners = mutableSetOf<() -> Unit>()
 
     val functionMap = mutableMapOf<String, OperationSpec>()
@@ -41,7 +35,7 @@ object Model {
         addPlugin(svgs)
         // addPlugin(MqttPlugin)
 
-        withLock { runtimeContext ->
+        ModificationToken.applySynchronizedWithToken { runtimeContext ->
             loadData(STORAGE_FILE.readText(), runtimeContext)
         }
     }
@@ -64,16 +58,8 @@ object Model {
     }
 
 
-    @OptIn(ExperimentalContracts::class)
-    inline fun <T> withLock(action: (RuntimeContext) -> T): T {
-        contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
-        return lock.withLock {
-            val runtimeContext = RuntimeContext()
-            action(runtimeContext)
-        }
-    }
 
-    fun loadData(data: String, runtimeContext: RuntimeContext) {
+    fun loadData(data: String, modificationToken: ModificationToken) {
         try {
             val toml = TomsonParser.parse(data)
             for ((key, map) in toml) {
@@ -99,7 +85,7 @@ object Model {
         }
 
         for (sheet in sheets.values) {
-            sheet.updateAll(runtimeContext)
+            sheet.updateAll(modificationToken)
         }
     }
 
@@ -127,7 +113,7 @@ object Model {
     }
 
 
-    fun save(runtimeContext: RuntimeContext) {
+    fun save(modificationToken: ModificationToken) {
         STORAGE_FILE.mkdirs()
         val writer = FileWriter(STORAGE_FILE)
         serialize(writer)
@@ -135,8 +121,8 @@ object Model {
     }
 
 
-    fun notifyContentUpdated(runtimeContext: RuntimeContext) {
-        modificationTag = runtimeContext.tag
+    fun notifyContentUpdated(modificationToken: ModificationToken) {
+        modificationTag = modificationToken.tag
         for (listener in listeners) {listener()}
         listeners.clear()
     }
@@ -184,17 +170,17 @@ object Model {
         }
     }
 
-    fun deletePort(name: String, runtimeContext: RuntimeContext) {
-        portMap[name] = Port(name,  "tombstone", emptyMap(), runtimeContext.tag)
+    fun deletePort(name: String, modificationToken: ModificationToken) {
+        portMap[name] = Port(name,  "tombstone", emptyMap(), modificationToken.tag)
     }
 
-    fun definePort(name: String?, jsonSpec: Map<String, Any>, runtimeContext: RuntimeContext? = null) {
+    fun definePort(name: String?, jsonSpec: Map<String, Any>, modificationToken: ModificationToken? = null) {
         val previousName = jsonSpec["previousName"] as String?
 
         if (!previousName.isNullOrBlank()) {
-            require(runtimeContext != null)
+            require(modificationToken != null)
             try {
-                deletePort(previousName, runtimeContext)
+                deletePort(previousName, modificationToken)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -204,26 +190,26 @@ object Model {
             val type = jsonSpec["type"].toString()
             val config = jsonSpec["configuration"] as Map<String, Any>
 
-            val port = Port(name, type, config, runtimeContext?.tag ?: 0)
+            val port = Port(name, type, config, modificationToken?.tag ?: 0)
             val expression = jsonSpec["expression"] as String?
             if (expression != null) {
-                port.setExpression(expression, runtimeContext)
+                port.setExpression(expression, modificationToken)
             }
             portMap[name] = port
         }
     }
 
-    fun clearAll(runtimeContext: RuntimeContext) {
+    fun clearAll(modificationToken: ModificationToken) {
         for (key in portMap.keys.toList()) {
-            deletePort(key, runtimeContext)
+            deletePort(key, modificationToken)
         }
 
         for (sheet in sheets.values) {
-            sheet.clear(runtimeContext)
+            sheet.clear(modificationToken)
         }
     }
 
-    fun setSimulationValue(name: String, value: Any, runtimeContext: RuntimeContext) {
+    fun setSimulationValue(name: String, value: Any, modificationToken: ModificationToken) {
         simulationValueMap[name] = value
         if (simulationMode_) {
             portMap[name]?.notifyValueChanged(value)

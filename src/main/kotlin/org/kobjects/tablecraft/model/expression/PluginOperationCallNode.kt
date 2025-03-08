@@ -2,7 +2,7 @@ package org.kobjects.tablecraft.model.expression
 
 import org.kobjects.tablecraft.model.Expression
 import org.kobjects.tablecraft.model.Model
-import org.kobjects.tablecraft.pluginapi.RuntimeContext
+import org.kobjects.tablecraft.pluginapi.ModificationToken
 import org.kobjects.tablecraft.pluginapi.*
 
 class PluginOperationCallNode(
@@ -28,13 +28,13 @@ class PluginOperationCallNode(
     }
 
     override fun notifyValueChanged(newValue: Any) {
-        Model.withLock {
+        ModificationToken.applySynchronizedWithToken {
             expressionHolder.updateAllDependencies(it)
             Model.notifyContentUpdated(it)
         }
     }
 
-    override fun eval(context: RuntimeContext): Any {
+    override fun eval(context: ModificationToken): Any {
         return operationInstance.apply(parameters.mapValues {
             val expr = it.value.first
             when (it.value.second) {

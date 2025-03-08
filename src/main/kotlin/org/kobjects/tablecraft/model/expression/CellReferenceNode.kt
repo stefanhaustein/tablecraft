@@ -1,14 +1,14 @@
 package org.kobjects.tablecraft.model.expression;
 
 import org.kobjects.tablecraft.model.Cell
-import org.kobjects.tablecraft.pluginapi.RuntimeContext
+import org.kobjects.tablecraft.pluginapi.ModificationToken
 
 class CellReferenceNode(
     val source: Cell,
     val cell: Cell
 ) : Node() {
 
-    override fun eval(context: RuntimeContext): Any {
+    override fun eval(context: ModificationToken): Any {
         try {
             return cell.getComputedValue(context)
         } catch (e: Exception) {

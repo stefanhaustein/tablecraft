@@ -52,9 +52,9 @@ class Port(
         get() = if (Model.simulationMode_) simulationValueMap[name] ?: Unit else value_
 
 
-    fun setExpression(rawExpression: String, runtimeContext: RuntimeContext?) {
+    fun setExpression(rawExpression: String, modificationToken: ModificationToken?) {
         val expression = Expression()
-        expression.setFormula(rawExpression, runtimeContext)
+        expression.setFormula(rawExpression, modificationToken)
         expression.changeListeners.add {
             notifyValueChanged(expression.computedValue_)
         }

@@ -4,7 +4,7 @@ import org.kobjects.tablecraft.model.expression.Node
 import org.kobjects.tablecraft.model.expression.LiteralNode
 import org.kobjects.tablecraft.model.parser.ParsingContext
 import org.kobjects.tablecraft.model.parser.TcFormulaParser
-import org.kobjects.tablecraft.pluginapi.RuntimeContext
+import org.kobjects.tablecraft.pluginapi.ModificationToken
 
 open class Expression {
 
@@ -21,7 +21,7 @@ open class Expression {
     val dependsOn = mutableListOf<Expression>()
     val changeListeners = mutableListOf<()->Unit>()
 
-    fun getComputedValue(context: RuntimeContext): Any {
+    fun getComputedValue(context: ModificationToken): Any {
         if (context.tag > valueTag) {
             try {
                 val newValue = expression.eval(context)
@@ -40,7 +40,7 @@ open class Expression {
         return computedValue_
     }
 
-    fun setFormula(value: String, runtimeContext: RuntimeContext?) {
+    fun setFormula(value: String, modificationToken: ModificationToken?) {
         if (rawValue == value) {
             return
         }
@@ -68,16 +68,16 @@ open class Expression {
                 }
             }
         }
-        if (runtimeContext != null) {
-            formulaTag = runtimeContext.tag
+        if (modificationToken != null) {
+            formulaTag = modificationToken.tag
 
-            updateAllDependencies(runtimeContext)
-            Model.notifyContentUpdated(runtimeContext)
+            updateAllDependencies(modificationToken)
+            Model.notifyContentUpdated(modificationToken)
         }
     }
 
 
-    fun updateAllDependencies(context: RuntimeContext) {
+    fun updateAllDependencies(context: ModificationToken) {
         if (context.tag > valueTag) {
             getComputedValue(context)
             for (dep in depenencies) {

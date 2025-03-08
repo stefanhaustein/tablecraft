@@ -5,7 +5,7 @@ import kotlinx.datetime.format.char
 import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.model.builtin.ImageReference
-import org.kobjects.tablecraft.pluginapi.RuntimeContext
+import org.kobjects.tablecraft.pluginapi.ModificationToken
 
 class Cell(
     val sheet: Sheet,
@@ -13,22 +13,22 @@ class Cell(
 ) : Expression() {
 
 
-    fun setJson(json: Map<String, Any?>, runtimeContext: RuntimeContext?) {
+    fun setJson(json: Map<String, Any?>, modificationToken: ModificationToken?) {
        val formula = json["f"]
        if (formula != null) {
-           setFormula(formula.toString(), runtimeContext)
+           setFormula(formula.toString(), modificationToken)
        }
        val validation = json["v"]
        if (validation != null) {
-           setValidation(validation as Map<String, Any?>, runtimeContext)
+           setValidation(validation as Map<String, Any?>, modificationToken)
        }
     }
 
 
-    fun setValidation(validation: Map<String, Any?>?, runtimeContext: RuntimeContext?) {
+    fun setValidation(validation: Map<String, Any?>?, modificationToken: ModificationToken?) {
         this.validation = validation
-        if (runtimeContext != null) {
-            Model.notifyContentUpdated(runtimeContext)
+        if (modificationToken != null) {
+            Model.notifyContentUpdated(modificationToken)
         }
     }
 
