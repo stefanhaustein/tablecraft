@@ -78,6 +78,8 @@ object Model {
                             e.printStackTrace()
                         }
                     }
+                } else if (key == "simulationValues") {
+                    simulationValueMap.putAll(map)
                 }
             }
         } catch (ex: Exception) {
