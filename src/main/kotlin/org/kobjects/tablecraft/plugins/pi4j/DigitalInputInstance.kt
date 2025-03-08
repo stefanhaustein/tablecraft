@@ -1,6 +1,7 @@
 package org.kobjects.tablecraft.plugins.pi4j
 
 import com.pi4j.io.gpio.digital.*
+import org.kobjects.tablecraft.pluginapi.ModificationToken
 import org.kobjects.tablecraft.pluginapi.OperationHost
 import org.kobjects.tablecraft.pluginapi.OperationInstance
 import org.kobjects.tablecraft.pluginapi.OperationKind
@@ -40,7 +41,9 @@ class DigitalInputInstance(
     }
 
     override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
-        host.notifyValueChanged(event!!.state().isHigh())
+        ModificationToken.applySynchronizedWithToken {
+            host.notifyValueChanged(event!!.state().isHigh(), it)
+        }
     }
 
     override fun detach() {

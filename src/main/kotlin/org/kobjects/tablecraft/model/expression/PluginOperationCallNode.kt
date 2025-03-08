@@ -27,11 +27,9 @@ class PluginOperationCallNode(
         operationInstance.detach()
     }
 
-    override fun notifyValueChanged(newValue: Any) {
-        ModificationToken.applySynchronizedWithToken {
-            expressionHolder.updateAllDependencies(it)
-            Model.notifyContentUpdated(it)
-        }
+    override fun notifyValueChanged(newValue: Any, token: ModificationToken) {
+        expressionHolder.updateAllDependencies(token)
+        Model.notifyContentUpdated(token)
     }
 
     override fun eval(context: ModificationToken): Any {

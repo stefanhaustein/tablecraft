@@ -37,7 +37,9 @@ fun Application.module() {
             val jsonText = call.receiveText()
             println("Received JSON: $jsonText")
             val value = JsonParser.parse(jsonText)
-            Model.setSimulationMode(value as Boolean)
+            ModificationToken.applySynchronizedWithToken { token ->
+                Model.setSimulationMode(value as Boolean, token)
+            }
             call.respond(HttpStatusCode.OK, null)
         }
         post("/portSimulation") {
@@ -45,8 +47,8 @@ fun Application.module() {
             val jsonText = call.receiveText()
             println("Received JSON: $jsonText")
             val value = JsonParser.parse(jsonText)
-            ModificationToken.applySynchronizedWithToken {
-                Model.setSimulationValue(name, value, it)
+            ModificationToken.applySynchronizedWithToken { token ->
+                Model.setSimulationValue(name, value, token)
             }
             call.respond(HttpStatusCode.OK, null)
         }

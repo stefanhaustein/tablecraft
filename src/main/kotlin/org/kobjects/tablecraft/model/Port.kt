@@ -52,26 +52,26 @@ class Port(
         get() = if (Model.simulationMode_) simulationValueMap[name] ?: Unit else value_
 
 
-    fun setExpression(rawExpression: String, modificationToken: ModificationToken?) {
+    fun setExpression(rawExpression: String, token: ModificationToken) {
         val expression = Expression()
-        expression.setFormula(rawExpression, modificationToken)
+        expression.setFormula(rawExpression, token)
         expression.changeListeners.add {
-            notifyValueChanged(expression.computedValue_)
+            notifyValueChanged(expression.computedValue_, token)
         }
         this.expression = expression
     }
 
     // Incoming from ports
-    override fun notifyValueChanged(newValue: Any) {
+    override fun notifyValueChanged(newValue: Any, token: ModificationToken) {
         if (Model.simulationMode_) {
             for (adapter in dependencies) {
-                adapter.host.notifyValueChanged(value)
+                adapter.host.notifyValueChanged(value, token)
             }
         } else {
             if (value_ != newValue) {
                 value_ = newValue
                 for (adapter in dependencies) {
-                    adapter.host.notifyValueChanged(value)
+                    adapter.host.notifyValueChanged(value, token)
                 }
             }
         }

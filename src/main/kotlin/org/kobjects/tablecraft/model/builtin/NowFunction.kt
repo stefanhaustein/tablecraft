@@ -1,6 +1,7 @@
 package org.kobjects.tablecraft.model.builtin
 
 import kotlinx.datetime.Clock
+import org.kobjects.tablecraft.pluginapi.ModificationToken
 import org.kobjects.tablecraft.pluginapi.OperationHost
 import org.kobjects.tablecraft.pluginapi.OperationInstance
 import java.util.Timer
@@ -25,7 +26,9 @@ class NowFunction(
         if (period > 0) {
             task = object : TimerTask() {
                 override fun run() {
-                    host.notifyValueChanged(Clock.System.now())
+                    ModificationToken.applySynchronizedWithToken {
+                        host.notifyValueChanged(Clock.System.now(), it)
+                    }
                 }
             }
             timer.schedule(task, period, period)

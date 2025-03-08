@@ -1,5 +1,6 @@
 package org.kobjects.tablecraft.model.builtin
 
+import org.kobjects.tablecraft.pluginapi.ModificationToken
 import org.kobjects.tablecraft.pluginapi.OperationHost
 import org.kobjects.tablecraft.pluginapi.OperationInstance
 import java.util.Timer
@@ -28,7 +29,9 @@ class TOnOffFunction(
             task = object : TimerTask() {
                 override fun run() {
                     outputState = delayedState
-                    host.notifyValueChanged(delayedState)
+                    ModificationToken.applySynchronizedWithToken {
+                        host.notifyValueChanged(delayedState, it)
+                    }
                     task = null
                 }
             }

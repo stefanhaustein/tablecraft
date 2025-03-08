@@ -47,24 +47,24 @@ object Model {
         }
     }
 
-    fun setSimulationMode(value: Boolean) {
+    fun setSimulationMode(value: Boolean, token: ModificationToken) {
         simulationMode_ = value
         for (port in portMap.values) {
             val simulationValue = simulationValueMap[port.name]
             if (simulationValue != null) {
-                port.notifyValueChanged(simulationValue)
+                port.notifyValueChanged(simulationValue, token)
             }
         }
     }
 
 
 
-    fun loadData(data: String, modificationToken: ModificationToken) {
+    fun loadData(data: String, token: ModificationToken) {
         try {
             val toml = TomsonParser.parse(data)
             for ((key, map) in toml) {
                 if (key.isEmpty()) {
-                    setSimulationMode(map["simulationMode"] as Boolean? ?: false)
+                    setSimulationMode(map["simulationMode"] as Boolean? ?: false, token)
                 } else if (key.startsWith("sheets.") && key.endsWith(".cells")) {
                     val name = key.substringAfter("sheets.").substringBeforeLast(".cells")
                     val sheet = Sheet(name)
@@ -73,7 +73,7 @@ object Model {
                 } else if (key == "ports") {
                     for ((name, value) in map) {
                         try {
-                            definePort(name, value as Map<String, Any>)
+                            definePort(name, value as Map<String, Any>, token)
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -85,7 +85,7 @@ object Model {
         }
 
         for (sheet in sheets.values) {
-            sheet.updateAll(modificationToken)
+            sheet.updateAll(token)
         }
     }
 
@@ -174,13 +174,12 @@ object Model {
         portMap[name] = Port(name,  "tombstone", emptyMap(), modificationToken.tag)
     }
 
-    fun definePort(name: String?, jsonSpec: Map<String, Any>, modificationToken: ModificationToken? = null) {
+    fun definePort(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken) {
         val previousName = jsonSpec["previousName"] as String?
 
         if (!previousName.isNullOrBlank()) {
-            require(modificationToken != null)
             try {
-                deletePort(previousName, modificationToken)
+                deletePort(previousName, token)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -190,10 +189,10 @@ object Model {
             val type = jsonSpec["type"].toString()
             val config = jsonSpec["configuration"] as Map<String, Any>
 
-            val port = Port(name, type, config, modificationToken?.tag ?: 0)
+            val port = Port(name, type, config, token.tag)
             val expression = jsonSpec["expression"] as String?
             if (expression != null) {
-                port.setExpression(expression, modificationToken)
+                port.setExpression(expression, token)
             }
             portMap[name] = port
         }
@@ -209,10 +208,10 @@ object Model {
         }
     }
 
-    fun setSimulationValue(name: String, value: Any, modificationToken: ModificationToken) {
+    fun setSimulationValue(name: String, value: Any, token: ModificationToken) {
         simulationValueMap[name] = value
         if (simulationMode_) {
-            portMap[name]?.notifyValueChanged(value)
+            portMap[name]?.notifyValueChanged(value, token)
         }
     }
 }
