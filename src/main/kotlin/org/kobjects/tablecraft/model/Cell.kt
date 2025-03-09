@@ -13,7 +13,7 @@ class Cell(
 ) : Expression() {
 
 
-    fun setJson(json: Map<String, Any?>, modificationToken: ModificationToken?) {
+    fun setJson(json: Map<String, Any?>, modificationToken: ModificationToken) {
        val formula = json["f"]
        if (formula != null) {
            setFormula(formula.toString(), modificationToken)
@@ -25,7 +25,7 @@ class Cell(
     }
 
 
-    fun setValidation(validation: Map<String, Any?>?, modificationToken: ModificationToken?) {
+    fun setValidation(validation: Map<String, Any?>?, modificationToken: ModificationToken) {
         this.validation = validation
         if (modificationToken != null) {
             Model.notifyContentUpdated(modificationToken)

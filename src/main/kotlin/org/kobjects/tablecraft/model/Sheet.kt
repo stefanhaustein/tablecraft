@@ -6,7 +6,7 @@ import org.kobjects.tablecraft.pluginapi.ModificationToken
 class Sheet(var name: String) {
     val cells = mutableMapOf<String, Cell>()
 
-    fun set(cellId: String, value: String, modificationToken: ModificationToken?) {
+    fun set(cellId: String, value: String, modificationToken: ModificationToken) {
         val cell = getOrCreateCell(cellId)
         cell.setFormula(value, modificationToken)
     }
@@ -25,10 +25,10 @@ class Sheet(var name: String) {
         return sb.toString()
     }
 
-    fun parseToml(cells: Map<String, Any>) {
+    fun parseToml(cells: Map<String, Any>, token: ModificationToken) {
         for ((key, value) in cells) {
             try {
-                getOrCreateCell(key).setJson(value as Map<String, Any>, null)
+                getOrCreateCell(key).setJson(value as Map<String, Any>, token)
             } catch (e: Exception) {
                 System.err.println("Error parsing cell $key = $value")
                 e.printStackTrace()

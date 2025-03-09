@@ -68,7 +68,7 @@ object Model {
                     val name = key.substringAfter("sheets.").substringBeforeLast(".cells")
                     val sheet = Sheet(name)
                     sheets[name] = sheet
-                    sheet.parseToml(map)
+                    sheet.parseToml(map, token)
                 } else if (key == "ports") {
                     for ((name, value) in map) {
                         try {
