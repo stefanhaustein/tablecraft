@@ -19,7 +19,7 @@ open class Expression {
 
     val depenencies = mutableListOf<Expression>()
     val dependsOn = mutableListOf<Expression>()
-    val changeListeners = mutableListOf<()->Unit>()
+    val changeListeners = mutableListOf<(Any)->Unit>()
 
     fun getComputedValue(context: ModificationToken): Any {
         if (context.tag > valueTag) {
@@ -28,7 +28,7 @@ open class Expression {
                 if (newValue != computedValue_) {
                     computedValue_ = newValue
                     for (listener in changeListeners) {
-                        listener.invoke()
+                        listener.invoke(newValue)
                     }
                 }
             } catch(e: Exception) {
@@ -41,9 +41,7 @@ open class Expression {
     }
 
     fun setFormula(value: String, modificationToken: ModificationToken?) {
-        if (rawValue == value) {
-            return
-        }
+        // No cache check; setFormula is currently used for re-parsing (should be moved to a "reset" function)
         rawValue = value
         expression.detachAll()
         expression = if (value.startsWith("=")) {

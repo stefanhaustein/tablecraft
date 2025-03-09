@@ -6,18 +6,30 @@ import org.kobjects.tablecraft.model.Cell
 import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.model.expression.*
 
+
+fun createBinaryOperatorNode(name: String, leftOperand: Node, rightOperand: Node): Node =
+    when (name) {
+        "and", "AND", "And" -> LogicalOperatorNode(LogicalOperatorNode.LogicalOperator.AND, leftOperand, rightOperand)
+        "or", "OR", "Or" -> LogicalOperatorNode(LogicalOperatorNode.LogicalOperator.OR, leftOperand, rightOperand)
+        else -> BinaryOperatorNode(name, leftOperand, rightOperand)
+    }
+
+
 object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Node>(
     { scanner, context -> TcFormulaParser.parsePrimary(scanner, context) },
     { _, _, name, operand -> UnaryOperatorNode(name, operand) },
-    { _, _, name, leftOperand, rightOperand -> BinaryOperatorNode(name, leftOperand, rightOperand) },
-    Operator.Infix(7, "."),
-    Operator.Prefix(6, "-"),
-    Operator.Suffix(5, "%"),
-    Operator.Infix(4, "^"),
-    Operator.Infix(3, "*", "/"),
-    Operator.Infix(2, "+", "-"),
-    Operator.Infix(1, "&"),
-    Operator.Infix(0, "=", "<>", "<=", "=>", "<", ">")
+    { _, _, name, leftOperand, rightOperand -> createBinaryOperatorNode(name, leftOperand, rightOperand) },
+    Operator.Prefix(10, "not", "NOT", "Not"),
+    Operator.Infix(9, "."),
+    Operator.Prefix(8, "-"),
+    Operator.Suffix(7, "%"),
+    Operator.Infix(6, "^"),
+    Operator.Infix(5, "*", "/"),
+    Operator.Infix(4, "+", "-"),
+    Operator.Infix(3, "&"),
+    Operator.Infix(2, "=", "<>", "<=", "=>", "<", ">"),
+    Operator.Infix(1, "and", "AND", "And"),
+    Operator.Infix(0, "or", "OR", "Or")
 ) {
 
     fun parsePrimary(scanner: TcScanner, context: ParsingContext): Node =

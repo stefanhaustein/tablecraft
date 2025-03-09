@@ -86,6 +86,10 @@ object Model {
             ex.printStackTrace()
         }
 
+        for (port in portMap.values) {
+            port.reset(simulationMode_, token)
+        }
+
         for (sheet in sheets.values) {
             sheet.updateAll(token)
         }
@@ -151,8 +155,8 @@ object Model {
                 port.toJson(definitions)
                 definitions.append('\n')
             }
-            if (port.expression?.valueTag ?: -1 > tag) {
-                values.append("${port.name}: ${port.value.toJson()}\n")
+            if (port is OutputPort && port.expression.valueTag > tag) {
+                values.append("${port.name}: ${port.expression.computedValue_.toJson()}\n")
             }
         }
 
@@ -172,11 +176,28 @@ object Model {
         }
     }
 
-    fun deletePort(name: String, modificationToken: ModificationToken) {
-        portMap[name] = Port(name,  "tombstone", emptyMap(), modificationToken.tag)
+    fun deletePort(name: String, token: ModificationToken) {
+        portMap[name] = InputPort(name, OperationSpec(
+            OperationKind.INPUT_PORT,
+            Type.TEXT,
+            "tombstone",
+            "",
+            emptyList(),
+            token.tag
+        ) {
+            object : OperationInstance {
+                override fun attach() {
+                }
+
+                override fun apply(params: Map<String, Any>) = Unit
+
+                override fun detach() {
+                }
+            }
+        }, emptyMap(), token)
     }
 
-    fun definePort(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken) {
+    fun definePort(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken): Port? {
         val previousName = jsonSpec["previousName"] as String?
 
         if (!previousName.isNullOrBlank()) {
@@ -191,13 +212,16 @@ object Model {
             val type = jsonSpec["type"].toString()
             val config = jsonSpec["configuration"] as Map<String, Any>
 
-            val port = Port(name, type, config, token.tag)
-            val expression = jsonSpec["expression"] as String?
-            if (expression != null) {
-                port.setExpression(expression, token)
+            val specification = Model.functionMap[type]!!
+            val port = when (specification.kind) {
+                OperationKind.INPUT_PORT -> InputPort(name, specification, config, token)
+                OperationKind.OUTPUT_PORT -> OutputPort(name, specification, config, jsonSpec["expression"] as String, token)
+                else -> throw IllegalArgumentException("Operation specification $specification does not specify a port.")
             }
             portMap[name] = port
+            return port
         }
+        return null
     }
 
     fun clearAll(modificationToken: ModificationToken) {
