@@ -12,7 +12,7 @@ class OutputPort(
     token: ModificationToken
 ) : Port(name, token.tag) {
     val portOperation = specification.createFn(this)
-    val dependencies = mutableSetOf<Dependency>()
+
     var error: Exception? = null
     val expression: Expression = Expression()
     var attached = false
@@ -20,27 +20,23 @@ class OutputPort(
     init {
         expression.changeListeners.add {
             val parameters = mapOf("value" to it)
-            for (dependency in dependencies) {
-                dependency.apply(parameters)
-            }
             if (attached) {
                 portOperation.apply(parameters)
             }
         }
-        Model.functionMap[name] = OperationSpec(
-            OperationKind.FUNCTION,
-            specification.returnType,
-            name,
-            specification.name + configuration,
-            listOf(ParameterSpec("value", ParameterKind.RUNTIME, specification.returnType)),
-            tag
-        ) {
-            Dependency(it)
-        }
     }
+
+    fun reparse() {
+        expression.reparse()
+    }
+
+    override val value: Any
+        get() = expression.computedValue_
+
 
     override fun reset(simulationMode: Boolean, token: ModificationToken) {
         expression.setFormula(rawExpression, token)
+
         if (attached) {
             try {
                 portOperation.detach()
@@ -74,18 +70,4 @@ class OutputPort(
 
     }
 
-    inner class Dependency(val host: OperationHost) : OperationInstance {
-        override fun attach() {
-            dependencies.add(this)
-        }
-
-        override fun apply(params: Map<String, Any>): Any {
-            return expression.computedValue_
-        }
-
-        override fun detach() {
-            dependencies.remove(this)
-        }
-
-    }
 }

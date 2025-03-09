@@ -27,9 +27,8 @@ fun Application.module() {
             val cell = call.parameters["cell"]!!
             val text = call.receiveText()
             val json = JsonParser.parseObject(text)
-            ModificationToken.applySynchronizedWithToken { token ->
+            Model.applySynchronizedWithToken { token ->
                 Model.getOrCreate(cell).setJson(json, token)
-                Model.save(token)
             }
             call.respond(HttpStatusCode.OK, null)
         }
@@ -37,7 +36,7 @@ fun Application.module() {
             val jsonText = call.receiveText()
             println("Received JSON: $jsonText")
             val value = JsonParser.parse(jsonText)
-            ModificationToken.applySynchronizedWithToken { token ->
+            Model.applySynchronizedWithToken { token ->
                 Model.setSimulationMode(value as Boolean, token)
             }
             call.respond(HttpStatusCode.OK, null)
@@ -47,7 +46,7 @@ fun Application.module() {
             val jsonText = call.receiveText()
             println("Received JSON: $jsonText")
             val value = JsonParser.parse(jsonText)
-            ModificationToken.applySynchronizedWithToken { token ->
+            Model.applySynchronizedWithToken { token ->
                 Model.setSimulationValue(name, value, token)
             }
             call.respond(HttpStatusCode.OK, null)
@@ -57,20 +56,19 @@ fun Application.module() {
             val jsonText = call.receiveText()
             println("Received JSON: $jsonText")
             val jsonSpec = JsonParser.parseObject(jsonText)
-            ModificationToken.applySynchronizedWithToken { token ->
+            Model.applySynchronizedWithToken { token ->
                 Model.definePort(name, jsonSpec, token)?.reset(Model.simulationMode_, token)
-                Model.functionSetChanged(token)
-                Model.save(token)
             }
             call.respond(HttpStatusCode.OK, null)
         }
         post("/upload") {
             val fileItem = call.receiveMultipart().readPart() as PartData.FileItem
             val data = fileItem.provider().toByteArray().toString(Charsets.UTF_8)
-            ModificationToken.applySynchronizedWithToken {
+            Model.applySynchronizedWithToken {
                 Model.clearAll(it)
                 Model.loadData(data, it)
-                Model.save(it)
+                it.functionSetChanged = true
+                it.formulaChanged = true
             }
             call.respond(HttpStatusCode.OK, null)
         }
@@ -81,14 +79,14 @@ fun Application.module() {
 
             if (tag >= Model.modificationTag) {
                 suspendCoroutine<Unit> { continuation ->
-                    ModificationToken.applySynchronizedWithToken {
+                    Model.applySynchronizedWithToken {
                         Model.listeners.add {
                             continuation.resume(Unit)
                         }
                     }
                 }
             }
-            val result = ModificationToken.applySynchronizedWithToken {
+            val result = Model.applySynchronizedWithToken {
                 val writer = StringWriter()
                 if (forClient) {
                     writer.write("tag = ${Model.modificationTag}\n\n")

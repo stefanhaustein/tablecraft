@@ -23,12 +23,12 @@ class CellReferenceNode(
     override fun attach() {
         super.attach()
         source.dependsOn.add(cell)
-        cell.depenencies.add(source)
+        cell.dependencies.add(source)
     }
 
     override fun detach() {
         super.detach()
         source.dependsOn.remove(cell)
-        cell.depenencies.remove(source)
+        cell.dependencies.remove(source)
     }
 }

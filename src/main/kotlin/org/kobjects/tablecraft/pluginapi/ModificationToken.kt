@@ -1,25 +1,23 @@
 package org.kobjects.tablecraft.pluginapi
 
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
+import org.kobjects.tablecraft.model.Expression
 
-class ModificationToken private constructor(val tag: Long = System.nanoTime()) {
+class ModificationToken() {
 
-    companion object {
-        private val lock = ReentrantLock()
+    val tag: Long = System.nanoTime()
 
-        @OptIn(ExperimentalContracts::class)
-        fun <T> applySynchronizedWithToken(action: (ModificationToken) -> T): T {
-            contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
-            return lock.withLock {
-                val modificationToken = ModificationToken()
-                action(modificationToken)
+    var loading = false
+    var formulaChanged = false
+    var functionSetChanged = false
+    val refresh = mutableSetOf<Expression>()
+
+    fun addRefresh(dependency: Expression) {
+        if (refresh.add(dependency)) {
+            for (child in dependency.dependencies) {
+                addRefresh(child)
             }
         }
-
-        fun <T> applySynchronized(action: () -> T) = lock.withLock(action)
     }
+
+
 }

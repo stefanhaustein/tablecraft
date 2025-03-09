@@ -11,10 +11,11 @@ class InputPort(
     override val configuration: Map<String, Any>,
     token: ModificationToken
 
-) : Port(name, token.tag) {
+) : Port(name, token.tag), Dependable {
+
+    override val dependencies = mutableSetOf<Expression>()
 
     val portOperation = specification.createFn(this)
-    val dependencies = mutableSetOf<Dependency>()
     var error: Exception? = null
     var attached: Boolean = false
 
@@ -24,20 +25,6 @@ class InputPort(
         Type.BOOLEAN -> false
         Type.TEXT -> ""
         else -> throw UnsupportedOperationException("port type")
-    }
-
-    init {
-        Model.functionMap[name] = OperationSpec(
-            OperationKind.FUNCTION,
-            specification.returnType,
-            name,
-            specification.name + configuration,
-            if (specification.kind == OperationKind.INPUT_PORT) emptyList()
-            else listOf(ParameterSpec("value", ParameterKind.RUNTIME, specification.returnType)),
-            tag
-        ) {
-            Dependency(it)
-        }
     }
 
 
@@ -63,7 +50,7 @@ class InputPort(
 
     override fun detach() {}
 
-    val value: Any
+    override val value: Any
         get() = if (Model.simulationMode_) simulationValueMap[name] ?: Unit else value_
 
     // Incoming from ports
@@ -74,8 +61,8 @@ class InputPort(
             }
             value_ = newValue
         }
-        for (adapter in dependencies) {
-            adapter.host.notifyValueChanged(value, token)
+        for (dependency in dependencies) {
+            token.addRefresh(dependency)
         }
     }
 
@@ -85,18 +72,4 @@ class InputPort(
         sb.append("}")
     }
 
-    inner class Dependency(val host: OperationHost) : OperationInstance {
-        override fun attach() {
-            dependencies.add(this)
-        }
-
-        override fun apply(params: Map<String, Any>): Any {
-            return value
-        }
-
-        override fun detach() {
-            dependencies.remove(this)
-        }
-
-    }
 }

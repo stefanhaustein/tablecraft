@@ -26,9 +26,9 @@ class Cell(
 
 
     fun setValidation(validation: Map<String, Any?>?, modificationToken: ModificationToken) {
-        this.validation = validation
-        if (modificationToken != null) {
-            Model.notifyContentUpdated(modificationToken)
+        if (validation != this.validation) {
+            this.validation = validation
+            modificationToken.formulaChanged = true
         }
     }
 

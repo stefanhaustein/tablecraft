@@ -9,8 +9,13 @@ import java.io.File
 import java.io.FileWriter
 import org.kobjects.tablecraft.tomson.TomsonParser
 import java.io.Writer
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
-object Model {
+object Model : ModelInterface {
 
     val STORAGE_FILE = File("storage/data.tc")
 
@@ -28,14 +33,16 @@ object Model {
 
     val svgs = SvgManager(File("src/main/resources/static/img"))
 
+    private val lock = ReentrantLock()
 
     init {
         addPlugin(BuiltinFunctions)
-        addPlugin(Pi4jPlugin())
+        addPlugin(Pi4jPlugin(this))
         addPlugin(svgs)
         // addPlugin(MqttPlugin)
 
-        ModificationToken.applySynchronizedWithToken { runtimeContext ->
+        applySynchronizedWithToken { runtimeContext ->
+            runtimeContext.loading = true
             loadData(STORAGE_FILE.readText(), runtimeContext)
         }
     }
@@ -84,17 +91,8 @@ object Model {
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
-
-        functionSetChanged(token)
     }
 
-    fun functionSetChanged(token: ModificationToken) {
-        for (port in portMap.values) {
-            port.reset(simulationMode_, token)
-        }
-
-        recalculateAll(token)
-    }
 
     fun recalculateAll(token: ModificationToken) {
         for (sheet in sheets.values) {
@@ -127,20 +125,18 @@ object Model {
     }
 
 
-    fun save(modificationToken: ModificationToken) {
+    fun save() {
         STORAGE_FILE.mkdirs()
         val writer = FileWriter(STORAGE_FILE)
         serialize(writer)
         writer.close()
     }
 
-
     fun notifyContentUpdated(modificationToken: ModificationToken) {
         modificationTag = modificationToken.tag
         for (listener in listeners) {listener()}
         listeners.clear()
     }
-
 
     fun serializeFunctions(tag: Long): String {
         val sb = StringBuilder()
@@ -185,6 +181,8 @@ object Model {
     }
 
     fun deletePort(name: String, token: ModificationToken) {
+        token.functionSetChanged = true
+
         portMap[name] = InputPort(name, OperationSpec(
             OperationKind.INPUT_PORT,
             Type.TEXT,
@@ -206,6 +204,8 @@ object Model {
     }
 
     fun definePort(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken): Port? {
+        token.functionSetChanged = true
+
         val previousName = jsonSpec["previousName"] as String?
 
         if (!previousName.isNullOrBlank()) {
@@ -229,10 +229,13 @@ object Model {
             portMap[name] = port
             return port
         }
+
         return null
     }
 
     fun clearAll(modificationToken: ModificationToken) {
+        modificationToken.functionSetChanged = true
+
         for (key in portMap.keys.toList()) {
             deletePort(key, modificationToken)
         }
@@ -248,4 +251,19 @@ object Model {
             portMap[name]?.notifyValueChanged(value, token)
         }
     }
+    @OptIn(ExperimentalContracts::class)
+    override fun <T> applySynchronizedWithToken(action: (ModificationToken) -> T): T {
+        return lock.withLock {
+            val modificationToken = ModificationToken()
+            val result = action(modificationToken)
+
+            if (modificationToken.functionSetChanged) {
+
+            }
+
+            result
+        }
+    }
+
+    fun <T> applySynchronized(action: () -> T) = lock.withLock(action)
 }

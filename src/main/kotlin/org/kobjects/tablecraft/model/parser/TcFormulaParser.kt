@@ -66,10 +66,15 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Node>(
                     }
                     else -> {
                         val functionSpec = Model.functionMap[name.lowercase()]
-                        require (functionSpec != null) {
-                            "Unresolved function '$name'"
+                        if (functionSpec != null) {
+                            PluginOperationCallNode.create(context.expressionHolder, functionSpec, parameterList)
+                        } else {
+                            val port = Model.portMap[name.lowercase()]
+                            require(port != null) {
+                                "Unresolved identifier $name"
+                            }
+                            PortReferenceNode(context.expressionHolder, port)
                         }
-                        PluginOperationCallNode.create(context.expressionHolder, functionSpec, parameterList)
                     }
                 }
             }

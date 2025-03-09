@@ -8,6 +8,8 @@ import org.kobjects.tablecraft.pluginapi.*
 
 abstract class Port(val name: String, val tag: Long): OperationHost, ToJson {
 
+    abstract val value: Any
+
     abstract fun reset(simulationMode: Boolean, token: ModificationToken)
 
     abstract fun detach()

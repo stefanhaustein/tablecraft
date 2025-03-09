@@ -3,7 +3,7 @@ package org.kobjects.tablecraft.plugins.pi4j
 import com.pi4j.Pi4J
 import org.kobjects.tablecraft.pluginapi.*
 
-class Pi4jPlugin : Plugin {
+class Pi4jPlugin(val model: ModelInterface) : Plugin {
     var pi4J = Pi4J.newAutoContext()
 
     val ports = mutableListOf<Pi4JPort>()

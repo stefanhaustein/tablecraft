@@ -41,7 +41,7 @@ class DigitalInputInstance(
     }
 
     override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
-        ModificationToken.applySynchronizedWithToken {
+        plugin.model.applySynchronizedWithToken {
             host.notifyValueChanged(event!!.state().isHigh(), it)
         }
     }

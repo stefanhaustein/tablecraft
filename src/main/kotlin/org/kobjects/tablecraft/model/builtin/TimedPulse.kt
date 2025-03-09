@@ -1,5 +1,6 @@
 package org.kobjects.tablecraft.model.builtin
 
+import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.pluginapi.ModificationToken
 import org.kobjects.tablecraft.pluginapi.OperationHost
 import org.kobjects.tablecraft.pluginapi.OperationInstance
@@ -31,7 +32,7 @@ class TimedPulse(
                     task = object : TimerTask() {
                         override fun run() {
                             outputState = false
-                            ModificationToken.applySynchronizedWithToken {
+                            Model.applySynchronizedWithToken {
                                 host.notifyValueChanged(false, it)
                             }
                             task = null
