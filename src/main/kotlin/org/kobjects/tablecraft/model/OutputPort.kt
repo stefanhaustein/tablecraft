@@ -66,7 +66,7 @@ class OutputPort(
     override fun toJson(sb: StringBuilder) {
         sb.append("""{"name":${name.quote()}, "type":${specification.name.quote()}, "configuration": """)
         configuration.toJson(sb)
-        sb.append(""", "expression":${expression.rawValue.quote()}}""")
+        sb.append(""", "expression":${rawExpression.quote()}}""")
 
     }
 
