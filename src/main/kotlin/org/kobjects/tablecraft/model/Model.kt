@@ -58,7 +58,6 @@ object Model {
     }
 
 
-
     fun loadData(data: String, token: ModificationToken) {
         try {
             val toml = TomsonParser.parse(data)
@@ -86,14 +85,23 @@ object Model {
             ex.printStackTrace()
         }
 
+        functionSetChanged(token)
+    }
+
+    fun functionSetChanged(token: ModificationToken) {
         for (port in portMap.values) {
             port.reset(simulationMode_, token)
         }
 
+        recalculateAll(token)
+    }
+
+    fun recalculateAll(token: ModificationToken) {
         for (sheet in sheets.values) {
             sheet.updateAll(token)
         }
     }
+
 
     fun getOrCreate(name: String): Cell {
         val cut = name.indexOf("!")

@@ -40,7 +40,12 @@ open class Expression {
         return computedValue_
     }
 
-    fun setFormula(value: String, modificationToken: ModificationToken?) {
+    fun reparse(token: ModificationToken) {
+        setFormula(rawValue, token)
+    }
+
+
+    fun setFormula(value: String, modificationToken: ModificationToken) {
         // No cache check; setFormula is currently used for re-parsing (should be moved to a "reset" function)
         rawValue = value
         expression.detachAll()
@@ -66,12 +71,11 @@ open class Expression {
                 }
             }
         }
-        if (modificationToken != null) {
-            formulaTag = modificationToken.tag
 
-            updateAllDependencies(modificationToken)
-            Model.notifyContentUpdated(modificationToken)
-        }
+        formulaTag = modificationToken.tag
+
+        updateAllDependencies(modificationToken)
+        Model.notifyContentUpdated(modificationToken)
     }
 
 

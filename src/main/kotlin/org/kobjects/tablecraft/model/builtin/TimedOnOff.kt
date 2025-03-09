@@ -6,7 +6,7 @@ import org.kobjects.tablecraft.pluginapi.OperationInstance
 import java.util.Timer
 import java.util.TimerTask
 
-class TOnOffFunction(
+class TimedOnOff(
     val delayedState: Boolean,
     val delay: Double,
     val host: OperationHost,
@@ -48,12 +48,12 @@ class TOnOffFunction(
 
 
     companion object {
-        fun createTon(host: OperationHost): TOnOffFunction {
-            return TOnOffFunction(true, (host.configuration["delay"] as Number).toDouble(), host)
+        fun createTon(host: OperationHost): TimedOnOff {
+            return TimedOnOff(true, (host.configuration["delay"] as Number).toDouble(), host)
         }
 
-        fun createToff(host: OperationHost): TOnOffFunction {
-            return TOnOffFunction(false, (host.configuration["delay"] as Number).toDouble(), host)
+        fun createToff(host: OperationHost): TimedOnOff {
+            return TimedOnOff(false, (host.configuration["delay"] as Number).toDouble(), host)
         }
     }
 }

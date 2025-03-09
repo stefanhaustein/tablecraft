@@ -24,20 +24,29 @@ object BuiltinFunctions : Plugin {
             OperationKind.FUNCTION,
             Type.BOOLEAN,
             "toff",
-            "Timed off",
+            "Timed Off",
             listOf(ParameterSpec("input", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("delay", ParameterKind.CONFIGURATION, Type.NUMBER)),
             0,
-            TOnOffFunction::createToff),
+            TimedOnOff::createToff),
 
         OperationSpec(
             OperationKind.FUNCTION,
             Type.BOOLEAN,
             "ton",
-            "Timed on",
+            "Timed On",
             listOf(ParameterSpec("input", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("delay", ParameterKind.CONFIGURATION, Type.NUMBER)),
             0,
-            TOnOffFunction::createTon),
+            TimedOnOff::createTon),
 
+
+        OperationSpec(
+            OperationKind.FUNCTION,
+            Type.BOOLEAN,
+            "tp",
+            "Timed Pulse",
+            listOf(ParameterSpec("input", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("delay", ParameterKind.CONFIGURATION, Type.NUMBER)),
+            0,
+            TimedPulse::create),
 
         OperationSpec(
             OperationKind.FUNCTION,

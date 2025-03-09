@@ -59,7 +59,7 @@ fun Application.module() {
             val jsonSpec = JsonParser.parseObject(jsonText)
             ModificationToken.applySynchronizedWithToken { token ->
                 Model.definePort(name, jsonSpec, token)?.reset(Model.simulationMode_, token)
-                Model.notifyContentUpdated(token)
+                Model.functionSetChanged(token)
                 Model.save(token)
             }
             call.respond(HttpStatusCode.OK, null)
