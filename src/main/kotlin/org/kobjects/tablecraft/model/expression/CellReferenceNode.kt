@@ -1,16 +1,15 @@
 package org.kobjects.tablecraft.model.expression;
 
 import org.kobjects.tablecraft.model.Cell
-import org.kobjects.tablecraft.pluginapi.ModificationToken
 
 class CellReferenceNode(
     val source: Cell,
     val cell: Cell
 ) : Node() {
 
-    override fun eval(context: ModificationToken): Any {
+    override fun eval(context: EvaluationContext): Any {
         try {
-            return cell.getComputedValue(context)
+            return cell.value
         } catch (e: Exception) {
             e.printStackTrace()
             return e

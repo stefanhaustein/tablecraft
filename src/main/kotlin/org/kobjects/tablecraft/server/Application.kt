@@ -86,7 +86,7 @@ fun Application.module() {
                     }
                 }
             }
-            val result = Model.applySynchronizedWithToken {
+            val result = Model.applySynchronized {
                 val writer = StringWriter()
                 if (forClient) {
                     writer.write("tag = ${Model.modificationTag}\n\n")

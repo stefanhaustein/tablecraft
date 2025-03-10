@@ -94,12 +94,6 @@ object Model : ModelInterface {
     }
 
 
-    fun recalculateAll(token: ModificationToken) {
-        for (sheet in sheets.values) {
-            sheet.updateAll(token)
-        }
-    }
-
 
     fun getOrCreate(name: String): Cell {
         val cut = name.indexOf("!")
@@ -132,11 +126,6 @@ object Model : ModelInterface {
         writer.close()
     }
 
-    fun notifyContentUpdated(modificationToken: ModificationToken) {
-        modificationTag = modificationToken.tag
-        for (listener in listeners) {listener()}
-        listeners.clear()
-    }
 
     fun serializeFunctions(tag: Long): String {
         val sb = StringBuilder()
@@ -160,7 +149,7 @@ object Model : ModelInterface {
                 definitions.append('\n')
             }
             if (port is OutputPort && port.expression.valueTag > tag) {
-                values.append("${port.name}: ${port.expression.computedValue_.toJson()}\n")
+                values.append("${port.name}: ${port.expression.value.toJson()}\n")
             }
         }
 
@@ -255,10 +244,60 @@ object Model : ModelInterface {
     override fun <T> applySynchronizedWithToken(action: (ModificationToken) -> T): T {
         return lock.withLock {
             val modificationToken = ModificationToken()
+
             val result = action(modificationToken)
 
             if (modificationToken.functionSetChanged) {
 
+            }
+
+            var anyChanged = modificationToken.formulaChanged || modificationToken.formulaChanged
+
+            while (modificationToken.refreshRoots.isNotEmpty()) {
+                val first = modificationToken.refreshRoots.first()
+                modificationToken.refreshRoots.remove(first)
+                if (first.updateValue(modificationToken.tag)) {
+                    anyChanged = true
+                    for (dep in first.dependencies) {
+                        if (dep.dependsOn.size == 1) {
+                            modificationToken.refreshNodes.remove(dep)
+                            modificationToken.refreshRoots.add(dep)
+                        } else {
+                            modificationToken.addRefresh(dep)
+                        }
+                    }
+                }
+            }
+
+            for (dep in modificationToken.refreshNodes) {
+                modificationToken.addAllDependencies(dep)
+            }
+
+            while (modificationToken.refreshNodes.isNotEmpty()) {
+                for (node in modificationToken.refreshNodes) {
+                    var found = true
+                    for (dep in node.dependencies) {
+                        if (modificationToken.refreshNodes.contains(dep)) {
+                            found = false
+                            break
+                        }
+                    }
+                    if (found) {
+                        modificationToken.refreshNodes.remove(node)
+                        if (node.updateValue(modificationToken.tag)) {
+                            anyChanged = true
+                        }
+                        break
+                    }
+                }
+            }
+
+            modificationTag = modificationToken.tag
+            if (anyChanged) {
+                for(listener in listeners) {
+                    listener.invoke()
+                }
+                listeners.clear()
             }
 
             result

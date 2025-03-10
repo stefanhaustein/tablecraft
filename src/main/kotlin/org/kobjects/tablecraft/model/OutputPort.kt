@@ -31,7 +31,7 @@ class OutputPort(
     }
 
     override val value: Any
-        get() = expression.computedValue_
+        get() = expression.value
 
 
     override fun reset(simulationMode: Boolean, token: ModificationToken) {

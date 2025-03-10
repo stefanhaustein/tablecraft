@@ -1,11 +1,9 @@
 package org.kobjects.tablecraft.model.expression
 
-import org.kobjects.tablecraft.pluginapi.ModificationToken
-
 class LiteralNode(val value: Any) : Node() {
 
 
-    override fun eval(context: ModificationToken) = value
+    override fun eval(context: EvaluationContext) = value
 
     override val children: Collection<Node>
         get() = emptyList()

@@ -34,7 +34,7 @@ class Cell(
 
 
     fun serializeValue(sb: StringBuilder) {
-        val value = computedValue_
+        val value = this.value
         when (value) {
             null,
                 is Unit -> {sb.append("null")}

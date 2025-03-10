@@ -9,15 +9,23 @@ class ModificationToken() {
     var loading = false
     var formulaChanged = false
     var functionSetChanged = false
-    val refresh = mutableSetOf<Expression>()
+    val refreshRoots = mutableSetOf<Expression>()
+    val refreshNodes = mutableSetOf<Expression>()
 
-    fun addRefresh(dependency: Expression) {
-        if (refresh.add(dependency)) {
-            for (child in dependency.dependencies) {
-                addRefresh(child)
-            }
+    fun addRefresh(expression: Expression) {
+        if (expression.dependsOn.isEmpty()) {
+            refreshRoots.add(expression)
+        } else {
+            refreshNodes.add(expression)
         }
     }
 
+    fun addAllDependencies(node: Expression) {
+        for (dep in node.dependencies) {
+            if (refreshNodes.add(dep)) {
+                addAllDependencies(dep)
+            }
+        }
+    }
 
 }

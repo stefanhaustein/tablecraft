@@ -1,5 +1,6 @@
 package org.kobjects.tablecraft.model
 
+import org.kobjects.tablecraft.model.expression.EvaluationContext
 import org.kobjects.tablecraft.model.expression.Node
 import org.kobjects.tablecraft.model.expression.LiteralNode
 import org.kobjects.tablecraft.model.parser.ParsingContext
@@ -12,7 +13,7 @@ open class Expression : Dependable {
     var validation: Map<String, Any?>? = null
 
     var expression: Node = LiteralNode(Unit)
-    var computedValue_: Any = Unit
+    var value: Any = Unit
 
     var valueTag = 0L
     var formulaTag = 0L
@@ -21,23 +22,19 @@ open class Expression : Dependable {
     val dependsOn = mutableListOf<Expression>()
     val changeListeners = mutableListOf<(Any)->Unit>()
 
-    fun getComputedValue(context: ModificationToken): Any {
-        if (context.tag > valueTag) {
-            try {
-                val newValue = expression.eval(context)
-                if (newValue != computedValue_) {
-                    computedValue_ = newValue
-                    for (listener in changeListeners) {
-                        listener.invoke(newValue)
-                    }
-                }
-            } catch(e: Exception) {
-                e.printStackTrace()
-                computedValue_ = e
-            }
-            valueTag = context.tag
+    fun updateValue(tag: Long): Boolean {
+
+        var newValue: Any
+        try {
+            newValue = expression.eval(EvaluationContext())
+        } catch (e: Exception) {
+            newValue = e
         }
-        return computedValue_
+        return if (newValue == value) false else {
+            value = newValue
+            valueTag = tag
+            true
+        }
     }
 
     fun reparse() {
@@ -72,18 +69,8 @@ open class Expression : Dependable {
             rawValue = value
             reparse()
             formulaTag = modificationToken.tag
-            updateAllDependencies(modificationToken)
             modificationToken.formulaChanged = true
-        }
-    }
-
-
-    fun updateAllDependencies(context: ModificationToken) {
-        if (context.tag > valueTag) {
-            getComputedValue(context)
-            for (dep in dependencies) {
-                dep.updateAllDependencies(context)
-            }
+            modificationToken.addRefresh(this)
         }
     }
 

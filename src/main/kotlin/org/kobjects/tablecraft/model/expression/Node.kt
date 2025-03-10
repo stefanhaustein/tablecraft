@@ -6,15 +6,15 @@ import org.kobjects.tablecraft.model.Values
 
 abstract class Node {
 
-    abstract fun eval(context: ModificationToken): Any
+    abstract fun eval(context: EvaluationContext): Any
 
     abstract val children: Collection<Node>
 
-    fun evalDouble(context: ModificationToken): Double = Values.toDouble(eval(context))
+    fun evalDouble(context: EvaluationContext): Double = Values.toDouble(eval(context))
 
-    fun evalInt(context: ModificationToken): Int = Values.toInt(eval(context))
+    fun evalInt(context: EvaluationContext): Int = Values.toInt(eval(context))
 
-    fun evalBoolean(context: ModificationToken): Boolean = Values.toBoolean(eval(context))
+    fun evalBoolean(context: EvaluationContext): Boolean = Values.toBoolean(eval(context))
 
     open fun attach() = Unit
 

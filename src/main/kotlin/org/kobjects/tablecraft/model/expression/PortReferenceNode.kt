@@ -1,7 +1,6 @@
 package org.kobjects.tablecraft.model.expression;
 
 import org.kobjects.tablecraft.model.*
-import org.kobjects.tablecraft.pluginapi.ModificationToken
 
 class PortReferenceNode(
     val source: Expression,
@@ -9,7 +8,7 @@ class PortReferenceNode(
 
 ) : Node() {
 
-    override fun eval(context: ModificationToken): Any {
+    override fun eval(context: EvaluationContext): Any {
         try {
             return port.value
         } catch (e: Exception) {

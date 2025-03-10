@@ -1,7 +1,5 @@
 package org.kobjects.tablecraft.model.expression
 
-import org.kobjects.tablecraft.pluginapi.ModificationToken
-
 class LogicalOperatorNode(
     val kind: LogicalOperator,
     val leftOperand: Node,
@@ -9,7 +7,7 @@ class LogicalOperatorNode(
 ): Node() {
 
 
-    override fun eval(context: ModificationToken): Any {
+    override fun eval(context: EvaluationContext): Any {
         val left = leftOperand.evalBoolean(context)
         return when (kind) {
             LogicalOperator.AND -> left && rightOperand.evalBoolean(context)

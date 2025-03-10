@@ -1,7 +1,6 @@
 package org.kobjects.tablecraft.model.expression
 
 import org.kobjects.tablecraft.model.Expression
-import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.pluginapi.ModificationToken
 import org.kobjects.tablecraft.pluginapi.*
 
@@ -10,6 +9,7 @@ class PluginOperationCallNode(
     val operationSpec: OperationSpec,
     override val configuration: Map<String, Any>,
     val parameters: Map<String, Pair<Node, Type>>
+
 ): Node(), OperationHost {
 
     override val children: Collection<Node>
@@ -28,11 +28,10 @@ class PluginOperationCallNode(
     }
 
     override fun notifyValueChanged(newValue: Any, token: ModificationToken) {
-        expressionHolder.updateAllDependencies(token)
-        Model.notifyContentUpdated(token)
+        token.addRefresh(expressionHolder)
     }
 
-    override fun eval(context: ModificationToken): Any {
+    override fun eval(context: EvaluationContext): Any {
         return operationInstance.apply(parameters.mapValues {
             val expr = it.value.first
             when (it.value.second) {

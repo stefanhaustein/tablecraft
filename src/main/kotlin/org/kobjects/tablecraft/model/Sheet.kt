@@ -11,11 +11,6 @@ class Sheet(var name: String) {
         cell.setFormula(value, modificationToken)
     }
 
-    fun updateAll(context: ModificationToken) {
-        for (cell in cells.values) {
-            cell.getComputedValue(context)
-        }
-    }
 
     fun serialize(tag: Long, includeComputed: Boolean): String {
         val sb = StringBuilder("[sheets.$name.cells]\n\n")
