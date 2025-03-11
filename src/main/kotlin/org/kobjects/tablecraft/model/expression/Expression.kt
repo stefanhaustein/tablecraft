@@ -1,14 +1,13 @@
 package org.kobjects.tablecraft.model.expression
 
 import kotlinx.datetime.*
-import org.kobjects.tablecraft.pluginapi.ModificationToken
 import org.kobjects.tablecraft.model.Values
 
-abstract class Node {
+abstract class Expression {
 
     abstract fun eval(context: EvaluationContext): Any
 
-    abstract val children: Collection<Node>
+    abstract val children: Collection<Expression>
 
     fun evalDouble(context: EvaluationContext): Double = Values.toDouble(eval(context))
 

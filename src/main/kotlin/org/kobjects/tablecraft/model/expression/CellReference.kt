@@ -2,10 +2,15 @@ package org.kobjects.tablecraft.model.expression;
 
 import org.kobjects.tablecraft.model.Cell
 
-class CellReferenceNode(
+class CellReference(
     val source: Cell,
     val cell: Cell
-) : Node() {
+) : Expression() {
+
+    init {
+        source.dependsOn.add(cell)
+        cell.dependencies.add(source)
+    }
 
     override fun eval(context: EvaluationContext): Any {
         try {
@@ -16,18 +21,7 @@ class CellReferenceNode(
         }
     }
 
-    override val children: Collection<Node>
+    override val children: Collection<Expression>
         get() = emptyList()
 
-    override fun attach() {
-        super.attach()
-        source.dependsOn.add(cell)
-        cell.dependencies.add(source)
-    }
-
-    override fun detach() {
-        super.detach()
-        source.dependsOn.remove(cell)
-        cell.dependencies.remove(source)
-    }
 }

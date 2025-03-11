@@ -1,10 +1,10 @@
 package org.kobjects.tablecraft.model.expression
 
-class LogicalOperatorNode(
+class LogicalOperator(
     val kind: LogicalOperator,
-    val leftOperand: Node,
-    val rightOperand: Node
-): Node() {
+    val leftOperand: Expression,
+    val rightOperand: Expression
+): Expression() {
 
 
     override fun eval(context: EvaluationContext): Any {
@@ -15,7 +15,7 @@ class LogicalOperatorNode(
         }
     }
 
-    override val children: Collection<Node>
+    override val children: Collection<Expression>
         get() = listOf(leftOperand, rightOperand)
 
 

@@ -5,37 +5,33 @@ import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.pluginapi.*
 
 class OutputPort(
-    name: String,
+    override val name: String,
     val specification: OperationSpec,
     override val configuration: Map<String, Any>,
-    val rawExpression: String,
-    token: ModificationToken
-) : Port(name, token.tag) {
+    override val rawFormula: String,
+    override val tag: Long
+) : ExpressionNode(), Port {
     val portOperation = specification.createFn(this)
-
     var error: Exception? = null
-    val expression: Expression = Expression()
     var attached = false
 
-    init {
-        expression.changeListeners.add {
-            val parameters = mapOf("value" to it)
+    override fun updateValue(tag: Long): Boolean =
+        if (super.updateValue(tag)) {
             if (attached) {
-                portOperation.apply(parameters)
+                try {
+                    val parameters = mapOf("value" to value)
+                    portOperation.apply(parameters)
+                    error = null
+                } catch (e: Exception) {
+                    error = e
+                }
             }
-        }
-    }
-
-    fun reparse() {
-        expression.reparse()
-    }
-
-    override val value: Any
-        get() = expression.value
+            true
+        } else false
 
 
     override fun reset(simulationMode: Boolean, token: ModificationToken) {
-        expression.setFormula(rawExpression, token)
+        reparse()
 
         if (attached) {
             try {
@@ -66,7 +62,7 @@ class OutputPort(
     override fun toJson(sb: StringBuilder) {
         sb.append("""{"name":${name.quote()}, "type":${specification.name.quote()}, "configuration": """)
         configuration.toJson(sb)
-        sb.append(""", "expression":${rawExpression.quote()}}""")
+        sb.append(""", "expression":${rawFormula.quote()}}""")
 
     }
 

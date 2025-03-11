@@ -2,11 +2,11 @@ package org.kobjects.tablecraft.model.expression
 
 import org.kobjects.tablecraft.model.Values
 
-class BinaryOperatorNode(
+class BinaryOperator(
     val name: String,
-    val leftOperand: Node,
-    val rightOperand: Node
-): Node() {
+    val leftOperand: Expression,
+    val rightOperand: Expression
+): Expression() {
 
     override fun eval(context: EvaluationContext): Any {
         val l = leftOperand.eval(context) ?: 0.0
@@ -53,6 +53,6 @@ class BinaryOperatorNode(
         }
     }
 
-    override val children: Collection<Node>
+    override val children: Collection<Expression>
         get() = listOf(leftOperand, rightOperand)
 }

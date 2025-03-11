@@ -6,12 +6,15 @@ import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.model.Model.simulationValueMap
 import org.kobjects.tablecraft.pluginapi.*
 
-abstract class Port(val name: String, val tag: Long): OperationHost, ToJson {
+interface Port: OperationHost, ToJson {
 
-    abstract val value: Any
+    val name: String
+    val tag: Long
 
-    abstract fun reset(simulationMode: Boolean, token: ModificationToken)
+    val value: Any
 
-    abstract fun detach()
+    fun reset(simulationMode: Boolean, token: ModificationToken)
+
+    fun detach()
 
 }

@@ -10,8 +10,19 @@ import org.kobjects.tablecraft.pluginapi.ModificationToken
 class Cell(
     val sheet: Sheet,
     val id: String
-) : Expression() {
+) : ExpressionNode() {
 
+    override var rawFormula = ""
+
+    fun setFormula(value: String, modificationToken: ModificationToken) {
+        if (value != rawFormula) {
+            rawFormula = value
+            reparse()
+            formulaTag = modificationToken.tag
+            modificationToken.formulaChanged = true
+            modificationToken.addRefresh(this)
+        }
+    }
 
     fun setJson(json: Map<String, Any?>, modificationToken: ModificationToken) {
        val formula = json["f"]
@@ -56,7 +67,7 @@ class Cell(
     fun serialize(sb: StringBuilder, tag: Long, includeComputed: Boolean) {
         val id = id
         if (formulaTag > tag) {
-            sb.append("""$id = {"f": ${rawValue.quote()}""")
+            sb.append("""$id = {"f": ${rawFormula.quote()}""")
             if (validation != null) {
                 sb.append(""", "v":""")
                 validation.toJson(sb)
@@ -70,7 +81,7 @@ class Cell(
         }
     }
 
-    override fun toString() = rawValue
+    override fun toString() = rawFormula
 
     companion object {
         val TIME_FORMAT_MINUTES = LocalTime.Format {

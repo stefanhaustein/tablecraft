@@ -1,6 +1,6 @@
 package org.kobjects.tablecraft.model.expression
 
-class UnaryOperatorNode(val name: String, val operand: Node) : Node() {
+class UnaryOperator(val name: String, val operand: Expression) : Expression() {
 
     override fun eval(context: EvaluationContext): Any {
         val value = operand.eval(context)
@@ -21,6 +21,6 @@ class UnaryOperatorNode(val name: String, val operand: Node) : Node() {
         }
     }
 
-    override val children: Collection<Node>
+    override val children: Collection<Expression>
         get() = emptyList()
 }

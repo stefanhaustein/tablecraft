@@ -6,14 +6,14 @@ import org.kobjects.tablecraft.model.Model.simulationValueMap
 import org.kobjects.tablecraft.pluginapi.*
 
 class InputPort(
-    name: String,
+    override val name: String,
     val specification: OperationSpec,
     override val configuration: Map<String, Any>,
-    token: ModificationToken
+    override val tag: Long
 
-) : Port(name, token.tag), Dependable {
+) : Port, Dependable {
 
-    override val dependencies = mutableSetOf<Expression>()
+    override val dependencies = mutableSetOf<ExpressionNode>()
 
     val portOperation = specification.createFn(this)
     var error: Exception? = null

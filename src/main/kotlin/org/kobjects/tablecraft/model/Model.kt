@@ -148,8 +148,8 @@ object Model : ModelInterface {
                 port.toJson(definitions)
                 definitions.append('\n')
             }
-            if (port is OutputPort && port.expression.valueTag > tag) {
-                values.append("${port.name}: ${port.expression.value.toJson()}\n")
+            if (port is OutputPort && port.valueTag > tag) {
+                values.append("${port.name}: ${port.value.toJson()}\n")
             }
         }
 
@@ -189,7 +189,7 @@ object Model : ModelInterface {
                 override fun detach() {
                 }
             }
-        }, emptyMap(), token)
+        }, emptyMap(), token.tag)
     }
 
     fun definePort(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken): Port? {
@@ -211,8 +211,8 @@ object Model : ModelInterface {
 
             val specification = Model.functionMap[type]!!
             val port = when (specification.kind) {
-                OperationKind.INPUT_PORT -> InputPort(name, specification, config, token)
-                OperationKind.OUTPUT_PORT -> OutputPort(name, specification, config, jsonSpec["expression"] as String, token)
+                OperationKind.INPUT_PORT -> InputPort(name, specification, config, token.tag)
+                OperationKind.OUTPUT_PORT -> OutputPort(name, specification, config, jsonSpec["expression"] as String, token.tag)
                 else -> throw IllegalArgumentException("Operation specification $specification does not specify a port.")
             }
             portMap[name] = port
