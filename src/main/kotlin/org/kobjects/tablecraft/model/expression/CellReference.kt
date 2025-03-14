@@ -3,18 +3,18 @@ package org.kobjects.tablecraft.model.expression;
 import org.kobjects.tablecraft.model.Cell
 
 class CellReference(
-    val source: Cell,
-    val cell: Cell
+    owner: Cell,
+    val target: Cell
 ) : Expression() {
 
     init {
-        source.dependsOn.add(cell)
-        cell.dependencies.add(source)
+        owner.dependsOn.add(target)
+        target.dependencies.add(owner)
     }
 
     override fun eval(context: EvaluationContext): Any {
         try {
-            return cell.value
+            return target.value
         } catch (e: Exception) {
             e.printStackTrace()
             return e

@@ -5,9 +5,8 @@ import org.kobjects.tablecraft.model.expression.Expression
 import org.kobjects.tablecraft.model.expression.Literal
 import org.kobjects.tablecraft.model.parser.ParsingContext
 import org.kobjects.tablecraft.model.parser.TcFormulaParser
-import org.kobjects.tablecraft.pluginapi.ModificationToken
 
-abstract class ExpressionNode : Dependable {
+abstract class ExpressionNode : Node {
 
     abstract val rawFormula: String
     var validation: Map<String, Any?>? = null
@@ -18,11 +17,11 @@ abstract class ExpressionNode : Dependable {
     var valueTag = 0L
     var formulaTag = 0L
 
-    override val dependencies = mutableSetOf<ExpressionNode>()
-    val dependsOn = mutableListOf<ExpressionNode>()
+    override val dependencies = mutableSetOf<Node>()
+    override val dependsOn = mutableSetOf<Node>()
 
 
-    open fun updateValue(tag: Long): Boolean {
+    override fun updateValue(tag: Long): Boolean {
         var newValue: Any
         try {
             newValue = expression.eval(EvaluationContext())
@@ -36,12 +35,19 @@ abstract class ExpressionNode : Dependable {
         }
     }
 
-    fun reparse() {
-        for (dep in dependencies) {
-            dep.dependsOn.remove(this)
+    override fun detach() {
+        clearDependsOn()
+    }
+
+    fun clearDependsOn() {
+        for (dep in dependsOn) {
+            dep.dependencies.remove(this)
         }
         dependsOn.clear()
+    }
 
+    fun reparse() {
+        clearDependsOn()
         expression.detachAll()
         expression = if (rawFormula.startsWith("=")) {
             try {

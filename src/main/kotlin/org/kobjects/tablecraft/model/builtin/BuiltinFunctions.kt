@@ -53,7 +53,7 @@ object BuiltinFunctions : Plugin {
             Type.BOOLEAN,
             "rs",
             "RS-Flipflop",
-            listOf(ParameterSpec("r", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("s", ParameterKind.RUNTIME, Type.BOOLEAN)),
+            listOf(ParameterSpec("s", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("r", ParameterKind.RUNTIME, Type.BOOLEAN)),
             0,
             FlipflopFunction::createRs),
 
@@ -62,7 +62,7 @@ object BuiltinFunctions : Plugin {
             Type.BOOLEAN,
             "sr",
             "SR-Flipflop",
-            listOf(ParameterSpec("r", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("s", ParameterKind.RUNTIME, Type.BOOLEAN)),
+            listOf(ParameterSpec("s", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("r", ParameterKind.RUNTIME, Type.BOOLEAN)),
             0,
             FlipflopFunction::createSr),
 

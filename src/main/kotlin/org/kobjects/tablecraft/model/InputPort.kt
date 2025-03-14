@@ -11,32 +11,28 @@ class InputPort(
     override val configuration: Map<String, Any>,
     override val tag: Long
 
-) : Port, Dependable {
+) : Port, Node {
 
-    override val dependencies = mutableSetOf<ExpressionNode>()
+    override val dependencies = mutableSetOf<Node>()
+    override val dependsOn = mutableSetOf<Node>()
 
     val portOperation = specification.createFn(this)
     var error: Exception? = null
     var attached: Boolean = false
+    var valueTag  = 0L
 
-    private var value_: Any = when(specification.returnType) {
+    var portValue: Any = when(specification.returnType) {
         Type.INT -> 0
         Type.NUMBER -> 0.0
         Type.BOOLEAN -> false
         Type.TEXT -> ""
         else -> throw UnsupportedOperationException("port type")
     }
+    var simulationValue: Any = portValue
 
 
     override fun reset(simulationMode: Boolean, token: ModificationToken) {
-        if (attached) {
-            try {
-                portOperation.detach()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                attached = false
-            }
-        }
+        detach()
 
         if (!simulationMode) {
             try {
@@ -48,22 +44,43 @@ class InputPort(
         }
     }
 
-    override fun detach() {}
+    override fun detach() {
+        // This doesn't really need to do anything about dependencies -- dependecies will be updatend in their reset
+        // methods.
+        if (attached) {
+            try {
+                portOperation.detach()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                attached = false
+            }
+        }
+    }
 
-    override val value: Any
-        get() = if (Model.simulationMode_) simulationValueMap[name] ?: Unit else value_
+    override var value: Any = portValue
+
 
     // Incoming from ports
     override fun notifyValueChanged(newValue: Any, token: ModificationToken) {
-        if (!Model.simulationMode_) {
-            if (value_ == newValue) {
-                return
-            }
-            value_ = newValue
+        if (Model.simulationMode_) {
+            simulationValue = newValue
+        } else {
+            portValue = newValue
         }
-        for (dependency in dependencies) {
-            token.addRefresh(dependency)
+        if (value != newValue) {
+            token.addRefresh(this)
         }
+    }
+
+
+    override fun updateValue(tag: Long): Boolean {
+        val newValue = if (Model.simulationMode_) simulationValue else portValue
+        if (value == newValue) {
+            return false
+        }
+        valueTag = tag
+        value = newValue
+        return true
     }
 
     override fun toJson(sb: StringBuilder) {
@@ -71,5 +88,7 @@ class InputPort(
         configuration.toJson(sb)
         sb.append("}")
     }
+
+    override fun toString() = name
 
 }

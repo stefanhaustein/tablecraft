@@ -11,7 +11,6 @@ import io.ktor.utils.io.*
 import kotlinx.html.dom.serialize
 import org.kobjects.tablecraft.json.JsonParser
 import org.kobjects.tablecraft.model.Model
-import org.kobjects.tablecraft.pluginapi.ModificationToken
 import java.io.File
 import java.io.StringWriter
 import kotlin.coroutines.resume
@@ -67,7 +66,7 @@ fun Application.module() {
             Model.applySynchronizedWithToken {
                 Model.clearAll(it)
                 Model.loadData(data, it)
-                it.functionSetChanged = true
+                it.symbolsChanged = true
                 it.formulaChanged = true
             }
             call.respond(HttpStatusCode.OK, null)

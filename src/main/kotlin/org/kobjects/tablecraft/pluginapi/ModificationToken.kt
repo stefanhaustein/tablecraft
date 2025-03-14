@@ -1,6 +1,7 @@
 package org.kobjects.tablecraft.pluginapi
 
 import org.kobjects.tablecraft.model.ExpressionNode
+import org.kobjects.tablecraft.model.Node
 
 class ModificationToken() {
 
@@ -8,19 +9,19 @@ class ModificationToken() {
 
     var loading = false
     var formulaChanged = false
-    var functionSetChanged = false
-    val refreshRoots = mutableSetOf<ExpressionNode>()
-    val refreshNodes = mutableSetOf<ExpressionNode>()
+    var symbolsChanged = false
+    val refreshRoots = mutableSetOf<Node>()
+    val refreshNodes = mutableSetOf<Node>()
 
-    fun addRefresh(expressionNode: ExpressionNode) {
-        if (expressionNode.dependsOn.isEmpty()) {
-            refreshRoots.add(expressionNode)
+    fun addRefresh(node: Node) {
+        if (node.dependsOn.isEmpty()) {
+            refreshRoots.add(node)
         } else {
-            refreshNodes.add(expressionNode)
+            refreshNodes.add(node)
         }
     }
 
-    fun addAllDependencies(node: ExpressionNode) {
+    fun addAllDependencies(node: Node) {
         for (dep in node.dependencies) {
             if (refreshNodes.add(dep)) {
                 addAllDependencies(dep)

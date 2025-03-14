@@ -72,6 +72,8 @@ class Cell(
                 sb.append(""", "v":""")
                 validation.toJson(sb)
             }
+            sb.append(""", "dependsOn":${dependsOn.toString().quote()}""")
+            sb.append(""", "dependencies":${dependencies.toString().quote()}""")
             sb.append("}\n")
         }
         if (includeComputed && this.valueTag > tag) {
@@ -81,7 +83,7 @@ class Cell(
         }
     }
 
-    override fun toString() = rawFormula
+    override fun toString() = id // rawFormula
 
     companion object {
         val TIME_FORMAT_MINUTES = LocalTime.Format {

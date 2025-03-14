@@ -31,16 +31,9 @@ class OutputPort(
 
 
     override fun reset(simulationMode: Boolean, token: ModificationToken) {
-        reparse()
+        detach()
 
-        if (attached) {
-            try {
-                portOperation.detach()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            attached = false
-        }
+        reparse()
 
         if (!simulationMode) {
             try {
@@ -53,7 +46,18 @@ class OutputPort(
         }
     }
 
-    override fun detach() {}
+    override fun detach() {
+        super.detach()
+
+        if (attached) {
+            try {
+                portOperation.detach()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            attached = false
+        }
+    }
 
     override fun notifyValueChanged(newValue: Any, token: ModificationToken) {
         System.out.println("Unexpected change notification in Output Port")
@@ -62,8 +66,13 @@ class OutputPort(
     override fun toJson(sb: StringBuilder) {
         sb.append("""{"name":${name.quote()}, "type":${specification.name.quote()}, "configuration": """)
         configuration.toJson(sb)
+        sb.append(""", "dependsOn":${dependsOn.toString().quote()}""")
+        sb.append(""", "dependencies":${dependencies.toString().quote()}""")
+
         sb.append(""", "expression":${rawFormula.quote()}}""")
 
     }
 
+
+    override fun toString() = name
 }

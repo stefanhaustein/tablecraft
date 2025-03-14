@@ -12,8 +12,6 @@ import java.io.Writer
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 
 object Model : ModelInterface {
 
@@ -170,7 +168,7 @@ object Model : ModelInterface {
     }
 
     fun deletePort(name: String, token: ModificationToken) {
-        token.functionSetChanged = true
+        token.symbolsChanged = true
 
         portMap[name] = InputPort(name, OperationSpec(
             OperationKind.INPUT_PORT,
@@ -193,7 +191,7 @@ object Model : ModelInterface {
     }
 
     fun definePort(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken): Port? {
-        token.functionSetChanged = true
+        token.symbolsChanged = true
 
         val previousName = jsonSpec["previousName"] as String?
 
@@ -209,6 +207,8 @@ object Model : ModelInterface {
             val type = jsonSpec["type"].toString()
             val config = jsonSpec["configuration"] as Map<String, Any>
 
+            portMap[name]?.detach()
+
             val specification = Model.functionMap[type]!!
             val port = when (specification.kind) {
                 OperationKind.INPUT_PORT -> InputPort(name, specification, config, token.tag)
@@ -223,7 +223,7 @@ object Model : ModelInterface {
     }
 
     fun clearAll(modificationToken: ModificationToken) {
-        modificationToken.functionSetChanged = true
+        modificationToken.symbolsChanged = true
 
         for (key in portMap.keys.toList()) {
             deletePort(key, modificationToken)
@@ -247,42 +247,75 @@ object Model : ModelInterface {
 
             val result = action(modificationToken)
 
-            if (modificationToken.functionSetChanged) {
-
+            if (modificationToken.symbolsChanged) {
+                for (port in portMap.values.filterIsInstance<OutputPort>()) {
+                    port.reparse()
+                }
+                for (sheet in sheets.values) {
+                    for (cell in sheet.cells.values) {
+                        cell.reparse()
+                    }
+                }
             }
 
-            var anyChanged = modificationToken.formulaChanged || modificationToken.formulaChanged
+            var anyChanged = modificationToken.symbolsChanged || modificationToken.formulaChanged
+            if (anyChanged) {
+                // Other changes are not relevant for saving.
+                save()
+            }
+
+            if (modificationToken.symbolsChanged) {
+                // Mark everything "dirty"
+                for (sheet in sheets.values) {
+                    for (cell in sheet.cells.values) {
+                        modificationToken.addRefresh(cell)
+                    }
+                }
+                for (port in portMap.values.filterIsInstance<OutputPort>()) {
+                    modificationToken.addRefresh(port)
+                }
+            }
+
+            println("Root nodes needing refresh: ${modificationToken.refreshRoots}; other: ${modificationToken.refreshNodes}")
 
             while (modificationToken.refreshRoots.isNotEmpty()) {
-                val first = modificationToken.refreshRoots.first()
-                modificationToken.refreshRoots.remove(first)
-                if (first.updateValue(modificationToken.tag)) {
+                val current = modificationToken.refreshRoots.first()
+                modificationToken.refreshRoots.remove(current)
+                println("Updating: $current")
+                if (current.updateValue(modificationToken.tag)) {
                     anyChanged = true
-                    for (dep in first.dependencies) {
+                    println("adding new dependencies: ${current.dependencies}")
+                    for (dep in current.dependencies) {
                         if (dep.dependsOn.size == 1) {
                             modificationToken.refreshNodes.remove(dep)
                             modificationToken.refreshRoots.add(dep)
                         } else {
-                            modificationToken.addRefresh(dep)
+                            modificationToken.refreshNodes.add(dep)
                         }
                     }
                 }
             }
 
-            for (dep in modificationToken.refreshNodes) {
+            // modificationToken.refreshNodes.addAll(modificationToken.refreshRoots)
+            // modificationToken.refreshRoots.clear()
+
+            for (dep in modificationToken.refreshNodes.toList()) {
                 modificationToken.addAllDependencies(dep)
             }
+
+            println("Saturated dependencies: ${modificationToken.refreshNodes}")
 
             while (modificationToken.refreshNodes.isNotEmpty()) {
                 for (node in modificationToken.refreshNodes) {
                     var found = true
-                    for (dep in node.dependencies) {
+                    for (dep in node.dependsOn) {
                         if (modificationToken.refreshNodes.contains(dep)) {
                             found = false
                             break
                         }
                     }
                     if (found) {
+                        println("Updating node: $node")
                         modificationToken.refreshNodes.remove(node)
                         if (node.updateValue(modificationToken.tag)) {
                             anyChanged = true

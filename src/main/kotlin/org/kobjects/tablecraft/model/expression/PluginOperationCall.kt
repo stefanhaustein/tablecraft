@@ -5,8 +5,8 @@ import org.kobjects.tablecraft.pluginapi.ModificationToken
 import org.kobjects.tablecraft.pluginapi.*
 
 class PluginOperationCall(
-    val expressionHolder: ExpressionNode,
-    val operationSpec: OperationSpec,
+    val owner: ExpressionNode,
+    operationSpec: OperationSpec,
     override val configuration: Map<String, Any>,
     val parameters: Map<String, Pair<Expression, Type>>
 
@@ -28,7 +28,7 @@ class PluginOperationCall(
     }
 
     override fun notifyValueChanged(newValue: Any, token: ModificationToken) {
-        token.addRefresh(expressionHolder)
+        token.addRefresh(owner)
     }
 
     override fun eval(context: EvaluationContext): Any {
@@ -68,6 +68,6 @@ class PluginOperationCall(
         }
     }
 
-    override fun toString() = "$operationInstance configuration: $configuration parameters: $parameters cell: $expressionHolder"
+    override fun toString() = "$operationInstance configuration: $configuration parameters: $parameters cell: $owner"
 
 }
