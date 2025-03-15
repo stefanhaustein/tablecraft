@@ -2,7 +2,6 @@ package org.kobjects.tablecraft.model.builtin
 
 import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.pluginapi.OperationHost
-import org.kobjects.tablecraft.pluginapi.Operation
 import org.kobjects.tablecraft.pluginapi.StatefulOperation
 import java.util.Timer
 import java.util.TimerTask
@@ -35,7 +34,7 @@ class TimedPulse(
                         override fun run() {
                             outputState = false
                             Model.applySynchronizedWithToken {
-                                host!!.notifyValueChanged(false, it)
+                                host!!.notifyValueChanged(it)
                             }
                             task = null
                         }

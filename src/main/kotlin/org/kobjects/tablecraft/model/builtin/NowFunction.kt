@@ -3,7 +3,6 @@ package org.kobjects.tablecraft.model.builtin
 import kotlinx.datetime.Clock
 import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.pluginapi.OperationHost
-import org.kobjects.tablecraft.pluginapi.Operation
 import org.kobjects.tablecraft.pluginapi.StatefulOperation
 import java.util.Timer
 import java.util.TimerTask
@@ -27,7 +26,7 @@ class NowFunction(
             task = object : TimerTask() {
                 override fun run() {
                     Model.applySynchronizedWithToken {
-                        host.notifyValueChanged(Clock.System.now(), it)
+                        host.notifyValueChanged(it)
                     }
                 }
             }

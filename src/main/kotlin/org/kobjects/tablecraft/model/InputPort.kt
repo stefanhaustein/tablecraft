@@ -7,7 +7,7 @@ import org.kobjects.tablecraft.pluginapi.*
 class InputPort(
     override val name: String,
     val specification: OperationSpec,
-    override val configuration: Map<String, Any>,
+    val configuration: Map<String, Any>,
     override val tag: Long
 
 ) : Port, Node {
@@ -20,14 +20,14 @@ class InputPort(
     var attached: Boolean = false
     override var valueTag  = 0L
 
-    var portValue: Any = when(specification.returnType) {
+    override var value: Any = when(specification.returnType) {
         Type.INT -> 0
         Type.NUMBER -> 0.0
         Type.BOOLEAN -> false
         Type.TEXT -> ""
         else -> throw UnsupportedOperationException("port type")
     }
-    var simulationValue: Any = portValue
+    var simulationValue: Any = value
     var simulationValueTag: Long = 0
 
 
@@ -36,7 +36,7 @@ class InputPort(
 
         if (!simulationMode) {
             try {
-                portValue = portOperation.attach(this)
+                portOperation.attach(this)
                 attached = true
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -57,25 +57,18 @@ class InputPort(
         }
     }
 
-    override var value: Any = portValue
-
 
     // Incoming from ports
-    override fun notifyValueChanged(newValue: Any, token: ModificationToken) {
-        if (Model.simulationMode_) {
-            simulationValue = newValue
-            simulationValueTag = token.tag
-        } else {
-            portValue = newValue
-        }
-        if (value != newValue) {
-            token.addRefresh(this)
-        }
+    override fun notifyValueChanged(token: ModificationToken) {
+        token.addRefresh(this)
     }
 
 
     override fun updateValue(tag: Long): Boolean {
-        val newValue = if (Model.simulationMode_) simulationValue else portValue
+        if (valueTag == tag) {
+            return false
+        }
+        val newValue = if (Model.simulationMode_) simulationValue else portOperation.apply(emptyMap())
         if (value == newValue) {
             return false
         }
@@ -92,7 +85,7 @@ class InputPort(
 
     fun setSimulationValue(value: Any, token: ModificationToken) {
         if (Model.simulationMode_) {
-            notifyValueChanged(value, token)
+            notifyValueChanged(token)
         } else {
             simulationValue = value
             simulationValueTag = token.tag

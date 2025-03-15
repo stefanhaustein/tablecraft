@@ -3,7 +3,6 @@ package org.kobjects.tablecraft.plugins.pi4j
 import com.pi4j.io.gpio.digital.*
 import com.pi4j.io.gpio.digital.DigitalInput
 import org.kobjects.tablecraft.pluginapi.OperationHost
-import org.kobjects.tablecraft.pluginapi.Operation
 import org.kobjects.tablecraft.pluginapi.StatefulOperation
 
 class PwmInput(
@@ -47,7 +46,7 @@ class PwmInput(
                 if (newValue != value && t0 != 0L) {
                     value = newValue
                     plugin.model.applySynchronizedWithToken { token ->
-                        host!!.notifyValueChanged(value, token)
+                        host!!.notifyValueChanged(token)
                     }
                 }
             }

@@ -3,7 +3,6 @@ package org.kobjects.tablecraft.plugins.pi4j
 import com.pi4j.io.gpio.digital.*
 import com.pi4j.io.gpio.digital.DigitalInput
 import org.kobjects.tablecraft.pluginapi.OperationHost
-import org.kobjects.tablecraft.pluginapi.Operation
 import org.kobjects.tablecraft.pluginapi.StatefulOperation
 
 class DigitalInput(
@@ -44,7 +43,7 @@ class DigitalInput(
 
     override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
         plugin.model.applySynchronizedWithToken {
-            host?.notifyValueChanged(event!!.state().isHigh(), it)
+            host?.notifyValueChanged(it)
         }
     }
 

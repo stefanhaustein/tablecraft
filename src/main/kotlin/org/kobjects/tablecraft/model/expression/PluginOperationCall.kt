@@ -7,7 +7,7 @@ import org.kobjects.tablecraft.pluginapi.*
 class PluginOperationCall(
     val owner: ExpressionNode,
     operationSpec: OperationSpec,
-    override val configuration: Map<String, Any>,
+    val configuration: Map<String, Any>,
     val parameters: Map<String, Pair<Expression, Type>>
 
 ): Expression(), OperationHost {
@@ -29,7 +29,7 @@ class PluginOperationCall(
         }
     }
 
-    override fun notifyValueChanged(newValue: Any, token: ModificationToken) {
+    override fun notifyValueChanged(token: ModificationToken) {
         token.addRefresh(owner)
     }
 

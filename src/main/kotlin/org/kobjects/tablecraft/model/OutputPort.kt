@@ -7,7 +7,7 @@ import org.kobjects.tablecraft.pluginapi.*
 class OutputPort(
     override val name: String,
     val specification: OperationSpec,
-    override val configuration: Map<String, Any>,
+    val configuration: Map<String, Any>,
     override val rawFormula: String,
     override val tag: Long
 ) : ExpressionNode(), Port {
@@ -59,7 +59,7 @@ class OutputPort(
         }
     }
 
-    override fun notifyValueChanged(newValue: Any, token: ModificationToken) {
+    override fun notifyValueChanged(token: ModificationToken) {
         System.out.println("Unexpected change notification in Output Port")
     }
 
