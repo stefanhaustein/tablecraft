@@ -8,21 +8,23 @@ import org.kobjects.tablecraft.pluginapi.OperationKind
 
 class PwmInputInstance(
     val plugin: Pi4jPlugin,
-    val host: OperationHost,
+    val configuration: Map<String, Any>
 ) : OperationInstance, Pi4JPort, DigitalStateChangeListener {
 
     var digitalInput: DigitalInput? = null
     var t0: Long = 0
     var value: Double = 0.0
     var error: Exception? = null
+    var host: OperationHost? = null
 
-    override fun attach() {
+    override fun attach(host: OperationHost) {
+        this.host = host
         plugin.addPort(this)
         attachPort()
     }
 
     override fun attachPort() {
-        val address = (host.configuration["address"] as Number).toInt()
+        val address = (configuration["address"] as Number).toInt()
         try {
             digitalInput = plugin.pi4J.create(DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
             error = null
@@ -45,7 +47,7 @@ class PwmInputInstance(
                 if (newValue != value && t0 != 0L) {
                     value = newValue
                     plugin.model.applySynchronizedWithToken { token ->
-                        host.notifyValueChanged(value, token)
+                        host!!.notifyValueChanged(value, token)
                     }
                 }
             }

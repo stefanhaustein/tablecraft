@@ -180,7 +180,7 @@ object Model : ModelInterface {
             token.tag
         ) {
             object : OperationInstance {
-                override fun attach() {
+                override fun attach(host: OperationHost) {
                 }
 
                 override fun apply(params: Map<String, Any>) = Unit

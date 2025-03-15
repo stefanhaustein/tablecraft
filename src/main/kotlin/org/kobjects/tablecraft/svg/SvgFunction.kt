@@ -1,12 +1,13 @@
 package org.kobjects.tablecraft.svg
 
 import org.kobjects.tablecraft.model.builtin.ImageReference
+import org.kobjects.tablecraft.pluginapi.OperationHost
 import org.kobjects.tablecraft.pluginapi.OperationInstance
 
 class SvgFunction(
     val path: String,
 ) : OperationInstance {
-    override fun attach() {
+    override fun attach(host: OperationHost) {
 
     }
 

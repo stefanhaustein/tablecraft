@@ -9,7 +9,6 @@ import java.util.TimerTask
 
 class TimedPulse(
     val delay: Double,
-    val host: OperationHost,
 ) : OperationInstance {
 
     val timer = Timer()
@@ -17,7 +16,10 @@ class TimedPulse(
     var outputState: Boolean = false
     var armed: Boolean = false
 
-    override fun attach() {
+    var host: OperationHost? = null
+
+    override fun attach(host: OperationHost) {
+        this.host = host
     }
 
     override fun apply(params: Map<String, Any>): Any {
@@ -33,7 +35,7 @@ class TimedPulse(
                         override fun run() {
                             outputState = false
                             Model.applySynchronizedWithToken {
-                                host.notifyValueChanged(false, it)
+                                host!!.notifyValueChanged(false, it)
                             }
                             task = null
                         }
@@ -53,8 +55,8 @@ class TimedPulse(
 
 
     companion object {
-        fun create(host: OperationHost): TimedPulse {
-            return TimedPulse((host.configuration["delay"] as Number).toDouble(), host)
+        fun create(configuration: Map<String, Any>): TimedPulse {
+            return TimedPulse((configuration["delay"] as Number).toDouble())
         }
     }
 }

@@ -7,8 +7,7 @@ class ImageFunction(source: String) : OperationInstance {
 
     val image = ImageReference(source)
 
-    override fun attach() {
-    }
+    override fun attach(host: OperationHost) = Unit
 
     override fun apply(params: Map<String, Any>) = image
 
@@ -17,6 +16,6 @@ class ImageFunction(source: String) : OperationInstance {
 
 
     companion object {
-        fun create(host: OperationHost) = ImageFunction(host.configuration["source"] as String)
+        fun create(configuration: Map<String, Any>) = ImageFunction(configuration["source"] as String)
     }
 }

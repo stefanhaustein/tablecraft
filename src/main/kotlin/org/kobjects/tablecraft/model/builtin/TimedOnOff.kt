@@ -10,14 +10,17 @@ import java.util.TimerTask
 class TimedOnOff(
     val delayedState: Boolean,
     val delay: Double,
-    val host: OperationHost,
+
 ) : OperationInstance {
 
     val timer = Timer()
     var task: TimerTask? = null
     var outputState: Boolean = false
 
-    override fun attach() {
+    var host: OperationHost? = null
+
+    override fun attach(host: OperationHost) {
+        this.host = host
     }
 
     override fun apply(params: Map<String, Any>): Any {
@@ -31,7 +34,7 @@ class TimedOnOff(
                 override fun run() {
                     outputState = delayedState
                     Model.applySynchronizedWithToken {
-                        host.notifyValueChanged(delayedState, it)
+                        host!!.notifyValueChanged(delayedState, it)
                     }
                     task = null
                 }
@@ -49,12 +52,12 @@ class TimedOnOff(
 
 
     companion object {
-        fun createTon(host: OperationHost): TimedOnOff {
-            return TimedOnOff(true, (host.configuration["delay"] as Number).toDouble(), host)
+        fun createTon(configuration: Map<String, Any>): TimedOnOff {
+            return TimedOnOff(true, (configuration["delay"] as Number).toDouble())
         }
 
-        fun createToff(host: OperationHost): TimedOnOff {
-            return TimedOnOff(false, (host.configuration["delay"] as Number).toDouble(), host)
+        fun createToff(configuration: Map<String, Any>): TimedOnOff {
+            return TimedOnOff(false, (configuration["delay"] as Number).toDouble())
         }
     }
 }

@@ -11,7 +11,7 @@ class OutputPort(
     override val rawFormula: String,
     override val tag: Long
 ) : ExpressionNode(), Port {
-    val portOperation = specification.createFn(this)
+    val portOperation = specification.createFn(configuration)
     var error: Exception? = null
     var attached = false
 
@@ -37,7 +37,7 @@ class OutputPort(
 
         if (!simulationMode) {
             try {
-                portOperation.attach()
+                portOperation.attach(this)
                 attached = true
             } catch (exception: Exception) {
                 error = exception

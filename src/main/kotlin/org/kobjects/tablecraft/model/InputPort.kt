@@ -15,7 +15,7 @@ class InputPort(
     override val dependencies = mutableSetOf<Node>()
     override val dependsOn = mutableSetOf<Node>()
 
-    val portOperation = specification.createFn(this)
+    val portOperation = specification.createFn(configuration)
     var error: Exception? = null
     var attached: Boolean = false
     override var valueTag  = 0L
@@ -36,7 +36,7 @@ class InputPort(
 
         if (!simulationMode) {
             try {
-                portOperation.attach()
+                portValue = portOperation.attach(this)
                 attached = true
             } catch (e: Exception) {
                 e.printStackTrace()

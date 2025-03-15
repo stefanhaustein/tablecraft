@@ -55,7 +55,7 @@ class MqttPort(
                 ),
             tag
         ) {
-            MqttPublisher(this, it.configuration)
+            MqttPublisher(this, it)
         }
     )
 

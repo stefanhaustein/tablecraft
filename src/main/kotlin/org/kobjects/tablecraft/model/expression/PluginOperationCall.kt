@@ -15,11 +15,11 @@ class PluginOperationCall(
     override val children: Collection<Expression>
         get() = parameters.values.map { it.first }
 
-    val operationInstance = operationSpec.createFn(this) as OperationInstance
+    val operationInstance = operationSpec.createFn(configuration) as OperationInstance
 
     override fun attach() {
 
-        operationInstance.attach()
+        operationInstance.attach(this)
     }
 
     override fun detach() {

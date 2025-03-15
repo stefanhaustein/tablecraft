@@ -43,7 +43,7 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
             "Configures the given pin address for digital output and sets it to 'high' for a TRUE value and to 'low' for a FALSE or 0 value.",
             listOf(ParameterSpec("address", ParameterKind.CONFIGURATION, Type.INT),
                 ParameterSpec("value", ParameterKind.RUNTIME, Type.INT)),
-        ) { DigitalOutputInstance(this, it.configuration) },
+        ) { DigitalOutputInstance(this, it) },
         OperationSpec(
             OperationKind.OUTPUT_PORT,
             Type.TEXT,
@@ -55,7 +55,7 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
                 ParameterSpec("x", ParameterKind.CONFIGURATION, Type.INT),
                 ParameterSpec("y", ParameterKind.CONFIGURATION, Type.INT),
                 ParameterSpec("text", ParameterKind.RUNTIME, Type.TEXT))
-            ) { LcdInstance(this, it.configuration) },
+            ) { LcdInstance(this, it) },
     )
 
 }

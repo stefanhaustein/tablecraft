@@ -7,7 +7,7 @@ interface Port: OperationHost, ToJson, Node {
 
     val name: String
     val tag: Long
-    
+
     fun reset(simulationMode: Boolean, token: ModificationToken)
 
 }

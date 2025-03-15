@@ -2,6 +2,7 @@ package org.kobjects.tablecraft.plugins.pi4j
 
 
 import com.pi4j.io.gpio.digital.*
+import org.kobjects.tablecraft.pluginapi.OperationHost
 import org.kobjects.tablecraft.pluginapi.OperationInstance
 
 class DigitalOutputInstance(
@@ -12,7 +13,7 @@ class DigitalOutputInstance(
     var digitalOutput: DigitalOutput? = null
     var error: Exception? = null
 
-    override fun attach() {
+    override fun attach(host: OperationHost) {
         plugin.addPort(this)
         attachPort()
     }

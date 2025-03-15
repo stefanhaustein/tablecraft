@@ -10,19 +10,18 @@ import java.util.TimerTask
 
 class NowFunction(
     val updateInterval: Double,
-    val host: OperationHost,
 ) : OperationInstance {
-
     val timer = Timer()
     val timerId = timerCounter++
     var task: TimerTask? = null
+    var host: OperationHost? = null
 
     override fun apply(params: Map<String, Any>): Any {
         return Clock.System.now()
     }
 
 
-    override fun attach() {
+    override fun attach(host: OperationHost) {
         val period = (updateInterval * 1000.0).toLong()
         if (period > 0) {
             task = object : TimerTask() {
@@ -43,6 +42,7 @@ class NowFunction(
         //timerTask?.cancel()
         task?.cancel()
         task = null
+        host = null
         //timer.purge()
     }
 
@@ -50,8 +50,8 @@ class NowFunction(
     companion object {
         var timerCounter = 0
 
-        fun create(host: OperationHost): NowFunction {
-            return NowFunction((host.configuration["interval"] as Number).toDouble(), host)
+        fun create(configuration: Map<String, Any>): NowFunction {
+            return NowFunction((configuration["interval"] as Number).toDouble())
         }
 
     }

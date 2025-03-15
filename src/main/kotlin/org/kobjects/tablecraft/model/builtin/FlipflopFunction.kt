@@ -11,8 +11,7 @@ class FlipflopFunction(
 
     var q: Boolean = false
 
-    override fun attach() {
-    }
+    override fun attach(host: OperationHost) {}
 
     override fun apply(params: Map<String, Any>): Any {
         val s = params["s"] as Boolean
@@ -36,11 +35,11 @@ class FlipflopFunction(
 
 
     companion object {
-        fun createRs(host: OperationHost): FlipflopFunction {
+        fun createRs(): FlipflopFunction {
             return FlipflopFunction(true)
         }
 
-        fun createSr(host: OperationHost): FlipflopFunction {
+        fun createSr(): FlipflopFunction {
             return FlipflopFunction(false)
         }
     }

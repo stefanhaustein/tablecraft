@@ -2,6 +2,7 @@ package org.kobjects.tablecraft.plugins.pi4j
 
 
 import freenove.Freenove_LCD1602
+import org.kobjects.tablecraft.pluginapi.OperationHost
 import org.kobjects.tablecraft.pluginapi.OperationInstance
 
 class LcdInstance(
@@ -12,7 +13,7 @@ class LcdInstance(
     var error: Exception? = null
     var display: Freenove_LCD1602? = null
 
-    override fun attach() {
+    override fun attach(host: OperationHost) {
         plugin.addPort(this)
         attachPort()
     }
