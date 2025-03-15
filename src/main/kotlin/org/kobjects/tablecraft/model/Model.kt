@@ -27,7 +27,6 @@ object Model : ModelInterface {
     val plugins = mutableListOf<Plugin>()
 
     val portMap = mutableMapOf<String, Port>()
-    val simulationValueMap = mutableMapOf<String, Any>()
 
     val svgs = SvgManager(File("src/main/resources/static/img"))
 
@@ -54,11 +53,8 @@ object Model : ModelInterface {
 
     fun setSimulationMode(value: Boolean, token: ModificationToken) {
         simulationMode_ = value
-        for (port in portMap.values) {
-            val simulationValue = simulationValueMap[port.name]
-            if (simulationValue != null) {
-                port.notifyValueChanged(simulationValue, token)
-            }
+        for (port in portMap.values.filterIsInstance<InputPort>()) {
+            port.notifyValueChanged(if (value) port.simulationValue else port.portValue, token)
         }
     }
 
@@ -83,7 +79,12 @@ object Model : ModelInterface {
                         }
                     }
                 } else if (key == "simulationValues") {
-                    simulationValueMap.putAll(map)
+                    for((key, value) in map) {
+                        val port = portMap[key]
+                        if (port is InputPort) {
+                            port.notifyValueChanged(value, token)
+                        }
+                    }
                 }
             }
         } catch (ex: Exception) {
@@ -140,14 +141,18 @@ object Model : ModelInterface {
     fun serializePorts(writer: Writer, tag: Long) {
         val definitions = StringBuilder()
         val values = StringBuilder()
+        val simulationValues = StringBuilder()
         for (port in portMap.values) {
             if (port.tag > tag) {
                 definitions.append(port.name).append(": ")
                 port.toJson(definitions)
                 definitions.append('\n')
             }
-            if (port is OutputPort && port.valueTag > tag) {
+            if (port.valueTag > tag) {
                 values.append("${port.name}: ${port.value.toJson()}\n")
+            }
+            if (port is InputPort && port.simulationValueTag > tag) {
+                simulationValues.append("${port.name}: ${port.simulationValue.toJson()}\n")
             }
         }
 
@@ -158,12 +163,8 @@ object Model : ModelInterface {
             writer.write("[portValues]\n\n$values\n")
         }
 
-        if (simulationValueMap.isNotEmpty()) {
-            writer.write("[simulationValues]\n\n")
-            for ((key, value) in simulationValueMap) {
-                writer.write("$key: ${value.toJson()}\n")
-            }
-            writer.write("\n")
+        if (simulationValues.isNotEmpty()) {
+            writer.write("[simulationValues]\n\n$simulationValues\n")
         }
     }
 
@@ -235,9 +236,11 @@ object Model : ModelInterface {
     }
 
     fun setSimulationValue(name: String, value: Any, token: ModificationToken) {
-        simulationValueMap[name] = value
         if (simulationMode_) {
-            portMap[name]?.notifyValueChanged(value, token)
+            val port = portMap[name]
+            if (port is InputPort) {
+                port.setSimulationValue(value, token)
+            }
         }
     }
     @OptIn(ExperimentalContracts::class)

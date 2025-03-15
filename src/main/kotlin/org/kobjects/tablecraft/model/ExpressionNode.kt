@@ -12,9 +12,9 @@ abstract class ExpressionNode : Node {
     var validation: Map<String, Any?>? = null
 
     var expression: Expression = Literal(Unit)
-    var value: Any = Unit
+    override var value: Any = Unit
 
-    var valueTag = 0L
+    override var valueTag = 0L
     var formulaTag = 0L
 
     override val dependencies = mutableSetOf<Node>()

@@ -2,7 +2,6 @@ package org.kobjects.tablecraft.model
 
 import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.json.toJson
-import org.kobjects.tablecraft.model.Model.simulationValueMap
 import org.kobjects.tablecraft.pluginapi.*
 
 class InputPort(
@@ -19,7 +18,7 @@ class InputPort(
     val portOperation = specification.createFn(this)
     var error: Exception? = null
     var attached: Boolean = false
-    var valueTag  = 0L
+    override var valueTag  = 0L
 
     var portValue: Any = when(specification.returnType) {
         Type.INT -> 0
@@ -29,6 +28,7 @@ class InputPort(
         else -> throw UnsupportedOperationException("port type")
     }
     var simulationValue: Any = portValue
+    var simulationValueTag: Long = 0
 
 
     override fun reset(simulationMode: Boolean, token: ModificationToken) {
@@ -64,6 +64,7 @@ class InputPort(
     override fun notifyValueChanged(newValue: Any, token: ModificationToken) {
         if (Model.simulationMode_) {
             simulationValue = newValue
+            simulationValueTag = token.tag
         } else {
             portValue = newValue
         }
@@ -88,6 +89,16 @@ class InputPort(
         configuration.toJson(sb)
         sb.append("}")
     }
+
+    fun setSimulationValue(value: Any, token: ModificationToken) {
+        if (Model.simulationMode_) {
+            notifyValueChanged(value, token)
+        } else {
+            simulationValue = value
+            simulationValueTag = token.tag
+        }
+    }
+
 
     override fun toString() = name
 
