@@ -3,12 +3,13 @@ package org.kobjects.tablecraft.plugins.pi4j
 
 import freenove.Freenove_LCD1602
 import org.kobjects.tablecraft.pluginapi.OperationHost
-import org.kobjects.tablecraft.pluginapi.OperationInstance
+import org.kobjects.tablecraft.pluginapi.Operation
+import org.kobjects.tablecraft.pluginapi.StatefulOperation
 
-class LcdInstance(
+class Lcd(
     val plugin: Pi4jPlugin,
     val configuration: Map<String, Any>
-)  : OperationInstance, Pi4JPort {
+)  : StatefulOperation, Pi4JPort {
 
     var error: Exception? = null
     var display: Freenove_LCD1602? = null

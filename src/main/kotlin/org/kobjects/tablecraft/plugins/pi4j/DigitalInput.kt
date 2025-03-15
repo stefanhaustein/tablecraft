@@ -1,19 +1,23 @@
 package org.kobjects.tablecraft.plugins.pi4j
 
-
 import com.pi4j.io.gpio.digital.*
+import com.pi4j.io.gpio.digital.DigitalInput
 import org.kobjects.tablecraft.pluginapi.OperationHost
-import org.kobjects.tablecraft.pluginapi.OperationInstance
+import org.kobjects.tablecraft.pluginapi.Operation
+import org.kobjects.tablecraft.pluginapi.StatefulOperation
 
-class DigitalOutputInstance(
+class DigitalInput(
     val plugin: Pi4jPlugin,
     val configuration: Map<String, Any>
-)  : OperationInstance, Pi4JPort {
+) : StatefulOperation, Pi4JPort, DigitalStateChangeListener {
 
-    var digitalOutput: DigitalOutput? = null
+    var digitalInput: DigitalInput? = null
     var error: Exception? = null
+    var value = false
+    var host: OperationHost? = null
 
     override fun attach(host: OperationHost) {
+        this.host = host
         plugin.addPort(this)
         attachPort()
     }
@@ -21,12 +25,13 @@ class DigitalOutputInstance(
     override fun attachPort() {
         val address = (configuration["address"] as Number).toInt()
         try {
-            digitalOutput = plugin.pi4J.create(DigitalOutputConfig.newBuilder(plugin.pi4J).address(address).build())
+            digitalInput = plugin.pi4J.create(DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
+            digitalInput?.addListener(this)
             error = null
         } catch (e: Exception) {
             e.printStackTrace()
             error = e
-            digitalOutput = null
+            digitalInput = null
         }
     }
 
@@ -34,13 +39,13 @@ class DigitalOutputInstance(
         if (error != null) {
             throw error!!
         }
-        val value = when(val raw = params["value"]) {
-            is Boolean -> raw
-            is Number -> raw.toDouble() != 0.0
-            else -> throw IllegalArgumentException("Unsupported value type for digital input: $raw; all params: $params")
-        }
-        digitalOutput!!.setState(value)
         return value
+    }
+
+    override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
+        plugin.model.applySynchronizedWithToken {
+            host?.notifyValueChanged(event!!.state().isHigh(), it)
+        }
     }
 
     override fun detach() {
@@ -49,5 +54,7 @@ class DigitalOutputInstance(
     }
 
     override fun detachPort() {
+        digitalInput?.removeListener(this)
     }
+
 }

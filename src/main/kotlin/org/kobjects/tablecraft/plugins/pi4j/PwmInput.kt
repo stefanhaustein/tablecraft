@@ -1,15 +1,15 @@
 package org.kobjects.tablecraft.plugins.pi4j
 
 import com.pi4j.io.gpio.digital.*
-import org.kobjects.tablecraft.pluginapi.ModificationToken
+import com.pi4j.io.gpio.digital.DigitalInput
 import org.kobjects.tablecraft.pluginapi.OperationHost
-import org.kobjects.tablecraft.pluginapi.OperationInstance
-import org.kobjects.tablecraft.pluginapi.OperationKind
+import org.kobjects.tablecraft.pluginapi.Operation
+import org.kobjects.tablecraft.pluginapi.StatefulOperation
 
-class PwmInputInstance(
+class PwmInput(
     val plugin: Pi4jPlugin,
     val configuration: Map<String, Any>
-) : OperationInstance, Pi4JPort, DigitalStateChangeListener {
+) : StatefulOperation, Pi4JPort, DigitalStateChangeListener {
 
     var digitalInput: DigitalInput? = null
     var t0: Long = 0

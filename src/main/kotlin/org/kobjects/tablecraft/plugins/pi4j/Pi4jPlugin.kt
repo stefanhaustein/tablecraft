@@ -28,14 +28,14 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
             "din",
             "Configures the given pin address for digital input and reports a high value as TRUE and a low value as FALSE.",
             listOf(ParameterSpec("address", ParameterKind.CONFIGURATION, Type.INT)),
-        ) { DigitalInputInstance(this, it) },
+        ) { DigitalInput(this, it) },
         OperationSpec(
             OperationKind.INPUT_PORT,
             Type.NUMBER,
             "pwmin",
             "Configures the given pin address for input and reports the pulse width in seconds.",
             listOf(ParameterSpec("address", ParameterKind.CONFIGURATION, Type.INT)),
-        ) { PwmInputInstance(this, it) },
+        ) { PwmInput(this, it) },
         OperationSpec(
             OperationKind.OUTPUT_PORT,
             Type.BOOLEAN,
@@ -43,7 +43,7 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
             "Configures the given pin address for digital output and sets it to 'high' for a TRUE value and to 'low' for a FALSE or 0 value.",
             listOf(ParameterSpec("address", ParameterKind.CONFIGURATION, Type.INT),
                 ParameterSpec("value", ParameterKind.RUNTIME, Type.INT)),
-        ) { DigitalOutputInstance(this, it) },
+        ) { DigitalOutput(this, it) },
         OperationSpec(
             OperationKind.OUTPUT_PORT,
             Type.TEXT,
@@ -55,7 +55,7 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
                 ParameterSpec("x", ParameterKind.CONFIGURATION, Type.INT),
                 ParameterSpec("y", ParameterKind.CONFIGURATION, Type.INT),
                 ParameterSpec("text", ParameterKind.RUNTIME, Type.TEXT))
-            ) { LcdInstance(this, it) },
+            ) { Lcd(this, it) },
     )
 
 }

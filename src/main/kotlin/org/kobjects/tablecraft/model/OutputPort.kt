@@ -11,7 +11,7 @@ class OutputPort(
     override val rawFormula: String,
     override val tag: Long
 ) : ExpressionNode(), Port {
-    val portOperation = specification.createFn(configuration)
+    val portOperation = specification.createFn(configuration) as StatefulOperation
     var error: Exception? = null
     var attached = false
 

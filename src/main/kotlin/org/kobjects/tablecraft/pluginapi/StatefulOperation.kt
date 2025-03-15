@@ -1,10 +1,8 @@
 package org.kobjects.tablecraft.pluginapi
 
-interface OperationInstance {
+interface StatefulOperation : Operation {
 
     fun attach(host: OperationHost)
-
-    fun apply(params: Map<String, Any>): Any
 
     fun detach()
 }

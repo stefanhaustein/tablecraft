@@ -1,9 +1,10 @@
 package org.kobjects.tablecraft.plugins.mqtt
 
 import org.kobjects.tablecraft.pluginapi.OperationHost
-import org.kobjects.tablecraft.pluginapi.OperationInstance
+import org.kobjects.tablecraft.pluginapi.Operation
+import org.kobjects.tablecraft.pluginapi.StatefulOperation
 
-class MqttSubscription(val port: MqttPort, configuration: Map<String, Any>) : OperationInstance {
+class MqttSubscription(val port: MqttPort, configuration: Map<String, Any>) : StatefulOperation {
     val topic = configuration["topic"].toString()
     var host: OperationHost? = null
 

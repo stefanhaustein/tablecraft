@@ -2,9 +2,10 @@ package org.kobjects.tablecraft.plugins.mqtt
 
 import io.github.davidepianca98.mqtt.packets.Qos
 import org.kobjects.tablecraft.pluginapi.OperationHost
-import org.kobjects.tablecraft.pluginapi.OperationInstance
+import org.kobjects.tablecraft.pluginapi.Operation
+import org.kobjects.tablecraft.pluginapi.StatefulOperation
 
-class MqttPublisher(val port: MqttPort, config: Map<String, Any>) : OperationInstance {
+class MqttPublisher(val port: MqttPort, config: Map<String, Any>) : StatefulOperation {
 
     val topic = config["topic"].toString()
 

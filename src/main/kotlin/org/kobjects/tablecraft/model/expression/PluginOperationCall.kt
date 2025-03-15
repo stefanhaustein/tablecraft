@@ -15,16 +15,18 @@ class PluginOperationCall(
     override val children: Collection<Expression>
         get() = parameters.values.map { it.first }
 
-    val operationInstance = operationSpec.createFn(configuration) as OperationInstance
+    val operation = operationSpec.createFn(configuration) as Operation
 
     override fun attach() {
-
-        operationInstance.attach(this)
+        if (operation is StatefulOperation) {
+            operation.attach(this)
+        }
     }
 
     override fun detach() {
-
-        operationInstance.detach()
+        if (operation is StatefulOperation) {
+            operation.detach()
+        }
     }
 
     override fun notifyValueChanged(newValue: Any, token: ModificationToken) {
@@ -32,7 +34,7 @@ class PluginOperationCall(
     }
 
     override fun eval(context: EvaluationContext): Any {
-        return operationInstance.apply(parameters.mapValues {
+        return operation.apply(parameters.mapValues {
             val expr = it.value.first
             when (it.value.second) {
                 Type.INT -> expr.evalInt(context)
@@ -68,6 +70,6 @@ class PluginOperationCall(
         }
     }
 
-    override fun toString() = "$operationInstance configuration: $configuration parameters: $parameters cell: $owner"
+    override fun toString() = "$operation configuration: $configuration parameters: $parameters cell: $owner"
 
 }

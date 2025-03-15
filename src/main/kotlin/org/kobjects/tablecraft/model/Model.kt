@@ -179,14 +179,8 @@ object Model : ModelInterface {
             emptyList(),
             token.tag
         ) {
-            object : OperationInstance {
-                override fun attach(host: OperationHost) {
-                }
-
+            object : Operation {
                 override fun apply(params: Map<String, Any>) = Unit
-
-                override fun detach() {
-                }
             }
         }, emptyMap(), token.tag)
     }

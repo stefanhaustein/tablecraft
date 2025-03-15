@@ -1,13 +1,12 @@
 package org.kobjects.tablecraft.model.builtin
 
 import org.kobjects.tablecraft.pluginapi.OperationHost
-import org.kobjects.tablecraft.pluginapi.OperationInstance
-import java.util.Timer
-import java.util.TimerTask
+import org.kobjects.tablecraft.pluginapi.Operation
+import org.kobjects.tablecraft.pluginapi.StatefulOperation
 
 class FlipflopFunction(
     val rs: Boolean,
-) : OperationInstance {
+) : StatefulOperation {
 
     var q: Boolean = false
 
