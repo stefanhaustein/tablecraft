@@ -1,0 +1,8 @@
+<svg width="200" height="100"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:param="http://kobjects.org/svg/param">
+    <param:activity />
+    <polygon points="60,3 140,3 60,97 140,97"
+            fill="white" stroke-width="5"
+            stroke="black" />
+</svg>
