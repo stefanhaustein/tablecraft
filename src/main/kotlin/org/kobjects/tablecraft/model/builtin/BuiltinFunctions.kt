@@ -70,7 +70,10 @@ object BuiltinFunctions : Plugin {
             Type.IMAGE,
             "image",
             "Image reference",
-            listOf(ParameterSpec("source", ParameterKind.CONFIGURATION, Type.TEXT)),
+            listOf(
+                ParameterSpec("source", ParameterKind.CONFIGURATION, Type.TEXT),
+                ParameterSpec("state", ParameterKind.RUNTIME, Type.BOOLEAN, required = false)
+                ),
             0,
             ImageFunction::create),
 

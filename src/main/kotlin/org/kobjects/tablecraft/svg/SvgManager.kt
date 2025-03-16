@@ -31,7 +31,7 @@ class SvgManager(root: File) : Plugin {
                     val spec = OperationSpec(
                         OperationKind.FUNCTION,
                         Type.IMAGE,
-                        path.substring(0, cut).replace("/", "."),
+                        path.substring("img/".length, cut).replace("/", "."),
                         "Parameterized Symbol",
                         svg.parameters
                     ) { SvgFunction(path) }

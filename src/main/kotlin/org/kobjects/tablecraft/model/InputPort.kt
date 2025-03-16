@@ -84,10 +84,10 @@ class InputPort(
     }
 
     fun setSimulationValue(value: Any, token: ModificationToken) {
+        simulationValue = value
         if (Model.simulationMode_) {
             notifyValueChanged(token)
         } else {
-            simulationValue = value
             simulationValueTag = token.tag
         }
     }

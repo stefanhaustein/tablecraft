@@ -14,30 +14,39 @@ import javax.xml.parsers.DocumentBuilderFactory
 class ParameterizableSvg(
     val document: Document
 ) {
+    var insertActivity = false
+
     val parameters: List<ParameterSpec> = buildList {
         val childNodes = document.documentElement.childNodes
         for (i in 0 until childNodes.length) {
             val child = childNodes.item(i)
-            if (child.nodeType == Node.ELEMENT_NODE && child.localName.equals("def") && child.namespaceURI == PARAM_NAMESPACE) {
-                val name = child.attributes.getNamedItem("name")!!.nodeValue
-                val typeName = child.attributes.getNamedItem("type")!!.nodeValue
-                val type = when(typeName) {
-                    "String" -> Type.TEXT
-                    "Number" -> Type.NUMBER
-                    "Boolean" -> Type.BOOLEAN
-                    else -> throw IllegalArgumentException("Unrecognized type: $typeName")
+            if (child.nodeType == Node.ELEMENT_NODE && child.namespaceURI == PARAM_NAMESPACE) {
+                when (child.localName) {
+                    "def" -> {
+                        val name = child.attributes.getNamedItem("name")!!.nodeValue
+                        val typeName = child.attributes.getNamedItem("type")!!.nodeValue
+                        val type = when(typeName) {
+                            "String" -> Type.TEXT
+                            "Number" -> Type.NUMBER
+                            "Boolean" -> Type.BOOLEAN
+                            else -> throw IllegalArgumentException("Unrecognized type: $typeName")
+                        }
+                        val spec = ParameterSpec(
+                            name,
+                            ParameterKind.RUNTIME,
+                            type)
+                        add(spec)
+                    }
+                    "activity" -> {
+                        add(ParameterSpec("active", ParameterKind.RUNTIME, Type.BOOLEAN))
+                        insertActivity = true
+                    }
                 }
-                val spec = ParameterSpec(
-                    name,
-                    ParameterKind.RUNTIME,
-                    type)
-                add(spec)
             }
         }
     }
 
     val parameterTypes: Map<String, Type> = parameters.map { Pair(it.name, it.type) }.toMap()
-
 
     fun parameterized(params: Map<String, String>): Document {
         val convertedParameters = mutableMapOf<String, Any>()
@@ -59,6 +68,17 @@ class ParameterizableSvg(
         val copiedRoot = copiedDocument.importNode(document.documentElement, true)
         parameterize(copiedRoot as Element, params)
         copiedDocument.appendChild(copiedRoot)
+
+        if (insertActivity && params.containsKey("active")) {
+            val active = params["active"] as? Boolean ?: false
+            val child = copiedDocument.createElement("circle")
+            child.setAttribute("r", "15")
+            child.setAttribute("cx", "170")
+            child.setAttribute("cy", "25")
+            child.setAttribute("fill", if (active) "green" else "red")
+            copiedRoot.appendChild(child)
+        }
+
         return copiedDocument
     }
 
@@ -105,5 +125,4 @@ class ParameterizableSvg(
             }
         }
     }
-
 }
