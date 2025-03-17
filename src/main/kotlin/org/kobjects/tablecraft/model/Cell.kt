@@ -13,6 +13,7 @@ class Cell(
 ) : ExpressionNode() {
 
     override var rawFormula = ""
+    var image: String? = null
 
     fun setFormula(value: String, modificationToken: ModificationToken) {
         if (value != rawFormula) {
@@ -24,6 +25,12 @@ class Cell(
         }
     }
 
+    fun setImage(path: String, modificationToken: ModificationToken) {
+        image = path
+        formulaTag = modificationToken.tag
+        modificationToken.formulaChanged = true
+    }
+
     fun setJson(json: Map<String, Any?>, modificationToken: ModificationToken) {
        val formula = json["f"]
        if (formula != null) {
@@ -33,6 +40,10 @@ class Cell(
        if (validation != null) {
            setValidation(validation as Map<String, Any?>, modificationToken)
        }
+        val image = json["i"]
+        if (image is String) {
+            setImage(image, modificationToken)
+        }
     }
 
 
@@ -72,12 +83,22 @@ class Cell(
                 sb.append(""", "v":""")
                 validation.toJson(sb)
             }
-            sb.append(""", "dependsOn":${dependsOn.toString().quote()}""")
-            sb.append(""", "dependencies":${dependencies.toString().quote()}""")
+            if (image != null) {
+                sb.append(""", "i": ${image!!.quote()}""")
+            }
+            if (includeComputed) {
+                if (!dependsOn.isNotEmpty()) {
+                    sb.append(""", "dependsOn":${dependsOn.toString().quote()}""")
+                }
+                if (!dependencies.isNotEmpty()) {
+                    sb.append(""", "dependencies":${dependencies.toString().quote()}""")
+                }
+                sb.append(""", "c":""")
+                serializeValue(sb)
+            }
             sb.append("}\n")
-        }
-        if (includeComputed && this.valueTag > tag) {
-            sb.append("$id.c = ")
+        } else if (valueTag > tag) {
+            sb.append("$id.c: ")
             serializeValue(sb)
             sb.append('\n')
         }

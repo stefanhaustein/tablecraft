@@ -1,12 +1,24 @@
 import {commitCurrentCell, setCurrentCellFormula} from "./shared_state.js";
 
 export function renderComputedValue(targetElement, cellData) {
+    let imgSrc = cellData["i"]
+    let value = cellData["c"]
+    if (imgSrc) {
+        if (imgSrc.endsWith("=")) {
+            imgSrc += value
+            value = ""
+        }
+        targetElement.style.backgroundImage = "url(" + imgSrc + ")"
+        targetElement.style.backgroundSize = "cover"
+    } else {
+        targetElement.style.backgroundImage = null
+        targetElement.style.backgroundSize = null
+    }
     let validation = cellData["v"]
     if (validation != null && validation["values"] != null) {
         renderSelect(targetElement, cellData)
         return
     }
-    let value = cellData["c"]
 
     let classes = targetElement.classList
     classes.remove("c", "e", "i", "r", "l")
@@ -70,7 +82,9 @@ function renderSelect(targetElement, cellData) {
     selectElement.style.height = "100%"
     let options = cellData["v"]["values"]
     let type = cellData["v"]["type"]
-    let stringValue = cellData["c"].toString()
+    let content = cellData["c"]
+    let stringValue = content == null ? "" : content.toString()
+
     let found = false
     for (let option of options) {
         let optionElement = document.createElement("option")

@@ -113,30 +113,27 @@ function processSimulationValues(map) {
 }
 
 
-
-
-
 function processSheetUpdate(map) {
     let cells = currentSheet.cells
-    for (const rawKey in map) {
-        let value = map[rawKey]
-        if (rawKey.endsWith(".c")) {
-            let key = rawKey.substring(0, rawKey.length - 2)
+    for (let key in map) {
+        let newValue = map[key]
+        if (key.endsWith(".c")) {
+            key = key.substring(0, key.length - 2)
             let cell = cells[key]
             if (cell == null) {
                 cell = cells[key] = {}
             }
-            cell.c = value
-            let element = document.getElementById(key)
-            if (element != null) {
-                renderComputedValue(element, cell)
-            } else {
-                console.log("Sync issue: Element '" + key + "' not found for line '" + key + "=" + value + "'")
-            }
-        } else if (rawKey.indexOf(".") == -1) {
-            cells[rawKey] = value
+            cell.c = newValue
+        } else if (key.indexOf(".") == -1) {
+            cells[key] = newValue
         } else {
-            console.log("Unrecognized suffix for key ", rawKey, "value", value)
+            console.log("Unrecognized suffix for key ", key, "value", newValue)
+        }
+        let element = document.getElementById(key)
+        if (element != null) {
+            renderComputedValue(element, cells[key])
+        } else {
+            console.log("Sync issue: Element '" + key + "' not found for line '" + key + "=" + newValue + "'")
         }
     }
 }

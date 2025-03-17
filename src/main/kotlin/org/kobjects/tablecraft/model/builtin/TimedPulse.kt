@@ -13,7 +13,7 @@ class TimedPulse(
     val timer = Timer()
     var task: TimerTask? = null
     var outputState: Boolean = false
-    var armed: Boolean = false
+    var armed: Boolean = true
 
     var host: OperationHost? = null
 
