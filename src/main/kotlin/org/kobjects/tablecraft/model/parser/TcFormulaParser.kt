@@ -42,7 +42,9 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
                 Literal(text.substring(1, text.length - 1))
             }
             TcTokenType.CELL_IDENTIFIER -> {
-                val cell = (context.expressionNode as Cell).sheet.getOrCreateCell(scanner.consume().text)
+                val name = scanner.consume().text
+                val cell = if (name.contains("!")) Model.getOrCreate(name)
+                else (context.expressionNode as Cell).sheet.getOrCreateCell(scanner.consume().text)
                 require(context.expressionNode != cell) {
                     "Self-reference not permitted"
                 }
