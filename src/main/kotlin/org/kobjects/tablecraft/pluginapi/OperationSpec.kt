@@ -10,7 +10,7 @@ data class OperationSpec(
     val description: String,
     val parameters: List<ParameterSpec>,
     val tag: Long = 0,
-    val createFn: (configuration: Map<String, Any>) -> Operation,
+    val createFn: (configuration: Map<String, Any>) -> Any,
 ) : ToJson {
 
     override fun toJson(sb: StringBuilder) {

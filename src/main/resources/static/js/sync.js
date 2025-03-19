@@ -141,6 +141,7 @@ function processSheetUpdate(map) {
 function processFunctionsUpdate(map) {
     let functionSelectElement = document.getElementById("functions")
     let portSelectElement = document.getElementById("portSelect")
+    let integrationSelectElement = document.getElementById("integrationSelect")
     for (let name in map) {
         let f = map[name]
         let optionElement = document.getElementById("op." + name)
@@ -157,7 +158,18 @@ function processFunctionsUpdate(map) {
             if (newAddition) {
                 optionElement = document.createElement("option")
                 optionElement.id = "op." + name
-                let target = f.kind.endsWith("_PORT") ? portSelectElement : functionSelectElement
+                let target = null
+                switch (f.kind) {
+                    case "INPUT_PORT":
+                    case "OUTPUT_PORT":
+                        target = portSelectElement
+                        break
+                    case "INTEGRATION":
+                        target = integrationSelectElement
+                        break
+                    default:
+                        target = functionSelectElement
+                }
                 target.appendChild(optionElement)
 
                 /* Move to port handling

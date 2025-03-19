@@ -23,7 +23,7 @@
             <option value="Function">Function Details</option>
             <option value="Ports">IO Ports</option>
             <option value="Validation">Input</option>
-            <option>Simulation</option>
+            <option value="Integration">Integrations</option>
             <option>Graphics</option>
             <option>Hide</option>
         </select>
@@ -59,45 +59,66 @@
                     <option>Option Menu</option>
                 </select>
             </div>
-            <div id="SimulationPanel">
-
-
-                <div id="simulationList"></div>
+            <div id="IntegrationPanel">
+                <select id="integrationSelect"><option>Add Integration</option></select>
+                <div id="integrationList"></div>
             </div>
             <div id="GraphicsPanel">
-                <table class="boxGraphics">
-                    <tr>
-                        <td><img src="img/line/br.svg" /></td>
-                        <td><img src="img/line/hb.svg" /></td>
-                        <td><img src="img/line/bl.svg" /></td>
-                    </tr><tr>
-                        <td><img src="img/line/vr.svg" /></td>
-                        <td><img src="img/line/hv.svg" /></td>
-                        <td><img src="img/line/vl.svg" /></td>
-                    </tr><tr>
-                        <td><img src="img/line/v.svg" /></td>
-                        <td><img src="img/line/h.svg" /></td>
-                        <td><img src="img/line/v.svg" /></td>
-                    </tr><tr>
-                        <td><img src="img/line/tr.svg" /></td>
-                        <td><img src="img/line/ht.svg" /></td>
-                        <td><img src="img/line/tl.svg" /></td>
-                    </tr>
-                </table>
-                <hr />
-                <table class="symbols">
-                    <tr>
-                        <td><img src="img/symbol/lamp.svg?active=" /></td>
-                        <td><img src="img/symbol/lamp.h.svg?active=" /></td>
-                    </tr><tr>
-                        <td><img src="img/symbol/motor.svg?active=" /></td>
-                        <td><img src="img/symbol/motor.h.svg?active=" /></td>
-                </tr><tr>
-                    <td><img src="img/symbol/valve.v.svg?active=" /></td>
-                    <td><img src="img/symbol/valve.h.svg?active=" /></td>
-                </tr>
-                </table>
-                <img src="img/symbol/lamp.svg" width="72" heigh="36"/>
+                <button src="" >Clear Cell Graphics</button>
+                <details class="symbols">
+                    <summary>Lines</summary>
+                    <img src="img/line/hb.svg" />
+                    <img src="img/line/h.svg" />
+
+                    <img src="img/line/br.svg" />
+                    <img src="img/line/bl.svg" />
+
+                    <img src="img/line/vr.svg" />
+                    <img src="img/line/vl.svg" />
+
+                    <img src="img/line/v.svg" />
+                    <img src="img/line/v.svg" />
+
+                    <img src="img/line/tr.svg" />
+                    <img src="img/line/tl.svg" />
+
+                    <img src="img/line/ht.svg" />
+                    <img src="img/line/hv.svg" />
+
+                    <img src="img/line/arc.dr.svg" />
+                    <img src="img/line/arc.dl.svg" />
+                    <img src="img/line/arc.ur.svg" />
+                    <img src="img/line/arc.ul.svg" />
+
+                    <img src="img/line/diagonal.dr.svg" />
+                    <img src="img/line/diagonal.dl.svg" />
+                    <img src="img/line/diagonal.ur.svg" />
+                    <img src="img/line/diagonal.ul.svg" />
+                </details>
+
+                <details class="symbols">
+                    <summary>Arrows</summary>
+                    <img src="img/arrow/l.svg" />
+                    <img src="img/arrow/r.svg" />
+                    <img src="img/arrow/u.svg" />
+                    <img src="img/arrow/d.svg" />
+
+                </details>
+
+                <details class="symbols">
+                <summary>Symbols</summary>
+                    <img src="img/symbol/lamp.svg?active=" />
+                    <img src="img/symbol/lamp.h.svg?active=" />
+                    <img src="img/symbol/motor.svg?active=" />
+                    <img src="img/symbol/motor.h.svg?active=" />
+                    <img src="img/symbol/valve.v.svg?active=" />
+                    <img src="img/symbol/valve.h.svg?active=" />
+                    <img src="img/symbol/sensor.level.r.svg?active=" />
+                    <img src="img/symbol/sensor.level.l.svg?active=" />
+                    <img src="img/symbol/mixer.u.svg" />
+                    <img src="img/symbol/mixer.d.svg" />
+
+                </details>
             </div>
             <div id="HidePanel" style="width:0"></div>
         </div>
