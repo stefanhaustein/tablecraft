@@ -15,7 +15,7 @@ interface Port: OperationHost, ToJson, Node {
 
     override fun equivalentNodes(): Set<Node> {
         val nodes = mutableSetOf<Node>(this)
-        nodes += inputs
+        nodes.addAll(inputs)
         for (node in dependencies) {
             if (node is Cell && node.expression is PortReference) {
                 nodes.add(node)

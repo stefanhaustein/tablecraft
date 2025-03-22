@@ -136,10 +136,9 @@ export function selectCell(id) {
                 commitCurrentCell()
             }
 
-
+            showDependencies(currentCellData.equivalent, "equivalent", false)
             showDependencies(currentCellData.inputs, "input", false)
             showDependencies(currentCellData.dependencies, "dependency", false)
-
 
             currentCellElement.classList.remove("focus", "editing")
             renderComputedValue(currentCellElement, currentCellData)
@@ -156,6 +155,7 @@ export function selectCell(id) {
     if (newlySelected) {
         currentCellElement.classList.add("focus")
 
+        showDependencies(currentCellData.equivalent, "equivalent", true)
         showDependencies(currentCellData.inputs, "input", true)
         showDependencies(currentCellData.dependencies, "dependency", true)
 

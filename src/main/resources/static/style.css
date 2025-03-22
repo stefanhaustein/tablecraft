@@ -44,19 +44,23 @@ html {
 }
 
 .input {
-    background-color: #dff;
+    background-color: #d0e0e3; /* #a2c4c9; */
 }
 
 .input2 {
-    background-color: #eff;
+    background-color: #d0e0e3;
 }
 
 .dependency {
-    background-color: #fed;
+    background-color: #f9cb9c;
 }
 
 .dependency2 {
-    background-color: #ffe;
+    background-color: #fce4cd;
+}
+
+.equivalent {
+    background-color: #d9d9d9;
 }
 
 .portTitle {

@@ -99,14 +99,21 @@ class Cell(
                         saturatedInputs.addAll(input.equivalentNodes())
                     }
                 }
-                saturatedInputs.remove(this)
-                saturatedDependencies.remove(this)
+                saturatedInputs.removeAll(eq)
+                saturatedDependencies.removeAll(eq)
 
+                val otherEq = eq.filter { it != this }
+                if (otherEq.isNotEmpty()) {
+                    sb.append(""", "equivalent":[${otherEq.joinToString(",") { 
+                        it.qualifiedId().quote() }}]""")
+                }
                 if (saturatedInputs.isNotEmpty()) {
-                    sb.append(""", "inputs":[${saturatedInputs.joinToString(",") { it.qualifiedId().quote() }}]""")
+                    sb.append(""", "inputs":[${saturatedInputs.joinToString(",") { 
+                        it.qualifiedId().quote() }}]""")
                 }
                 if (saturatedDependencies.isNotEmpty()) {
-                    sb.append(""", "dependencies":[${saturatedDependencies.joinToString(",") { it.qualifiedId().quote() }}]""")
+                    sb.append(""", "dependencies":[${saturatedDependencies.joinToString(",") {
+                        it.qualifiedId().quote() }}]""")
                 }
                 sb.append(""", "c":""")
                 serializeValue(sb)
@@ -132,8 +139,16 @@ class Cell(
         }
     }
 
-    override fun equivalentNodes(): Set<Node> =
-        if (expression is PortReference) (expression as PortReference).port.equivalentNodes()
-        else setOf(this)
-
+    override fun equivalentNodes(): Set<Node> {
+        val eq = mutableSetOf<Node>(this)
+        if (expression is PortReference) {
+            eq.addAll((expression as PortReference).port.equivalentNodes())
+        }
+        for (dep in dependencies) {
+            if (dep is OutputPort) {
+                eq.addAll(dep.equivalentNodes())
+            }
+        }
+        return eq.toSet()
+    }
 }
