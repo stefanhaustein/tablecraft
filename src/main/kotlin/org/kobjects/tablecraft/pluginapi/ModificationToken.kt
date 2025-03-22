@@ -1,6 +1,5 @@
 package org.kobjects.tablecraft.pluginapi
 
-import org.kobjects.tablecraft.model.ExpressionNode
 import org.kobjects.tablecraft.model.Node
 
 class ModificationToken() {
@@ -14,7 +13,7 @@ class ModificationToken() {
     val refreshNodes = mutableSetOf<Node>()
 
     fun addRefresh(node: Node) {
-        if (node.dependsOn.isEmpty()) {
+        if (node.inputs.isEmpty()) {
             refreshRoots.add(node)
         } else {
             refreshNodes.add(node)

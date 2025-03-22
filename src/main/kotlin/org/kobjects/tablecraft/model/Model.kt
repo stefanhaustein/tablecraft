@@ -285,7 +285,7 @@ object Model : ModelInterface {
                     anyChanged = true
                     println("adding new dependencies: ${current.dependencies}")
                     for (dep in current.dependencies) {
-                        if (dep.dependsOn.size == 1) {
+                        if (dep.inputs.size == 1) {
                             modificationToken.refreshNodes.remove(dep)
                             modificationToken.refreshRoots.add(dep)
                         } else {
@@ -307,7 +307,7 @@ object Model : ModelInterface {
             while (modificationToken.refreshNodes.isNotEmpty()) {
                 for (node in modificationToken.refreshNodes) {
                     var found = true
-                    for (dep in node.dependsOn) {
+                    for (dep in node.inputs) {
                         if (modificationToken.refreshNodes.contains(dep)) {
                             found = false
                             break

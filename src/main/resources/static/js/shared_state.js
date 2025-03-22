@@ -13,6 +13,7 @@ export var model = {
 }
 
 export var functions = {}
+export var integrations = {}
 export var ports = {}
 export var portValues = {}
 export var simulationValues = {}
@@ -97,6 +98,26 @@ export function setEditMode(editMode) {
     notifySelectionListeners()
 }
 
+function showDependencies(ids, className, add) {
+    if (ids == null) {
+        return
+    }
+    for (let qualifiedId of ids) {
+        let cut = qualifiedId.indexOf("!")
+        let id = cut == -1 ? "port." + qualifiedId : qualifiedId.substring(cut + 1)
+
+        let element = document.getElementById(id)
+
+        if (element != null) {
+            if (add) {
+                element.classList.add(className)
+            } else {
+                element.classList.remove(className)
+            }
+        }
+
+    }
+}
 
 
 export function selectCell(id) {
@@ -114,8 +135,15 @@ export function selectCell(id) {
             if (committedFormula != currentCellData["f"]) {
                 commitCurrentCell()
             }
+
+
+            showDependencies(currentCellData.inputs, "input", false)
+            showDependencies(currentCellData.dependencies, "dependency", false)
+
+
             currentCellElement.classList.remove("focus", "editing")
             renderComputedValue(currentCellElement, currentCellData)
+
         }
         committedFormula = newData["f"]
     }
@@ -127,6 +155,11 @@ export function selectCell(id) {
 
     if (newlySelected) {
         currentCellElement.classList.add("focus")
+
+        showDependencies(currentCellData.inputs, "input", true)
+        showDependencies(currentCellData.dependencies, "dependency", true)
+
+
         notifySelectionListeners()
     }
 }

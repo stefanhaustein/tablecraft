@@ -9,7 +9,7 @@ class CellReference(
 ) : Expression() {
 
     init {
-        owner.dependsOn.add(target)
+        owner.inputs.add(target)
         target.dependencies.add(owner)
     }
 

@@ -17,8 +17,8 @@ abstract class ExpressionNode : Node {
     override var valueTag = 0L
     var formulaTag = 0L
 
+    override val inputs = mutableSetOf<Node>()
     override val dependencies = mutableSetOf<Node>()
-    override val dependsOn = mutableSetOf<Node>()
 
 
     override fun updateValue(tag: Long): Boolean {
@@ -40,10 +40,10 @@ abstract class ExpressionNode : Node {
     }
 
     fun clearDependsOn() {
-        for (dep in dependsOn) {
+        for (dep in inputs) {
             dep.dependencies.remove(this)
         }
-        dependsOn.clear()
+        inputs.clear()
     }
 
     fun reparse() {

@@ -9,7 +9,7 @@ class PortReference(
 ) : Expression() {
 
     init {
-        owner.dependsOn.add(port)
+        owner.inputs.add(port)
         port.dependencies.add(owner)
     }
 

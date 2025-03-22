@@ -1,61 +1,59 @@
-import {functions, ports} from "./shared_state.js";
+import {functions, integrations} from "./shared_state.js";
 import {FormController} from "./forms/form_builder.js";
 import {sendJson} from "./lib/util.js";
 
-let portSelectElement = document.getElementById("portSelect")
-let portListElement = document.getElementById("portList")
+let integrationSelectElement = document.getElementById("integrationSelect")
+let integrationListElement = document.getElementById("integrationList")
 let dialogElement = document.getElementById("dialog")
 
-portSelectElement.addEventListener("change", addPort)
-portListElement.addEventListener("click", event => editPort(event))
+integrationSelectElement.addEventListener("change", addIntegration)
+integrationListElement.addEventListener("click", event => editPort(event))
 
-function addPort() {
-    console.log("add port")
+function addIntegration() {
+    console.log("add integration")
 
-    let type = portSelectElement.value
-    portSelectElement.selectedIndex = 0
+    let type = integrationSelectElement.value
+    integrationSelectElement.selectedIndex = 0
 
     let typeSpec = functions[type]
 
-    showPortDialog(typeSpec)
+    showIntegrationDialog(typeSpec)
 }
 
 
-function editPort(event) {
+function editIntegration(event) {
     let entryElement = event.target.parentNode
     let id = entryElement.id
-    if (!id.startsWith("port.")) {
+    if (!id.startsWith(":")) {
         // Clicked on input; not handled here.
         // console.log("Target element id not recognized: ", entryElement)
         return
     }
-    let name = id.substring("port.".length)
-    let portSpec = ports[name]
-    let constructorSpec = functions[portSpec.type]
+    let name = id.substring(":".length)
+    let integrationSpec = integrations[name]
+    let constructorSpec = functions[integrationSpec.type]
 
-    showPortDialog(constructorSpec, portSpec)
+    showIntegrationDialog(constructorSpec, integrationSpec)
 }
 
-function showPortDialog(constructorSpec, portSpec) {
+function showIntegrationDialog(constructorSpec, integrationSpec) {
 
-    let instanceSpec = portSpec != null ? portSpec["configuration"] : {}
+    let instanceSpec = integrationSpec != null ? integrationSpec["configuration"] : {}
     dialogElement.textContent = ""
     let dialogTitleElement = document.createElement("div")
     dialogTitleElement.className = "dialogTitle"
-    dialogTitleElement.textContent = "IO-Port Specification"
+    dialogTitleElement.textContent = "Integration Specification"
     dialogElement.appendChild(dialogTitleElement)
 
     let inputDiv = document.createElement("div")
     inputDiv.className = "dialogFields"
 
-    let portSchema = [{"name": "name"}]
-    if (constructorSpec["kind"] == "OUTPUT_PORT") {
-        portSchema.push({"name": "expression"})
-    }
-    let previousName = portSpec == null ? null : portSpec["name"]
+    let integrationSchema = [{"name": "name"}]
 
-    let portFormController = FormController.create(inputDiv, portSchema)
-    portFormController.setValues(portSpec)
+    let previousName = integrationSpec == null ? null : integrationSpec["name"]
+
+    let integrationFormController = FormController.create(inputDiv, integrationSchema)
+    integrationFormController.setValues(integrationSpec)
 
     let typeLabelElement = document.createElement("label")
     typeLabelElement.textContent = "binding"
@@ -80,7 +78,7 @@ function showPortDialog(constructorSpec, portSpec) {
     okButton.textContent = "Ok"
     okButton.className = "dialogButton"
     okButton.addEventListener("click", () => {
-        let values = portFormController.getValues()
+        let values = integrationFormController.getValues()
         values["configuration"] = bindingFormController.getValues()
         values["type"] = constructorSpec["name"]
         values["previousName"] = previousName

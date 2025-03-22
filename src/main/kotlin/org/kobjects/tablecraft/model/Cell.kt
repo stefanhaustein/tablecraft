@@ -5,6 +5,7 @@ import kotlinx.datetime.format.char
 import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.model.builtin.ImageReference
+import org.kobjects.tablecraft.model.expression.PortReference
 import org.kobjects.tablecraft.pluginapi.ModificationToken
 
 class Cell(
@@ -87,11 +88,25 @@ class Cell(
                 sb.append(""", "i": ${image!!.quote()}""")
             }
             if (includeComputed) {
-                if (!dependsOn.isNotEmpty()) {
-                    sb.append(""", "dependsOn":${dependsOn.toString().quote()}""")
+                val eq = equivalentNodes()
+                val saturatedInputs = mutableSetOf<Node>()
+                val saturatedDependencies = mutableSetOf<Node>()
+                for (node in eq) {
+                    for (dependency in node.dependencies) {
+                        saturatedDependencies.addAll(dependency.equivalentNodes())
+                    }
+                    for (input in node.inputs) {
+                        saturatedInputs.addAll(input.equivalentNodes())
+                    }
                 }
-                if (!dependencies.isNotEmpty()) {
-                    sb.append(""", "dependencies":${dependencies.toString().quote()}""")
+                saturatedInputs.remove(this)
+                saturatedDependencies.remove(this)
+
+                if (saturatedInputs.isNotEmpty()) {
+                    sb.append(""", "inputs":[${saturatedInputs.joinToString(",") { it.qualifiedId().quote() }}]""")
+                }
+                if (saturatedDependencies.isNotEmpty()) {
+                    sb.append(""", "dependencies":[${saturatedDependencies.joinToString(",") { it.qualifiedId().quote() }}]""")
                 }
                 sb.append(""", "c":""")
                 serializeValue(sb)
@@ -104,7 +119,9 @@ class Cell(
         }
     }
 
-    override fun toString() = id // rawFormula
+    override fun qualifiedId() = "${sheet.name}!$id"
+
+    override fun toString() = qualifiedId() + ":" + rawFormula// rawFormula
 
     companion object {
         val TIME_FORMAT_MINUTES = LocalTime.Format {
@@ -114,5 +131,9 @@ class Cell(
             hour(); char(':'); minute(); char(':'); second()
         }
     }
+
+    override fun equivalentNodes(): Set<Node> =
+        if (expression is PortReference) (expression as PortReference).port.equivalentNodes()
+        else setOf(this)
 
 }

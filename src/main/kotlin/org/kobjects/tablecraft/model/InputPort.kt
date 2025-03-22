@@ -13,7 +13,7 @@ class InputPort(
 ) : Port, Node {
 
     override val dependencies = mutableSetOf<Node>()
-    override val dependsOn = mutableSetOf<Node>()
+    override val inputs = mutableSetOf<Node>()
 
     val portOperation = specification.createFn(configuration) as StatefulOperation
     var error: Exception? = null
