@@ -186,12 +186,19 @@ export function selectPanel(name) {
     if (name == currentPanelName) {
         return
     }
+
     if (currentPanelElement != null) {
         currentPanelElement.style.display = "none"
     }
     currentPanelName = name
     panelSelectElement.value = name
 
+    let sidePanelElement = document.getElementById("sidePanel")
     currentPanelElement = document.getElementById(name + "Panel")
-    currentPanelElement.style.display = "block"
+    if (name == "Hide") {
+        sidePanelElement.style.display = "none"
+    } else {
+        sidePanelElement.style.display = ""
+        currentPanelElement.style.display = "block"
+    }
 }

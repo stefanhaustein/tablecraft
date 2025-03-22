@@ -44,11 +44,11 @@ html {
 }
 
 .input {
-    background-color: #d0e0e3; /* #a2c4c9; */
+    background-color: #a4c2f4;
 }
 
 .input2 {
-    background-color: #d0e0e3;
+    background-color: #c9daf8;
 }
 
 .dependency {
@@ -60,10 +60,10 @@ html {
 }
 
 .equivalent {
-    background-color: #d9d9d9;
+    background-color: #ddd;
 }
 
-.portTitle {
+.port {
     padding-top: 5px;
 }
 .portExpression, .portValue, .portSimulationValue {
@@ -71,6 +71,10 @@ html {
     padding-bottom: 5px;
 }
 
+.portConfig {
+    padding: 3px;
+    float: right;
+}
 
 .subtitle {
     font-weight: bold;
@@ -80,7 +84,6 @@ html {
 #sidePanel > div {
     padding: 5px;
     display: none;
-    width: 200px;
 }
 
 

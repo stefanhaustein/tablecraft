@@ -10,12 +10,13 @@ integrationSelectElement.addEventListener("change", addIntegration)
 integrationListElement.addEventListener("click", event => editPort(event))
 
 function addIntegration() {
-    console.log("add integration")
 
     let type = integrationSelectElement.value
     integrationSelectElement.selectedIndex = 0
 
     let typeSpec = functions[type]
+
+    console.log("add integration", type, typeSpec)
 
     showIntegrationDialog(typeSpec)
 }
@@ -99,7 +100,7 @@ function showIntegrationDialog(constructorSpec, integrationSpec) {
         deleteButton.textContent = "Delete"
         deleteButton.className = "dialogButton"
         deleteButton.addEventListener("click", () => {
-            sendJson("updatePort", {previousName: name})
+            sendJson("updateIntegration", {previousName: name})
             dialogElement.close()
         })
         buttonDiv.appendChild(deleteButton)
@@ -111,6 +112,6 @@ function showIntegrationDialog(constructorSpec, integrationSpec) {
 
 
 function sendPort(definition) {
-    sendJson("updatePort?name=" + definition["name"], definition)
+    sendJson("updateIntegration?name=" + definition["name"], definition)
     return true
 }

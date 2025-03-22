@@ -192,10 +192,10 @@ function processFunctionsUpdate(map) {
 
             }
 
-            if (f.kind.endsWith("_PORT")) {
-                optionElement.text = f.name
-            } else {
+            if (f.kind == "FUNCTION") {
                 optionElement.text = "=" + f.name + "("
+            } else {
+                optionElement.text = f.name
             }
 
         }
@@ -218,16 +218,23 @@ function processPortsUpdate(map) {
             if (entryElement == null) {
                 entryElement = document.createElement("div")
                 entryElement.id = "port." + f.name
+                entryElement.className = "port"
                 portListElement.appendChild(entryElement)
             } else {
                 entryElement.textContent = ""
             }
             let title = name + " (" + f.type + ")"
 
+            let entryConfigElement = document.createElement("img")
+            entryConfigElement.src = "/img/settings.svg"
+            entryConfigElement.className = "portConfig"
+            entryElement.appendChild(entryConfigElement)
+
             let entryTitleElement = document.createElement("div")
             entryTitleElement.className = "portTitle"
             entryTitleElement.textContent = title
             entryElement.appendChild(entryTitleElement)
+
 
             let spec = functions[f.type]
             console.log("adding port", f, spec)
@@ -248,14 +255,14 @@ function processPortsUpdate(map) {
                     sendJson("portSimulation?name=" + name, value)
                 })
                 showValue = !document.getElementById("simulationMode").checked
-                entryValueElement.style.display =  showValue ? "none" : "block"
+                entryValueElement.style.display = showValue ? "none" : "block"
                 entryElement.appendChild(entryValueElement)
             }
 
             let entryValueElement = document.createElement("div")
             entryValueElement.id = "port." + name + ".value"
             entryValueElement.className = "portValue"
-            entryValueElement.style.display =  showValue ? "block" : "none"
+            entryValueElement.style.display = showValue ? "block" : "none"
             entryElement.appendChild(entryValueElement)
         }
 

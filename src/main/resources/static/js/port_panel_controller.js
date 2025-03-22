@@ -22,6 +22,9 @@ function addPort() {
 
 
 function editPort(event) {
+    if (event.target.className != "portConfig") {
+        return;
+    }
     let entryElement = event.target.parentNode
     let id = entryElement.id
     if (!id.startsWith("port.")) {

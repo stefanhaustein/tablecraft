@@ -14,11 +14,11 @@ let currentController = null
 let currentParameters = {}
 
 addCellContentChangeListener("panel", (newValue, source) => {
-    updateTabAndConsiderShowing()
+    updateParameterTab()
 })
 
 addCellSelectionListener(() => {
-    updateTabAndConsiderShowing()
+    updateParameterTab()
 })
 
 
@@ -26,16 +26,6 @@ functionPanelElement.addEventListener("focusin", event => {
     setEditMode(EditMode.PANEL)
 })
 
-function updateTabAndConsiderShowing() {
-    let supported = updateParameterTab()
-    if (supported) {
-        if (currentCellData.f.startsWith("=image")) {
-            selectPanel("Graphics")
-        } else {
-            selectPanel("Function")
-        }
-    }
-}
 
 function updateParameterTab() {
     let currentInput = currentCellData["f"]
