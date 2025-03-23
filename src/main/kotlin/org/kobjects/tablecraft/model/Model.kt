@@ -28,6 +28,7 @@ object Model : ModelInterface {
     val plugins = mutableListOf<Plugin>()
 
     val portMap = mutableMapOf<String, Port>()
+    val integrationMap = mutableMapOf<String, Integration>()
 
     val svgs = SvgManager(File("src/main/resources/static/img"))
 
@@ -80,6 +81,14 @@ object Model : ModelInterface {
                             e.printStackTrace()
                         }
                     }
+                } else if (key == "integrations") {
+                    for ((name, value) in map) {
+                        try {
+                            defineIntegration(name, value as Map<String, Any>, token)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
                 } else if (key == "simulationValues") {
                     for((key, value) in map) {
                         val port = portMap[key]
@@ -104,6 +113,8 @@ object Model : ModelInterface {
 
     fun serialize(writer: Writer, forClient: Boolean = false, tag: Long = -1) {
         writer.write("simulationMode = $simulationMode_\n\n")
+
+        serializeIntegrations(writer, tag)
 
         if (forClient) {
             writer.write(serializeFunctions(tag))
@@ -170,6 +181,21 @@ object Model : ModelInterface {
         }
     }
 
+    fun serializeIntegrations(writer: Writer, tag: Long) {
+        val sb = StringBuilder()
+        for ((name, integration) in integrationMap) {
+            if (integration.tag > tag) {
+                sb.append(name).append(": ")
+                integration.toJson(sb)
+                sb.append('\n')
+            }
+        }
+        if (sb.isNotEmpty()) {
+            writer.write("[integrations]\n\n")
+            writer.write(sb.toString())
+        }
+    }
+
     fun deletePort(name: String, token: ModificationToken) {
         token.symbolsChanged = true
 
@@ -185,6 +211,10 @@ object Model : ModelInterface {
                 override fun apply(params: Map<String, Any>) = Unit
             }
         }, emptyMap(), token.tag)
+    }
+
+    fun deleteIntegration(name: String, token: ModificationToken) {
+
     }
 
     fun definePort(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken): Port? {
@@ -217,6 +247,37 @@ object Model : ModelInterface {
         }
 
         return null
+    }
+
+    fun defineIntegration(name: String?,  jsonSpec: Map<String, Any>, token: ModificationToken) {
+        val previousName = jsonSpec["previousName"] as? String?
+
+        if (!previousName.isNullOrBlank()) {
+            try {
+                deleteIntegration(previousName, token)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        if (!name.isNullOrBlank()) {
+            integrationMap[name]?.detach()
+
+            val type = jsonSpec["type"].toString()
+            val specification = Model.functionMap[type]!!
+
+            val config = jsonSpec["configuration"] as Map<String, Any> +
+                    mapOf("name" to name, "tag" to token.tag)
+
+            val integration = specification.createFn(config) as Integration
+            integrationMap[name] = integration
+
+            for (operation in integration.operationSpecs) {
+                functionMap[operation.name] = operation
+            }
+
+            token.symbolsChanged = true
+        }
     }
 
     fun clearAll(modificationToken: ModificationToken) {

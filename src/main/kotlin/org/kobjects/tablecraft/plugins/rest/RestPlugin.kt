@@ -9,7 +9,8 @@ class RestPlugin(val model: ModelInterface) : Plugin {
             Type.VOID,
             "Rest",
             "Creates a REST JSON server",
-            listOf(ParameterSpec("port", ParameterKind.CONFIGURATION, Type.INT, required = true)),
+            listOf(
+                ParameterSpec("port", ParameterKind.CONFIGURATION, Type.INT, required = true)),
         ) {
             RestIntegration(it)
         }

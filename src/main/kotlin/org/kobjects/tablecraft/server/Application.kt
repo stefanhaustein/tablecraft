@@ -17,7 +17,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 fun main(args: Array<String>) {
-    io.ktor.server.netty.EngineMain.main(args)
+    io.ktor.server.cio.EngineMain.main(args)
 }
 
 fun Application.module() {
@@ -57,6 +57,16 @@ fun Application.module() {
             val jsonSpec = JsonParser.parseObject(jsonText)
             Model.applySynchronizedWithToken { token ->
                 Model.definePort(name, jsonSpec, token)?.reset(Model.simulationMode_, token)
+            }
+            call.respond(HttpStatusCode.OK, null)
+        }
+        post("/updateIntegration") {
+            val name = call.request.queryParameters["name"]
+            val jsonText = call.receiveText()
+            println("Received JSON: $jsonText")
+            val jsonSpec = JsonParser.parseObject(jsonText)
+            Model.applySynchronizedWithToken { token ->
+                Model.defineIntegration(name, jsonSpec, token)
             }
             call.respond(HttpStatusCode.OK, null)
         }
