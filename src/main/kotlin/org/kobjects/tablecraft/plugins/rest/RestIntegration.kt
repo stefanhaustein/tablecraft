@@ -1,6 +1,6 @@
 package org.kobjects.tablecraft.plugins.rest
 
-import io.ktor.server.engine.*
+
 import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.pluginapi.*
