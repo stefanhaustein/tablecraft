@@ -3,7 +3,9 @@ package org.kobjects.tablecraft.model.parser
 import org.kobjects.parsek.expression.Operator
 import org.kobjects.parsek.expression.PrattParser
 import org.kobjects.tablecraft.model.Cell
+import org.kobjects.tablecraft.model.CellRange
 import org.kobjects.tablecraft.model.Model
+import org.kobjects.tablecraft.model.Sheet
 import org.kobjects.tablecraft.model.expression.*
 
 
@@ -43,12 +45,28 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
             }
             TcTokenType.CELL_IDENTIFIER -> {
                 val name = scanner.consume().text
-                val cell = if (name.contains("!")) Model.getOrCreate(name)
-                else (context.expressionNode as Cell).sheet.getOrCreateCell(scanner.consume().text)
-                require(context.expressionNode != cell) {
-                    "Self-reference not permitted"
+                val localName: String
+                val sheet: Sheet
+                val cut = name.indexOf("!")
+                if (cut == -1) {
+                    sheet = (context.expressionNode as Cell).sheet
+                    localName = name
+                } else {
+                    val sheetName = name.substring(0, cut)
+                    sheet = Model.sheets[sheetName] ?: throw IllegalArgumentException(
+                        "Sheet '$sheetName' not found.")
+
+                    localName = name.substring(name.indexOf('!') + 1)
                 }
-                CellReference(context.expressionNode, cell)
+                if (localName.contains(":")) {
+                    CellRangeReference(context.expressionNode, CellRange(sheet, localName))
+                } else {
+                    val cell = sheet.getOrCreateCell(localName)
+                    require(context.expressionNode != cell) {
+                        "Self-reference not permitted"
+                    }
+                    CellReference(context.expressionNode, cell)
+                }
             }
             TcTokenType.IDENTIFIER -> {
                 val name = scanner.consume().text

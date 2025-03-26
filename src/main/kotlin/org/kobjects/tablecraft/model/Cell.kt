@@ -10,11 +10,23 @@ import org.kobjects.tablecraft.pluginapi.ModificationToken
 
 class Cell(
     val sheet: Sheet,
+    id: String
+) : ExpressionNode(), Iterable<Cell> {
+
+    val column: Int
+    val row: Int
+
+    init {
+        column = id[0].code - 'A'.code
+        row = id.substring(1).toInt()
+    }
+
     val id: String
-) : ExpressionNode() {
+        get() = id(column, row)
 
     override var rawFormula = ""
     var image: String? = null
+
 
     fun setFormula(value: String, modificationToken: ModificationToken) {
         if (value != rawFormula) {
@@ -128,16 +140,10 @@ class Cell(
 
     override fun qualifiedId() = "${sheet.name}!$id"
 
+    override fun iterator(): Iterator<Cell> = setOf(this).iterator()
+
     override fun toString() = qualifiedId() + ":" + rawFormula// rawFormula
 
-    companion object {
-        val TIME_FORMAT_MINUTES = LocalTime.Format {
-            hour(); char(':'); minute(); // char(':'); second()
-        }
-        val TIME_FORMAT_SECONDS = LocalTime.Format {
-            hour(); char(':'); minute(); char(':'); second()
-        }
-    }
 
     override fun equivalentNodes(): Set<Node> {
         val eq = mutableSetOf<Node>(this)
@@ -150,5 +156,17 @@ class Cell(
             }
         }
         return eq.toSet()
+    }
+
+
+    companion object {
+        val TIME_FORMAT_MINUTES = LocalTime.Format {
+            hour(); char(':'); minute(); // char(':'); second()
+        }
+        val TIME_FORMAT_SECONDS = LocalTime.Format {
+            hour(); char(':'); minute(); char(':'); second()
+        }
+
+        fun id(column: Int, row: Int) = (column + 65).toChar().toString() + row
     }
 }

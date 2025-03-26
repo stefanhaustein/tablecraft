@@ -1,0 +1,43 @@
+package org.kobjects.tablecraft.model
+
+import java.lang.Integer.max
+import java.lang.Integer.min
+
+class CellRange(
+    val sheet: Sheet,
+    definition: String
+) : Iterable<Cell> {
+    val fromColumn: Int
+    val toColumn: Int
+    val fromRow: Int
+    val toRow: Int
+
+    init {
+        val cut = definition.indexOf(":")
+        if (cut == -1) {
+            val cell = sheet.getOrCreateCell(definition)
+            fromColumn = cell.column
+            fromRow = cell.row
+            toColumn = cell.column
+            toRow = cell.row
+        } else {
+            val cell1 = sheet.getOrCreateCell(definition.substring(0, cut))
+            val cell2 = sheet.getOrCreateCell(definition.substring(cut + 1))
+
+            fromColumn = min(cell1.column, cell2.column)
+            fromRow = min(cell1.row, cell2.row)
+            toColumn = max(cell1.column, cell2.column)
+            toRow = max(cell1.row, cell2.row)
+        }
+    }
+
+    override fun iterator(): Iterator<Cell> {
+        val result = mutableListOf<Cell>()
+        for (r in fromRow..toRow) {
+            for (c in fromColumn..toColumn) {
+                result.add(sheet.getOrCreateCell(Cell.id(c, r)))
+            }
+        }
+        return result.iterator()
+    }
+}
