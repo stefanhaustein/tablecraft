@@ -64,6 +64,17 @@ object BuiltinFunctions : Plugin {
             listOf(ParameterSpec("s", ParameterKind.RUNTIME, Type.BOOLEAN), ParameterSpec("r", ParameterKind.RUNTIME, Type.BOOLEAN)),
             0) { FlipflopFunction.createSr() },
 
+        OperationSpec(
+          OperationKind.FUNCTION,
+            Type.TEXT,
+            "stateMachine",
+            """A state machine specified by the given cell range. 
+                |Rows consist of the current state, the transition condition and the new state""".trimMargin(),
+            listOf(ParameterSpec("transitions", ParameterKind.CONFIGURATION, Type.RANGE, true))
+        ) {
+            StateMachine.create(it)
+        },
+
 
         OperationSpec(
             OperationKind.FUNCTION,
