@@ -65,7 +65,7 @@ object BuiltinFunctions : Plugin {
             0) { FlipflopFunction.createSr() },
 
         OperationSpec(
-          OperationKind.FUNCTION,
+          OperationKind.INPUT_PORT,
             Type.TEXT,
             "stateMachine",
             """A state machine specified by the given cell range. 

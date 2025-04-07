@@ -220,9 +220,9 @@ object Model : ModelInterface {
     fun definePort(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken): Port? {
         token.symbolsChanged = true
 
-        val previousName = jsonSpec["previousName"] as String?
+        val previousName = jsonSpec["previousName"]
 
-        if (!previousName.isNullOrBlank()) {
+        if (previousName is String && !previousName.isNullOrBlank()) {
             try {
                 deletePort(previousName, token)
             } catch (e: Exception) {
