@@ -34,8 +34,8 @@ class RestIntegration(
             name + ".out",
             "Sets the field with the given name in the JSON output of this REST server.",
             listOf(
-                ParameterSpec("fieldName", ParameterKind.CONFIGURATION, Type.TEXT, true),
-                ParameterSpec("value", ParameterKind.RUNTIME, Type.TEXT, true)),
+                ParameterSpec("fieldName", Type.TEXT, setOf(ParameterSpec.Modifier.CONSTANT)),
+                ParameterSpec("value",  Type.TEXT)),
             tag
         ) {
             Out(it["fieldName"] as String)

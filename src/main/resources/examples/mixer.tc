@@ -35,7 +35,6 @@ B4 = {"f": "Master"}
 B5 = {"f": "true", "v":{"type":"Boolean","values":[{"value":true,"label":"ON"},{"value":false,"label":"OFF"}]}}
 P4 = {"f": ""}
 B7 = {"f": "=tp(B5, 10)"}
-, = {"f": ""}
 F4 = {"f": "", "i": "img/line/vl.svg"}
 G4 = {"f": "", "i": "img/line/v.svg"}
 H4 = {"f": "", "i": "img/line/vr.svg"}

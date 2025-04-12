@@ -54,14 +54,13 @@ class PluginOperationCall(
             for ((index, specParam) in operationSpec.parameters.withIndex()) {
                 val actualParameter = parameters[specParam.name] ?: parameters["$index"]
                 if (actualParameter != null) {
-                    when (specParam.kind) {
-                        ParameterKind.CONFIGURATION -> {
-                            require(actualParameter is Literal) { "Literal expression required for configuration parameter ${specParam.name}" }
-                            mappedConfig[specParam.name] = actualParameter.value!!
-                        }
-                        ParameterKind.RUNTIME -> mappedParameters[specParam.name] = actualParameter to specParam.type
+                    if (specParam.modifiers.contains(ParameterSpec.Modifier.CONSTANT)) {
+                        require(actualParameter is Literal) { "Literal expression required for configuration parameter ${specParam.name}" }
+                        mappedConfig[specParam.name] = actualParameter.value!!
+                    } else {
+                        mappedParameters[specParam.name] = actualParameter to specParam.type
                     }
-                } else if (specParam.required) {
+                } else if (!specParam.modifiers.contains(ParameterSpec.Modifier.OPTIONAL)) {
                     throw IllegalStateException("Parameter '${specParam.name}' not found in $parameters")
                 }
 

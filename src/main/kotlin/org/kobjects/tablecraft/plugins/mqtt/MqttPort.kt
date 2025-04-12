@@ -39,7 +39,7 @@ class MqttPort(
             Type.TEXT,
             "$name.subscribe",
             "Subscribe to the given topic and receive update messages",
-            listOf(ParameterSpec("topic", ParameterKind.CONFIGURATION, Type.TEXT, true)),
+            listOf(ParameterSpec("topic", Type.TEXT, setOf(ParameterSpec.Modifier.CONSTANT))),
             tag
         ) {
             MqttSubscription(this, it)
@@ -50,8 +50,8 @@ class MqttPort(
         "$name.publish",
         "Publish / update a message for a given topic",
             listOf(
-                ParameterSpec("topic", ParameterKind.CONFIGURATION, Type.TEXT, true),
-                ParameterSpec("payload", ParameterKind.RUNTIME, Type.TEXT, true),
+                ParameterSpec("topic", Type.TEXT, setOf(ParameterSpec.Modifier.CONSTANT)),
+                ParameterSpec("payload",  Type.TEXT),
                 ),
             tag
         ) {

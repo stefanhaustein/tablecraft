@@ -16,7 +16,7 @@ data class OperationSpec(
     override fun toJson(sb: StringBuilder) {
         sb.append("""{"name":${name.quote()},"kind":"$kind","returnType":"$returnType","description":${description.quote()},"params":[""")
         var first = true
-        for (param in parameters.filter { it.kind != ParameterKind.RUNTIME }) {
+        for (param in parameters.filter { it.modifiers.contains(ParameterSpec.Modifier.CONSTANT) }) {
             if (first) {
                 first = false
             } else {

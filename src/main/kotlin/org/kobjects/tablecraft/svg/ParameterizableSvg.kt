@@ -1,6 +1,5 @@
 package org.kobjects.tablecraft.svg
 
-import org.kobjects.tablecraft.pluginapi.ParameterKind
 import org.kobjects.tablecraft.pluginapi.ParameterSpec
 import org.kobjects.tablecraft.pluginapi.Type
 import org.kobjects.tablecraft.svg.parser.ExpressionParser
@@ -33,12 +32,11 @@ class ParameterizableSvg(
                         }
                         val spec = ParameterSpec(
                             name,
-                            ParameterKind.RUNTIME,
                             type)
                         add(spec)
                     }
                     "activity" -> {
-                        add(ParameterSpec("active", ParameterKind.RUNTIME, Type.BOOLEAN))
+                        add(ParameterSpec("active", Type.BOOLEAN))
                         insertActivity = true
                     }
                 }

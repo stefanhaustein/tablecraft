@@ -27,22 +27,22 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
             Type.BOOLEAN,
             "din",
             "Configures the given pin address for digital input and reports a high value as TRUE and a low value as FALSE.",
-            listOf(ParameterSpec("address", ParameterKind.CONFIGURATION, Type.INT)),
+            listOf(ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
         ) { DigitalInput(this, it) },
         OperationSpec(
             OperationKind.INPUT_PORT,
             Type.NUMBER,
             "pwmin",
             "Configures the given pin address for input and reports the pulse width in seconds.",
-            listOf(ParameterSpec("address", ParameterKind.CONFIGURATION, Type.INT)),
+            listOf(ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
         ) { PwmInput(this, it) },
         OperationSpec(
             OperationKind.OUTPUT_PORT,
             Type.BOOLEAN,
             "dout",
             "Configures the given pin address for digital output and sets it to 'high' for a TRUE value and to 'low' for a FALSE or 0 value.",
-            listOf(ParameterSpec("address", ParameterKind.CONFIGURATION, Type.INT),
-                ParameterSpec("value", ParameterKind.RUNTIME, Type.INT)),
+            listOf(ParameterSpec("address",  Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),
+                ParameterSpec("value", Type.INT)),
         ) { DigitalOutput(this, it) },
         OperationSpec(
             OperationKind.OUTPUT_PORT,
@@ -50,11 +50,11 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
             "lcddisplay",
             "Configures the size of a lcd display",
             listOf(
-                ParameterSpec("width", ParameterKind.CONFIGURATION, Type.INT),
-                ParameterSpec("height", ParameterKind.CONFIGURATION, Type.INT),
-                ParameterSpec("x", ParameterKind.CONFIGURATION, Type.INT),
-                ParameterSpec("y", ParameterKind.CONFIGURATION, Type.INT),
-                ParameterSpec("text", ParameterKind.RUNTIME, Type.TEXT))
+                ParameterSpec("width", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),
+                ParameterSpec("height",  Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),
+                ParameterSpec("x", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),
+                ParameterSpec("y",  Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),
+                ParameterSpec("text", Type.TEXT))
             ) { Lcd(this, it) },
     )
 

@@ -2,6 +2,7 @@ package org.kobjects.tablecraft.model
 
 import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.model.builtin.BuiltinFunctions
+import org.kobjects.tablecraft.model.type.Configuration
 import org.kobjects.tablecraft.pluginapi.*
 import org.kobjects.tablecraft.plugins.pi4j.Pi4jPlugin
 import org.kobjects.tablecraft.plugins.rest.RestPlugin
@@ -232,11 +233,15 @@ object Model : ModelInterface {
 
         if (!name.isNullOrBlank()) {
             val type = jsonSpec["type"].toString()
-            val config = jsonSpec["configuration"] as Map<String, Any>
 
             portMap[name]?.detach()
 
             val specification = Model.functionMap[type]!!
+
+            val config = /*Configuration.fromJson(
+                specification.parameters,*/
+                jsonSpec["configuration"] as Map<String, Any>// )
+
             val port = when (specification.kind) {
                 OperationKind.INPUT_PORT -> InputPort(name, specification, config, token.tag)
                 OperationKind.OUTPUT_PORT -> OutputPort(name, specification, config, jsonSpec["expression"] as String, token.tag)
