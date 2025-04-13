@@ -2,6 +2,8 @@ package org.kobjects.tablecraft.model.builtin
 
 import org.kobjects.tablecraft.model.Cell
 import org.kobjects.tablecraft.model.CellRange
+import org.kobjects.tablecraft.model.Model
+import org.kobjects.tablecraft.model.expression.CellRangeReference
 import org.kobjects.tablecraft.pluginapi.OperationHost
 import org.kobjects.tablecraft.pluginapi.StatefulOperation
 
@@ -47,7 +49,8 @@ class StateMachine(
 
 
     companion object {
-        fun create(configuration: Map<String, Any>) = StateMachine(configuration["transitions"] as CellRange)
+        fun create(configuration: Map<String, Any>) = StateMachine(
+            (configuration["transitions"] as CellRangeReference).target)
     }
 
 }

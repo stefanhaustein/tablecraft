@@ -34,23 +34,29 @@ class BinaryOperator(
             }
         }
 
-        val ld = Values.toDouble(l)
-        val rd = Values.toDouble(r)
-
         return when (name) {
-            "+" -> ld + rd
-            "-" -> ld - rd
-            "*" -> ld * rd
-            "/" -> ld / rd
-            "^" -> Math.pow(ld, rd)
-            "=" -> return ld == rd
-            "<>" -> return ld != rd
-            "<=" -> return ld <= rd
-            ">=" -> return ld >= rd
-            "<" -> return ld < rd
-            ">" -> return ld > rd
-            else -> throw UnsupportedOperationException("$name for Double")
+            "=" -> l == r
+            "<>" -> l != r
+            else -> {
+                val ld = Values.toDouble(l)
+                val rd = Values.toDouble(r)
+
+                return when (name) {
+                    "+" -> ld + rd
+                    "-" -> ld - rd
+                    "*" -> ld * rd
+                    "/" -> ld / rd
+                    "^" -> Math.pow(ld, rd)
+                    "<=" -> return ld <= rd
+                    ">=" -> return ld >= rd
+                    "<" -> return ld < rd
+                    ">" -> return ld > rd
+                    else -> throw UnsupportedOperationException("$name for Double")
+                }
+            }
         }
+
+
     }
 
     override val children: Collection<Expression>

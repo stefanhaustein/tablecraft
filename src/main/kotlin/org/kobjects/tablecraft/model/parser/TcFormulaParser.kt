@@ -45,27 +45,12 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
             }
             TcTokenType.CELL_IDENTIFIER -> {
                 val name = scanner.consume().text
-                val localName: String
-                val sheet: Sheet
-                val cut = name.indexOf("!")
-                if (cut == -1) {
-                    sheet = (context.expressionNode as Cell).sheet
-                    localName = name
-                } else {
-                    val sheetName = name.substring(0, cut)
-                    sheet = Model.sheets[sheetName] ?: throw IllegalArgumentException(
-                        "Sheet '$sheetName' not found.")
+                val cellRange = CellRange.parse(name, (context.expressionNode as? Cell)?.sheet)
 
-                    localName = name.substring(name.indexOf('!') + 1)
-                }
-                if (localName.contains(":")) {
-                    CellRangeReference(context.expressionNode, CellRange(sheet, localName))
+                if (name.contains(":")) {
+                    CellRangeReference(context.expressionNode,  cellRange)
                 } else {
-                    val cell = sheet.getOrCreateCell(localName)
-                    require(context.expressionNode != cell) {
-                        "Self-reference not permitted"
-                    }
-                    CellReference(context.expressionNode, cell)
+                    CellReference(context.expressionNode, cellRange.first())
                 }
             }
             TcTokenType.IDENTIFIER -> {
@@ -85,13 +70,14 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
                         Literal(false)
                     }
                     else -> {
-                        val functionSpec = Model.functionMap[name.lowercase()]
+                        val lowercase = name.lowercase()
+                        val functionSpec = Model.functionMap[lowercase]
                         if (functionSpec != null) {
                             PluginOperationCall.create(context.expressionNode, functionSpec, parameterList)
                         } else {
-                            val port = Model.portMap[name.lowercase()]
+                            val port = Model.portMap[lowercase]
                             require(port != null) {
-                                "Unresolved identifier $name"
+                                "Unresolved identifier $lowercase"
                             }
                             PortReference(context.expressionNode, port)
                         }

@@ -237,6 +237,7 @@ function processPortsUpdate(map) {
 
 
             let spec = functions[f.type]
+            let modifiers = spec["modifiers"] || []
             console.log("adding port", f, spec)
 
             let showValue = true

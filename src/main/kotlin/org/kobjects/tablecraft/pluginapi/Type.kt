@@ -11,7 +11,7 @@ enum class Type {
         else -> throw UnsupportedOperationException("Can't parse $this yet.")
     }
 
-    fun fromJson(value: Any): Any = when(this) {
+    fun fromJson(value: Any): Any = if (value is String) fromString(value) else when(this) {
         INT -> (value as Number).toInt()
         NUMBER -> (value as Number).toDouble()
         BOOLEAN -> value as Boolean

@@ -10,6 +10,7 @@ object BuiltinFunctions : Plugin {
             "now",
             "The current local time",
             listOf(ParameterSpec("interval", Type.NUMBER, setOf(ParameterSpec.Modifier.CONSTANT))),
+            emptySet(),
             0,
             NowFunction::create),
 
@@ -26,6 +27,7 @@ object BuiltinFunctions : Plugin {
             "toff",
             "Timed Off",
             listOf(ParameterSpec("input", Type.BOOLEAN), ParameterSpec("delay", Type.NUMBER, setOf(ParameterSpec.Modifier.CONSTANT))),
+            emptySet(),
             0,
             TimedOnOff::createToff),
 
@@ -35,6 +37,7 @@ object BuiltinFunctions : Plugin {
             "ton",
             "Timed On",
             listOf(ParameterSpec("input", Type.BOOLEAN), ParameterSpec("delay", Type.NUMBER, setOf(ParameterSpec.Modifier.CONSTANT))),
+            emptySet(),
             0,
             TimedOnOff::createTon),
 
@@ -45,6 +48,7 @@ object BuiltinFunctions : Plugin {
             "tp",
             "Timed Pulse",
             listOf(ParameterSpec("input", Type.BOOLEAN), ParameterSpec("delay", Type.NUMBER, setOf(ParameterSpec.Modifier.CONSTANT))),
+            emptySet(),
             0,
             TimedPulse::create),
 
@@ -53,7 +57,10 @@ object BuiltinFunctions : Plugin {
             Type.BOOLEAN,
             "rs",
             "RS-Flipflop",
-            listOf(ParameterSpec("s", Type.BOOLEAN), ParameterSpec("r",  Type.BOOLEAN)),
+            listOf(
+                ParameterSpec("s", Type.BOOLEAN),
+                ParameterSpec("r",  Type.BOOLEAN)),
+            emptySet(),
             0) { FlipflopFunction.createRs() },
 
         OperationSpec(
@@ -61,16 +68,19 @@ object BuiltinFunctions : Plugin {
             Type.BOOLEAN,
             "sr",
             "SR-Flipflop",
-            listOf(ParameterSpec("s", Type.BOOLEAN), ParameterSpec("r", Type.BOOLEAN)),
+            listOf(
+                ParameterSpec("s", Type.BOOLEAN),
+                ParameterSpec("r", Type.BOOLEAN)),
+            emptySet(),
             0) { FlipflopFunction.createSr() },
 
         OperationSpec(
-          OperationKind.INPUT_PORT,
+          OperationKind.FUNCTION,
             Type.TEXT,
-            "stateMachine",
+            "statemachine",
             """A state machine specified by the given cell range. 
                 |Rows consist of the current state, the transition condition and the new state""".trimMargin(),
-            listOf(ParameterSpec("transitions", Type.RANGE))
+            listOf(ParameterSpec("transitions", Type.RANGE, setOf(ParameterSpec.Modifier.REFERENCE)))
         ) {
             StateMachine.create(it)
         },
@@ -85,6 +95,7 @@ object BuiltinFunctions : Plugin {
                 ParameterSpec("source", Type.TEXT, setOf(ParameterSpec.Modifier.CONSTANT)),
                 ParameterSpec("state",  Type.BOOLEAN, setOf(ParameterSpec.Modifier.OPTIONAL))
                 ),
+            emptySet(),
             0,
             ImageFunction::create),
 

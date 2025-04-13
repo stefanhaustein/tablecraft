@@ -23,6 +23,7 @@ class OutputPort(
                     portOperation.apply(parameters)
                     error = null
                 } catch (e: Exception) {
+                    e.printStackTrace()
                     error = e
                 }
             }

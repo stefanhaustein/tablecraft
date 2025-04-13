@@ -56,7 +56,9 @@ class PluginOperationCall(
                 if (actualParameter != null) {
                     if (specParam.modifiers.contains(ParameterSpec.Modifier.CONSTANT)) {
                         require(actualParameter is Literal) { "Literal expression required for configuration parameter ${specParam.name}" }
-                        mappedConfig[specParam.name] = actualParameter.value!!
+                        mappedConfig[specParam.name] = actualParameter.value
+                    } else if (specParam.modifiers.contains(ParameterSpec.Modifier.REFERENCE)) {
+                        mappedConfig[specParam.name] = actualParameter
                     } else {
                         mappedParameters[specParam.name] = actualParameter to specParam.type
                     }

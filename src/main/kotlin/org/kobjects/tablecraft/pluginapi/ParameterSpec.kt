@@ -15,6 +15,6 @@ data class ParameterSpec(
     }
 
     enum class Modifier {
-        CONSTANT, OPTIONAL
+        CONSTANT, OPTIONAL, REFERENCE
     }
 }

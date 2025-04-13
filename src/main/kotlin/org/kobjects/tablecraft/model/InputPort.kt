@@ -63,7 +63,6 @@ class InputPort(
         token.addRefresh(this)
     }
 
-
     override fun updateValue(tag: Long): Boolean {
         if (valueTag == tag) {
             return false

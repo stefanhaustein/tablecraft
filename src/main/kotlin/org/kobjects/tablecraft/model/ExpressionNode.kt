@@ -26,6 +26,7 @@ abstract class ExpressionNode : Node {
         try {
             newValue = expression.eval(EvaluationContext())
         } catch (e: Exception) {
+            e.printStackTrace()
             newValue = e
         }
         return if (newValue == value) false else {
@@ -56,6 +57,7 @@ abstract class ExpressionNode : Node {
                 parsed.attachAll()
                 parsed
             } catch (e: Exception) {
+                e.printStackTrace()
                 Literal(e)
             }
         } else {
@@ -66,6 +68,7 @@ abstract class ExpressionNode : Node {
                     try {
                         Literal(Values.parseNumber(rawFormula))
                     } catch (e: Exception) {
+                        e.printStackTrace()
                         Literal(rawFormula)
                     }
                 }

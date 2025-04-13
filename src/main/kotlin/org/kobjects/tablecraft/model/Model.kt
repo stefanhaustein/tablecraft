@@ -206,6 +206,7 @@ object Model : ModelInterface {
             "tombstone",
             "",
             emptyList(),
+            emptySet(),
             token.tag
         ) {
             object : Operation {
@@ -238,9 +239,9 @@ object Model : ModelInterface {
 
             val specification = Model.functionMap[type]!!
 
-            val config = /*Configuration.fromJson(
-                specification.parameters,*/
-                jsonSpec["configuration"] as Map<String, Any>// )
+            val config = Configuration.fromJson(
+                specification.parameters,
+                jsonSpec["configuration"] as Map<String, Any>)
 
             val port = when (specification.kind) {
                 OperationKind.INPUT_PORT -> InputPort(name, specification, config, token.tag)
@@ -346,10 +347,10 @@ object Model : ModelInterface {
             while (modificationToken.refreshRoots.isNotEmpty()) {
                 val current = modificationToken.refreshRoots.first()
                 modificationToken.refreshRoots.remove(current)
-                println("Updating: $current")
+                // println("Updating: $current")
                 if (current.updateValue(modificationToken.tag)) {
                     anyChanged = true
-                    println("adding new dependencies: ${current.dependencies}")
+                    // println("adding new dependencies: ${current.dependencies}")
                     for (dep in current.dependencies) {
                         if (dep.inputs.size == 1) {
                             modificationToken.refreshNodes.remove(dep)

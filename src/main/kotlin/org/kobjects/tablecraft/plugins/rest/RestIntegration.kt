@@ -36,6 +36,7 @@ class RestIntegration(
             listOf(
                 ParameterSpec("fieldName", Type.TEXT, setOf(ParameterSpec.Modifier.CONSTANT)),
                 ParameterSpec("value",  Type.TEXT)),
+            emptySet(),
             tag
         ) {
             Out(it["fieldName"] as String)
