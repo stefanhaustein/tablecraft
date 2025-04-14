@@ -1,5 +1,6 @@
 import {FormController} from "./forms/form_builder.js";
 import {sendJson} from "./lib/util.js";
+import {functions} from "./shared_state.js";
 
 let portListContainer = document.getElementById("portListContainer")
 let portEditorContainer = document.getElementById("portEditorContainer")
@@ -9,12 +10,25 @@ function hidePortDialog() {
     portListContainer.style.display = "block"
 }
 
-export function showPortDialog(constructorSpec, portSpec) {
+function renderBinding(targetDiv, constructorSpec, instanceSpec) {
+    targetDiv.textContent = ""
+
+    let bindingFormController = FormController.create(targetDiv, constructorSpec["params"])
+
+    if (instanceSpec != null) {
+        bindingFormController.setValues(instanceSpec)
+    }
+
+    return bindingFormController
+}
+
+export function showPortDialog(kind, portSpec) {
+    let constructorSpec = portSpec == null ? null : functions[portSpec.type]
 
     portEditorContainer.style.display = "block"
     portListContainer.style.display = "none"
 
-    let instanceSpec = portSpec != null ? portSpec["configuration"] : {}
+    let instanceSpec = portSpec != null ? portSpec.configuration : {}
 
     portEditorContainer.textContent = ""
     let dialogTitleElement = document.createElement("div")
@@ -26,7 +40,7 @@ export function showPortDialog(constructorSpec, portSpec) {
     //inputDiv.className = "dialogFields"
 
     let portSchema = [{"name": "name"}]
-    if (constructorSpec["kind"] == "OUTPUT_PORT") {
+    if (kind == "OUTPUT_PORT") {
         portSchema.push({"name": "expression"})
     }
     let previousName = portSpec == null ? null : portSpec["name"]
@@ -38,15 +52,44 @@ export function showPortDialog(constructorSpec, portSpec) {
     typeLabelElement.textContent = "binding"
     inputDiv.appendChild(typeLabelElement)
 
-    let typeNameElement = document.createElement("div")
-    typeNameElement.textContent = constructorSpec.name
-    inputDiv.appendChild(typeNameElement)
+    let bindingDiv = document.createElement("div")
 
-    let bindingFormController = FormController.create(inputDiv, constructorSpec["params"])
+    let typeSelectElement = document.createElement("select")
 
-    if (instanceSpec != null) {
-        bindingFormController.setValues(instanceSpec)
+    if (constructorSpec == null) {
+        let typeOptionElement = document.createElement("option")
+        typeOptionElement.textContent = "(select)"
+        typeSelectElement.appendChild(typeOptionElement)
     }
+
+    for (let name in functions) {
+        let f = functions[name]
+        if (f.kind == kind) {
+            let typeOptionElement = document.createElement("option")
+            typeOptionElement.textContent = name
+            if (constructorSpec != null && name == constructorSpec.name) {
+                typeOptionElement.setAttribute("selected", "true")
+            }
+            typeSelectElement.appendChild(typeOptionElement)
+        }
+    }
+    let bindingFormController = constructorSpec == null ? null : renderBinding(bindingDiv, constructorSpec, instanceSpec)
+
+    typeSelectElement.addEventListener("input", () => {
+        let type = typeSelectElement.value
+        constructorSpec = functions[type]
+        if (constructorSpec != null) {
+            bindingFormController = renderBinding(bindingDiv, constructorSpec, instanceSpec)
+            if (typeSelectElement.firstElementChild.textContent == "(select)") {
+                typeSelectElement.removeChild(typeSelectElement.firstElementChild)
+            }
+        }
+    })
+
+    inputDiv.appendChild(typeSelectElement)
+    inputDiv.appendChild(bindingDiv)
+
+
 
     portEditorContainer.appendChild(inputDiv)
 
