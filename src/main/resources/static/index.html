@@ -44,12 +44,15 @@
                     to control simple IoT projects.
             </div>
             <div id="PortsPanel">
-                <label>Simulation Mode:
-                <input type="checkbox" id="simulationMode" /></label>
-                <p>
-                <select id="portSelect"><option>Add Port</option></select>
-                </p>
-                <div id="portList"></div>
+                <div id="portListContainer">
+                  <label>Simulation Mode:
+                  <input type="checkbox" id="simulationMode" /></label>
+                  <p>
+                  <select id="portSelect"><option>Add Port</option></select>
+                  </p>
+                  <div id="portList"></div>
+                </div>
+                <div id="portEditorContainer" style="display: none"></div>
             </div>
             <div id="FunctionPanel"></div>
             <div id="ValidationPanel">
