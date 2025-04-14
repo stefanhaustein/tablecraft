@@ -43,11 +43,11 @@ html {
     height: 36px;
 }
 
-.dependency {
+.dependency, body #spreadsheetTable td.dependency {
     background-color: #f9cb9c;
 }
 
-.dependency2 {
+.dependency2, body #spreadsheetTable td.dependency2 {
     background-color: #fce4cd;
 }
 
@@ -61,7 +61,7 @@ html {
     background-color: #a4c2f4;
 }
 
-.input2 {
+.input2, body #spreadsheetTable td.input2 {
     background-color: #c9daf8;
 }
 

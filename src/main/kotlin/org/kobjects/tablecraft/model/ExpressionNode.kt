@@ -68,7 +68,6 @@ abstract class ExpressionNode : Node {
                     try {
                         Literal(Values.parseNumber(rawFormula))
                     } catch (e: Exception) {
-                        e.printStackTrace()
                         Literal(rawFormula)
                     }
                 }
