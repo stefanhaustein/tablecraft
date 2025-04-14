@@ -43,14 +43,6 @@ html {
     height: 36px;
 }
 
-.input {
-    background-color: #a4c2f4;
-}
-
-.input2 {
-    background-color: #c9daf8;
-}
-
 .dependency {
     background-color: #f9cb9c;
 }
@@ -61,6 +53,16 @@ html {
 
 .equivalent {
     background-color: #ddd;
+}
+
+
+/* make sure the specifity is higher than #spreadsheettable td.c */
+.input, body #spreadsheetTable td.input {
+    background-color: #a4c2f4;
+}
+
+.input2 {
+    background-color: #c9daf8;
 }
 
 .port {
