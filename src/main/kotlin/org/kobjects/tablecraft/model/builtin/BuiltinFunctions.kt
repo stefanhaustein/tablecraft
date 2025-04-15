@@ -86,19 +86,5 @@ object BuiltinFunctions : Plugin {
         },
 
 
-        OperationSpec(
-            OperationKind.FUNCTION,
-            Type.IMAGE,
-            "image",
-            "Image reference",
-            listOf(
-                ParameterSpec("source", Type.TEXT, setOf(ParameterSpec.Modifier.CONSTANT)),
-                ParameterSpec("state",  Type.BOOLEAN, setOf(ParameterSpec.Modifier.OPTIONAL))
-                ),
-            emptySet(),
-            0,
-            ImageFunction::create),
-
-
     )
 }

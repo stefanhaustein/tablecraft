@@ -201,15 +201,17 @@ object Model : ModelInterface {
         token.symbolsChanged = true
 
         portMap[name] = InputPort(name, OperationSpec(
-            OperationKind.INPUT_PORT,
+            OperationKind.TOMBSTONE,
             Type.TEXT,
-            "tombstone",
+            "TOMBSTONE",  // The operation name; used to identify tombstone ports on the client
             "",
             emptyList(),
             emptySet(),
             token.tag
         ) {
-            object : Operation {
+            object : StatefulOperation {
+                override fun attach(host: OperationHost) {}
+                override fun detach() {}
                 override fun apply(params: Map<String, Any>) = Unit
             }
         }, emptyMap(), token.tag)

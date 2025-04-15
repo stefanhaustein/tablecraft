@@ -184,7 +184,7 @@ function processPortsUpdate(map) {
     for (let name in map) {
         let f = map[name]
         let entryElement = document.getElementById("port." + name)
-        if (f.kind == "TOMBSTONE") {
+        if (f.type == "TOMBSTONE") {
             if (entryElement != null) {
                 entryElement.parentElement.removeChild(entryElement)
             }
@@ -212,8 +212,6 @@ function processPortsUpdate(map) {
             entryTitleElement.className = "portTitle"
             entryTitleElement.textContent = title
             entryElement.appendChild(entryTitleElement)
-
-
 
             let modifiers = spec["modifiers"] || []
             console.log("adding port", f, spec)

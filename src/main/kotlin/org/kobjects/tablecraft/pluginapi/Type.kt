@@ -1,7 +1,7 @@
 package org.kobjects.tablecraft.pluginapi
 
 enum class Type {
-    INT, NUMBER, BOOLEAN, TEXT, DATE, IMAGE, VOID, RANGE;
+    INT, NUMBER, BOOLEAN, TEXT, DATE, VOID, RANGE;
 
     fun fromString(s: String): Any = when(this) {
         INT -> s.toInt()

@@ -22,6 +22,9 @@ class SvgManager(root: File) : Plugin {
             }
         }
     }
+
+    override val operationSpecs = emptyList<OperationSpec>()
+    /*
     override val operationSpecs: List<OperationSpec>
         get() {
             val result = mutableListOf<OperationSpec>()
@@ -40,6 +43,6 @@ class SvgManager(root: File) : Plugin {
             }
             return result
         }
-
+*/
 
 }

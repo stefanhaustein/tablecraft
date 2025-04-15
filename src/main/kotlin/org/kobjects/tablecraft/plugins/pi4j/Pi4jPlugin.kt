@@ -41,8 +41,7 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
             Type.BOOLEAN,
             "dout",
             "Configures the given pin address for digital output and sets it to 'high' for a TRUE value and to 'low' for a FALSE or 0 value.",
-            listOf(ParameterSpec("address",  Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),
-                ParameterSpec("value", Type.INT)),
+            listOf(ParameterSpec("address",  Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
         ) { DigitalOutput(this, it) },
         OperationSpec(
             OperationKind.OUTPUT_PORT,

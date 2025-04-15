@@ -93,8 +93,6 @@ export function showPortDialog(kind, portSpec) {
     inputDiv.appendChild(typeSelectElement)
     inputDiv.appendChild(bindingDiv)
 
-
-
     portEditorContainer.appendChild(inputDiv)
 
     let buttonDiv = document.createElement("div")
@@ -118,12 +116,12 @@ export function showPortDialog(kind, portSpec) {
     cancelButton.addEventListener("click", () => { hidePortDialog() })
     buttonDiv.appendChild(cancelButton)
 
-    if (name != null) {
+    if (previousName != null) {
         let deleteButton = document.createElement("button")
         deleteButton.textContent = "Delete"
         deleteButton.className = "dialogButton"
         deleteButton.addEventListener("click", () => {
-            sendJson("updatePort", {previousName: name})
+            sendJson("updatePort", {previousName: previousName})
             hidePortDialog()
         })
         buttonDiv.appendChild(deleteButton)
@@ -134,6 +132,6 @@ export function showPortDialog(kind, portSpec) {
 
 
 function sendPort(definition) {
-    sendJson("updatePort?name=" + definition["name"], definition)
+    sendJson("updatePort", definition)
     return true
 }
