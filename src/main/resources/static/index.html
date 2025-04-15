@@ -37,7 +37,7 @@
         </div>
         <div id="sidePanel" style="height: 100%; flex: 0 0 200px; overflow: auto">
             <div id="AboutPanel">
-                <div class="subtitle">TableCraft</div>
+                <h2>TableCraft</h2>
 
                     <center><img src="TableCraft.png" width="150" /></center>
                     Utilize a spreadsheet interface
@@ -47,20 +47,16 @@
                 <div id="portListContainer">
                   <label>Simulation Mode:
                   <input type="checkbox" id="simulationMode" /></label>
-                  <p>
-                  <select id="portSelect"><option>Add Port</option></select>
-                  </p>
-                  <div id="portList"></div>
+                  <h3>Input Ports<img id="addInputPort" style="float:right;padding-right:2px" src="img/add.svg"></h3>
                   <div id="inputPortList"></div>
+                  <h3>Output Ports<img id="addOutputPort" style="float:right;padding-right:2px" src="img/add.svg"></h3>
                   <div id="outputPortList"></div>
-                  <button id="addInputPort">Add Input</button>
-                  <button id="addOutputPort">Add Output</button>
                 </div>
                 <div id="portEditorContainer" style="display: none"></div>
             </div>
             <div id="FunctionPanel"></div>
             <div id="ValidationPanel">
-                <div class="subtitle">Input / Validation</div>
+                <h2>Input / Validation</h2>
                 <select>
                     <option>None</option>
                     <option>Option Menu</option>

@@ -140,7 +140,6 @@ function processSheetUpdate(map) {
 
 function processFunctionsUpdate(map) {
     let functionSelectElement = document.getElementById("functions")
-    let portSelectElement = document.getElementById("portSelect")
     let integrationSelectElement = document.getElementById("integrationSelect")
     for (let name in map) {
         let f = map[name]
@@ -158,38 +157,14 @@ function processFunctionsUpdate(map) {
             if (newAddition) {
                 optionElement = document.createElement("option")
                 optionElement.id = "op." + name
-                let target = null
                 switch (f.kind) {
-                    case "INPUT_PORT":
-                    case "OUTPUT_PORT":
-                        target = portSelectElement
-                        break
                     case "INTEGRATION":
-                        target = integrationSelectElement
+                        integrationSelectElement.appendChild(optionElement)
                         break
-                    default:
-                        target = functionSelectElement
+                    case "FUNCTION":
+                        functionSelectElement.appendChild(optionElement)
+                        break;
                 }
-                target.appendChild(optionElement)
-
-                /* Move to port handling
-                if (f.kind == "INPUT_PORT") {
-                    simulationElement = document.createElement("div")
-                    simulationElement.id = "sim." + name
-
-                    let schema = {
-                        type: camelCase(f.returnType),
-                        name: name
-                    }
-                    let controller = FormController.create(simulationElement, [schema])
-                    controller.addListener((name, value) => {
-                        sendJson("portSimulation?name=" + name, value)
-                    })
-
-                    simulationListElement.appendChild(simulationElement)
-                }
-                 */
-
             }
 
             if (f.kind == "FUNCTION") {
@@ -206,7 +181,6 @@ function processFunctionsUpdate(map) {
 }
 
 function processPortsUpdate(map) {
-    let portListElement = document.getElementById("portList")
     for (let name in map) {
         let f = map[name]
         let entryElement = document.getElementById("port." + name)
@@ -215,11 +189,15 @@ function processPortsUpdate(map) {
                 entryElement.parentElement.removeChild(entryElement)
             }
         } else {
+            let spec = functions[f.type]
+
             if (entryElement == null) {
                 entryElement = document.createElement("div")
                 entryElement.id = "port." + f.name
                 entryElement.className = "port"
-                portListElement.appendChild(entryElement)
+                document.getElementById(
+                    spec.kind == "OUTPUT_PORT" ? "outputPortList" : "inputPortList"
+                ).appendChild(entryElement)
             } else {
                 entryElement.textContent = ""
             }
@@ -236,7 +214,7 @@ function processPortsUpdate(map) {
             entryElement.appendChild(entryTitleElement)
 
 
-            let spec = functions[f.type]
+
             let modifiers = spec["modifiers"] || []
             console.log("adding port", f, spec)
 

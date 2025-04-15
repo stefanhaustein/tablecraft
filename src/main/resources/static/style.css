@@ -55,6 +55,10 @@ html {
     background-color: #ddd;
 }
 
+h2, h3 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
 
 /* make sure the specifity is higher than #spreadsheettable td.c */
 .input, body #spreadsheetTable td.input {
@@ -63,6 +67,11 @@ html {
 
 .input2, body #spreadsheetTable td.input2 {
     background-color: #c9daf8;
+}
+
+
+#inputPortList, #outputPortList {
+
 }
 
 .port {

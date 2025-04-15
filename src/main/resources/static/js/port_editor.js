@@ -62,6 +62,9 @@ export function showPortDialog(kind, portSpec) {
         typeSelectElement.appendChild(typeOptionElement)
     }
 
+    let okButton = document.createElement("button")
+    okButton.disabled = constructorSpec == null
+
     for (let name in functions) {
         let f = functions[name]
         if (f.kind == kind) {
@@ -82,6 +85,7 @@ export function showPortDialog(kind, portSpec) {
             bindingFormController = renderBinding(bindingDiv, constructorSpec, instanceSpec)
             if (typeSelectElement.firstElementChild.textContent == "(select)") {
                 typeSelectElement.removeChild(typeSelectElement.firstElementChild)
+                okButton.disabled = false
             }
         }
     })
@@ -95,7 +99,6 @@ export function showPortDialog(kind, portSpec) {
 
     let buttonDiv = document.createElement("div")
 
-    let okButton = document.createElement("button")
     okButton.textContent = "Ok"
     okButton.className = "dialogButton"
     okButton.addEventListener("click", () => {

@@ -1,12 +1,12 @@
 import {functions, ports} from "./shared_state.js";
 import {showPortDialog} from "./port_editor.js";
 
-let portListElement = document.getElementById("portList")
+let portListConteiner = document.getElementById("portListContainer")
 
 document.getElementById("addInputPort").addEventListener("click", () => showPortDialog("INPUT_PORT"))
 document.getElementById("addOutputPort").addEventListener("click", () => showPortDialog("OUTPUT_PORT"))
 
-portListElement.addEventListener("click", event => editPort(event))
+portListContainer.addEventListener("click", event => editPort(event))
 
 function editPort(event) {
     if (event.target.className != "portConfig") {
