@@ -7,7 +7,7 @@ let integrationListElement = document.getElementById("integrationList")
 let dialogElement = document.getElementById("dialog")
 
 integrationSelectElement.addEventListener("change", addIntegration)
-integrationListElement.addEventListener("click", event => editPort(event))
+integrationListElement.addEventListener("click", event => editIntegration(event))
 
 function addIntegration() {
 
@@ -23,14 +23,14 @@ function addIntegration() {
 
 
 function editIntegration(event) {
-    let entryElement = event.target.parentNode
+    let entryElement = event.target
     let id = entryElement.id
-    if (!id.startsWith(":")) {
+    if (!id.startsWith("integration.")) {
         // Clicked on input; not handled here.
         // console.log("Target element id not recognized: ", entryElement)
         return
     }
-    let name = id.substring(":".length)
+    let name = id.substring("integration.".length)
     let integrationSpec = integrations[name]
     let constructorSpec = functions[integrationSpec.type]
 

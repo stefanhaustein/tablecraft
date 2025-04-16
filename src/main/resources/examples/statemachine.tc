@@ -2,23 +2,23 @@ simulationMode = true
 
 [ports]
 
-low_sensor: {"name":"low_sensor", "type":"din", "configuration": {"address":1,"name":"low_sensor"}}
-level_a: {"name":"level_a", "type":"din", "configuration": {"address":"2","name":"level_a"}}
+low_sensor: {"name":"low_sensor", "type":"din", "configuration": {"address":1}}
+level_a: {"name":"level_a", "type":"din", "configuration": {"address":2}}
 level_b: {"name":"level_b", "type":"din", "configuration": {"address":3,"name":"level_b"}}
-valve_a: {"name":"valve_a", "type":"dout", "configuration": {"address":"4","name":"valve_a"}, "dependsOn":"[Sheet1!E3:=state = filling_a]", "dependencies":"[]", "expression":"=Sheet1!E3"}
-valve_b: {"name":"valve_b", "type":"dout", "configuration": {"address":"5","name":"valve_b"}, "dependsOn":"[Sheet1!I3:=state = filling_b]", "dependencies":"[]", "expression":"=Sheet1!I3"}
-valve_out: {"name":"valve_out", "type":"dout", "configuration": {"address":"6","name":"valve_out"}, "dependsOn":"[Sheet1!H11:=state = emptying]", "dependencies":"[]", "expression":"=Sheet1!H11"}
-mixer: {"name":"mixer", "type":"dout", "configuration": {"address":"7","name":"mixer"}, "dependsOn":"[Sheet1!G2:=state = mixing]", "dependencies":"[]", "expression":"=Sheet1!G2"}
+valve_a: {"name":"valve_a", "type":"dout", "configuration": {"address":4,"name":"valve_a"}, "dependsOn":"[Sheet1!E3:=C13 =\"filling_a\"]", "dependencies":"[]", "expression":"=Sheet1!E3"}
+valve_b: {"name":"valve_b", "type":"dout", "configuration": {"address":5,"name":"valve_b"}, "dependsOn":"[Sheet1!I3:=C13 = \"filling_b\"]", "dependencies":"[]", "expression":"=Sheet1!I3"}
+valve_out: {"name":"valve_out", "type":"dout", "configuration": {"address":6,"name":"valve_out"}, "dependsOn":"[Sheet1!H11:=C13 = \"emptying\"]", "dependencies":"[]", "expression":"=Sheet1!H11"}
+mixer: {"name":"mixer", "type":"dout", "configuration": {"address":7,"name":"mixer"}, "dependsOn":"[Sheet1!G2:=C13 = \"mixing\"]", "dependencies":"[]", "expression":"=Sheet1!G2"}
 
 [portValues]
 
 low_sensor: false
 level_a: false
 level_b: false
-valve_a: "kotlin.Unit"
-valve_b: "kotlin.Unit"
-valve_out: "kotlin.Unit"
-mixer: "kotlin.Unit"
+valve_a: false
+valve_b: false
+valve_out: false
+mixer: false
 
 [simulationValues]
 
@@ -57,21 +57,25 @@ E8 = {"f": ""}
 D2 = {"f": ""}
 E9 = {"f": ""}
 E7 = {"f": "=level_a", "i": "img/symbol/sensor.level.r.svg?active="}
-E3 = {"f": "=state = filling_a", "i": "img/symbol/valve.v.svg?active="}
-I3 = {"f": "=state = filling_b", "i": "img/symbol/valve.v.svg?active="}
-E5 = {"f": "=level_b", "i": "img/symbol/sensor.level.r.svg?active="}
-G3 = {"f": "", "i": "img/line/hv.svg"}
-H11 = {"f": "=state = emptying", "i": "img/symbol/valve.h.svg?active="}
-J5 = {"f": ""}
+E3 = {"f": "=C13 =\"filling_a\"", "i": "img/symbol/valve.v.svg?active="}
+C13 = {"f": "=statemachine(C14:E17)"}
 C14 = {"f": "filling_a"}
+E17 = {"f": "filling_a"}
 D14 = {"f": "=level_a"}
 E14 = {"f": "filling_b"}
 C15 = {"f": "filling_b"}
 D15 = {"f": "=level_b"}
 E15 = {"f": "mixing"}
 C16 = {"f": "mixing"}
-D16 = {"f": "30"}
+D16 = {"f": "3000"}
 E16 = {"f": "emptying"}
+C17 = {"f": "emptying"}
+D17 = {"f": "=not low_sensor"}
+I3 = {"f": "=C13 = \"filling_b\"", "i": "img/symbol/valve.v.svg?active="}
+E5 = {"f": "=level_b", "i": "img/symbol/sensor.level.r.svg?active="}
+G3 = {"f": "", "i": "img/line/hv.svg"}
+H11 = {"f": "=C13 = \"emptying\"", "i": "img/symbol/valve.h.svg?active="}
+J5 = {"f": ""}
 A5 = {"f": ""}
 C12 = {"f": ""}
 D12 = {"f": ""}
@@ -94,7 +98,7 @@ D10 = {"f": "level 0"}
 F2 = {"f": ""}
 H2 = {"f": ""}
 G1 = {"f": ""}
-G2 = {"f": "=state = mixing", "i": "img/symbol/motor.svg?active="}
+G2 = {"f": "=C13 = \"mixing\"", "i": "img/symbol/motor.svg?active="}
 G5 = {"f": "", "i": "img/line/v.svg"}
 G6 = {"f": "", "i": "img/line/v.svg"}
 E4 = {"f": "", "i": "img/line/tr.svg"}
@@ -109,7 +113,7 @@ J6 = {"f": "", "i": ""}
 I11 = {"f": "", "i": "img/arrow/r.svg"}
 I1 = {"f": "input b", "i": ""}
 I8 = {"f": "", "i": ""}
-C17 = {"f": "emptying"}
-D17 = {"f": "=not low_sensor"}
-E17 = {"f": "filling_a"}
+B13 = {"f": "state:"}
+B3 = {"f": "", "i": ""}
+b5 = {"f": ""}
 
