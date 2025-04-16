@@ -269,13 +269,22 @@ function processIntegrationsUpdate(map) {
 function processIntegrationUpdate(name, integration) {
     let id = "integration." + name
     let element = document.getElementById(id)
-    if (element == null) {
-        element = document.createElement("div")
-        element.id = id
-        let integrationListElement = document.getElementById("integrationList")
-        integrationListElement.appendChild(element)
-    }
-    element.textContent = name
+    let integrationListElement = document.getElementById("integrationList")
 
-    integrations[name] = integration
+    if (integration.type == "TOMBSTONE") {
+        if (element != null) {
+            integrationListElement.removeChild(element)
+        }
+        delete integrations[name]
+    } else {
+        integration.name = name
+        if (element == null) {
+            element = document.createElement("div")
+            element.id = id
+
+            integrationListElement.appendChild(element)
+        }
+        element.textContent = name
+        integrations[name] = integration
+    }
 }

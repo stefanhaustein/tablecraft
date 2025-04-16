@@ -39,7 +39,7 @@ function editIntegration(event) {
 
 function showIntegrationDialog(constructorSpec, integrationSpec) {
 
-    let instanceSpec = integrationSpec != null ? integrationSpec["configuration"] : {}
+    let configuration = integrationSpec != null ? integrationSpec["configuration"] : {}
     dialogElement.textContent = ""
     let dialogTitleElement = document.createElement("div")
     dialogTitleElement.className = "dialogTitle"
@@ -64,11 +64,10 @@ function showIntegrationDialog(constructorSpec, integrationSpec) {
     typeNameElement.textContent = constructorSpec.name
     inputDiv.appendChild(typeNameElement)
 
-
     let bindingFormController = FormController.create(inputDiv, constructorSpec["params"])
 
-    if (instanceSpec != null) {
-        bindingFormController.setValues(instanceSpec)
+    if (configuration != null) {
+        bindingFormController.setValues(configuration)
     }
 
     dialogElement.appendChild(inputDiv)
@@ -95,12 +94,12 @@ function showIntegrationDialog(constructorSpec, integrationSpec) {
     cancelButton.addEventListener("click", () => { dialogElement.close() })
     buttonDiv.appendChild(cancelButton)
 
-    if (name != null) {
+    if (previousName != null) {
         let deleteButton = document.createElement("button")
         deleteButton.textContent = "Delete"
         deleteButton.className = "dialogButton"
         deleteButton.addEventListener("click", () => {
-            sendJson("updateIntegration", {previousName: name})
+            sendJson("updateIntegration", {previousName: previousName})
             dialogElement.close()
         })
         buttonDiv.appendChild(deleteButton)

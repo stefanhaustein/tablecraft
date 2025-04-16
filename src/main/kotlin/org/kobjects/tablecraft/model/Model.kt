@@ -115,7 +115,7 @@ object Model : ModelInterface {
     fun serialize(writer: Writer, forClient: Boolean = false, tag: Long = -1) {
         writer.write("simulationMode = $simulationMode_\n\n")
 
-        serializeIntegrations(writer, tag)
+        serializeIntegrations(writer, forClient, tag)
 
         if (forClient) {
             writer.write(serializeFunctions(tag))
@@ -182,10 +182,10 @@ object Model : ModelInterface {
         }
     }
 
-    fun serializeIntegrations(writer: Writer, tag: Long) {
+    fun serializeIntegrations(writer: Writer, forClient: Boolean, tag: Long) {
         val sb = StringBuilder()
         for ((name, integration) in integrationMap) {
-            if (integration.tag > tag) {
+            if (integration.tag > tag && (forClient || integration !is Integration.Tombstone)) {
                 sb.append(name).append(": ")
                 integration.toJson(sb)
                 sb.append('\n')
@@ -218,7 +218,9 @@ object Model : ModelInterface {
     }
 
     fun deleteIntegration(name: String, token: ModificationToken) {
-
+        integrationMap[name]?.detach()
+        integrationMap[name] = Integration.Tombstone(token.tag)
+        token.symbolsChanged = true
     }
 
     fun definePort(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken): Port? {

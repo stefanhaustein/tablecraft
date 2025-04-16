@@ -11,6 +11,9 @@ class RestIntegration(
     val name = configuration["name"] as String
     override val tag = (configuration["tag"] as Number).toLong()
 
+    override val type: String
+        get() = "Rest"
+
     val values = mutableMapOf<String, Any>()
     init {
         // embeddedServer(CIO, port = configuration["port"]?.toString()?.toInt() ?: 8088) {}

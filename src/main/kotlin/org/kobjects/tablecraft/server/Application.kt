@@ -61,10 +61,10 @@ fun Application.module() {
             call.respond(HttpStatusCode.OK, null)
         }
         post("/updateIntegration") {
-            val name = call.request.queryParameters["name"]
             val jsonText = call.receiveText()
             println("Received JSON: $jsonText")
             val jsonSpec = JsonParser.parseObject(jsonText)
+            val name = jsonSpec["name"] as String?
             Model.applySynchronizedWithToken { token ->
                 Model.defineIntegration(name, jsonSpec, token)
             }
