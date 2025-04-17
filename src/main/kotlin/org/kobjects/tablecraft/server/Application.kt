@@ -81,6 +81,24 @@ fun Application.module() {
             }
             call.respond(HttpStatusCode.OK, null)
         }
+        post("/loadExample") {
+            val name = call.receiveText()
+            val exampleFile = File("src/main/resources/examples", name + ".tc")
+            val data = exampleFile.readText()
+            Model.applySynchronizedWithToken {
+                Model.clearAll(it)
+                Model.loadData(data, it)
+                it.symbolsChanged = true
+                it.formulaChanged = true
+            }
+        }
+        post("/clearAll") {
+            Model.applySynchronizedWithToken {
+                Model.clearAll(it)
+                it.symbolsChanged = true
+                it.formulaChanged = true
+            }
+        }
         get("/data") {
             val rawTag = call.request.queryParameters["tag"]?.toLong()
             val forClient = rawTag != null

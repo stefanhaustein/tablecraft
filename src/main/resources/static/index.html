@@ -12,9 +12,11 @@
 <body style="width:100%; height:100%; border:0; padding:0; margin:0; display: flex;  flex-direction: column;">
     <div style="display:flex; flex: none">
         <select id="menuSelect" style="width:72px">
-            <option>Menu</option>
-            <option>Load</option>
-            <option>Save</option>
+            <option>Files</option>
+            <option>Clear</option>
+            <option>Load File</option>
+            <option>Load Example</option>
+            <option>Save File</option>
         </select>
         <input id="formulaInput" style="flex-grow: 1" list="functions">
         <datalist id="functions"></datalist>
@@ -130,7 +132,7 @@
     </dialog>
 
     <dialog id="uploadDialog">
-        <div clase="dialogTitle">Load Spreadsheet</div>
+        <div clase="dialogTitle">Load File</div>
         <div class="dialogFields">
             <label for="uploadFileInput"></label>
             <input id="uploadFileInput" type="file" />
@@ -142,7 +144,7 @@
     </dialog>
 
     <dialog id="downloadDialog">
-        <div class="dialogTitle">Save Spreadsheet</div>
+        <div class="dialogTitle">Save File</div>
         <div class="dialogFields">
             <label for="downloadFileNameInput">File Name</label>
             <input id="downloadFileNameInput" value="data"/>
@@ -155,6 +157,21 @@
         </div>
     </dialog>
 
+    <dialog id="exampleDialog">
+        <div clase="dialogTitle">Load Example</div>
+        <div class="dialogFields">
+            <label for="exampleSelect">Examples</label>
+            <select id="exampleSelect">
+                <option>Mixer</option>
+                <option>Statemachine</option>
+            </select>
+        </div>
+        <div class="dialogButtons">
+            <button id="exampleButton">Load</button>
+            <button id="exampleCancel">Cancel</button>
+        </div>
+    </dialog>
+
     <script type="module" src="js/setup.js"></script>
     <script type="module" src="js/shared_state.js"></script>
     <script type="module" src="js/formula_input_controller.js"></script>
@@ -163,7 +180,7 @@
     <script type="module" src="js/graphics_panel_controller.js"></script>
     <script type="module" src="js/port_panel_controller.js"></script>
     <script type="module" src="js/integration_panel_controller.js"></script>
-    <script type="module" src="js/menu_controller.js"></script>
+    <script type="module" src="js/file_menu_controller.js"></script>
     <script type="module" src="js/sync.js"></script>
 </body>
 </html>
