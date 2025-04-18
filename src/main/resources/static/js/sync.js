@@ -225,7 +225,7 @@ function processPortUpdate(name, f) {
         entryElement.appendChild(entryTitleElement)
 
         let modifiers = spec["modifiers"] || []
-        console.log("adding port", f, spec)
+        // console.log("adding port", f, spec)
 
         let showValue = true
         if (spec.kind == "OUTPUT_PORT") {
@@ -237,7 +237,9 @@ function processPortUpdate(name, f) {
             let entryValueElement = document.createElement("div")
             entryValueElement.id = "port." + name + ".simulationValue"
             entryValueElement.className = "portSimulationValue"
-            let controller = f.valueController = new InputController({type: camelCase(spec.returnType)})
+            let controller = f.valueController = new InputController({
+                type: camelCase(spec.returnType),
+                modifiers: ["CONSTANT"]})
             entryValueElement.appendChild(controller.element)
             controller.addListener((value, source) => {
                 sendJson("portSimulation?name=" + name, value)
