@@ -1,0 +1,27 @@
+simulationMode = false
+
+[integrations]
+
+lcd: {"name":"lcd", "type":"Lcd1602", "configuration": {"width":"80","height":"4"}}
+rest: {"name":"rest", "type":"Rest", "configuration": {"port":"8088"}}
+[ports]
+
+co_2: {"name":"co_2", "type":"pwmin", "configuration": {"address":24}}
+lcd_co2: {"name":"lcd_co2", "type":"lcd.section", "configuration": {"x":0,"y":0,"width":10}, "dependsOn":"[Sheet1!B4:=B2*100.0]", "dependencies":"[]", "expression":"=Sheet1!B4"}
+
+[portValues]
+
+co_2: 0.123
+lcd_co2: 12.3
+
+[simulationValues]
+
+co_2: 0.0
+
+
+[sheets.Sheet1.cells]
+
+B2 = {"f": "=co_2()"}
+B4 = {"f": "=B2*100.0"}
+b2 = {"f": ""}
+
