@@ -44,17 +44,14 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
             listOf(ParameterSpec("address",  Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
         ) { DigitalOutput(this, it) },
         OperationSpec(
-            OperationKind.OUTPUT_PORT,
+            OperationKind.INTEGRATION,
             Type.TEXT,
-            "lcddisplay",
+            "Lcd1602",
             "Configures the size of a lcd display",
             listOf(
                 ParameterSpec("width", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),
-                ParameterSpec("height",  Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),
-                ParameterSpec("x", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),
-                ParameterSpec("y",  Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),
-                ParameterSpec("text", Type.TEXT))
-            ) { Lcd(this, it) },
+                ParameterSpec("height",  Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)))
+            ) { Lcd1602(this, it) },
     )
 
 }
