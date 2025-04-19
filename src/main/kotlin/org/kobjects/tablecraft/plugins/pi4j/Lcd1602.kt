@@ -59,7 +59,9 @@ class Lcd1602(
         })
 
 
-    inner class Section(val x: Int, val y: Int) : Operation {
+    inner class Section(val x: Int, val y: Int) : StatefulOperation {
+
+        override fun attach(host: OperationHost) {}
 
         override fun apply(params: Map<String, Any>): Any {
             val text = params["value"].toString()
@@ -70,6 +72,8 @@ class Lcd1602(
             display?.puts(text)
             return text
         }
+
+        override fun detach() {}
     }
 
 }
