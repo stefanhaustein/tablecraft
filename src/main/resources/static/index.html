@@ -11,15 +11,16 @@
 </head>
 <body style="width:100%; height:100%; border:0; padding:0; margin:0; display: flex;  flex-direction: column;">
     <div style="display:flex; flex: none">
-        <select id="menuSelect" style="width:72px">
+        <select id="sheetSelect" style="width:72px"></select>
+        <input id="formulaInput" style="flex-grow: 1" list="functions">
+        <datalist id="functions"></datalist>
+        <select id="menuSelect" style="width:144px">
             <option>Files</option>
             <option>Clear</option>
             <option>Load File</option>
             <option>Load Example</option>
             <option>Save File</option>
         </select>
-        <input id="formulaInput" style="flex-grow: 1" list="functions">
-        <datalist id="functions"></datalist>
         <select id="panelSelect" style="width:208px">
             <option>About</option>
             <option value="Function">Function Details</option>
@@ -163,12 +164,25 @@
             <label for="exampleSelect">Examples</label>
             <select id="exampleSelect">
                 <option>Mixer</option>
+                <option>Multisensor</option>
                 <option>Statemachine</option>
             </select>
         </div>
         <div class="dialogButtons">
             <button id="exampleButton">Load</button>
             <button id="exampleCancel">Cancel</button>
+        </div>
+    </dialog>
+
+    <dialog id="sheetDialog">
+        <div clase="dialogTitle" id="sheetDialogTitle">Sheet Metadata</div>
+        <div class="dialogFields">
+            <label for="sheetNameInput">Name</label>
+            <input id="sheetNameInput"  />
+        </div>
+        <div class="dialogButtons">
+            <button id="sheetOkButton">Ok</button>
+            <button id="sheetCancelButton">Cancel</button>
         </div>
     </dialog>
 
@@ -181,6 +195,7 @@
     <script type="module" src="js/port_panel_controller.js"></script>
     <script type="module" src="js/integration_panel_controller.js"></script>
     <script type="module" src="js/file_menu_controller.js"></script>
+    <script type="module" src="js/sheet_menu_controller.js"></script>
     <script type="module" src="js/sync.js"></script>
 </body>
 </html>

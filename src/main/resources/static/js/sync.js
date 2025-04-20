@@ -1,16 +1,13 @@
 import {renderComputedValue} from "./cell_renderer.js";
 import {
-    currentSheet,
-    ports,
     functions,
-    currentCellId,
-    currentCellData,
+    integrations,
+    model,
+    ports,
     portValues,
-    simulationValues,
-    integrations
+    simulationValues
 } from "./shared_state.js";
-import {FormController} from "./forms/form_builder.js";
-import {sendJson, camelCase} from "./lib/util.js";
+import {addOption, sendJson, camelCase} from "./lib/util.js";
 import {InputController} from "./forms/input_controller.js";
 
 var currentTag = -1
@@ -61,8 +58,8 @@ function proccessUpdateResponseText(responseText) {
 }
 
 function processSection(name, map) {
-    if (name.startsWith("sheets")) {
-        processSheetUpdate(map)
+    if (name.startsWith("sheets.") && name.endsWith(".cells")) {
+        processSheetUpdate(name.substring("sheets.".length, name.length - ".cells".length), map)
     } else switch (name) {
         case "":
             currentTag = map["tag"]
@@ -117,8 +114,28 @@ function processSimulationValues(map) {
 }
 
 
-function processSheetUpdate(map) {
-    let cells = currentSheet.cells
+function processSheetUpdate(name, map) {
+    console.log("processSheetUpdate", name, map)
+
+    let sheetSelectElement = document.getElementById("sheetSelect")
+    if (model.sheets[name] == null || sheetSelectElement.firstElementChild == null) {
+        if (model.sheets[name] == null ) {
+            model.sheets[name] = {
+                name: name,
+            cells: {}
+            }
+        }
+
+        for (let key in model.sheets) {
+            let option = document.createElement("option")
+            option.textContent = key
+            sheetSelectElement.appendChild(option)
+        }
+        addOption(sheetSelectElement, "Edit Sheet Metadata")
+        addOption(sheetSelectElement, "Add New Sheet")
+    }
+
+    let cells = model.sheets[name].cells
     for (let key in map) {
         let newValue = map[key]
         if (key.endsWith(".c")) {

@@ -1,6 +1,11 @@
 package org.kobjects.tablecraft.plugins.rest
 
 
+import io.ktor.http.*
+import io.ktor.server.cio.*
+import io.ktor.server.engine.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.pluginapi.*
@@ -16,7 +21,13 @@ class RestIntegration(
 
     val values = mutableMapOf<String, Any>()
     init {
-        // embeddedServer(CIO, port = configuration["port"]?.toString()?.toInt() ?: 8088) {}
+        embeddedServer(CIO, port = configuration["port"]?.toString()?.toInt() ?: 8088) {
+            routing {
+                get("/") {
+                    call.respondText(values.toJson())
+                }
+            }
+        }.start()
     }
 
 
