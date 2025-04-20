@@ -33,6 +33,8 @@ let cellSelectionListeners = [] // new id, edit mode
 let formulaInputElement = document.getElementById("formulaInput")
 let committedFormula = null
 
+let originElement = document.getElementById("origin")
+
 selectCell("A1")
 
 document.getElementById("simulationMode").addEventListener("change", (event) =>{
@@ -126,6 +128,9 @@ export function selectCell(id) {
     if (!newElement) {
         return
     }
+
+    originElement.textContent = id
+
     let newData = currentSheet.cells[id]
     if (newData == null) {
         newData = currentSheet.cells[id] = {}

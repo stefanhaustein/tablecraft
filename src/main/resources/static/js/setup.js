@@ -8,6 +8,7 @@ for (let col = 0; col < 27; col++) {
     if (col == 0) {
         th.style.left = 0
         th.style.zIndex = 3
+        th.id = "origin"
     } else {
         th.textContent = String.fromCharCode(col + 64)
     }
