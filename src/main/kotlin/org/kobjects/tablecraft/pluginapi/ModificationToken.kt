@@ -9,6 +9,7 @@ class ModificationToken() {
     var loading = false
     var formulaChanged = false
     var symbolsChanged = false
+
     val refreshRoots = mutableSetOf<Node>()
     val refreshNodes = mutableSetOf<Node>()
 

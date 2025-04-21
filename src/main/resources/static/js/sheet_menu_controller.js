@@ -1,4 +1,4 @@
-import {currentSheetName, model} from "./shared_state.js";
+import {currentSheetName, model, selectSheet} from "./shared_state.js";
 
 let sheetDialogElement = document.getElementById("sheetDialog")
 let sheetSelectElement = document.getElementById("sheetSelect")
@@ -9,15 +9,18 @@ let sheetNameInputElement = document.getElementById("sheetNameInput")
 document.getElementById("sheetCancelButton").addEventListener("click", () => sheetDialogElement.close())
 
 sheetSelectElement.addEventListener("change", () => {
-    sheetDialogTitleElement.textContent = sheetSelectElement.value
-    if (sheetSelectElement.value == "Edit Sheet Metadata") {
+    let selectedValue = sheetSelectElement.value
+    sheetDialogTitleElement.textContent = selectedValue
+    if (selectedValue == "Edit Sheet Metadata") {
         sheetSelectElement.value = currentSheetName
         sheetDialogOkButtonElement.textContent = "Ok"
         editSheetMetadata(currentSheetName)
-    } else if (sheetSelectElement.value == "Add New Sheet") {
+    } else if (selectedValue == "Add New Sheet") {
         sheetSelectElement.value = currentSheetName
         sheetDialogOkButtonElement.textContent = "Add"
         editSheetMetadata()
+    } else {
+        selectSheet(selectedValue)
     }
 })
 
@@ -42,7 +45,7 @@ function editSheetMetadata(sheetName) {
         let body = {
             previousName: previousName,
             name: sheetNameInputElement.value }
-        fetch(new Request("updateSheet", {method: "POST", body: JSON.stringify(body)}))
+        fetch(new Request("sheet", {method: "POST", body: JSON.stringify(body)}))
         sheetDialogElement.close()
     }
 

@@ -1,6 +1,9 @@
 import {commitCurrentCell, setCurrentCellFormula} from "./shared_state.js";
 
 export function renderComputedValue(targetElement, cellData) {
+    if (cellData == null) {
+        cellData = {}
+    }
     let imgSrc = cellData["i"]
     let value = cellData["c"]
     if (imgSrc) {

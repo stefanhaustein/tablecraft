@@ -3,19 +3,35 @@ package org.kobjects.tablecraft.model
 import org.kobjects.tablecraft.pluginapi.ModificationToken
 
 
-class Sheet(var name: String) {
+class Sheet(
+    val name: String,
+    var tag: Long = 0L
+) {
     val cells = mutableMapOf<String, Cell>()
+    var deleted = false
 
     fun set(cellId: String, value: String, modificationToken: ModificationToken) {
         val cell = getOrCreateCell(cellId)
         cell.setFormula(value, modificationToken)
     }
 
+    fun delete(token: ModificationToken) {
+        deleted = true
+        tag = token.tag
+        cells.clear()
+        token.symbolsChanged = true
+    }
+
 
     fun serialize(tag: Long, includeComputed: Boolean): String {
-        val sb = StringBuilder("[sheets.$name.cells]\n\n")
-        for (cell in cells.values) {
-            cell.serialize(sb, tag, includeComputed)
+        val sb = StringBuilder()
+        if (deleted) {
+            sb.append("[sheets.$name]\n\ndeleted: true\n\n")
+        } else {
+            sb.append("[sheets.$name.cells]\n\n")
+            for (cell in cells.values) {
+                cell.serialize(sb, tag, includeComputed)
+            }
         }
         return sb.toString()
     }
@@ -39,10 +55,6 @@ class Sheet(var name: String) {
         for (cell in cells.values) {
             cell.setFormula("", modificationToken)
         }
-    }
-
-    enum class ValueType {
-        FORMULA, COMPUTED_VALUE
     }
 
 }

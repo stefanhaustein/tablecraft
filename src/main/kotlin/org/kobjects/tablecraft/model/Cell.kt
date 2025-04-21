@@ -2,6 +2,7 @@ package org.kobjects.tablecraft.model
 
 import kotlinx.datetime.*
 import kotlinx.datetime.format.char
+import org.kobjects.tablecraft.json.ToJson
 import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.model.builtin.ImageReference
@@ -11,7 +12,7 @@ import org.kobjects.tablecraft.pluginapi.ModificationToken
 class Cell(
     val sheet: Sheet,
     id: String
-) : ExpressionNode(), Iterable<Cell> {
+) : ExpressionNode(), Iterable<Cell>, ToJson {
 
     val column: Int
     val row: Int
@@ -136,6 +137,10 @@ class Cell(
             serializeValue(sb)
             sb.append('\n')
         }
+    }
+
+    override fun toJson(sb: StringBuilder) {
+        serialize(sb, -1, false)
     }
 
     override fun qualifiedId() = "${sheet.name}!$id"

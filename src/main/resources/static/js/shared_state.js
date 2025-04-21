@@ -122,6 +122,20 @@ function showDependencies(ids, className, add) {
     }
 }
 
+export function selectSheet(name) {
+    let cellId = currentCellId
+
+    currentSheetName = name
+    currentSheet = model.sheets[name]
+    let cells = currentSheet.cells
+
+    for (let tdElement of document.getElementById("spreadsheetTBody").getElementsByTagName("td")) {
+        renderComputedValue(tdElement, cells[tdElement.id])
+    }
+
+
+    selectCell(cellId)
+}
 
 export function selectCell(id) {
     let newElement = document.getElementById(id)

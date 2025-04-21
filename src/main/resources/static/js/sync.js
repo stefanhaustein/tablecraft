@@ -126,6 +126,7 @@ function processSheetUpdate(name, map) {
             }
         }
 
+        sheetSelectElement.textContent = ""
         for (let key in model.sheets) {
             let option = document.createElement("option")
             option.textContent = key

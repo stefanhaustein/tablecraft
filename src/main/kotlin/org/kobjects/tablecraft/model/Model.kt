@@ -1,5 +1,6 @@
 package org.kobjects.tablecraft.model
 
+import org.kobjects.tablecraft.json.JsonParser
 import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.model.builtin.BuiltinFunctions
 import org.kobjects.tablecraft.model.type.Configuration
@@ -289,6 +290,33 @@ object Model : ModelInterface {
             token.symbolsChanged = true
         }
     }
+
+
+    fun updateSheet(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken) {
+        val previousName = jsonSpec["previousName"] as? String?
+
+        if (!name.isNullOrBlank()) {
+            if (name != previousName) {
+                val newSheet = Sheet(name, token.tag)
+                sheets[name] = newSheet
+                token.symbolsChanged = true
+                if (!previousName.isNullOrBlank()) {
+                    val oldSheet = sheets[previousName]
+                    if (oldSheet != null) {
+                        for (oldCell in oldSheet.cells.values) {
+                            val newCell = newSheet.getOrCreateCell(oldCell.id)
+                            newCell.setJson(JsonParser.parseObject(oldCell.toJson()), token)
+                        }
+                    }
+                    sheets[previousName]?.delete(token)
+                }
+            }
+
+        } else if (!previousName.isNullOrBlank()) {
+            sheets[previousName]?.delete(token)
+        }
+    }
+
 
     fun clearAll(modificationToken: ModificationToken) {
         modificationToken.symbolsChanged = true

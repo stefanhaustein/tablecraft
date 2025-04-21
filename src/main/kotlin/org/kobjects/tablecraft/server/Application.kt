@@ -70,6 +70,16 @@ fun Application.module() {
             }
             call.respond(HttpStatusCode.OK, null)
         }
+        post("/sheet") {
+            val jsonText = call.receiveText()
+            println("Received JSON: $jsonText")
+            val jsonSpec = JsonParser.parseObject(jsonText)
+            val name = jsonSpec["name"] as String?
+            Model.applySynchronizedWithToken { token ->
+                Model.updateSheet(name, jsonSpec, token)
+            }
+            call.respond(HttpStatusCode.OK, null)
+        }
         post("/upload") {
             val fileItem = call.receiveMultipart().readPart() as PartData.FileItem
             val data = fileItem.provider().toByteArray().toString(Charsets.UTF_8)
