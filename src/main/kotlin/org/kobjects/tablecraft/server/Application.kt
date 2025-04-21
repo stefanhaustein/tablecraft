@@ -10,6 +10,7 @@ import io.ktor.server.routing.*
 import io.ktor.utils.io.*
 import kotlinx.html.dom.serialize
 import org.kobjects.tablecraft.json.JsonParser
+import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.model.Model
 import java.io.File
 import java.io.StringWriter
@@ -133,6 +134,10 @@ fun Application.module() {
                 writer.toString()
             }
             call.respondText(result, ContentType.Text.Plain, HttpStatusCode.OK,)
+        }
+        get("/rest") {
+            val json = Model.restValues.toJson()
+            call.respondText(json, ContentType.Application.Json, HttpStatusCode.OK)
         }
         get("img/{name...}") {
             val path = call.parameters.getAll("name")!!.joinToString("/")

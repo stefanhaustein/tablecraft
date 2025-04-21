@@ -44,7 +44,7 @@ data class OperationSpec(
     }
 
     enum class Modifier {
-
+         NO_SIMULATION
     }
 }
 

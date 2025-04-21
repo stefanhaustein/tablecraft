@@ -85,6 +85,7 @@ object BuiltinFunctions : Plugin {
             StateMachine.create(it)
         },
 
+        RestOut.SPEC
 
     )
 }

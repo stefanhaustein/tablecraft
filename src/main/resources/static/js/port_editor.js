@@ -43,10 +43,11 @@ export function showPortDialog(kind, portSpec) {
     if (kind == "OUTPUT_PORT") {
         portSchema.push({"name": "expression"})
     }
+
     let previousName = portSpec == null ? null : portSpec["name"]
 
     let portFormController = FormController.create(inputDiv, portSchema)
-    portFormController.setValues(portSpec)
+    portFormController.setValues(portSpec == null ? {name: kind.substring(0, 1).toLowerCase() + "_"} : portSpec)
 
     let typeLabelElement = document.createElement("label")
     typeLabelElement.textContent = "binding"
@@ -56,14 +57,17 @@ export function showPortDialog(kind, portSpec) {
 
     let typeSelectElement = document.createElement("select")
 
+    let okButton = document.createElement("button")
     if (constructorSpec == null) {
+        okButton.textContent = "Create"
         let typeOptionElement = document.createElement("option")
         typeOptionElement.textContent = "(select)"
         typeSelectElement.appendChild(typeOptionElement)
+        okButton.disabled = true
+    } else {
+        okButton.textContent = "Ok"
     }
 
-    let okButton = document.createElement("button")
-    okButton.disabled = constructorSpec == null
 
     for (let name in functions) {
         let f = functions[name]
@@ -97,7 +101,6 @@ export function showPortDialog(kind, portSpec) {
 
     let buttonDiv = document.createElement("div")
 
-    okButton.textContent = "Ok"
     okButton.className = "dialogButton"
     okButton.addEventListener("click", () => {
         let values = portFormController.getValues()

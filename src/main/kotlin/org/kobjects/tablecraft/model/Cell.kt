@@ -5,7 +5,6 @@ import kotlinx.datetime.format.char
 import org.kobjects.tablecraft.json.ToJson
 import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.json.toJson
-import org.kobjects.tablecraft.model.builtin.ImageReference
 import org.kobjects.tablecraft.model.expression.PortReference
 import org.kobjects.tablecraft.pluginapi.ModificationToken
 
@@ -78,7 +77,6 @@ class Cell(
             is Double -> sb.append(value.toFloat())
             is Number -> sb.append(value)
             is Exception -> sb.append("""{"type": "err", "msg": ${(value::class.simpleName.toString() + value.message).quote()}}""")
-            is ImageReference -> sb.append("""{"type": "img", "src":${value.source.quote()}}""")
             is Instant -> {
                 val localDateTime = value.toLocalDateTime(TimeZone.currentSystemDefault())
                 /* sb.append(localDateTime.date.format(LocalDate.Formats.ISO))

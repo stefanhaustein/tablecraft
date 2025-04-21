@@ -6,7 +6,6 @@ import org.kobjects.tablecraft.model.builtin.BuiltinFunctions
 import org.kobjects.tablecraft.model.type.Configuration
 import org.kobjects.tablecraft.pluginapi.*
 import org.kobjects.tablecraft.plugins.pi4j.Pi4jPlugin
-import org.kobjects.tablecraft.plugins.rest.RestPlugin
 import org.kobjects.tablecraft.svg.SvgManager
 import java.io.File
 import java.io.FileWriter
@@ -34,13 +33,14 @@ object Model : ModelInterface {
 
     val svgs = SvgManager(File("src/main/resources/static/img"))
 
+    val restValues = mutableMapOf<String, Any>()
+
     private val lock = ReentrantLock()
 
     init {
         addPlugin(BuiltinFunctions)
         addPlugin(Pi4jPlugin(this))
         addPlugin(svgs)
-        addPlugin(RestPlugin(this))
         // addPlugin(MqttPlugin)
 
         applySynchronizedWithToken { runtimeContext ->

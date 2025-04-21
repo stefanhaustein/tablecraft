@@ -23,14 +23,16 @@ class Sheet(
     }
 
 
-    fun serialize(tag: Long, includeComputed: Boolean): String {
+    fun serialize(tag: Long, forClient: Boolean): String {
         val sb = StringBuilder()
         if (deleted) {
-            sb.append("[sheets.$name]\n\ndeleted: true\n\n")
+            if (forClient) {
+                sb.append("[sheets.$name]\n\ndeleted: true\n\n")
+            }
         } else {
             sb.append("[sheets.$name.cells]\n\n")
             for (cell in cells.values) {
-                cell.serialize(sb, tag, includeComputed)
+                cell.serialize(sb, tag, forClient)
             }
         }
         return sb.toString()

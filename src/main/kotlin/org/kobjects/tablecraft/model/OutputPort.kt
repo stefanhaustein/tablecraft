@@ -36,7 +36,7 @@ class OutputPort(
 
         reparse()
 
-        if (!simulationMode) {
+        if (!simulationMode || specification.modifiers.contains(OperationSpec.Modifier.NO_SIMULATION)) {
             try {
                 portOperation.attach(this)
                 attached = true
