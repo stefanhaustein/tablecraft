@@ -3,13 +3,7 @@ import {nullToEmtpy} from "./lib/values.js";
 import {renderComputedValue} from "./cell_renderer.js";
 
 export var model = {
-    sheets: {
-        "Sheet1": {
-            "name": "Sheet1",
-            "cells": {
-            }
-        }
-    }
+    sheets: {}
 }
 
 export var functions = {}
@@ -17,8 +11,7 @@ export var integrations = {}
 export var ports = {}
 export var portValues = {}
 export var simulationValues = {}
-export var currentSheetName = "Sheet1"
-export var currentSheet = model.sheets[currentSheetName]
+export var currentSheet = null
 export let currentCellId = null
 export let currentCellElement = null
 export let currentCellData = {}
@@ -35,7 +28,6 @@ let committedFormula = null
 
 let originElement = document.getElementById("origin")
 
-selectCell("A1")
 
 document.getElementById("simulationMode").addEventListener("change", (event) =>{
     let checked = event.target.checked
@@ -123,16 +115,14 @@ function showDependencies(ids, className, add) {
 }
 
 export function selectSheet(name) {
-    let cellId = currentCellId
+    let cellId = currentCellId || "A1"
 
-    currentSheetName = name
     currentSheet = model.sheets[name]
     let cells = currentSheet.cells
 
     for (let tdElement of document.getElementById("spreadsheetTBody").getElementsByTagName("td")) {
         renderComputedValue(tdElement, cells[tdElement.id])
     }
-
 
     selectCell(cellId)
 }

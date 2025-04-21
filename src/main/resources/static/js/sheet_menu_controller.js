@@ -1,4 +1,4 @@
-import {currentSheetName, model, selectSheet} from "./shared_state.js";
+import {model, currentSheet, selectSheet} from "./shared_state.js";
 
 let sheetDialogElement = document.getElementById("sheetDialog")
 let sheetSelectElement = document.getElementById("sheetSelect")
@@ -12,11 +12,11 @@ sheetSelectElement.addEventListener("change", () => {
     let selectedValue = sheetSelectElement.value
     sheetDialogTitleElement.textContent = selectedValue
     if (selectedValue == "Edit Sheet Metadata") {
-        sheetSelectElement.value = currentSheetName
+        sheetSelectElement.value = currentSheet.name
         sheetDialogOkButtonElement.textContent = "Ok"
-        editSheetMetadata(currentSheetName)
+        editSheetMetadata(currentSheet.name)
     } else if (selectedValue == "Add New Sheet") {
-        sheetSelectElement.value = currentSheetName
+        sheetSelectElement.value = currentSheet.name
         sheetDialogOkButtonElement.textContent = "Add"
         editSheetMetadata()
     } else {

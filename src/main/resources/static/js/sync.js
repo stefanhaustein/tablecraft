@@ -1,10 +1,11 @@
 import {renderComputedValue} from "./cell_renderer.js";
 import {
+    currentSheet,
     functions,
     integrations,
     model,
     ports,
-    portValues,
+    portValues, selectSheet,
     simulationValues
 } from "./shared_state.js";
 import {addOption, sendJson, camelCase} from "./lib/util.js";
@@ -55,6 +56,13 @@ function proccessUpdateResponseText(responseText) {
         }
     }
     processSection(sectionTitle, sectionMap)
+
+    if (currentSheet == null) {
+        for (let name in model.sheets) {
+            selectSheet(name)
+            break
+        }
+    }
 }
 
 function processSection(name, map) {
