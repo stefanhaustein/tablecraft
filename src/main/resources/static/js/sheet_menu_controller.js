@@ -5,6 +5,7 @@ let sheetSelectElement = document.getElementById("sheetSelect")
 let sheetDialogTitleElement = document.getElementById("sheetDialogTitle")
 let sheetDialogOkButtonElement = document.getElementById("sheetOkButton")
 let sheetNameInputElement = document.getElementById("sheetNameInput")
+let sheetDialogDeleteButton = document.getElementById("sheetDeleteButton")
 
 document.getElementById("sheetCancelButton").addEventListener("click", () => sheetDialogElement.close())
 
@@ -27,19 +28,33 @@ sheetSelectElement.addEventListener("change", () => {
 
 function editSheetMetadata(sheetName) {
     let previousName = sheetName
+    let sheetCount = 0
+    for (let key in model.sheets) {
+        sheetCount++
+    }
+
     if (sheetName == null) {
-        let n = 0
-        for (let key in model.sheets) {
-            n++
-        }
+        let n = sheetCount
         do {
             n++
             sheetName = "Sheet" + n
         } while (model.sheets[sheetName] != null)
+        sheetDialogDeleteButton.style.display = "none"
+    } else {
+        sheetDialogDeleteButton.style.display = ""
+        sheetDialogDeleteButton.disabled = sheetCount == 1
     }
+
     sheetNameInputElement.value = sheetName
 
     sheetDialogElement.showModal()
+
+    sheetDialogDeleteButton.onclick = () => {
+        if (confirm("Delete Sheet " + name)) {
+            fetch(new Request("sheet", {method: "POST", body: JSON.stringify({previousName: previousName})}))
+        }
+        sheetDialogElement.close()
+    }
 
     sheetDialogOkButtonElement.onclick = () => {
         let body = {

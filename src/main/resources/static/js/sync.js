@@ -5,11 +5,15 @@ import {
     integrations,
     model,
     ports,
-    portValues, selectSheet,
+    portValues,
+    selectSheet,
     simulationValues
 } from "./shared_state.js";
+
 import {addOption, sendJson, camelCase} from "./lib/util.js";
 import {InputController} from "./forms/input_controller.js";
+
+let sheetSelectElement = document.getElementById("sheetSelect")
 
 var currentTag = -1
 fetch()
@@ -58,16 +62,17 @@ function proccessUpdateResponseText(responseText) {
     processSection(sectionTitle, sectionMap)
 
     if (currentSheet == null) {
-        for (let name in model.sheets) {
-            selectSheet(name)
-            break
-        }
+       selectSheet()
     }
 }
 
 function processSection(name, map) {
-    if (name.startsWith("sheets.") && name.endsWith(".cells")) {
-        processSheetUpdate(name.substring("sheets.".length, name.length - ".cells".length), map)
+    if (name.startsWith("sheets."))  {
+        if (name.endsWith(".cells") && name != "sheets.cells") {
+            processSheetCellsUpdate(name.substring("sheets.".length, name.length - ".cells".length), map)
+        } else {
+            processSheetUpdate(name.substring("sheets.".length), map)
+        }
     } else switch (name) {
         case "":
             currentTag = map["tag"]
@@ -121,11 +126,30 @@ function processSimulationValues(map) {
     }
 }
 
+function updateSheetSelectElement() {
+    sheetSelectElement.textContent = ""
+    for (let key in model.sheets) {
+        let option = document.createElement("option")
+        option.textContent = key
+        sheetSelectElement.appendChild(option)
+    }
+    addOption(sheetSelectElement, "Edit Sheet Metadata")
+    addOption(sheetSelectElement, "Add New Sheet")
+}
 
 function processSheetUpdate(name, map) {
-    console.log("processSheetUpdate", name, map)
+    if (map["deleted"]) {
+        let current =  model.sheets[name] == currentSheet
+        delete model.sheets[name]
+        updateSheetSelectElement()
+        if (current) {
+            selectSheet()
+        }
+    }
+}
 
-    let sheetSelectElement = document.getElementById("sheetSelect")
+function processSheetCellsUpdate(name, map) {
+
     if (model.sheets[name] == null || sheetSelectElement.firstElementChild == null) {
         if (model.sheets[name] == null ) {
             model.sheets[name] = {
@@ -134,14 +158,7 @@ function processSheetUpdate(name, map) {
             }
         }
 
-        sheetSelectElement.textContent = ""
-        for (let key in model.sheets) {
-            let option = document.createElement("option")
-            option.textContent = key
-            sheetSelectElement.appendChild(option)
-        }
-        addOption(sheetSelectElement, "Edit Sheet Metadata")
-        addOption(sheetSelectElement, "Add New Sheet")
+        updateSheetSelectElement()
     }
 
     let cells = model.sheets[name].cells

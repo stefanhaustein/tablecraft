@@ -117,8 +117,16 @@ function showDependencies(ids, className, add) {
 export function selectSheet(name) {
     let cellId = currentCellId || "A1"
 
+    if (name == null) {
+        for (name in model.sheets) {
+            break
+        }
+    }
+
     currentSheet = model.sheets[name]
     let cells = currentSheet.cells
+
+    document.getElementById("sheetSelect").value = name
 
     for (let tdElement of document.getElementById("spreadsheetTBody").getElementsByTagName("td")) {
         renderComputedValue(tdElement, cells[tdElement.id])
