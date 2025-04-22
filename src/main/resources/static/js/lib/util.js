@@ -30,3 +30,15 @@ export function sendText(path, data) {
     xhr.setRequestHeader('Content-Type', 'text/plain');
     xhr.send(data)
 }
+
+export function getColumn(cellId) {
+    return cellId.codePointAt(0) - 64
+}
+
+export function getRow(cellId) {
+    return parseInt(cellId.substring(1))
+}
+
+export function toCellId(column, row) {
+    return String.fromCodePoint(column + 64) + row
+}

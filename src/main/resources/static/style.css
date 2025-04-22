@@ -153,6 +153,10 @@ input:invalid {
     z-index: 1;
 }
 
+#spreadsheetTable td.focus2 {
+    background-color: lightblue;
+}
+
 #spreadsheetTable td.editing {
     outline: 2px solid #ddf;
 }

@@ -1,4 +1,13 @@
-import {currentCellElement, currentCellId, selectCell, setEditMode, EditMode} from "./shared_state.js"
+import {
+    currentCellElement,
+    currentCellId,
+    selectCell,
+    setEditMode,
+    EditMode,
+    selectionRangeY,
+    selectionRangeX, setSelectionRange
+} from "./shared_state.js"
+import {getColumn, getRow, toCellId} from "./lib/util.js";
 
 document.addEventListener("keydown", tableKeyPress)
 
@@ -24,25 +33,22 @@ function tableKeyPress(event) {
         return
     }
 
-    let letter = currentCellId.substring(0,1)
-    let number = parseInt(currentCellId.substring(1))
-
     let matched = true
     switch (event.key) {
         case "ArrowDown":
-            selectAndScrollCurrentIntoView(letter + (number + 1))
+            moveCursor(0, 1, event)
             break
 
         case "ArrowUp":
-            selectAndScrollCurrentIntoView(letter + (number - 1))
+            moveCursor(0, -1, event)
             break
 
         case "ArrowLeft":
-            selectAndScrollCurrentIntoView(String.fromCodePoint(letter.codePointAt(0) - 1) + number)
+            moveCursor(-1, 0, event)
             break
 
         case "ArrowRight":
-            selectAndScrollCurrentIntoView(String.fromCodePoint(letter.codePointAt(0) + 1) + number)
+            moveCursor(1, 0, event)
             break
 
         case "Enter":
@@ -54,6 +60,59 @@ function tableKeyPress(event) {
     }
     if (matched) {
         event.preventDefault()
+    }
+}
+
+function setRangeHighlight(setReset) {
+    let x0 = getColumn(currentCellId)
+    let y0 = getRow(currentCellId)
+    let y = y0
+    let dx = Math.sign(selectionRangeX)
+    let dy = Math.sign(selectionRangeY)
+    while(true) {
+        let x = x0
+        while (true) {
+            if (x != x0 || y != y0) {
+                let cellId = toCellId(x, y)
+                let cellElement = document.getElementById(cellId)
+                if (cellElement) {
+                    if (setReset) {
+                        cellElement.classList.add("focus2")
+                    } else {
+                        cellElement.classList.remove("focus2")
+                    }
+                }
+            }
+
+            if (x == x0 + selectionRangeX) {
+                break
+            }
+            x += dx
+        }
+        if (y == y0 + selectionRangeY) {
+            break
+        }
+        y += dy
+    }
+}
+
+
+function moveCursor(dx, dy, event) {
+    let column = getColumn(currentCellId)
+    let row = getRow(currentCellId)
+
+    setRangeHighlight(false)
+
+    let shift = event.shiftKey
+    if (!shift) {
+        setSelectionRange(0, 0)
+    }
+
+    selectAndScrollCurrentIntoView(toCellId(column + dx, row + dy))
+
+    if (shift) {
+        setSelectionRange(selectionRangeX - dx, selectionRangeY - dy)
+        setRangeHighlight(true)
     }
 }
 

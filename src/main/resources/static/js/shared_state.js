@@ -16,6 +16,9 @@ export let currentCellId = null
 export let currentCellElement = null
 export let currentCellData = {}
 
+export let selectionRangeX = 0
+export let selectionRangeY = 0
+
 export let EditMode = makeEnum(["NONE", "INPUT", "PANEL"])
 
 let currentEditMode = EditMode.NONE
@@ -28,6 +31,11 @@ let committedFormula = null
 
 let originElement = document.getElementById("origin")
 
+
+export function setSelectionRange(x, y) {
+    selectionRangeX = x
+    selectionRangeY = y
+}
 
 document.getElementById("simulationMode").addEventListener("change", (event) =>{
     let checked = event.target.checked
