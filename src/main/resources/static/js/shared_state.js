@@ -1,4 +1,4 @@
-import {makeEnum, sendJson} from "./lib/util.js";
+import {getColumn, getRow, makeEnum, sendJson, toCellId} from "./lib/util.js";
 import {nullToEmtpy} from "./lib/values.js";
 import {renderComputedValue} from "./cell_renderer.js";
 
@@ -143,7 +143,48 @@ export function selectSheet(name) {
     selectCell(cellId)
 }
 
-export function selectCell(id) {
+
+export function setRangeHighlight(setReset) {
+    if (currentCellId == null) {
+        return
+    }
+    let x0 = getColumn(currentCellId)
+    let y0 = getRow(currentCellId)
+    let y = y0
+    let dx = Math.sign(selectionRangeX)
+    let dy = Math.sign(selectionRangeY)
+    while(true) {
+        let x = x0
+        while (true) {
+            if (x != x0 || y != y0) {
+                let cellId = toCellId(x, y)
+                let cellElement = document.getElementById(cellId)
+                if (cellElement) {
+                    if (setReset) {
+                        cellElement.classList.add("focus2")
+                    } else {
+                        cellElement.classList.remove("focus2")
+                    }
+                }
+            }
+
+            if (x == x0 + selectionRangeX) {
+                break
+            }
+            x += dx
+        }
+        if (y == y0 + selectionRangeY) {
+            break
+        }
+        y += dy
+    }
+}
+
+
+export function selectCell(id, rangeX = 0, rangeY = 0) {
+
+    setRangeHighlight(false)
+
     let newElement = document.getElementById(id)
     if (!newElement) {
         return
@@ -177,6 +218,10 @@ export function selectCell(id) {
     currentCellElement = newElement
     currentCellData = newData
     formulaInputElement.value = nullToEmtpy(committedFormula)
+
+    selectionRangeX = rangeX
+    selectionRangeY = rangeY
+    setRangeHighlight(true)
 
     if (newlySelected) {
         currentCellElement.classList.add("focus")
