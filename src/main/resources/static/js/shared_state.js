@@ -151,6 +151,7 @@ export function setRangeHighlight(setReset) {
     let x0 = getColumn(currentCellId)
     let y0 = getRow(currentCellId)
     let y = y0
+
     let dx = Math.sign(selectionRangeX)
     let dy = Math.sign(selectionRangeY)
     while(true) {
@@ -186,7 +187,7 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
     setRangeHighlight(false)
 
     let newElement = document.getElementById(id)
-    if (!newElement) {
+    if (!newElement || newElement.localName != "td") {
         return
     }
 

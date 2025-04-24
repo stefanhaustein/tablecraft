@@ -13,13 +13,67 @@ document.addEventListener("keydown", tableKeyPress)
 
 let spreadsheetTBodyElement = document.getElementById("spreadsheetTBody")
 
+var dragOrigin = null
+var dragRangeSelection = false
+
 spreadsheetTBodyElement.addEventListener(
-    "click", (event) => selectCell(event.target.id || event.target.parentNode.id))
+    "click", (event) => {
+        if (dragRangeSelection) {
+            dragRangeSelection = false
+        } else {
+            selectCell(event.target.id || event.target.parentNode.id)
+        }
+    })
+
 spreadsheetTBodyElement.addEventListener(
     "dblclick", (event) => {
         selectCell(event.target.id|| event.target.parentNode.id)
         setEditMode(EditMode.INPUT)
     })
+
+
+
+spreadsheetTBodyElement.addEventListener("mousedown", (event) => {
+    dragOrigin = event.target.id  || event.target.parentNode.id
+    dragRangeSelection = false
+});
+
+spreadsheetTBodyElement.addEventListener("mouseup", (event) => {
+    dragOrigin = null
+    if (dragRangeSelection) {
+        spreadsheetTBodyElement.style.userSelect = ""
+    }
+});
+
+
+spreadsheetTBodyElement.addEventListener("mousemove", (event) => {
+    // reset the transparency
+
+    if (dragOrigin) {
+        if (event.target.id == dragOrigin) {
+            if (dragRangeSelection) {
+                selectCell(dragOrigin)
+            }
+        } else {
+            if (!dragRangeSelection) {
+                dragRangeSelection = true
+                spreadsheetTBodyElement.style.userSelect = "none"
+            }
+            let targetId = event.target.id || event.target.parentNode.id
+
+            let targetColumn = getColumn(targetId)
+            let targetRow = getRow(targetId)
+
+            let originColum = getColumn(dragOrigin)
+            let originRow = getRow(dragOrigin)
+
+            console.log("dragOrigin", dragOrigin, [originColum, originRow], "target", targetId, [targetColumn, targetRow])
+
+            selectCell(dragOrigin,  targetColumn - originColum, targetRow - originRow)
+        }
+    }
+
+});
 
 
 function selectAndScrollCurrentIntoView(cellId) {
