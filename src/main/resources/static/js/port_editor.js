@@ -22,8 +22,8 @@ function renderBinding(targetDiv, constructorSpec, instanceSpec) {
     return bindingFormController
 }
 
-export function showPortDialog(kind, portSpec) {
-    let constructorSpec = portSpec == null ? null : functions[portSpec.type]
+export function showPortDialog(constructorSpec, portSpec) {
+   let kind = constructorSpec.kind
 
     portEditorContainer.style.display = "block"
     portListContainer.style.display = "none"
@@ -58,12 +58,8 @@ export function showPortDialog(kind, portSpec) {
     let typeSelectElement = document.createElement("select")
 
     let okButton = document.createElement("button")
-    if (constructorSpec == null) {
+    if (portSpec == null) {
         okButton.textContent = "Create"
-        let typeOptionElement = document.createElement("option")
-        typeOptionElement.textContent = "(select)"
-        typeSelectElement.appendChild(typeOptionElement)
-        okButton.disabled = true
     } else {
         okButton.textContent = "Ok"
     }

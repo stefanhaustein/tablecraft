@@ -13,7 +13,13 @@ import {
 import {addOption} from "./lib/util.js";
 import {deleteOperation, updateOperation} from "./operation_panel_controller.js";
 import {processIntegrationUpdate, updateIntegrationSpec} from "./integration_panel_controller.js";
-import {processPortUpdate, processPortValue, processSimulationValue} from "./port_panel_controller.js";
+import {
+    deletePortSpec,
+    processPortSpec,
+    processPortUpdate,
+    processPortValue,
+    processSimulationValue
+} from "./port_panel_controller.js";
 
 let sheetSelectElement = document.getElementById("sheetSelect")
 
@@ -180,6 +186,9 @@ function processFunctionUpdate(name, f) {
                 case "FUNCTION":
                     deleteOperation(name)
                     break
+                case "INPUT_PORT":
+                case "OUTPUT_PORT":
+                    deletePortSpec(name)
             }
             break
         case "INTEGRATION":
@@ -188,6 +197,9 @@ function processFunctionUpdate(name, f) {
         case "FUNCTION":
             updateOperation(f)
             break;
+        case "INPUT_PORT":
+        case "OUTPUT_PORT":
+            processPortSpec(f)
     }
 
     // console.log("received function spec", f)

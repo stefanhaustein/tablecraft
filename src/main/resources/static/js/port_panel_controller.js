@@ -1,15 +1,26 @@
 import {functions, ports, portValues, simulationValues} from "./shared_state.js";
 import {showPortDialog} from "./port_editor.js";
 import {InputController} from "./forms/input_controller.js";
-import {camelCase, sendJson} from "./lib/util.js";
+import {camelCase, sendJson, updateSpec} from "./lib/util.js";
 
-let portListConteiner = document.getElementById("portListContainer")
-
-document.getElementById("addInputPort").addEventListener("click", () => showPortDialog("INPUT_PORT"))
-document.getElementById("addOutputPort").addEventListener("click", () => showPortDialog("OUTPUT_PORT"))
+let inputPortSpecListElement = document.getElementById("inputPortSpecList")
+let outputPortSpecListElement = document.getElementById("outputPortSpecList")
 
 portListContainer.addEventListener("click", event => editPort(event))
 
+export function deletePortSpec(name) {
+    let element = document.getElementById("portspec." + name)
+    if (element) {
+        element.parentElement.removeChild(element)
+    }
+}
+
+export function processPortSpec(spec) {
+    let container = spec.kind == "OUTPUT_PORT" ? outputPortSpecListElement : inputPortSpecListElement
+    updateSpec(container, "portspec.", spec, () => {
+        showPortDialog(spec)
+    })
+}
 
 export function processPortValue(key, map) {
     let value = map[key]
@@ -56,6 +67,9 @@ export function processPortUpdate(name, f) {
         let entryConfigElement = document.createElement("img")
         entryConfigElement.src = "/img/settings.svg"
         entryConfigElement.className = "portConfig"
+        entryConfigElement.onclick = () => {
+            showPortDialog(spec, )
+        }
         entryElement.appendChild(entryConfigElement)
 
         let entryTitleElement = document.createElement("div")
@@ -96,7 +110,7 @@ export function processPortUpdate(name, f) {
     }
 
     // console.log("received function spec", f)
-    ports[f.name] = f
+    ports[name] = f
 }
 
 

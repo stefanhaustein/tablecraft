@@ -1,3 +1,5 @@
+import {showIntegrationDialog} from "../integration_editor.js";
+
 export function makeEnum(arr){
     let obj = Object.create(null);
     for (let val of arr){
@@ -32,6 +34,34 @@ export function insertById(parent, element) {
             child.insertAdjacentElement("beforebegin", element)
         }
     }
+}
+
+export function updateSpec(parent, idPrefix, spec, createAction) {
+
+    let details = document.createElement("details")
+    details.style.clear = "both"
+    details.id = idPrefix + spec.name
+    let summary = document.createElement("summary")
+    summary.textContent = spec.name
+
+    let separator = document.createElement("div")
+    separator.style.clear = "both"
+
+    details.append(summary, spec.description, separator)
+
+    if (createAction) {
+        let createButton = document.createElement("button")
+        createButton.onclick = createAction
+        createButton.style.float = "right"
+        createButton.style.clear = "both"
+        createButton.textContent = "Create"
+        details.appendChild(createButton)
+    }
+
+
+    insertById(parent, details)
+
+    return details
 }
 
 

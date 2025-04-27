@@ -1,4 +1,4 @@
-import {insertById} from "./lib/util.js";
+import {insertById, updateSpec} from "./lib/util.js";
 import {functions, integrations} from "./shared_state.js";
 import {showIntegrationDialog} from "./integration_editor.js"
 
@@ -39,24 +39,9 @@ export function processIntegrationUpdate(name, integration) {
 }
 
 export function updateIntegrationSpec(spec) {
-
-    let details = document.createElement("details")
-    details.id = "integration.spec." + spec.name
-    let summary = document.createElement("summary")
-    summary.textContent = spec.name
-
-    let separator = document.createElement("div")
-    separator.style.clear = "both"
-
-    let createButton = document.createElement("button")
-    createButton.onclick = () => {
-        showIntegrationDialog(spec)
-    }
-    createButton.style.float = "right"
-    createButton.style.clear = "both"
-    createButton.textContent = "Create"
-
-    details.append(summary, spec.description, separator, createButton)
-
-    insertById(integrationSpecListElement, details)
+    updateSpec(
+        integrationSpecListElement,
+        "integration.spec.",
+        spec,
+        () => { showIntegrationDialog(spec) })
 }
