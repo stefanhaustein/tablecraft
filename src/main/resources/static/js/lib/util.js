@@ -16,6 +16,24 @@ export function camelCase(s) {
     return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase()
 }
 
+export function insertById(parent, element) {
+    let id = element.id
+    let existing = document.getElementById(id)
+    if (existing) {
+        existing.replaceWith(element)
+    } else {
+        let child = parent.firstElementChild
+        while (child != null && child.id < id) {
+            child = child.nextElementSibling
+        }
+        if (child == null) {
+            parent.appendChild(element)
+        } else {
+            child.insertAdjacentElement("beforebegin", element)
+        }
+    }
+}
+
 
 export function sendJson(path, data) {
     let xhr = new XMLHttpRequest();

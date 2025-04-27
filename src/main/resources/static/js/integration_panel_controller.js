@@ -1,116 +1,62 @@
+import {insertById} from "./lib/util.js";
 import {functions, integrations} from "./shared_state.js";
-import {FormController} from "./forms/form_builder.js";
-import {sendJson} from "./lib/util.js";
+import {showIntegrationDialog} from "./integration_editor.js"
 
-let integrationSelectElement = document.getElementById("integrationSelect")
 let integrationListElement = document.getElementById("integrationList")
-let dialogElement = document.getElementById("dialog")
+let integrationSpecListElement = document.getElementById("integrationSpecList")
 
-integrationSelectElement.addEventListener("change", addIntegration)
-integrationListElement.addEventListener("click", event => editIntegration(event))
+export function processIntegrationUpdate(name, integration) {
+    let id = "integration." + name
+    let element = document.getElementById(id)
 
-function addIntegration() {
-
-    let type = integrationSelectElement.value
-    integrationSelectElement.selectedIndex = 0
-
-    let typeSpec = functions[type]
-
-    console.log("add integration", type, typeSpec)
-
-    showIntegrationDialog(typeSpec)
-}
-
-
-function editIntegration(event) {
-    let entryElement = event.target
-    let id = entryElement.id
-    if (!id.startsWith("integration.")) {
-        // Clicked on input; not handled here.
-        // console.log("Target element id not recognized: ", entryElement)
-        return
-    }
-    let name = id.substring("integration.".length)
-    let integrationSpec = integrations[name]
-    let constructorSpec = functions[integrationSpec.type]
-
-    showIntegrationDialog(constructorSpec, integrationSpec)
-}
-
-function showIntegrationDialog(constructorSpec, integrationSpec) {
-
-    let configuration = integrationSpec != null ? integrationSpec["configuration"] : {}
-    dialogElement.textContent = ""
-    let dialogTitleElement = document.createElement("div")
-    dialogTitleElement.className = "dialogTitle"
-    dialogTitleElement.textContent = "Integration Specification"
-    dialogElement.appendChild(dialogTitleElement)
-
-    let inputDiv = document.createElement("div")
-    inputDiv.className = "dialogFields"
-
-    let integrationSchema = [{"name": "name"}]
-
-    let previousName = integrationSpec == null ? null : integrationSpec["name"]
-
-    let integrationFormController = FormController.create(inputDiv, integrationSchema)
-    integrationFormController.setValues(integrationSpec)
-
-    let typeLabelElement = document.createElement("label")
-    typeLabelElement.textContent = "binding"
-    inputDiv.appendChild(typeLabelElement)
-
-    let typeNameElement = document.createElement("div")
-    typeNameElement.textContent = constructorSpec.name
-    inputDiv.appendChild(typeNameElement)
-
-    let bindingFormController = FormController.create(inputDiv, constructorSpec["params"])
-
-    if (configuration != null) {
-        bindingFormController.setValues(configuration)
-    }
-
-    dialogElement.appendChild(inputDiv)
-
-    let buttonDiv = document.createElement("div")
-
-    let okButton = document.createElement("button")
-    okButton.textContent = "Ok"
-    okButton.className = "dialogButton"
-    okButton.addEventListener("click", () => {
-        let values = integrationFormController.getValues()
-        values["configuration"] = bindingFormController.getValues()
-        values["type"] = constructorSpec["name"]
-        values["previousName"] = previousName
-        if (sendPort(values)) {
-            dialogElement.close()
+    if (integration.type == "TOMBSTONE") {
+        if (element != null) {
+            integrationListElement.removeChild(element)
         }
-    })
-    buttonDiv.appendChild(okButton)
+        delete integrations[name]
+    } else {
+        integration.name = name
+        integrations[name] = integration
 
-    let cancelButton = document.createElement("button")
-    cancelButton.textContent = "Cancel"
-    cancelButton.className = "dialogButton"
-    cancelButton.addEventListener("click", () => { dialogElement.close() })
-    buttonDiv.appendChild(cancelButton)
+        if (element == null) {
+            element = document.createElement("div")
+            element.id = id
 
-    if (previousName != null) {
-        let deleteButton = document.createElement("button")
-        deleteButton.textContent = "Delete"
-        deleteButton.className = "dialogButton"
-        deleteButton.addEventListener("click", () => {
-            sendJson("updateIntegration", {previousName: previousName})
-            dialogElement.close()
-        })
-        buttonDiv.appendChild(deleteButton)
+            let nameSpan = document.createElement("span")
+            nameSpan.textContent = name
+            nameSpan.style.fontWeight = "bold"
+
+            element.append(nameSpan, " (" + integration.type + ")")
+
+            integrationListElement.appendChild(element)
+
+            element.onclick = () => {
+                let spec = functions[integration.type]
+                showIntegrationDialog(spec, integration)
+            }
+        }
     }
-
-    dialogElement.appendChild(buttonDiv)
-    dialogElement.showModal()
 }
 
+export function updateIntegrationSpec(spec) {
 
-function sendPort(definition) {
-    sendJson("updateIntegration?name=" + definition["name"], definition)
-    return true
+    let details = document.createElement("details")
+    details.id = "integration.spec." + spec.name
+    let summary = document.createElement("summary")
+    summary.textContent = spec.name
+
+    let separator = document.createElement("div")
+    separator.style.clear = "both"
+
+    let createButton = document.createElement("button")
+    createButton.onclick = () => {
+        showIntegrationDialog(spec)
+    }
+    createButton.style.float = "right"
+    createButton.style.clear = "both"
+    createButton.textContent = "Create"
+
+    details.append(summary, spec.description, separator, createButton)
+
+    insertById(integrationSpecListElement, details)
 }

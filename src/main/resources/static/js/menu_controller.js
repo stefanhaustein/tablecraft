@@ -7,7 +7,7 @@ menuSelectElement.addEventListener("change", () => {
         case "Load Example": loadExample(); break;
         case "Save File": downloadSpreadsheet(); break;
     }
-    menuSelectElement.value = "Files"
+    menuSelectElement.value = "Menu"
 })
 
 function clearAll() {

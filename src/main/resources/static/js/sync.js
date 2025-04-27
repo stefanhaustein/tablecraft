@@ -10,8 +10,10 @@ import {
     simulationValues
 } from "./shared_state.js";
 
-import {addOption, sendJson, camelCase} from "./lib/util.js";
+import {addOption, camelCase, sendJson} from "./lib/util.js";
 import {InputController} from "./forms/input_controller.js";
+import {updateOperation} from "./operation_panel_controller.js";
+import {processIntegrationUpdate, updateIntegrationSpec} from "./integration_panel_controller.js";
 
 let sheetSelectElement = document.getElementById("sheetSelect")
 
@@ -66,14 +68,14 @@ function proccessUpdateResponseText(responseText) {
     }
 }
 
-function processSection(name, map) {
-    if (name.startsWith("sheets."))  {
-        if (name.endsWith(".cells") && name != "sheets.cells") {
-            processSheetCellsUpdate(name.substring("sheets.".length, name.length - ".cells".length), map)
+function processSection(sectionName, map) {
+    if (sectionName.startsWith("sheets."))  {
+        if (sectionName.endsWith(".cells") && sectionName != "sheets.cells") {
+            processSheetCellsUpdate(sectionName.substring("sheets.".length, sectionName.length - ".cells".length), map)
         } else {
-            processSheetUpdate(name.substring("sheets.".length), map)
+            processSheetUpdate(sectionName.substring("sheets.".length), map)
         }
-    } else switch (name) {
+    } else switch (sectionName) {
         case "":
             currentTag = map["tag"]
             let simulationMode = map["simulationMode"]
@@ -94,10 +96,12 @@ function processSection(name, map) {
             processSimulationValues(map)
             break
         case "integrations":
-            processIntegrationsUpdate(map)
+            for (let name in map) {
+                processIntegrationUpdate(name, map[name])
+            }
             break
         default:
-            console.log("Unrecognizes section: ", name, map)
+            console.log("Unrecognizes section: ", sectionName, map)
     }
 }
 
@@ -193,7 +197,6 @@ function processFunctionsUpdate(map) {
 
 function processFunctionUpdate(name, f) {
     let functionSelectElement = document.getElementById("functions")
-    let integrationSelectElement = document.getElementById("integrationSelect")
     let optionElement = document.getElementById("op." + name)
     if (f.kind == "TOMBSTONE") {
         if (optionElement != null) {
@@ -210,10 +213,11 @@ function processFunctionUpdate(name, f) {
             optionElement.id = "op." + name
             switch (f.kind) {
                 case "INTEGRATION":
-                    integrationSelectElement.appendChild(optionElement)
+                    updateIntegrationSpec(f)
                     break
                 case "FUNCTION":
                     functionSelectElement.appendChild(optionElement)
+                    updateOperation(f)
                     break;
             }
         }
@@ -304,32 +308,3 @@ function processPortUpdate(name, f) {
 
 }
 
-
-function processIntegrationsUpdate(map) {
-    for (let name in map) {
-        processIntegrationUpdate(name, map[name])
-    }
-}
-
-function processIntegrationUpdate(name, integration) {
-    let id = "integration." + name
-    let element = document.getElementById(id)
-    let integrationListElement = document.getElementById("integrationList")
-
-    if (integration.type == "TOMBSTONE") {
-        if (element != null) {
-            integrationListElement.removeChild(element)
-        }
-        delete integrations[name]
-    } else {
-        integration.name = name
-        if (element == null) {
-            element = document.createElement("div")
-            element.id = id
-
-            integrationListElement.appendChild(element)
-        }
-        element.textContent = name
-        integrations[name] = integration
-    }
-}

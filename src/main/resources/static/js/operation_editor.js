@@ -8,7 +8,8 @@ import {
 import {FormController} from "./forms/form_builder.js";
 import {extractParameters} from "./lib/expressions.js";
 
-let functionPanelElement = document.getElementById("FunctionPanel")
+let formulaInputElement = document.getElementById("formulaInput")
+let functionPanelElement = document.getElementById("operationEditorContainer")
 let currentFunction = null
 let currentController = null
 let currentParameters = {}
@@ -28,7 +29,8 @@ functionPanelElement.addEventListener("focusin", event => {
 
 
 function updateParameterTab() {
-    let currentInput = currentCellData["f"]
+    let currentInput = formulaInputElement.value
+
     console.log("currentInput:", currentInput)
     let name = ""
     let found = null
@@ -41,7 +43,7 @@ function updateParameterTab() {
     }
 
     if (found == null) {
-        functionPanelElement.textContent = "N/A"
+        functionPanelElement.textContent = ""
         currentFunction = null
         return false;
     }

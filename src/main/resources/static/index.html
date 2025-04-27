@@ -14,21 +14,24 @@
         <select id="sheetSelect" style="width:72px"></select>
         <input id="formulaInput" style="flex-grow: 1" list="functions">
         <datalist id="functions"></datalist>
-        <select id="menuSelect" style="width:144px">
-            <option>Files</option>
-            <option>Clear</option>
+
+        <select id="panelSelect" style="width:144px">
+            <option>About</option>
+            <option>Graphics</option>
+            <option value="Ports">I/O Ports</option>
+            <option value="Validation">Input Widgets</option>
+            <option value="Integration">Integrations</option>
+            <option value="Function">Operations</option>
+            <option value="Hide">Hide Panel</option>
+        </select>
+
+        <select id="menuSelect" style="width:64px">
+            <option>Menu</option>
+
+            <option>ClearAll</option>
             <option>Load File</option>
             <option>Load Example</option>
             <option>Save File</option>
-        </select>
-        <select id="panelSelect" style="width:208px">
-            <option>About</option>
-            <option value="Function">Function Details</option>
-            <option value="Ports">IO Ports</option>
-            <option value="Validation">Input</option>
-            <option value="Integration">Integrations</option>
-            <option>Graphics</option>
-            <option>Hide</option>
         </select>
     </div>
     <div style="display:flex; flex-grow: 1; height: 0">
@@ -57,7 +60,11 @@
                 </div>
                 <div id="portEditorContainer" style="display: none"></div>
             </div>
-            <div id="FunctionPanel"></div>
+            <div id="FunctionPanel">
+                <div id="operationEditorContainer"></div>
+                <h2>All Operations</h2>
+                <div id="operationListContainer"></div>
+            </div>
             <div id="ValidationPanel">
                 <h2>Input / Validation</h2>
                 <select>
@@ -66,8 +73,10 @@
                 </select>
             </div>
             <div id="IntegrationPanel">
-                <select id="integrationSelect"><option>Add Integration</option></select>
-                <div style="padding-top:5px" id="integrationList"></div>
+                <h2>Configured Integration</h2>
+                <div id="integrationList"></div>
+                <h2>Available Integrations</h2>
+                <div id="integrationSpecList"></div>
             </div>
             <div id="GraphicsPanel">
                 <button src="" >Clear Cell Graphics</button>
@@ -191,11 +200,13 @@
     <script type="module" src="js/shared_state.js"></script>
     <script type="module" src="js/formula_input_controller.js"></script>
     <script type="module" src="js/table_controller.js"></script>
-    <script type="module" src="js/formula_panel_controller.js"></script>
+    <script type="module" src="js/operation_panel_controller.js"></script>
+    <script type="module" src="js/operation_editor.js"></script>
     <script type="module" src="js/graphics_panel_controller.js"></script>
     <script type="module" src="js/port_panel_controller.js"></script>
+    <script type="module" src="js/integration_editor.js"></script>
     <script type="module" src="js/integration_panel_controller.js"></script>
-    <script type="module" src="js/file_menu_controller.js"></script>
+    <script type="module" src="js/menu_controller.js"></script>
     <script type="module" src="js/sheet_menu_controller.js"></script>
     <script type="module" src="js/sync.js"></script>
 </body>

@@ -136,6 +136,7 @@ input:invalid {
     background-color: #fff;
     position: sticky;
     z-index: 2;
+    user-select: none;
 }
 
 #spreadsheetTable td {
@@ -192,6 +193,16 @@ input:invalid {
 #spreadsheetTable td.r {
     padding: 0 3px;
     text-align: right;
+}
+
+details {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+details:open summary {
+    margin-bottom: 5px;
+    font-weight: bold;
 }
 
 .symbols img {
