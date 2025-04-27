@@ -1,5 +1,7 @@
 <img align="right" src="src/main/resources/static/TableCraft.png" width="100">
 
+&nbsp;
+
 # TableCraft 
 
 TableCraft aims to be a simple crafting table for PI-based IoT projects -- 
