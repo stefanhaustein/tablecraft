@@ -1,4 +1,6 @@
-# TableCraft
+<img align="right" src="src/main/resources/static/TableCraft.png" width="100">
+
+# TableCraft 
 
 TableCraft aims to be a simple crafting table for PI-based IoT projects -- 
 basically a low-code software pendant to breadboards.
