@@ -1,4 +1,4 @@
-import {insertById} from "./lib/util.js";
+import {insertById, updateSpec} from "./lib/util.js";
 
 let operationListContainerElement = document.getElementById("operationListContainer")
 
@@ -10,17 +10,5 @@ export function deleteOperation(name) {
 }
 
 export function updateOperation(op) {
-
-    let detailsElement = document.createElement("details")
-    detailsElement.id = "op.details." + op.name
-
-    let summaryElement = document.createElement("summary")
-    summaryElement.textContent = op.name
-
-    detailsElement.appendChild(summaryElement)
-
-    detailsElement.append(op.description)
-
-    insertById(operationListContainerElement, detailsElement)
-
+    updateSpec(operationListContainerElement, "op.details.", op)
 }

@@ -1,4 +1,4 @@
-import {showIntegrationDialog} from "../integration_editor.js";
+
 
 export function makeEnum(arr){
     let obj = Object.create(null);
@@ -38,41 +38,37 @@ export function insertById(parent, element) {
 
 export function updateSpec(parent, idPrefix, spec, createAction) {
 
-    let detailsElement = document.createElement("details")
-    detailsElement.style.clear = "both"
-    detailsElement.id = idPrefix + spec.name
-    let summaryElement = document.createElement("summary")
-    summaryElement.textContent = spec.name + ": " + camelCase(spec.returnType)
-
-    detailsElement.appendChild(summaryElement)
-
-    if (spec.params && spec.params.length > 0) {
-        for (let param of spec.params) {
-            let paramElement = document.createElement("div")
-            paramElement.style.marginTop = "5px"
-            paramElement.style.marginBottom = "5px"
-            paramElement.textContent = "- " + param.name + ": " + camelCase(param.type)
-            detailsElement.appendChild(paramElement)
-        }
-    }
-
-    let separatorElement = document.createElement("div")
-    separatorElement.style.clear = "both"
-    detailsElement.append(spec.description, separatorElement)
+    let element = document.createElement("div")
+    element.id = idPrefix + spec.name
 
     if (createAction) {
-        let createButton = document.createElement("button")
-        createButton.onclick = createAction
-        createButton.style.float = "right"
-        createButton.style.clear = "both"
-        createButton.textContent = "Create"
-        detailsElement.appendChild(createButton)
+        let addButtonElement = document.createElement("img")
+        addButtonElement.src = "/img/add.svg"
+        addButtonElement.style.float = "right"
+        addButtonElement.onclick = createAction
+        element.appendChild(addButtonElement)
     }
 
+    let titleElement = document.createElement("div")
+    let nameSpan = document.createElement("b")
+    nameSpan.append(spec.name)
+    titleElement.append(nameSpan, ": " + camelCase(spec.returnType))
+    titleElement.style.marginBottom = "5px"
+    titleElement.style.marginTop = "10px"
+    element.appendChild(titleElement)
 
-    insertById(parent, detailsElement)
+    let descriptionElement = document.createElement("div")
+    descriptionElement.style.paddingLeft = "10px"
 
-    return detailsElement
+    let description = spec.description
+    let cut = description.indexOf(".")
+
+    descriptionElement.textContent = (cut == -1 ? description : description.substring(0, cut + 1))
+    element.appendChild(descriptionElement)
+
+    insertById(parent, element)
+
+    return element
 }
 
 
