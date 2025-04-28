@@ -38,16 +38,27 @@ export function insertById(parent, element) {
 
 export function updateSpec(parent, idPrefix, spec, createAction) {
 
-    let details = document.createElement("details")
-    details.style.clear = "both"
-    details.id = idPrefix + spec.name
-    let summary = document.createElement("summary")
-    summary.textContent = spec.name
+    let detailsElement = document.createElement("details")
+    detailsElement.style.clear = "both"
+    detailsElement.id = idPrefix + spec.name
+    let summaryElement = document.createElement("summary")
+    summaryElement.textContent = spec.name + ": " + camelCase(spec.returnType)
 
-    let separator = document.createElement("div")
-    separator.style.clear = "both"
+    detailsElement.appendChild(summaryElement)
 
-    details.append(summary, spec.description, separator)
+    if (spec.params && spec.params.length > 0) {
+        for (let param of spec.params) {
+            let paramElement = document.createElement("div")
+            paramElement.style.marginTop = "5px"
+            paramElement.style.marginBottom = "5px"
+            paramElement.textContent = "- " + param.name + ": " + camelCase(param.type)
+            detailsElement.appendChild(paramElement)
+        }
+    }
+
+    let separatorElement = document.createElement("div")
+    separatorElement.style.clear = "both"
+    detailsElement.append(spec.description, separatorElement)
 
     if (createAction) {
         let createButton = document.createElement("button")
@@ -55,13 +66,13 @@ export function updateSpec(parent, idPrefix, spec, createAction) {
         createButton.style.float = "right"
         createButton.style.clear = "both"
         createButton.textContent = "Create"
-        details.appendChild(createButton)
+        detailsElement.appendChild(createButton)
     }
 
 
-    insertById(parent, details)
+    insertById(parent, detailsElement)
 
-    return details
+    return detailsElement
 }
 
 

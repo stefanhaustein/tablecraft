@@ -76,7 +76,7 @@ export function showPortDialog(constructorSpec, portSpec) {
             typeSelectElement.appendChild(typeOptionElement)
         }
     }
-    let bindingFormController = constructorSpec == null ? null : renderBinding(bindingDiv, constructorSpec, instanceSpec)
+    let bindingFormController = renderBinding(bindingDiv, constructorSpec, instanceSpec)
 
     typeSelectElement.addEventListener("input", () => {
         let type = typeSelectElement.value

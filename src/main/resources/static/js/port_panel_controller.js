@@ -6,8 +6,6 @@ import {camelCase, sendJson, updateSpec} from "./lib/util.js";
 let inputPortSpecListElement = document.getElementById("inputPortSpecList")
 let outputPortSpecListElement = document.getElementById("outputPortSpecList")
 
-portListContainer.addEventListener("click", event => editPort(event))
-
 export function deletePortSpec(name) {
     let element = document.getElementById("portspec." + name)
     if (element) {
@@ -114,7 +112,7 @@ export function processPortUpdate(name, f) {
 }
 
 
-
+/*
 function editPort(event) {
     if (event.target.className != "portConfig") {
         return;
@@ -131,3 +129,4 @@ function editPort(event) {
 
     showPortDialog(functions[portSpec.type].kind, portSpec)
 }
+*/
