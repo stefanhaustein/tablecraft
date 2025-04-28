@@ -66,7 +66,7 @@ export function processPortUpdate(name, f) {
         entryConfigElement.src = "/img/settings.svg"
         entryConfigElement.className = "portConfig"
         entryConfigElement.onclick = () => {
-            showPortDialog(spec, )
+            showPortDialog(spec, f)
         }
         entryElement.appendChild(entryConfigElement)
 
