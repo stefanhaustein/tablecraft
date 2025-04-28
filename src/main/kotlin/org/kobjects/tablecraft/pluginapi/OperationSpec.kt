@@ -36,15 +36,15 @@ data class OperationSpec(
     }
 
     companion object {
-        fun createTombstone(name: String, tag: Long) = OperationSpec(
-            OperationKind.TOMBSTONE, Type.NUMBER, name, "Deleted Operation '$name'.", emptyList(), emptySet(),  tag
+        fun createTombstone(original: OperationSpec, tag: Long) = OperationSpec(
+            original.kind, original.returnType, original.name, "Tombstone for '${original.kind}:${original.name}'.", emptyList(), setOf(Modifier.DELETED),  tag
         ) {
-            throw UnsupportedOperationException("Tombstone for '$name' can't be instantiated.")
+            throw UnsupportedOperationException("Tombstone for '${original.kind}:${original.name}' can't be instantiated.")
         }
     }
 
     enum class Modifier {
-         NO_SIMULATION
+         NO_SIMULATION, DELETED
     }
 }
 

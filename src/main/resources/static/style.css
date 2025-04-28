@@ -81,10 +81,7 @@ input:invalid {
 .port {
     padding-top: 5px;
 }
-.portExpression, .portValue, .portSimulationValue {
-    padding-left: 12px;
-    padding-bottom: 5px;
-}
+
 
 .portConfig {
     padding: 3px;
@@ -99,6 +96,14 @@ input:invalid {
 #sidePanel > div {
     padding: 5px;
     display: none;
+}
+
+#sidePanel .inputContainer {
+    /*padding-left: 10px;*/
+}
+
+#sidePanel .inputContainer input {
+    width: 100%;
 }
 
 
@@ -202,7 +207,7 @@ details {
 
 details:open summary {
     margin-bottom: 5px;
-    font-weight: bold;
+/*    font-weight: bold; */
 }
 
 .symbols img {

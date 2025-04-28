@@ -202,7 +202,7 @@ object Model : ModelInterface {
         token.symbolsChanged = true
 
         portMap[name] = InputPort(name, OperationSpec(
-            OperationKind.TOMBSTONE,
+            OperationKind.INPUT_PORT,
             Type.TEXT,
             "TOMBSTONE",  // The operation name; used to identify tombstone ports on the client
             "",

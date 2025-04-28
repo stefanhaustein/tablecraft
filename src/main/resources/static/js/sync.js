@@ -11,10 +11,9 @@ import {
 } from "./shared_state.js";
 
 import {addOption} from "./lib/util.js";
-import {deleteOperation, updateOperation} from "./operation_panel_controller.js";
+import {updateOperation} from "./operation_panel_controller.js";
 import {processIntegrationUpdate, updateIntegrationSpec} from "./integration_panel_controller.js";
 import {
-    deletePortSpec,
     processPortSpec,
     processPortUpdate,
     processPortValue,
@@ -180,17 +179,6 @@ function processSheetCellsUpdate(name, map) {
 
 function processFunctionUpdate(name, f) {
     switch (f.kind) {
-        case "TOMBSTONE":
-            let previous = functions[name]
-            switch (previous.kind) {
-                case "FUNCTION":
-                    deleteOperation(name)
-                    break
-                case "INPUT_PORT":
-                case "OUTPUT_PORT":
-                    deletePortSpec(name)
-            }
-            break
         case "INTEGRATION":
             updateIntegrationSpec(f)
             break

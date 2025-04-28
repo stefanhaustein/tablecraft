@@ -37,6 +37,15 @@ export function insertById(parent, element) {
 }
 
 export function updateSpec(parent, idPrefix, spec, createAction) {
+    let id = idPrefix + spec.name
+
+    if (spec.modifiers && spec.modifiers.indexOf("DELETED") != -1) {
+        let existing = document.getElementById(id)
+        if (existing) {
+            existing.parentElement.removeChild(existing)
+        }
+        return existing  // should be null?
+    }
 
     let element = document.createElement("div")
     element.id = idPrefix + spec.name

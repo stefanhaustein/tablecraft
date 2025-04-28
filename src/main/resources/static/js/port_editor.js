@@ -90,7 +90,12 @@ export function showPortDialog(constructorSpec, portSpec) {
         }
     })
 
-    inputDiv.appendChild(typeSelectElement)
+    let typeSelectContainerElement = document.createElement("div")
+    typeSelectContainerElement.className = "inputContainer"
+    typeSelectContainerElement.style.paddingBottom = "18px"
+    typeSelectContainerElement.appendChild(typeSelectElement)
+
+    inputDiv.appendChild(typeSelectContainerElement)
     inputDiv.appendChild(bindingDiv)
 
     portEditorContainer.appendChild(inputDiv)

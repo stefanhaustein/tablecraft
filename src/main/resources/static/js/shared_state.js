@@ -43,8 +43,8 @@ document.getElementById("simulationMode").addEventListener("change", (event) =>{
         let simulationValueElement = document.getElementById("port." + name + ".simulationValue")
         if (simulationValueElement != null) {
             let valueElement =  document.getElementById("port." + name + ".value")
-            valueElement.style.display = checked ? "none" : "block"
-            simulationValueElement.style.display = checked ? "block" : "none"
+            valueElement.style.display = checked ? "none" : "inline"
+            simulationValueElement.style.display = checked ? "inline" : "none"
         }
     }
 

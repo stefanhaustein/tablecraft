@@ -33,17 +33,15 @@ export class FormController {
         let result = {}
         let listeners = []
         for (const entry of schema) {
-            let label = document.createElement("label")
-            label.style.display = "block"
-            let name = entry["name"]
-            label.textContent = name
-            rootElement.appendChild(label)
+            let inputController = InputController.create(entry)
+            let inputContainer = document.createElement("div")
+            inputContainer.className = "inputContainer"
+            inputContainer.appendChild(inputController.inputElement)
+            inputContainer.appendChild(inputController.messageElement)
+            rootElement.append(inputController.labelElement, inputContainer)
+            result[entry.name] = inputController
 
-            let inputController = new InputController(entry)
-            rootElement.appendChild(inputController.element)
-            result[name] = inputController
-
-            inputController.element.addEventListener("change", () => {
+            inputController.inputElement.addEventListener("change", () => {
                 console.log("change event")
                 for (let listener of listeners) {
                     listener(name, inputController.getValue())

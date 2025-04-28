@@ -1,7 +1,7 @@
 import {functions, ports, portValues, simulationValues} from "./shared_state.js";
 import {showPortDialog} from "./port_editor.js";
 import {InputController} from "./forms/input_controller.js";
-import {camelCase, sendJson, updateSpec} from "./lib/util.js";
+import {camelCase, insertById, sendJson, updateSpec} from "./lib/util.js";
 
 let inputPortSpecListElement = document.getElementById("inputPortSpecList")
 let outputPortSpecListElement = document.getElementById("outputPortSpecList")
@@ -42,25 +42,17 @@ export function processSimulationValue(key, map) {
 }
 
 export function processPortUpdate(name, f) {
-    let entryElement = document.getElementById("port." + name)
     if (f.type == "TOMBSTONE") {
+        let entryElement = document.getElementById("port." + name)
         if (entryElement != null) {
             entryElement.parentElement.removeChild(entryElement)
         }
     } else {
         let spec = functions[f.type]
-
-        if (entryElement == null) {
-            entryElement = document.createElement("div")
-            entryElement.id = "port." + f.name
-            entryElement.className = "port"
-            document.getElementById(
-                spec.kind == "OUTPUT_PORT" ? "outputPortList" : "inputPortList"
-            ).appendChild(entryElement)
-        } else {
-            entryElement.textContent = ""
-        }
-        let title = name + " (" + f.type + ")"
+        let entryElement = document.createElement("div")
+        entryElement.id = "port." + f.name
+        entryElement.className = "port"
+        insertById(document.getElementById(spec.kind == "OUTPUT_PORT" ? "outputPortList" : "inputPortList"), entryElement)
 
         let entryConfigElement = document.createElement("img")
         entryConfigElement.src = "/img/settings.svg"
@@ -68,43 +60,54 @@ export function processPortUpdate(name, f) {
         entryConfigElement.onclick = () => {
             showPortDialog(spec, f)
         }
-        entryElement.appendChild(entryConfigElement)
 
         let entryTitleElement = document.createElement("div")
         entryTitleElement.className = "portTitle"
-        entryTitleElement.textContent = title
-        entryElement.appendChild(entryTitleElement)
+        let nameElement = document.createElement("b")
+        nameElement.textContent = name
+
+        entryTitleElement.append(nameElement, ": " + f.type + "")
+
+        entryElement.append(entryConfigElement, entryTitleElement)
 
         let modifiers = spec["modifiers"] || []
         // console.log("adding port", f, spec)
 
+        let entryContentElement = document.createElement("div")
+        entryContentElement.style.paddingLeft = "10px"
+        entryContentElement.style.clear = "both"
+
         let showValue = true
-        if (spec.kind == "OUTPUT_PORT") {
-            let entryExpressionElement = document.createElement("div")
-            entryExpressionElement.className = "portExpression"
-            entryExpressionElement.textContent = f["expression"]
-            entryElement.appendChild(entryExpressionElement)
-        } else {
-            let entryValueElement = document.createElement("div")
+        if (spec.kind == "INPUT_PORT") {
+            let entryValueElement = document.createElement("span")
             entryValueElement.id = "port." + name + ".simulationValue"
             entryValueElement.className = "portSimulationValue"
-            let controller = f.valueController = new InputController({
+            let controller = f.valueController = InputController.create({
                 type: camelCase(spec.returnType),
                 modifiers: ["CONSTANT"]})
-            entryValueElement.appendChild(controller.element)
+            entryValueElement.appendChild(controller.inputElement)
             controller.addListener((value, source) => {
                 sendJson("portSimulation?name=" + name, value)
             })
             showValue = !document.getElementById("simulationMode").checked
-            entryValueElement.style.display = showValue ? "none" : "block"
-            entryElement.appendChild(entryValueElement)
+            entryValueElement.style.display = showValue ? "none" : "inline"
+            entryContentElement.appendChild(entryValueElement)
+        } else {
+            let sourceElement = document.createElement("div")
+            sourceElement.style.float = "right"
+            sourceElement.style.paddingRight = "5px"
+            sourceElement.textContent = "(" + f.expression + ")"
+
+            entryContentElement.append(sourceElement)
         }
 
-        let entryValueElement = document.createElement("div")
+        let entryValueElement = document.createElement("span")
         entryValueElement.id = "port." + name + ".value"
         entryValueElement.className = "portValue"
-        entryValueElement.style.display = showValue ? "block" : "none"
-        entryElement.appendChild(entryValueElement)
+        entryValueElement.style.display = showValue ? "inline" : "none"
+        entryContentElement.appendChild(entryValueElement)
+
+        entryElement.appendChild(entryContentElement)
     }
 
     // console.log("received function spec", f)
