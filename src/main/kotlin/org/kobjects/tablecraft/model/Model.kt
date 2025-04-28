@@ -203,7 +203,7 @@ object Model : ModelInterface {
 
         portMap[name] = InputPort(name, OperationSpec(
             OperationKind.INPUT_PORT,
-            Type.TEXT,
+            Type.STRING,
             "TOMBSTONE",  // The operation name; used to identify tombstone ports on the client
             "",
             emptyList(),

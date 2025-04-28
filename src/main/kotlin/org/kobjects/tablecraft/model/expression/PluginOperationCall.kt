@@ -38,9 +38,9 @@ class PluginOperationCall(
             val expr = it.value.first
             when (it.value.second) {
                 Type.INT -> expr.evalInt(context)
-                Type.NUMBER -> expr.evalDouble(context)
-                Type.BOOLEAN -> expr.evalBoolean(context)
-                Type.TEXT -> expr.eval(context).toString()
+                Type.REAL -> expr.evalDouble(context)
+                Type.BOOL -> expr.evalBoolean(context)
+                Type.STRING -> expr.eval(context).toString()
                 else -> expr.eval(context)
             }
         })

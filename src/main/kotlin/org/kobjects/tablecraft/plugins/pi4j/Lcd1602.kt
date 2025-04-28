@@ -44,7 +44,7 @@ class Lcd1602(
     override val operationSpecs: List<OperationSpec> = listOf(
         OperationSpec(
             OperationKind.OUTPUT_PORT,
-            Type.TEXT,
+            Type.STRING,
             name + ".section",
             ".",
             listOf(

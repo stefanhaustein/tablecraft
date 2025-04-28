@@ -9,34 +9,34 @@ object BuiltinFunctions : Plugin {
             Type.DATE,
             "now",
             "The current local time",
-            listOf(ParameterSpec("interval", Type.NUMBER, setOf(ParameterSpec.Modifier.CONSTANT))),
+            listOf(ParameterSpec("interval", Type.REAL, setOf(ParameterSpec.Modifier.CONSTANT))),
             emptySet(),
             0,
             NowFunction::create),
 
         OperationSpec(
             OperationKind.FUNCTION,
-            Type.NUMBER,
+            Type.REAL,
             "pi",
             "The value of pi",
             emptyList()) { PiFunction },
 
         OperationSpec(
             OperationKind.FUNCTION,
-            Type.BOOLEAN,
+            Type.BOOL,
             "toff",
             "Timed Off",
-            listOf(ParameterSpec("input", Type.BOOLEAN), ParameterSpec("delay", Type.NUMBER, setOf(ParameterSpec.Modifier.CONSTANT))),
+            listOf(ParameterSpec("input", Type.BOOL), ParameterSpec("delay", Type.REAL, setOf(ParameterSpec.Modifier.CONSTANT))),
             emptySet(),
             0,
             TimedOnOff::createToff),
 
         OperationSpec(
             OperationKind.FUNCTION,
-            Type.BOOLEAN,
+            Type.BOOL,
             "ton",
             "Timed On",
-            listOf(ParameterSpec("input", Type.BOOLEAN), ParameterSpec("delay", Type.NUMBER, setOf(ParameterSpec.Modifier.CONSTANT))),
+            listOf(ParameterSpec("input", Type.BOOL), ParameterSpec("delay", Type.REAL, setOf(ParameterSpec.Modifier.CONSTANT))),
             emptySet(),
             0,
             TimedOnOff::createTon),
@@ -44,39 +44,39 @@ object BuiltinFunctions : Plugin {
 
         OperationSpec(
             OperationKind.FUNCTION,
-            Type.BOOLEAN,
+            Type.BOOL,
             "tp",
             "Timed Pulse",
-            listOf(ParameterSpec("input", Type.BOOLEAN), ParameterSpec("delay", Type.NUMBER, setOf(ParameterSpec.Modifier.CONSTANT))),
+            listOf(ParameterSpec("input", Type.BOOL), ParameterSpec("delay", Type.REAL, setOf(ParameterSpec.Modifier.CONSTANT))),
             emptySet(),
             0,
             TimedPulse::create),
 
         OperationSpec(
             OperationKind.FUNCTION,
-            Type.BOOLEAN,
+            Type.BOOL,
             "rs",
             "RS-Flipflop",
             listOf(
-                ParameterSpec("s", Type.BOOLEAN),
-                ParameterSpec("r",  Type.BOOLEAN)),
+                ParameterSpec("s", Type.BOOL),
+                ParameterSpec("r",  Type.BOOL)),
             emptySet(),
             0) { FlipflopFunction.createRs() },
 
         OperationSpec(
             OperationKind.FUNCTION,
-            Type.BOOLEAN,
+            Type.BOOL,
             "sr",
             "SR-Flipflop",
             listOf(
-                ParameterSpec("s", Type.BOOLEAN),
-                ParameterSpec("r", Type.BOOLEAN)),
+                ParameterSpec("s", Type.BOOL),
+                ParameterSpec("r", Type.BOOL)),
             emptySet(),
             0) { FlipflopFunction.createSr() },
 
         OperationSpec(
           OperationKind.FUNCTION,
-            Type.TEXT,
+            Type.STRING,
             "statemachine",
             """A state machine specified by the given cell range. 
                 |Rows consist of the current state, the transition condition and the new state""".trimMargin(),

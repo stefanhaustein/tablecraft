@@ -36,10 +36,10 @@ class MqttPort(
     val operationSpecs: List<OperationSpec> = listOf(
         OperationSpec(
             OperationKind.FUNCTION,
-            Type.TEXT,
+            Type.STRING,
             "$name.subscribe",
             "Subscribe to the given topic and receive update messages",
-            listOf(ParameterSpec("topic", Type.TEXT, setOf(ParameterSpec.Modifier.CONSTANT))),
+            listOf(ParameterSpec("topic", Type.STRING, setOf(ParameterSpec.Modifier.CONSTANT))),
             emptySet(),
             tag
         ) {
@@ -47,12 +47,12 @@ class MqttPort(
         },
         OperationSpec(
             OperationKind.FUNCTION,
-            Type.TEXT,
+            Type.STRING,
         "$name.publish",
         "Publish / update a message for a given topic",
             listOf(
-                ParameterSpec("topic", Type.TEXT, setOf(ParameterSpec.Modifier.CONSTANT)),
-                ParameterSpec("payload",  Type.TEXT),
+                ParameterSpec("topic", Type.STRING, setOf(ParameterSpec.Modifier.CONSTANT)),
+                ParameterSpec("payload",  Type.STRING),
                 ),
             emptySet(),
             tag

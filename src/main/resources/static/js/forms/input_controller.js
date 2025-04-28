@@ -12,7 +12,7 @@ export class InputController {
         this.schema = schema
 
         this.labelElement = document.createElement("label")
-        this.labelElement.textContent = schema.name + " (" + this.getType() + "):"
+        this.labelElement.textContent = schema.name + (this.getType() != null ? " (" +  this.getType() + "):" : ":")
 
         this.inputElement = inputElement
 
@@ -23,6 +23,7 @@ export class InputController {
         this.messageElement.style.position = "relative"
         this.messageElement.style.top = "-0.25em"
         this.messageElement.style.lineHeight = "normal"
+        this.messageElement.style.textAlign = "right"
 
         this.listeners = []
 
@@ -41,7 +42,7 @@ export class InputController {
             if (schema.options != null) {
                 return new EnumInputController(schema, schema.options)
             }
-            if (schema.type.toLowerCase() == "boolean") {
+            if (schema.type.toLowerCase() == "bool") {
                 return new EnumInputController(schema, ["True", "False"])
             }
         }
@@ -64,9 +65,9 @@ export class InputController {
     getValue() {
         if (this.isConstant()) {
             switch (this.getType()) {
-                case "boolean":
+                case "bool":
                     return this.inputElement.value == "True"
-                case "number":
+                case "real":
                     return Number.parseFloat(this.inputElement.value)
                 case "int":
                     return Number.parseInt(this.inputElement.value)
@@ -78,7 +79,7 @@ export class InputController {
 
     setValue(value) {
         switch (this.getType()) {
-            case "boolean":
+            case "bool":
                 this.inputElement.value = value ? "True" : "False"
                 break
             default:
@@ -94,7 +95,7 @@ export class InputController {
         if (this.schema.options) {
             return "enum"
         }
-        return "string"
+        return null
     }
 }
 
@@ -104,7 +105,7 @@ class TextInputController extends InputController {
         super(schema, document.createElement("input"))
 
         switch(this.getType()) {
-            case "number":
+            case "real":
                 this.validations = {"Number expected": /^[+-]?(\d+([.]\d*)?([eE][+-]?\d+)?|[.]\d+([eE][+-]?\d+)?)$/}
                 break
             case "int":

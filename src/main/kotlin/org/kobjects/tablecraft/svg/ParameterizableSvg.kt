@@ -25,9 +25,9 @@ class ParameterizableSvg(
                         val name = child.attributes.getNamedItem("name")!!.nodeValue
                         val typeName = child.attributes.getNamedItem("type")!!.nodeValue
                         val type = when(typeName) {
-                            "String" -> Type.TEXT
-                            "Number" -> Type.NUMBER
-                            "Boolean" -> Type.BOOLEAN
+                            "String" -> Type.STRING
+                            "Number" -> Type.REAL
+                            "Boolean" -> Type.BOOL
                             else -> throw IllegalArgumentException("Unrecognized type: $typeName")
                         }
                         val spec = ParameterSpec(
@@ -36,7 +36,7 @@ class ParameterizableSvg(
                         add(spec)
                     }
                     "activity" -> {
-                        add(ParameterSpec("active", Type.BOOLEAN))
+                        add(ParameterSpec("active", Type.BOOL))
                         insertActivity = true
                     }
                 }
@@ -52,9 +52,9 @@ class ParameterizableSvg(
             val type = parameterTypes[key]
             when (type) {
                 null -> System.err.println("Unexpected Parameter $key")
-                Type.TEXT -> convertedParameters[key] = value
-                Type.NUMBER -> convertedParameters[key] = value.toDouble()
-                Type.BOOLEAN -> convertedParameters[key] = value.toBoolean()
+                Type.STRING -> convertedParameters[key] = value
+                Type.REAL -> convertedParameters[key] = value.toDouble()
+                Type.BOOL -> convertedParameters[key] = value.toBoolean()
                 else -> System.err.println("Parameter $key: Int type not supported for SVG Parameterization")
             }
         }

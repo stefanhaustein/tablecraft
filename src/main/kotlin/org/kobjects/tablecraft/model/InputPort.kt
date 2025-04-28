@@ -22,9 +22,9 @@ class InputPort(
 
     override var value: Any = when(specification.returnType) {
         Type.INT -> 0
-        Type.NUMBER -> 0.0
-        Type.BOOLEAN -> false
-        Type.TEXT -> ""
+        Type.REAL -> 0.0
+        Type.BOOL -> false
+        Type.STRING -> ""
         else -> throw UnsupportedOperationException("port type")
     }
     var simulationValue: Any = value

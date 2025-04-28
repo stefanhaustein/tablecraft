@@ -24,28 +24,28 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
     override val operationSpecs = listOf<OperationSpec>(
         OperationSpec(
             OperationKind.INPUT_PORT,
-            Type.BOOLEAN,
+            Type.BOOL,
             "din",
             "Configures the given pin address for digital input and reports a high value as TRUE and a low value as FALSE.",
             listOf(ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
         ) { DigitalInput(this, it) },
         OperationSpec(
             OperationKind.INPUT_PORT,
-            Type.NUMBER,
+            Type.REAL,
             "pwmin",
             "Configures the given pin address for input and reports the pulse width in seconds.",
             listOf(ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
         ) { PwmInput(this, it) },
         OperationSpec(
             OperationKind.OUTPUT_PORT,
-            Type.BOOLEAN,
+            Type.BOOL,
             "dout",
             "Configures the given pin address for digital output and sets it to 'high' for a TRUE value and to 'low' for a FALSE or 0 value.",
             listOf(ParameterSpec("address",  Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
         ) { DigitalOutput(this, it) },
         OperationSpec(
             OperationKind.INTEGRATION,
-            Type.TEXT,
+            Type.STRING,
             "Lcd1602",
             "Configures the size of a lcd display",
             listOf(
