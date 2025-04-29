@@ -205,6 +205,10 @@ details {
     margin-bottom: 5px;
 }
 
+details summary {
+    font-weight: bold;
+}
+
 details:open summary {
     margin-bottom: 5px;
 /*    font-weight: bold; */

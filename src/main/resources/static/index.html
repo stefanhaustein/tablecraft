@@ -17,11 +17,11 @@
 
         <select id="panelSelect" style="width:144px">
             <option>About</option>
+            <option value="Function">Functions</option>
             <option>Graphics</option>
             <option value="Ports">I/O Ports</option>
-            <option value="Validation">Input Widgets</option>
             <option value="Integration">Integrations</option>
-            <option value="Function">Operations</option>
+            <option value="Validation">User Input</option>
             <option value="Hide">Hide Panel</option>
         </select>
 
@@ -66,7 +66,7 @@
             </div>
             <div id="FunctionPanel">
                 <div id="operationEditorContainer"></div>
-                <h2>All Operations</h2>
+                <h2>All Functions</h2>
                 <div id="operationListContainer"></div>
             </div>
             <div id="ValidationPanel">
@@ -197,6 +197,15 @@
             <button id="sheetOkButton">Ok</button>
             <button id="sheetCancelButton">Cancel</button>
             <button id="sheetDeleteButton">Delete</button>
+        </div>
+    </dialog>
+
+    <dialog id="confirmDialog">
+        <h2 id ="confirmDialogTitle"></h2>
+        <div id="confirmDialogText"></div>
+        <div class="dialogButtons">
+            <button id="confirmDialogOkButton">Ok</button>
+            <button id="confirmDialogCancelButton">Cancel</button>
         </div>
     </dialog>
 

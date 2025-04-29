@@ -23,18 +23,17 @@ function renderBinding(targetDiv, constructorSpec, instanceSpec) {
 }
 
 export function showPortDialog(constructorSpec, portSpec) {
-   let kind = constructorSpec.kind
-
-    portEditorContainer.style.display = "block"
-    portListContainer.style.display = "none"
-
+    let kind = constructorSpec.kind
     let instanceSpec = portSpec != null ? portSpec.configuration : {}
 
+    portEditorContainer.style.display = "block"
     portEditorContainer.textContent = ""
+
+    portListContainer.style.display = "none"
+
     let dialogTitleElement = document.createElement("div")
     dialogTitleElement.className = "dialogTitle"
-    dialogTitleElement.textContent = "IO-Port Specification"
-    portEditorContainer.appendChild(dialogTitleElement)
+    dialogTitleElement.textContent = portSpec == null ? "Add " : "Edit "
 
     let inputDiv = document.createElement("div")
     //inputDiv.className = "dialogFields"
@@ -42,7 +41,11 @@ export function showPortDialog(constructorSpec, portSpec) {
     let portSchema = [{"name": "name"}]
     if (kind == "OUTPUT_PORT") {
         portSchema.push({"name": "expression"})
+        dialogTitleElement.append("Output Port")
+    } else {
+        dialogTitleElement.append("Input Port")
     }
+    portEditorContainer.appendChild(dialogTitleElement)
 
     let previousName = portSpec == null ? null : portSpec["name"]
 

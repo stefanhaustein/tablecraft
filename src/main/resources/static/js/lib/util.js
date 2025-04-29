@@ -8,6 +8,24 @@ export function makeEnum(arr){
     return Object.freeze(obj);
 }
 
+export async function confirmDialog(title, message = "") {
+    let confirmDialog = document.getElementById("confirmDialog")
+    document.getElementById("confirmDialogTitle").textContent = title
+    document.getElementById("confirmDialogText").textContent = message
+    confirmDialog.showModal()
+    return new Promise(resolve => {
+        document.getElementById("confirmDialogOkButton").onclick = () => {
+            confirmDialog.close()
+            resolve(true)
+        }
+        document.getElementById("confirmDialogCancelButton").onclick = () => {
+            confirmDialog.close()
+            resolve(false)
+        }
+    })
+}
+
+
 export function addOption(selectElement, name) {
     let option = document.createElement("option")
     option.textContent = name
@@ -61,9 +79,17 @@ export function updateSpec(parent, idPrefix, spec, createAction) {
     let titleElement = document.createElement("div")
     let nameSpan = document.createElement("b")
     nameSpan.append(spec.name)
-    titleElement.append(nameSpan, ": " + camelCase(spec.returnType))
+    titleElement.appendChild(nameSpan)
+    if (spec.params && spec.params.length > 0) {
+        titleElement.append("(" + spec.params.map((e) => e.name).join(", ") + ")")
+    }
+    if (spec.returnType.toLowerCase() != "void") {
+        titleElement.append(": " + camelCase(spec.returnType))
+    }
     titleElement.style.marginBottom = "5px"
     titleElement.style.marginTop = "10px"
+    titleElement.style.textIndent = "-10px"
+    titleElement.style.paddingLeft = "10px"
     element.appendChild(titleElement)
 
     let descriptionElement = document.createElement("div")

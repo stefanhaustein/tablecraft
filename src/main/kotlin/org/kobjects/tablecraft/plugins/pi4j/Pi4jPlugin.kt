@@ -45,7 +45,7 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
         ) { DigitalOutput(this, it) },
         OperationSpec(
             OperationKind.INTEGRATION,
-            Type.STRING,
+            Type.VOID,
             "Lcd1602",
             "Configures the size of a lcd display",
             listOf(
