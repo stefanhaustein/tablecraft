@@ -79,6 +79,7 @@ class InputPort(
     override fun toJson(sb: StringBuilder) {
         sb.append("""{"name":${name.quote()}, "type":${specification.name.quote()}, "configuration": """)
         configuration.toJson(sb)
+        serializeDependencies(sb)
         sb.append("}")
     }
 

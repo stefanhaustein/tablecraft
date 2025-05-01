@@ -101,7 +101,7 @@ export function setEditMode(editMode) {
     notifySelectionListeners()
 }
 
-function showDependencies(ids, className, add) {
+function renderDependencies(ids, className, add) {
     if (ids == null) {
         return
     }
@@ -181,6 +181,23 @@ export function setRangeHighlight(setReset) {
     }
 }
 
+let dependenciesShown = null
+
+export function showDependencies(target) {
+    if (dependenciesShown != null) {
+        renderDependencies(dependenciesShown.equivalent, "equivalent", false)
+        renderDependencies(dependenciesShown.inputs, "input", false)
+        renderDependencies(dependenciesShown.dependencies, "dependency", false)
+    }
+    dependenciesShown = target
+    if (dependenciesShown != null) {
+        renderDependencies(dependenciesShown.equivalent, "equivalent", true)
+        renderDependencies(dependenciesShown.inputs, "input", true)
+        renderDependencies(dependenciesShown.dependencies, "dependency", true)
+    }
+}
+
+
 
 export function selectCell(id, rangeX = 0, rangeY = 0) {
 
@@ -204,10 +221,6 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
                 commitCurrentCell()
             }
 
-            showDependencies(currentCellData.equivalent, "equivalent", false)
-            showDependencies(currentCellData.inputs, "input", false)
-            showDependencies(currentCellData.dependencies, "dependency", false)
-
             currentCellElement.classList.remove("focus", "editing")
             renderComputedValue(currentCellElement, currentCellData)
 
@@ -226,11 +239,7 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
 
     if (newlySelected) {
         currentCellElement.classList.add("focus")
-
-        showDependencies(currentCellData.equivalent, "equivalent", true)
-        showDependencies(currentCellData.inputs, "input", true)
-        showDependencies(currentCellData.dependencies, "dependency", true)
-
+        showDependencies(currentCellData)
 
         notifySelectionListeners()
     }

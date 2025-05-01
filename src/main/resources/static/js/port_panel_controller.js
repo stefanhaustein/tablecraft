@@ -1,4 +1,4 @@
-import {functions, ports, portValues, simulationValues} from "./shared_state.js";
+import {functions, ports, portValues, showDependencies, simulationValues} from "./shared_state.js";
 import {showPortDialog} from "./port_editor.js";
 import {InputController} from "./forms/input_controller.js";
 import {camelCase, insertById, sendJson, updateSpec} from "./lib/util.js";
@@ -108,6 +108,16 @@ export function processPortUpdate(name, f) {
         entryContentElement.appendChild(entryValueElement)
 
         entryElement.appendChild(entryContentElement)
+
+        entryElement.onclick = () => {
+            if (f.equivalent == null) {
+                f.equivalent = []
+            }
+            if (f.equivalent.indexOf(f.name) == -1) {
+                f.equivalent.push(name)
+            }
+            showDependencies(f)
+        }
     }
 
     // console.log("received function spec", f)
