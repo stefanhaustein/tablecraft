@@ -6,8 +6,10 @@ import com.pi4j.io.gpio.digital.DigitalOutputConfig;
 import com.pi4j.io.spi.Spi;
 import com.pi4j.io.spi.SpiConfig;
 
+import java.io.Closeable;
 
-public class Pixtend {
+
+public class Pixtend implements Closeable {
     public final Model model;
     private final Context pi4J;
 
@@ -24,6 +26,8 @@ public class Pixtend {
         this.spiIn = new byte[model.bufferSize];
         this.spiOut = new byte[model.bufferSize];
 
+        spiOut[0] = (byte) model.modelOut;
+
         // Enable Pixtend SPI communication by enabling bwm pin 24
         pin24dout = pi4J.create(DigitalOutputConfig.newBuilder(pi4J).address(24).build());
         pin24dout.setState(true);
@@ -38,32 +42,25 @@ public class Pixtend {
         spi = pi4J.create(spiConfig);
 
         spi.open();
+    }
 
+    /** Closes SPI and shuts down pin 24 */
+    @Override
+    public void close() {
+        spi.close();
+        pi4J.shutdown(pin24dout.id());
     }
 
     /** Sends the current state to the device and receives an update */
-    public void sync() {
-        int headerCrc = 0xFFFF;
+    public void syncState() {
 
-        for (int i = 0; i < 7; i++) {
-            headerCrc = crc16(headerCrc, spiOut[i]);
-        }
-
-        spiOut[7] = (byte) headerCrc;  //CRC Low Byte
-        spiOut[8] = (byte) (headerCrc >>> 8); //CRC High Byte
+        // Header checksum
+        setWord(7, crc16(spiOut, 0, 7));
 
         //Calculate CRC16 Data Transmit Checksum
-        var dataCrc = 0xFFFF;
-        for (int i = 0; i < 65; i++) {
-            dataCrc = crc16(dataCrc, spiOut[i]);
-        }
-
-        spiOut[65] = (byte) dataCrc; //CRC Low Byte
-        spiOut[66] = (byte) (dataCrc >>> 8); //CRC High Byte
-
+        setWord(spiOut.length - 2, crc16(spiOut, 9, spiOut.length - 2));
 
         System.out.println("Spi transfer result: "  + spi.transfer(spiOut, spiIn, 67));
-
 
         System.out.println("Received: new");
         for (int i = 0; i < spiIn.length; i++) {
@@ -72,20 +69,68 @@ public class Pixtend {
         System.out.println();
     }
 
+    /** Returns the 10V-range voltage for analog in 0..3 and a mA value for analog in 4 and 5 */
+    public double getAnalogIn(int index) {
+        return (index > 4)
+            ? getRawAnalogIn(index) * 0.020158400229358
+            : getAnalogIn(index, false);
+    }
+
+    /** Returns the 10/5V range voltage for analog in 0..3. Analog 4/5 are not supported in this call. */
+    public double getAnalogIn(int index, boolean limitedTo5v) {
+        if (index > 4) {
+            throw new IllegalArgumentException("limitedTo5v argument not supported for analog in 4/5") ;
+        }
+        return getRawAnalogIn(index) * (limitedTo5v ? 5.0 : 10.0) / 1024.0;
+    }
+
     public boolean getDigitalIn(int index) {
         if (index < 0 || index >= model.digitalInCount) {
             throw new IllegalArgumentException("Digital input index " + index + " out of range 0.." + (model.digitalInCount - 1));
         }
-        int address = model.digitalInOffset + index / 8;
-        return (spiIn[address] & (1 << index % 8)) != 0;
+        return getBit(model.digitalInOffset, index);
     }
 
-    public int getAnalogIn(int index) {
-        if (index < 0 || index >= model.analogInCount) {
-            throw new IllegalArgumentException("Analog input index " + index + " out of range 0.." + (model.digitalInCount - 1));
+    public boolean getGpioIn(int index) {
+        checkRange(index, model.gpioCount, "GPIO input");
+        return getBit(model.gpioInOffset, index);
+    }
+
+    /** Returns the "raw" analog input value in a 10 bit range [0..1023]. */
+    public int getRawAnalogIn(int index) {
+        checkRange(index, model.analogInCount, "Analog input");
+        return getWord(model.analogInOffset + 2 * index);
+    }
+
+    public void setDigitalOut(int index, boolean value) {
+        checkRange(index, model.digitalInCount, "Digital output");
+        setBit(model.digitalOutOffset, index, value);
+    }
+
+    public void setGpioOut(int index, boolean value) {
+        checkRange(index, model.gpioCount, "GPIO output");
+        setBit(model.gpioOutOffset, index, value);
+    }
+
+    public void setRelay(int index, boolean value) {
+        checkRange(index, model.relayOutCount, "Relay");
+        setBit(model.relayOutOffset, index, value);
+    }
+
+    // Private helpers
+
+    private static void checkRange(int index, int count, String name) {
+        if (index < 0 || index >= count) {
+            throw new IllegalArgumentException(name + " index " + index + " out of range 0.." + (count - 1));
         }
-        int address = model.analogInOffset + 2 * index;
-        return (spiIn[address] & 255) + 256 * (spiIn[address + 1] & 3);
+    }
+
+    private static int crc16(byte[] data, int from, int toExclusive) {
+        int crc = 0xFFFF;
+        for (int i = from; i < toExclusive; i++) {
+            crc16(crc, data[i]);
+        }
+        return crc;
     }
 
     private static int crc16(int crc, byte data) {
@@ -96,38 +141,33 @@ public class Pixtend {
         return crc;
     }
 
-
-    // Only model S is supported at this time.
-    public enum Model {
-        V2S(    /* bufferSize */ 67,
-                /* digitalInOffset */ 9,
-                /* digitalInCount */ 8,
-                /* analogInOffset */ 10,
-                /* analogInCount */ 2
-        ),
-        V2L(    /* bufferSized */ 111,
-                /* digitalInOffset */ 9,
-                /* digitalInCount */ 16,
-                /* analogInOffset */ 11,
-                /* andlogInCount */ 6
-        );
-
-        public final int bufferSize;
-        public final int digitalInOffset;
-        public final int digitalInCount;
-        public final int analogInOffset;
-        public final int analogInCount;
-
-        Model(int bufferSize,
-              int digitalInOffset,
-              int digitalInCount,
-              int analogInOffset,
-              int analogInCount) {
-            this.bufferSize = bufferSize;
-            this.digitalInOffset = digitalInOffset;
-            this.digitalInCount = digitalInCount;
-            this.analogInOffset = analogInOffset;
-            this.analogInCount = analogInCount;
-        }
+    private boolean getBit(int baseAddress, int bitIndex) {
+        int address = baseAddress + bitIndex / 8;
+        return (spiIn[address] & (1 << (bitIndex % 8))) != 0;
     }
+
+    private int getWord(int address) {
+        return (spiIn[address] & 0xff) + 256 * (spiIn[address + 1] & 0xff);
+    }
+
+    private void setBit(int baseAddress, int bitIndex, boolean value) {
+        int address = baseAddress + bitIndex / 8;
+        int mask = ~(1 << (bitIndex % 8));
+        int bitValue = value ? 1 << bitIndex : 0
+        spiOut[address] = (byte) ((spiOut[address] & mask) | bitValue);
+    }
+
+    private void setNibble(int baseAddress, int index, int value) {
+        int address = baseAddress + index / 2;
+        int oldValue = spiIn[address] & 255;
+        spiOut[address] = (byte) ((index & 1) == 0
+                ? ((oldValue & 0xf0) | (value & 0x0f))
+                : ((oldValue & 0x0f) | ((value & 0x0f) << 4)));
+    }
+
+    private void setWord(int address, int word) {
+        spiOut[address] = (byte) word;
+        spiOut[address + 1] = (byte) (word >>> 8);
+    }
+
 }
