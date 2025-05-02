@@ -88,6 +88,7 @@ object Model : ModelInterface {
                         try {
                             defineIntegration(name, value as Map<String, Any>, token)
                         } catch (e: Exception) {
+                            System.err.println("Failed to load integration '$name'.")
                             e.printStackTrace()
                         }
                     }
