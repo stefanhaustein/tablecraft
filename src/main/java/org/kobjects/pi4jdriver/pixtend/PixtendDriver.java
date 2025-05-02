@@ -24,6 +24,9 @@ public class PixtendDriver implements Closeable {
             GpioMode.DIGITAL_INPUT, GpioMode.DIGITAL_INPUT,
             GpioMode.DIGITAL_INPUT, GpioMode.DIGITAL_INPUT};
 
+    private long cycleTime = 30;
+    private long timestamp;
+
     public PixtendDriver(Model model, Context pi4J) {
         this.pi4J = pi4J;
         this.model = model;
@@ -47,6 +50,8 @@ public class PixtendDriver implements Closeable {
         spi = pi4J.create(spiConfig);
 
         spi.open();
+
+        timestamp = System.currentTimeMillis();
     }
 
     /** Closes SPI and shuts down pin 24 */
@@ -68,7 +73,18 @@ public class PixtendDriver implements Closeable {
         int dataChecksum = crc16(spiOut, 9, spiOut.length - 2);
         setWord(spiOut.length - 2, dataChecksum);
 
+        long currentCycle = System.currentTimeMillis() - timestamp;
+        if (currentCycle < cycleTime) {
+            try {
+                Thread.sleep(cycleTime - currentCycle);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         int result = spi.transfer(spiOut, spiIn, spiOut.length);
+
+        timestamp = System.currentTimeMillis();
 
         System.out.println("Received: new");
         for (int i = 0; i < spiIn.length; i++) {
@@ -95,7 +111,11 @@ public class PixtendDriver implements Closeable {
             case 0b0110: throw new IllegalStateException("SPI frequency too high");
         }
 
-
+        int receivedDataChecksum = getWord(spiIn.length - 2);
+        int calculatedDataChecksum = crc16(spiIn, 9, spiIn.length - 2);
+        if (receivedDataChecksum != calculatedDataChecksum) {
+            throw new IllegalStateException("Received data checksum " + receivedDataChecksum + " != calculated checksum " + calculatedDataChecksum);
+        }
     }
 
     /** Returns the 10V-range voltage for analog in 0..3 and a mA value for analog in 4 and 5 */

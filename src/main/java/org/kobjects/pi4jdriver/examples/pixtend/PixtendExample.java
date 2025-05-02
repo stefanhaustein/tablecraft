@@ -21,6 +21,9 @@ public class PixtendExample {
         for (int i = 0; i < pixtend.model.analogInCount; i++) {
             System.out.println("Analog input " + i + ": " + pixtend.getAnalogIn(i));
         }
+        for (int i = 0; i < pixtend.model.gpioCount; i++) {
+            System.out.println("GPIO in " + i + ": " + pixtend.getGpioIn(i));
+        }
     }
 
 }
