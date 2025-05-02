@@ -3,7 +3,7 @@ package org.kobjects.pi4jdriver.examples.pixtend;
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import org.kobjects.pi4jdriver.pixtend.Model;
-import org.kobjects.pi4jdriver.pixtend.Pixtend;
+import org.kobjects.pi4jdriver.pixtend.PixtendDriver;
 
 public class PixtendExample {
 
@@ -11,7 +11,7 @@ public class PixtendExample {
     public static void main(String[] args) {
         Context pi4J = Pi4J.newAutoContext();
 
-        Pixtend pixtend = new Pixtend(Model.V2S, pi4J);
+        PixtendDriver pixtend = new PixtendDriver(Model.V2S, pi4J);
 
         pixtend.syncState();
 

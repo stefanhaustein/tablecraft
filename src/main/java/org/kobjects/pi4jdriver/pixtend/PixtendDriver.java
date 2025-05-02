@@ -4,12 +4,14 @@ import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.gpio.digital.DigitalOutputConfig;
 import com.pi4j.io.spi.Spi;
+import com.pi4j.io.spi.SpiChipSelect;
 import com.pi4j.io.spi.SpiConfig;
+import com.pi4j.io.spi.SpiMode;
 
 import java.io.Closeable;
 
 
-public class Pixtend implements Closeable {
+public class PixtendDriver implements Closeable {
     public final Model model;
     private final Context pi4J;
 
@@ -22,7 +24,7 @@ public class Pixtend implements Closeable {
             GpioMode.DIGITAL_INPUT, GpioMode.DIGITAL_INPUT,
             GpioMode.DIGITAL_INPUT, GpioMode.DIGITAL_INPUT};
 
-    public Pixtend(Model model, Context pi4J) {
+    public PixtendDriver(Model model, Context pi4J) {
         this.pi4J = pi4J;
         this.model = model;
 
@@ -36,8 +38,8 @@ public class Pixtend implements Closeable {
         pin24dout.setState(true);
 
         SpiConfig spiConfig = Spi.newConfigBuilder(pi4J).provider("linuxfs-spi")
-                // .mode(SpiMode.MODE_0)
-                //   .chipSelect(SpiChipSelect.CS_0)
+                .mode(SpiMode.MODE_0)
+                .chipSelect(SpiChipSelect.CS_0)
                 .address(0)
                 .baud(700_000)
                 .build();
@@ -58,18 +60,42 @@ public class Pixtend implements Closeable {
     public void syncState() {
 
         // Header checksum
-        setWord(7, crc16(spiOut, 0, 7));
+        int headerChecksum = crc16(spiOut, 0, 7);
+        System.out.println("Header crc: " + headerChecksum);
+        setWord(7, headerChecksum);
 
         //Calculate CRC16 Data Transmit Checksum
-        setWord(spiOut.length - 2, crc16(spiOut, 9, spiOut.length - 2));
+        int dataChecksum = crc16(spiOut, 9, spiOut.length - 2);
+        setWord(spiOut.length - 2, dataChecksum);
 
-        System.out.println("Spi transfer result: "  + spi.transfer(spiOut, spiIn, 67));
+        int result = spi.transfer(spiOut, spiIn, spiOut.length);
 
         System.out.println("Received: new");
         for (int i = 0; i < spiIn.length; i++) {
             System.out.print("" + Character.forDigit((spiIn[i] & 255) / 16, 16) + Character.forDigit((spiIn[i] & 255) % 16, 16) + ' ');
         }
         System.out.println();
+
+        if (result != spiOut.length) {
+            throw new IllegalStateException("Expected " + spiOut.length + " bytes; got: " + result);
+        }
+
+        int receivedHeaderChecksum = getWord(7);
+        int calculatedHeaderChecksum = crc16(spiIn, 0, 7);
+        if (receivedHeaderChecksum != calculatedHeaderChecksum) {
+            throw new IllegalStateException("Received header checksum " + receivedHeaderChecksum + " != calculated checksum " + calculatedHeaderChecksum);
+        }
+
+        int errorCode = getNibble(3, 1);
+        switch (errorCode) {
+            case 0b0010: throw new IllegalStateException("Data CRC Error");
+            case 0b0011: throw new IllegalStateException("Data block too short");
+            case 0b0100: throw new IllegalStateException("PiXtend Model mismatch");
+            case 0b0101: throw new IllegalStateException("Header CRC Error");
+            case 0b0110: throw new IllegalStateException("SPI frequency too high");
+        }
+
+
     }
 
     /** Returns the 10V-range voltage for analog in 0..3 and a mA value for analog in 4 and 5 */
@@ -176,7 +202,7 @@ public class Pixtend implements Closeable {
     private static int crc16(byte[] data, int from, int toExclusive) {
         int crc = 0xFFFF;
         for (int i = from; i < toExclusive; i++) {
-            crc16(crc, data[i]);
+            crc = crc16(crc, data[i]);
         }
         return crc;
     }
@@ -194,8 +220,13 @@ public class Pixtend implements Closeable {
         return (spiIn[address] & (1 << (bitIndex % 8))) != 0;
     }
 
+    private int getNibble(int baseAddress, int index) {
+        int address = baseAddress + index / 2;
+        return (spiIn[address] >>> ((index % 2) * 4)) & 0x0f;
+    }
+
     private int getWord(int address) {
-        return (spiIn[address] & 0xff) + 256 * (spiIn[address + 1] & 0xff);
+        return (spiIn[address] & 0xff) | ((spiIn[address + 1] & 0xff) << 8);
     }
 
     private void setBit(int baseAddress, int bitIndex, boolean value) {
