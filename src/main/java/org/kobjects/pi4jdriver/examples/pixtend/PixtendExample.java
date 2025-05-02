@@ -19,7 +19,7 @@ public class PixtendExample {
             System.out.println("Digital input " + i + ": " + pixtend.getDigitalIn(i));
         }
         for (int i = 0; i < pixtend.model.analogInCount; i++) {
-            System.out.println("Analog input " + i + ": " + pixtend.getRawAnalogIn(i));
+            System.out.println("Analog input " + i + ": " + pixtend.getAnalogIn(i));
         }
     }
 
