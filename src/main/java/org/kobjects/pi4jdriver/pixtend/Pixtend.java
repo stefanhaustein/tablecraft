@@ -8,18 +8,21 @@ import com.pi4j.io.spi.SpiConfig;
 
 
 public class Pixtend {
+    public final Model model;
     private final Context pi4J;
+
     private final Spi spi;
     private final DigitalOutput pin24dout;
 
     private final byte[] spiIn;
     private final byte[] spiOut;
 
-    public Pixtend(Context pi4J, Model model) {
+    public Pixtend(Model model, Context pi4J) {
         this.pi4J = pi4J;
+        this.model = model;
 
-        this.spiIn = new byte[67];
-        this.spiOut = new byte[67];
+        this.spiIn = new byte[model.bufferSize];
+        this.spiOut = new byte[model.bufferSize];
 
         // Enable Pixtend SPI communication by enabling bwm pin 24
         pin24dout = pi4J.create(DigitalOutputConfig.newBuilder(pi4J).address(24).build());
@@ -34,10 +37,7 @@ public class Pixtend {
 
         spi = pi4J.create(spiConfig);
 
-
-
         spi.open();
-
 
     }
 
@@ -72,7 +72,21 @@ public class Pixtend {
         System.out.println();
     }
 
+    public boolean getDigitalIn(int index) {
+        if (index < 0 || index >= model.digitalInCount) {
+            throw new IllegalArgumentException("Digital input index " + index + " out of range 0.." + (model.digitalInCount - 1));
+        }
+        int address = model.digitalInOffset + index / 8;
+        return (spiIn[address] & (1 << index % 8)) != 0;
+    }
 
+    public int getAnalogIn(int index) {
+        if (index < 0 || index >= model.analogInCount) {
+            throw new IllegalArgumentException("Analog input index " + index + " out of range 0.." + (model.digitalInCount - 1));
+        }
+        int address = model.analogInOffset + 2 * index;
+        return (spiIn[address] & 255) + 256 * (spiIn[address + 1] & 3);
+    }
 
     private static int crc16(int crc, byte data) {
         crc ^= (data & 0xFF);
@@ -85,6 +99,35 @@ public class Pixtend {
 
     // Only model S is supported at this time.
     public enum Model {
-        S
+        V2S(    /* bufferSize */ 67,
+                /* digitalInOffset */ 9,
+                /* digitalInCount */ 8,
+                /* analogInOffset */ 10,
+                /* analogInCount */ 2
+        ),
+        V2L(    /* bufferSized */ 111,
+                /* digitalInOffset */ 9,
+                /* digitalInCount */ 16,
+                /* analogInOffset */ 11,
+                /* andlogInCount */ 6
+        );
+
+        public final int bufferSize;
+        public final int digitalInOffset;
+        public final int digitalInCount;
+        public final int analogInOffset;
+        public final int analogInCount;
+
+        Model(int bufferSize,
+              int digitalInOffset,
+              int digitalInCount,
+              int analogInOffset,
+              int analogInCount) {
+            this.bufferSize = bufferSize;
+            this.digitalInOffset = digitalInOffset;
+            this.digitalInCount = digitalInCount;
+            this.analogInOffset = analogInOffset;
+            this.analogInCount = analogInCount;
+        }
     }
 }

@@ -10,9 +10,16 @@ public class PixtendExample {
     public static void main(String[] args) {
         Context pi4J = Pi4J.newAutoContext();
 
-        Pixtend pixtend = new Pixtend(pi4J, Pixtend.Model.S);
+        Pixtend pixtend = new Pixtend(Pixtend.Model.V2S, pi4J);
 
         pixtend.sync();
+
+        for (int i = 0; i < pixtend.model.digitalInCount; i++) {
+            System.out.println("Digital input " + i + ": " + pixtend.getDigitalIn(i));
+        }
+        for (int i = 0; i < pixtend.model.analogInCount; i++) {
+            System.out.println("Analog input " + i + ": " + pixtend.getAnalogIn(i));
+        }
     }
 
 }
