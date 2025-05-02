@@ -18,6 +18,7 @@ public class Pixtend implements Closeable {
 
     private final byte[] spiIn;
     private final byte[] spiOut;
+    private GpioMode[] gpioModes = {GpioMode.DIGITAL_INPUT, GpioMode.DIGITAL_INPUT, GpioMode.DIGITAL_INPUT, GpioMode.DIGITAL_INPUT, }
 
     public Pixtend(Model model, Context pi4J) {
         this.pi4J = pi4J;
@@ -93,7 +94,30 @@ public class Pixtend implements Closeable {
 
     public boolean getGpioIn(int index) {
         checkRange(index, model.gpioCount, "GPIO input");
+        if (gpioModes[index] != GpioMode.DIGITAL_INPUT) {
+            throw new IllegalStateException("GpioMode " + index + " is set to " + gpioModes[index]);
+        }
         return getBit(model.gpioInOffset, index);
+    }
+
+    public double getTemperature(int index) {
+        checkRange(index, model.tempHumidCount, "Temperature");
+        int rawValue = getWord(model.tempHumidOffset + index * 4);
+        return switch (gpioModes[index]) {
+            case DHT11 -> rawValue / 256.0;
+            case DHT22 -> rawValue / 10.0;
+            default -> throw new IllegalStateException("GPIO " + index + " not configured for DHT11/22");
+        };
+    }
+
+    public double getHumidity(int index) {
+        checkRange(index, model.tempHumidCount, "Humidity");
+        int rawValue = getWord(model.tempHumidOffset + index * 4 + 2);
+        return switch (gpioModes[index]) {
+            case DHT11 -> rawValue / 256.0;
+            case DHT22 -> rawValue / 10.0;
+            default -> throw new IllegalStateException("GPIO " + index + " not configured for DHT11/22");
+        };
     }
 
     /** Returns the "raw" analog input value in a 10 bit range [0..1023]. */
@@ -107,8 +131,30 @@ public class Pixtend implements Closeable {
         setBit(model.digitalOutOffset, index, value);
     }
 
+    public void setGpioMode(int index, GpioMode mode) {
+        checkRange(index, model.gpioCount, "GPIO mode");
+        switch (mode) {
+            case DHT11:
+            case DHT22:
+                setBit(model.gpioCtrlOffset, index, false);
+                setBit(model.gpioCtrlOffset, index + 4, true);
+                break;
+            case DIGITAL_INPUT:
+                setBit(model.gpioCtrlOffset, index, false);
+                setBit(model.gpioCtrlOffset, index + 4, false);
+                break;
+            case DIGITAL_OUTPUT:
+                setBit(model.gpioCtrlOffset, index, true);
+                setBit(model.gpioCtrlOffset, index + 4, false);
+        }
+        gpioModes[index] = mode;
+    }
+
     public void setGpioOut(int index, boolean value) {
         checkRange(index, model.gpioCount, "GPIO output");
+        if (gpioModes[index] != GpioMode.DIGITAL_OUTPUT) {
+            throw new IllegalStateException("GpioMode " + index + " is set to " + gpioModes[index]);
+        }
         setBit(model.gpioOutOffset, index, value);
     }
 
@@ -153,7 +199,7 @@ public class Pixtend implements Closeable {
     private void setBit(int baseAddress, int bitIndex, boolean value) {
         int address = baseAddress + bitIndex / 8;
         int mask = ~(1 << (bitIndex % 8));
-        int bitValue = value ? 1 << bitIndex : 0
+        int bitValue = value ? 1 << bitIndex : 0;
         spiOut[address] = (byte) ((spiOut[address] & mask) | bitValue);
     }
 
