@@ -18,7 +18,9 @@ public class Pixtend implements Closeable {
 
     private final byte[] spiIn;
     private final byte[] spiOut;
-    private GpioMode[] gpioModes = {GpioMode.DIGITAL_INPUT, GpioMode.DIGITAL_INPUT, GpioMode.DIGITAL_INPUT, GpioMode.DIGITAL_INPUT, }
+    private final GpioMode[] gpioModes = {
+            GpioMode.DIGITAL_INPUT, GpioMode.DIGITAL_INPUT,
+            GpioMode.DIGITAL_INPUT, GpioMode.DIGITAL_INPUT};
 
     public Pixtend(Model model, Context pi4J) {
         this.pi4J = pi4J;
