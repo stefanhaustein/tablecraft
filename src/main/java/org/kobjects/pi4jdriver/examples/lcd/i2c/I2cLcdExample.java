@@ -1,9 +1,9 @@
-package org.kobjects.pi4jdriver.examples.display.i2clcd;
+package org.kobjects.pi4jdriver.examples.lcd.i2c;
 
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
-import org.kobjects.pi4jdriver.display.i2clcd.I2cLcdDriver;
+import org.kobjects.pi4jdriver.lcd.i2c.I2cLcdDriver;
 
 public class I2cLcdExample {
 

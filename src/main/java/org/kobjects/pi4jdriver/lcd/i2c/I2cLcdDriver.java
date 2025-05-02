@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.kobjects.pi4jdriver.display.i2clcd;
+package org.kobjects.pi4jdriver.lcd.i2c;
 
 
 import com.pi4j.io.i2c.I2C;
