@@ -1,9 +1,9 @@
-package org.kobjects.pi4jdriver.examples.pixtend;
+package org.kobjects.pi4jdriver.examples.plc.pixtend;
 
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
-import org.kobjects.pi4jdriver.pixtend.Model;
-import org.kobjects.pi4jdriver.pixtend.PixtendDriver;
+import org.kobjects.pi4jdriver.plc.pixtend.Model;
+import org.kobjects.pi4jdriver.plc.pixtend.PixtendDriver;
 
 public class PixtendExample {
 

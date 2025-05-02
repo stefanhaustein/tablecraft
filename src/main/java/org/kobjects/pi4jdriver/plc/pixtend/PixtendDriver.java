@@ -1,4 +1,4 @@
-package org.kobjects.pi4jdriver.pixtend;
+package org.kobjects.pi4jdriver.plc.pixtend;
 
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalOutput;
@@ -61,7 +61,7 @@ public class PixtendDriver implements Closeable {
         pi4J.shutdown(pin24dout.id());
     }
 
-    /** Sends the current state to the device and receives an update */
+    /** Sends the current state to the device and receives an update. */
     public void syncState() {
 
         // Header checksum

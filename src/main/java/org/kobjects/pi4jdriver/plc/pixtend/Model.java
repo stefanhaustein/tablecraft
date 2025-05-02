@@ -1,4 +1,4 @@
-package org.kobjects.pi4jdriver.pixtend;
+package org.kobjects.pi4jdriver.plc.pixtend;
 
 // Enumeration of supported Pixtend models, containing their capabilities and IO record structure.
 public enum Model {

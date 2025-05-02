@@ -1,4 +1,4 @@
-package org.kobjects.pi4jdriver.pixtend;
+package org.kobjects.pi4jdriver.plc.pixtend;
 
 public enum GpioMode {
     DIGITAL_INPUT,
