@@ -201,7 +201,7 @@ object Model : ModelInterface {
 
     fun deletePort(name: String, token: ModificationToken) {
         token.symbolsChanged = true
-
+        portMap[name]?.detach()
         portMap[name] = InputPort(name, OperationSpec(
             OperationKind.INPUT_PORT,
             Type.STRING,
@@ -225,7 +225,7 @@ object Model : ModelInterface {
         token.symbolsChanged = true
     }
 
-    fun definePort(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken): Port? {
+    fun definePort(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken) {
         token.symbolsChanged = true
 
         val previousName = jsonSpec["previousName"]
@@ -255,10 +255,8 @@ object Model : ModelInterface {
                 else -> throw IllegalArgumentException("Operation specification $specification does not specify a port.")
             }
             portMap[name] = port
-            return port
+            port.reset(simulationMode_, token)
         }
-
-        return null
     }
 
     fun defineIntegration(name: String?,  jsonSpec: Map<String, Any>, token: ModificationToken) {

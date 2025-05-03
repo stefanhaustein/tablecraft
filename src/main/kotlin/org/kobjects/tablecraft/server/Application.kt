@@ -57,7 +57,7 @@ fun Application.module() {
             val jsonSpec = JsonParser.parseObject(jsonText)
             val name = jsonSpec["name"] as String?
             Model.applySynchronizedWithToken { token ->
-                Model.definePort(name, jsonSpec, token)?.reset(Model.simulationMode_, token)
+                Model.definePort(name, jsonSpec, token)
             }
             call.respond(HttpStatusCode.OK, null)
         }

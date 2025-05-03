@@ -28,6 +28,7 @@ class PwmInput(
             digitalInput = plugin.pi4J.create(DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
             error = null
         } catch (e: Exception) {
+            e.printStackTrace()
             error = e
             digitalInput = null
         }
@@ -56,6 +57,10 @@ class PwmInput(
     override fun detach() {
         detachPort()
         plugin.removePort(this)
+        /*if (digitalInput != null) {
+            plugin.pi4J.shutdown<DigitalInput>(digitalInput!!.id)
+            digitalInput = null
+        }*/
     }
 
     override fun detachPort() {
