@@ -53,7 +53,7 @@ public class Bmp280I2cExample {
                 .provider("linuxfs-i2c")
                 .build());
 
-        Bmp280Driver bmp280 = new Bmp280Driver(new Bmp280IoI2c(i2c));
+        Bmp280Driver bmp280 = Bmp280Driver.create(i2c);
 
 
         System.out.println(" Temperatue C = " + bmp280.temperatureC());

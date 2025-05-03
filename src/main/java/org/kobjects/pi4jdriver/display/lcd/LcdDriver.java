@@ -17,6 +17,8 @@
 
 package org.kobjects.pi4jdriver.display.lcd;
 
+import com.pi4j.io.i2c.I2C;
+
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -26,49 +28,6 @@ import java.io.IOException;
  * Works with the PCF8574T backpack, only.
  */
 public class LcdDriver implements Closeable {
-
-    /** Flags for display commands */
-    private static final int LCD_CLEAR_DISPLAY   = 0x01;
-    private static final int LCD_RETURN_HOME     = 0x02;
-    private static final int LCD_SCROLL_RIGHT    = 0x1E;
-    private static final int LCD_SCROLL_LEFT     = 0x18;
-    private static final int LCD_ENTRY_MODE_SET  = 0x04;
-    private static final int LCD_DISPLAY_CONTROL = 0x08;
-    private static final int LCD_CURSOR_SHIFT    = 0x10;
-    private static final int LCD_FUNCTION_SET    = 0x20;
-    private static final int LCD_SET_CGRAM_ADDR  = 0x40;
-    private static final int LCD_SET_DDRAM_ADDR  = 0x80;
-
-    // flags for display entry mode
-    private static final int LCD_ENTRY_RIGHT           = 0x00;
-    private static final int LCD_ENTRY_LEFT            = 0x02;
-    private static final int LCD_ENTRY_SHIFT_INCREMENT = 0x01;
-    private static final int LCD_ENTRY_SHIFT_DECREMENT = 0x00;
-
-    // flags for display on/off control
-    private static final int LCD_DISPLAY_ON  = 0x04;
-    private static final int LCD_DISPLAY_OFF = 0x00;
-    private static final int LCD_CURSOR_ON   = 0x02;
-    private static final int LCD_CURSOR_OFF  = 0x00;
-    private static final int LCD_BLINK_ON    = 0x01;
-    private static final int LCD_BLINK_OFF   = 0x00;
-
-    // flags for display/cursor shift
-    private static final int LCD_DISPLAY_MOVE = 0x08;
-    private static final int LCD_CURSOR_MOVE  = 0x00;
-
-    // flags for function set
-    private static final int LCD_8BIT_MODE = 0x10;
-    private static final int LCD_4BIT_MODE = 0x00;
-    private static final int LCD_2LINE     = 0x08;
-    private static final int LCD_1LINE     = 0x00;
-    private static final int LCD_5x10DOTS  = 0x04;
-    private static final int LCD_5x8DOTS   = 0x00;
-
-    /** Display row offsets for up to 4 rows. */
-    private static final byte[] LCD_ROW_OFFSETS = {0x00, 0x40, 0x14, 0x54};
-
-    private static final byte Rs                = 0b000_00001; // Register select bit
 
 
     private final LcdIo io;
@@ -85,6 +44,9 @@ public class LcdDriver implements Closeable {
     /** The current column */
     private int column;
 
+    public static LcdDriver create(I2C i2c, int rows, int columns) {
+        return new LcdDriver(new Pcf8574LcdIo(i2c), rows, columns);
+    }
 
     /** Creates a new Lcd1602 driver for a display of the given dimensions; up to 4x20 */
     public LcdDriver(LcdIo io, int rows, int columns) {
@@ -100,7 +62,7 @@ public class LcdDriver implements Closeable {
         clearDisplay();
 
         // Enable backlight
-        io.setBacklight(true);
+        setBacklight(true);
     }
 
     /**
@@ -108,7 +70,6 @@ public class LcdDriver implements Closeable {
      */
     public void setBacklight(boolean backlightEnabled) {
         io.setBacklight(backlightEnabled);
-
     }
 
     /**
@@ -206,4 +167,49 @@ public class LcdDriver implements Closeable {
     public void close() throws IOException {
         io.close();
     }
+
+
+    /** Flags for display commands */
+    private static final int LCD_CLEAR_DISPLAY   = 0x01;
+    private static final int LCD_RETURN_HOME     = 0x02;
+    private static final int LCD_SCROLL_RIGHT    = 0x1E;
+    private static final int LCD_SCROLL_LEFT     = 0x18;
+    private static final int LCD_ENTRY_MODE_SET  = 0x04;
+    private static final int LCD_DISPLAY_CONTROL = 0x08;
+    private static final int LCD_CURSOR_SHIFT    = 0x10;
+    private static final int LCD_FUNCTION_SET    = 0x20;
+    private static final int LCD_SET_CGRAM_ADDR  = 0x40;
+    private static final int LCD_SET_DDRAM_ADDR  = 0x80;
+
+    // flags for display entry mode
+    private static final int LCD_ENTRY_RIGHT           = 0x00;
+    private static final int LCD_ENTRY_LEFT            = 0x02;
+    private static final int LCD_ENTRY_SHIFT_INCREMENT = 0x01;
+    private static final int LCD_ENTRY_SHIFT_DECREMENT = 0x00;
+
+    // flags for display on/off control
+    private static final int LCD_DISPLAY_ON  = 0x04;
+    private static final int LCD_DISPLAY_OFF = 0x00;
+    private static final int LCD_CURSOR_ON   = 0x02;
+    private static final int LCD_CURSOR_OFF  = 0x00;
+    private static final int LCD_BLINK_ON    = 0x01;
+    private static final int LCD_BLINK_OFF   = 0x00;
+
+    // flags for display/cursor shift
+    private static final int LCD_DISPLAY_MOVE = 0x08;
+    private static final int LCD_CURSOR_MOVE  = 0x00;
+
+    // flags for function set
+    private static final int LCD_8BIT_MODE = 0x10;
+    private static final int LCD_4BIT_MODE = 0x00;
+    private static final int LCD_2LINE     = 0x08;
+    private static final int LCD_1LINE     = 0x00;
+    private static final int LCD_5x10DOTS  = 0x04;
+    private static final int LCD_5x8DOTS   = 0x00;
+
+    /** Display row offsets for up to 4 rows. */
+    private static final byte[] LCD_ROW_OFFSETS = {0x00, 0x40, 0x14, 0x54};
+
+    private static final byte Rs                = 0b000_00001; // Register select bit
+
 }

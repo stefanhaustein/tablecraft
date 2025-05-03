@@ -60,7 +60,7 @@ public class Bmp280SpiExample {
                 .shutdown(DigitalState.HIGH)
                 .initial(DigitalState.HIGH));
 
-        var bmp280 = new Bmp280Driver(new Bmp280IoSpi(spi, csPin));
+        var bmp280 = Bmp280Driver.create(spi, csPin);
 
         System.out.println(" Temperatue C = " + bmp280.temperatureC());
         System.out.println(" Temperatue F = " + bmp280.temperatureF());

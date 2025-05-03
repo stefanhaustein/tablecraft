@@ -28,6 +28,11 @@
 package org.kobjects.pi4jdriver.sensor.bmp280;
 
 
+import com.pi4j.io.gpio.digital.Digital;
+import com.pi4j.io.gpio.digital.DigitalOutput;
+import com.pi4j.io.i2c.I2C;
+import com.pi4j.io.spi.Spi;
+
 /**
  * Implementation of BMP280 a Temperature/Pressure Sensor.
  */
@@ -37,6 +42,14 @@ public class Bmp280Driver {
     private double lastMeasurement;
     private double measuredPressure;
     private double measuredTemperature;
+
+    public static Bmp280Driver create(I2C i2c) {
+        return new Bmp280Driver(new Bmp280IoI2c(i2c));
+    }
+
+    public static Bmp280Driver create(Spi spi, DigitalOutput gcPin) {
+        return new Bmp280Driver(new Bmp280IoSpi(spi, gcPin));
+    }
 
     public Bmp280Driver(Bmp280Io io) {
         this.io = io;

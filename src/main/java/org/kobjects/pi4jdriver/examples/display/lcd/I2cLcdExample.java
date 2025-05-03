@@ -19,7 +19,7 @@ public class I2cLcdExample {
                 .device(DEVICE_ADDRESS)
                 .build());
 
-        LcdDriver lcd1602 = new LcdDriver(new Pcf8574LcdIo(i2c), 4, 20);
+        LcdDriver lcd1602 = LcdDriver.create(i2c, 4, 20);
 
         lcd1602.clearDisplay();
         lcd1602.write("Hello World! " + System.currentTimeMillis());
