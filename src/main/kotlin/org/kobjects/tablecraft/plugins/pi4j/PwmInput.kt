@@ -2,13 +2,12 @@ package org.kobjects.tablecraft.plugins.pi4j
 
 import com.pi4j.io.gpio.digital.*
 import com.pi4j.io.gpio.digital.DigitalInput
-import org.kobjects.tablecraft.pluginapi.OperationHost
-import org.kobjects.tablecraft.pluginapi.StatefulOperation
+import org.kobjects.tablecraft.pluginapi.*
 
 class PwmInput(
     val plugin: Pi4jPlugin,
     val configuration: Map<String, Any>
-) : StatefulOperation, Pi4JPort, DigitalStateChangeListener {
+) : StatefulOperation, Pi4JPortHolder, DigitalStateChangeListener {
 
     var digitalInput: DigitalInput? = null
     var t0: Long = 0
@@ -56,6 +55,7 @@ class PwmInput(
 
     override fun detach() {
         detachPort()
+
         plugin.removePort(this)
         /*if (digitalInput != null) {
             plugin.pi4J.shutdown<DigitalInput>(digitalInput!!.id)
@@ -67,5 +67,16 @@ class PwmInput(
         digitalInput?.removeListener(this)
     }
 
+    companion object {
+        fun spec(plugin: Pi4jPlugin) = OperationSpec(
+            OperationKind.INPUT_PORT,
+            Type.REAL,
+            "pwmin",
+            "Configures the given pin address for input and reports the pulse width in seconds.",
+            listOf(ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
+        ) {
+            PwmInput(plugin, it)
+        }
+    }
 
 }

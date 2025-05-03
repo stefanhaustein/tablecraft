@@ -2,13 +2,12 @@ package org.kobjects.tablecraft.plugins.pi4j
 
 import com.pi4j.io.gpio.digital.*
 import com.pi4j.io.gpio.digital.DigitalInput
-import org.kobjects.tablecraft.pluginapi.OperationHost
-import org.kobjects.tablecraft.pluginapi.StatefulOperation
+import org.kobjects.tablecraft.pluginapi.*
 
 class DigitalInput(
     val plugin: Pi4jPlugin,
     val configuration: Map<String, Any>
-) : StatefulOperation, Pi4JPort, DigitalStateChangeListener {
+) : StatefulOperation, Pi4JPortHolder, DigitalStateChangeListener {
 
     var digitalInput: DigitalInput? = null
     var error: Exception? = null
@@ -56,4 +55,13 @@ class DigitalInput(
         digitalInput?.removeListener(this)
     }
 
+    companion object {
+        fun spec(plugin: Pi4jPlugin) = OperationSpec(
+            OperationKind.INPUT_PORT,
+            Type.BOOL,
+            "din",
+            "Configures the given pin address for digital input and reports a high value as TRUE and a low value as FALSE.",
+            listOf(ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
+        ) { DigitalInput(plugin, it) }
+    }
 }

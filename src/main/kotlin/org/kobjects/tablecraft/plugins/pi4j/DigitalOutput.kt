@@ -3,14 +3,12 @@ package org.kobjects.tablecraft.plugins.pi4j
 
 import com.pi4j.io.gpio.digital.*
 import com.pi4j.io.gpio.digital.DigitalOutput
-import org.kobjects.tablecraft.pluginapi.OperationHost
-import org.kobjects.tablecraft.pluginapi.Operation
-import org.kobjects.tablecraft.pluginapi.StatefulOperation
+import org.kobjects.tablecraft.pluginapi.*
 
 class DigitalOutput(
     val plugin: Pi4jPlugin,
     val configuration: Map<String, Any>
-)  : StatefulOperation, Pi4JPort {
+)  : StatefulOperation, Pi4JPortHolder {
 
     var digitalOutput: DigitalOutput? = null
     var error: Exception? = null
@@ -51,5 +49,15 @@ class DigitalOutput(
     }
 
     override fun detachPort() {
+    }
+
+    companion object {
+        fun spec(plugin: Pi4jPlugin) = OperationSpec(
+            OperationKind.OUTPUT_PORT,
+            Type.BOOL,
+            "dout",
+            "Configures the given pin address for digital output and sets it to 'high' for a TRUE value and to 'low' for a FALSE or 0 value.",
+            listOf(ParameterSpec("address",  Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
+        ) { DigitalOutput(plugin, it) }
     }
 }

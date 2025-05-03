@@ -76,4 +76,17 @@ class Lcd1602(
         override fun detach() {}
     }
 
+    companion object {
+        fun spec(plugin: Pi4jPlugin) = OperationSpec(
+            OperationKind.INTEGRATION,
+            Type.VOID,
+            "Lcd1602",
+            "Configures the size of a lcd display",
+            listOf(
+                ParameterSpec("width", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),
+                ParameterSpec("height",  Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)))
+        ) {
+            Lcd1602(plugin, it) }
+    }
+
 }

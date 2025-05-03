@@ -6,52 +6,29 @@ import org.kobjects.tablecraft.pluginapi.*
 class Pi4jPlugin(val model: ModelInterface) : Plugin {
     var pi4J = Pi4J.newAutoContext()
 
-    val ports = mutableListOf<Pi4JPort>()
+    val ports = mutableListOf<Pi4JPortHolder>()
 
-    fun addPort(port: Pi4JPort) {
+    fun addPort(port: Pi4JPortHolder) {
         ports.add(port)
     }
 
-    fun removePort(remove: Pi4JPort) {
+    fun removePort(remove: Pi4JPortHolder) {
         ports.remove(remove)
         for (port in ports) {
             port.detachPort()
         }
         pi4J.shutdown()
         pi4J = Pi4J.newAutoContext()
+        for (port in ports) {
+            port.attachPort()
+        }
     }
 
     override val operationSpecs = listOf<OperationSpec>(
-        OperationSpec(
-            OperationKind.INPUT_PORT,
-            Type.BOOL,
-            "din",
-            "Configures the given pin address for digital input and reports a high value as TRUE and a low value as FALSE.",
-            listOf(ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
-        ) { DigitalInput(this, it) },
-        OperationSpec(
-            OperationKind.INPUT_PORT,
-            Type.REAL,
-            "pwmin",
-            "Configures the given pin address for input and reports the pulse width in seconds.",
-            listOf(ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
-        ) { PwmInput(this, it) },
-        OperationSpec(
-            OperationKind.OUTPUT_PORT,
-            Type.BOOL,
-            "dout",
-            "Configures the given pin address for digital output and sets it to 'high' for a TRUE value and to 'low' for a FALSE or 0 value.",
-            listOf(ParameterSpec("address",  Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
-        ) { DigitalOutput(this, it) },
-        OperationSpec(
-            OperationKind.INTEGRATION,
-            Type.VOID,
-            "Lcd1602",
-            "Configures the size of a lcd display",
-            listOf(
-                ParameterSpec("width", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),
-                ParameterSpec("height",  Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)))
-            ) { Lcd1602(this, it) },
+        DigitalInput.spec(this),
+        PwmInput.spec(this),
+        DigitalOutput.spec(this),
+        Lcd1602.spec(this),
     )
 
 }
