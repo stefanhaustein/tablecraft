@@ -2,7 +2,7 @@ package org.kobjects.tablecraft.model.builtin
 
 import kotlinx.datetime.Clock
 import org.kobjects.tablecraft.model.Model
-import org.kobjects.tablecraft.pluginapi.OperationHost
+import org.kobjects.tablecraft.pluginapi.ValueChangeListener
 import org.kobjects.tablecraft.pluginapi.StatefulOperation
 import java.util.Timer
 import java.util.TimerTask
@@ -13,14 +13,14 @@ class NowFunction(
     val timer = Timer()
     val timerId = timerCounter++
     var task: TimerTask? = null
-    var host: OperationHost? = null
+    var host: ValueChangeListener? = null
 
     override fun apply(params: Map<String, Any>): Any {
         return Clock.System.now()
     }
 
 
-    override fun attach(host: OperationHost) {
+    override fun attach(host: ValueChangeListener) {
         val period = (updateInterval * 1000.0).toLong()
         if (period > 0) {
             task = object : TimerTask() {

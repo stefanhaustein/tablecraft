@@ -1,7 +1,6 @@
 package org.kobjects.tablecraft.model.builtin
 
-import org.kobjects.tablecraft.pluginapi.OperationHost
-import org.kobjects.tablecraft.pluginapi.Operation
+import org.kobjects.tablecraft.pluginapi.ValueChangeListener
 import org.kobjects.tablecraft.pluginapi.StatefulOperation
 
 class FlipflopFunction(
@@ -10,7 +9,7 @@ class FlipflopFunction(
 
     var q: Boolean = false
 
-    override fun attach(host: OperationHost) {}
+    override fun attach(host: ValueChangeListener) {}
 
     override fun apply(params: Map<String, Any>): Any {
         val s = params["s"] as Boolean

@@ -8,12 +8,12 @@ import org.kobjects.tablecraft.pluginapi.*
 class DigitalOutput(
     val plugin: Pi4jPlugin,
     val configuration: Map<String, Any>
-)  : StatefulOperation, Pi4JPortHolder {
+)  : OutputPortInstance, Pi4JPortHolder {
 
     var digitalOutput: DigitalOutput? = null
     var error: Exception? = null
 
-    override fun attach(host: OperationHost) {
+    override fun attach() {
         plugin.addPort(this)
         attachPort()
     }
@@ -30,17 +30,16 @@ class DigitalOutput(
         }
     }
 
-    override fun apply(params: Map<String, Any>): Any {
+    override fun setValue(value: Any) {
         if (error != null) {
             throw error!!
         }
-        val value = when(val raw = params["value"]) {
+        val value = when(val raw = value) {
             is Boolean -> raw
             is Number -> raw.toDouble() != 0.0
-            else -> throw IllegalArgumentException("Unsupported value type for digital input: $raw; all params: $params")
+            else -> throw IllegalArgumentException("Unsupported value type for digital input: $raw;")
         }
         digitalOutput!!.setState(value)
-        return value
     }
 
     override fun detach() {

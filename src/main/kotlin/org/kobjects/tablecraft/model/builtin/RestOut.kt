@@ -3,22 +3,20 @@ package org.kobjects.tablecraft.model.builtin
 import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.pluginapi.*
 
-class RestOut(val fieldName: String) : StatefulOperation {
-    override fun attach(host: OperationHost) {
+class RestOut(val fieldName: String) : OutputPortInstance {
+    override fun attach() {
     }
 
     override fun detach() {
         Model.restValues.remove(fieldName)
     }
 
-    override fun apply(params: Map<String, Any>): Any {
-        val value = params["value"]
+    override fun setValue(value: Any) {
         if (value != null) {
             Model.restValues[fieldName] = value
         } else {
             Model.restValues.remove(fieldName)
         }
-        return value ?: Unit
     }
 
     companion object {

@@ -4,18 +4,18 @@ import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.pluginapi.*
 
-class InputPort(
+class InputPortHolder(
     override val name: String,
     val specification: InputPortSpec,
     val configuration: Map<String, Any>,
     override val tag: Long
 
-) : Port, Node {
+) : PortHolder, Node {
 
     override val dependencies = mutableSetOf<Node>()
     override val inputs = mutableSetOf<Node>()
 
-    val portOperation = specification.createFn(configuration) as StatefulOperation
+    val instance = specification.createFn(configuration)
     var error: Exception? = null
     var attached: Boolean = false
     override var valueTag  = 0L
@@ -36,7 +36,7 @@ class InputPort(
 
         if (!simulationMode) {
             try {
-                portOperation.attach(this)
+                instance.attach(this)
                 attached = true
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -49,7 +49,7 @@ class InputPort(
         // methods.
         if (attached) {
             try {
-                portOperation.detach()
+                instance.detach()
             } catch (e: Exception) {
                 e.printStackTrace()
                 attached = false
@@ -67,7 +67,7 @@ class InputPort(
         if (valueTag == tag) {
             return false
         }
-        val newValue = if (Model.simulationMode_) simulationValue else portOperation.apply(emptyMap())
+        val newValue = if (Model.simulationMode_) simulationValue else instance.getValue()
         if (value == newValue) {
             return false
         }

@@ -128,7 +128,7 @@ class Cell(
             eq.addAll((expression as PortReference).port.equivalentNodes())
         }
         for (dep in dependencies) {
-            if (dep is OutputPort) {
+            if (dep is OutputPortHolder) {
                 eq.addAll(dep.equivalentNodes())
             }
         }

@@ -7,14 +7,14 @@ import org.kobjects.tablecraft.pluginapi.*
 class DigitalInput(
     val plugin: Pi4jPlugin,
     val configuration: Map<String, Any>
-) : StatefulOperation, Pi4JPortHolder, DigitalStateChangeListener {
+) : InputPortInstance, Pi4JPortHolder, DigitalStateChangeListener {
 
     var digitalInput: DigitalInput? = null
     var error: Exception? = null
     var value = false
-    var host: OperationHost? = null
+    var host: ValueChangeListener? = null
 
-    override fun attach(host: OperationHost) {
+    override fun attach(host: ValueChangeListener) {
         this.host = host
         plugin.addPort(this)
         attachPort()
@@ -33,7 +33,7 @@ class DigitalInput(
         }
     }
 
-    override fun apply(params: Map<String, Any>): Any {
+    override fun getValue(): Any {
         if (error != null) {
             throw error!!
         }

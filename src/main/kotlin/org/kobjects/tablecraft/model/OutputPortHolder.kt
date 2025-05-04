@@ -4,14 +4,14 @@ import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.pluginapi.*
 
-class OutputPort(
+class OutputPortHolder(
     override val name: String,
     val specification: OutputPortSpec,
     val configuration: Map<String, Any>,
     override val rawFormula: String,
     override val tag: Long
-) : ExpressionNode(), Port {
-    val portOperation = specification.createFn(configuration) as StatefulOperation
+) : ExpressionNode(), PortHolder {
+    val instance = specification.createFn(configuration)
     var error: Exception? = null
     var attached = false
 
@@ -19,8 +19,7 @@ class OutputPort(
         if (super.updateValue(tag)) {
             if (attached) {
                 try {
-                    val parameters = mapOf("value" to value)
-                    portOperation.apply(parameters)
+                    instance.setValue(value)
                     error = null
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -38,7 +37,7 @@ class OutputPort(
 
         if (!simulationMode || specification.modifiers.contains(AbstractArtifactSpec.Modifier.NO_SIMULATION)) {
             try {
-                portOperation.attach(this)
+                instance.attach()
                 attached = true
             } catch (exception: Exception) {
                 error = exception
@@ -52,7 +51,7 @@ class OutputPort(
 
         if (attached) {
             try {
-                portOperation.detach()
+                instance.detach()
             } catch (e: Exception) {
                 e.printStackTrace()
             }

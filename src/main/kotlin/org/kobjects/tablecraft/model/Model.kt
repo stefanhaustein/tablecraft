@@ -28,7 +28,7 @@ object Model : ModelInterface {
     val functionMap = mutableMapOf<String, AbstractArtifactSpec>()
     val plugins = mutableListOf<Plugin>()
 
-    val portMap = mutableMapOf<String, Port>()
+    val portMap = mutableMapOf<String, PortHolder>()
     val integrationMap = mutableMapOf<String, IntegrationInstance>()
 
     val svgs = SvgManager(File("src/main/resources/static/img"))
@@ -58,7 +58,7 @@ object Model : ModelInterface {
 
     fun setSimulationMode(value: Boolean, token: ModificationToken) {
         simulationMode_ = value
-        for (port in portMap.values.filterIsInstance<InputPort>()) {
+        for (port in portMap.values.filterIsInstance<InputPortHolder>()) {
             port.notifyValueChanged(token)
         }
     }
@@ -95,7 +95,7 @@ object Model : ModelInterface {
                 } else if (key == "simulationValues") {
                     for((key, value) in map) {
                         val port = portMap[key]
-                        if (port is InputPort) {
+                        if (port is InputPortHolder) {
                             port.notifyValueChanged(token)
                         }
                     }
@@ -167,7 +167,7 @@ object Model : ModelInterface {
             if (port.valueTag > tag) {
                 values.append("${port.name}: ${port.value.toJson()}\n")
             }
-            if (port is InputPort && port.simulationValueTag > tag) {
+            if (port is InputPortHolder && port.simulationValueTag > tag) {
                 simulationValues.append("${port.name}: ${port.simulationValue.toJson()}\n")
             }
         }
@@ -202,17 +202,17 @@ object Model : ModelInterface {
     fun deletePort(name: String, token: ModificationToken) {
         token.symbolsChanged = true
         portMap[name]?.detach()
-        portMap[name] = InputPort(name, InputPortSpec(
+        portMap[name] = InputPortHolder(name, InputPortSpec(
             Type.STRING,
             "TOMBSTONE",  // The operation name; used to identify tombstone ports on the client
             "",
             emptyList(),
             emptySet(),
             token.tag) {
-                object : StatefulOperation {
-                    override fun attach(host: OperationHost) {}
+                object : InputPortInstance {
+                    override fun attach(host: ValueChangeListener) {}
                     override fun detach() {}
-                    override fun apply(params: Map<String, Any>) = Unit
+                    override fun getValue() = Unit
                 }
             }, emptyMap(), token.tag)
     }
@@ -248,8 +248,8 @@ object Model : ModelInterface {
                 jsonSpec["configuration"] as Map<String, Any>)
 
             val port = when (specification) {
-                is InputPortSpec -> InputPort(name, specification, config, token.tag)
-                is OutputPortSpec -> OutputPort(name, specification, config, jsonSpec["expression"] as String, token.tag)
+                is InputPortSpec -> InputPortHolder(name, specification, config, token.tag)
+                is OutputPortSpec -> OutputPortHolder(name, specification, config, jsonSpec["expression"] as String, token.tag)
                 else -> throw IllegalArgumentException("Operation specification $specification does not specify a port.")
             }
             portMap[name] = port
@@ -330,7 +330,7 @@ object Model : ModelInterface {
     fun setSimulationValue(name: String, value: Any, token: ModificationToken) {
         if (simulationMode_) {
             val port = portMap[name]
-            if (port is InputPort) {
+            if (port is InputPortHolder) {
                 port.setSimulationValue(value, token)
             }
         }
@@ -343,7 +343,7 @@ object Model : ModelInterface {
             val result = action(modificationToken)
 
             if (modificationToken.symbolsChanged) {
-                for (port in portMap.values.filterIsInstance<OutputPort>()) {
+                for (port in portMap.values.filterIsInstance<OutputPortHolder>()) {
                     port.reparse()
                 }
                 for (sheet in sheets.values) {
@@ -366,7 +366,7 @@ object Model : ModelInterface {
                         modificationToken.addRefresh(cell)
                     }
                 }
-                for (port in portMap.values.filterIsInstance<OutputPort>()) {
+                for (port in portMap.values.filterIsInstance<OutputPortHolder>()) {
                     modificationToken.addRefresh(port)
                 }
             }

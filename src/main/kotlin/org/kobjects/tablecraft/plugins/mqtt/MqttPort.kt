@@ -13,7 +13,7 @@ class MqttPort(
 
     var client: MQTTClient? = null
     var exception: Exception? = null
-    val listeners = mutableMapOf<String, MutableSet<OperationHost>>()
+    val listeners = mutableMapOf<String, MutableSet<ValueChangeListener>>()
 
 
     init {
@@ -59,18 +59,18 @@ class MqttPort(
         }
     )
 
-    fun addListener(topic: String, operationHost: OperationHost) {
+    fun addListener(topic: String, changeListener: ValueChangeListener) {
         val hosts = listeners.getOrPut(topic) {
             client?.subscribe(listOf(Subscription(topic)))
             mutableSetOf()
         }
-        hosts.add(operationHost)
+        hosts.add(changeListener)
     }
 
-    fun removeListener(topic: String, operationHost: OperationHost) {
+    fun removeListener(topic: String, changeListener: ValueChangeListener) {
         val hosts = listeners[topic]
         if (hosts != null) {
-            hosts.remove(operationHost)
+            hosts.remove(changeListener)
             if (hosts.isEmpty()) {
                 client?.unsubscribe(listOf(topic))
             }

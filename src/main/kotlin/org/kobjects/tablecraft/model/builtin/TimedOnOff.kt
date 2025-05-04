@@ -1,7 +1,7 @@
 package org.kobjects.tablecraft.model.builtin
 
 import org.kobjects.tablecraft.model.Model
-import org.kobjects.tablecraft.pluginapi.OperationHost
+import org.kobjects.tablecraft.pluginapi.ValueChangeListener
 import org.kobjects.tablecraft.pluginapi.StatefulOperation
 import java.util.Timer
 import java.util.TimerTask
@@ -16,9 +16,9 @@ class TimedOnOff(
     var task: TimerTask? = null
     var outputState: Boolean = false
 
-    var host: OperationHost? = null
+    var host: ValueChangeListener? = null
 
-    override fun attach(host: OperationHost) {
+    override fun attach(host: ValueChangeListener) {
         this.host = host
     }
 

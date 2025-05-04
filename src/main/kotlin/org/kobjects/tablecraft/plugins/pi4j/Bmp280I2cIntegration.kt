@@ -36,14 +36,14 @@ class Bmp280I2cIntegration(
     }
 
 
-    class Bmp280Port(integration: Bmp280I2cIntegration, kind: MeasurementType) : StatefulOperation {
-        var host: OperationHost? = null
+    class Bmp280Port(integration: Bmp280I2cIntegration, kind: MeasurementType) : InputPortInstance {
+        var host: ValueChangeListener? = null
 
-        override fun apply(params: Map<String, Any>): Any {
+        override fun getValue(): Any {
             return 0.0
         }
 
-        override fun attach(host: OperationHost) {
+        override fun attach(host: ValueChangeListener) {
             this.host = host
         }
 

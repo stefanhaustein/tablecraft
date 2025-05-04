@@ -48,18 +48,14 @@ class Lcd1602(
         })
 
 
-    inner class Section(val x: Int, val y: Int) : StatefulOperation {
+    inner class Section(val x: Int, val y: Int) : OutputPortInstance {
 
-        override fun attach(host: OperationHost) {}
+        override fun attach() {}
 
-        override fun apply(params: Map<String, Any>): Any {
-            val text = params["value"].toString()
-            if (error != null) {
-                return error!!
-            }
+        override fun setValue(value: Any) {
+            val text = value.toString()
             display?.position(x, y)
             display?.puts(text)
-            return text
         }
 
         override fun detach() {}

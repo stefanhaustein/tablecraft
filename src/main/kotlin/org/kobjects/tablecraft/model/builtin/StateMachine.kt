@@ -1,11 +1,10 @@
 package org.kobjects.tablecraft.model.builtin
 
-import kotlinx.html.InputType
 import org.kobjects.tablecraft.model.Cell
 import org.kobjects.tablecraft.model.CellRange
 import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.model.expression.CellRangeReference
-import org.kobjects.tablecraft.pluginapi.OperationHost
+import org.kobjects.tablecraft.pluginapi.ValueChangeListener
 import org.kobjects.tablecraft.pluginapi.StatefulOperation
 import java.util.*
 
@@ -16,11 +15,11 @@ class StateMachine(
     var currentState = ""
     val timer = Timer()
     var timedTransition: TimedTransition? = null
-    var host: OperationHost? = null
+    var host: ValueChangeListener? = null
 
     val rowCount: Int = cellRange.toRow - cellRange.fromRow + 1
 
-    override fun attach(host: OperationHost) {
+    override fun attach(host: ValueChangeListener) {
         this.host = host
     }
 

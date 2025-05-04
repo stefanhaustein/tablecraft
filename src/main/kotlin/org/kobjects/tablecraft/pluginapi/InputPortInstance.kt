@@ -1,6 +1,7 @@
 package org.kobjects.tablecraft.pluginapi
 
-interface StatefulOperation : Operation {
+interface InputPortInstance {
+    fun getValue(): Any
 
     fun attach(host: ValueChangeListener)
 

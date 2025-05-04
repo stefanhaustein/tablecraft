@@ -7,15 +7,15 @@ import org.kobjects.tablecraft.pluginapi.*
 class PwmInput(
     val plugin: Pi4jPlugin,
     val configuration: Map<String, Any>
-) : StatefulOperation, Pi4JPortHolder, DigitalStateChangeListener {
+) : InputPortInstance, Pi4JPortHolder, DigitalStateChangeListener {
 
     var digitalInput: DigitalInput? = null
     var t0: Long = 0
     var value: Double = 0.0
     var error: Exception? = null
-    var host: OperationHost? = null
+    var host: ValueChangeListener? = null
 
-    override fun attach(host: OperationHost) {
+    override fun attach(host: ValueChangeListener) {
         this.host = host
         plugin.addPort(this)
         attachPort()
@@ -34,7 +34,7 @@ class PwmInput(
         digitalInput?.addListener(this)
     }
 
-    override fun apply(params: Map<String, Any>): Any = value
+    override fun getValue(): Any = value
 
     override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
         when (event!!.state().isHigh()) {

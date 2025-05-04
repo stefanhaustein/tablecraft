@@ -10,7 +10,7 @@ class PluginOperationCall(
     val configuration: Map<String, Any>,
     val parameters: Map<String, Pair<Expression, Type>>
 
-): Expression(), OperationHost {
+): Expression(), ValueChangeListener {
 
     override val children: Collection<Expression>
         get() = parameters.values.map { it.first }
