@@ -1,9 +1,18 @@
 package org.kobjects.tablecraft.pluginapi
 
-enum class Type {
-    INT, REAL, BOOL, STRING, DATE, VOID, RANGE;
+import kotlin.enums.EnumEntries
 
-    fun fromString(s: String): Any = when(this) {
+/** This looks odd because it used to be an enum */
+interface Type {
+    object INT: Type {}
+    object REAL: Type {}
+    object BOOL: Type
+    object STRING: Type
+    object DATE: Type
+    object VOID: Type
+    object RANGE: Type;
+
+    fun valueFromString(s: String): Any = when(this) {
         INT -> s.toInt()
         REAL -> s.toDouble()
         BOOL -> s.toBoolean()
@@ -11,12 +20,17 @@ enum class Type {
         else -> throw UnsupportedOperationException("Can't parse $this yet.")
     }
 
-    fun fromJson(value: Any): Any = if (value is String) fromString(value) else when(this) {
+    fun valueFromJson(value: Any): Any = if (value is String) valueFromString(value) else when(this) {
         INT -> (value as Number).toInt()
         REAL -> (value as Number).toDouble()
         BOOL -> value as Boolean
         STRING -> value.toString()
         else -> throw UnsupportedOperationException("Can't parse $this from JSON yet.")
+    }
+
+    class ENUM<T : Enum<T>>(val entries: EnumEntries<T>) : Type {
+
+
     }
 
 }

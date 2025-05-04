@@ -2,11 +2,10 @@ package org.kobjects.tablecraft.pluginapi
 
 import org.kobjects.tablecraft.json.ToJson
 import org.kobjects.tablecraft.json.quote
-import org.kobjects.tablecraft.json.toJson
 
-data class OperationSpec(
+abstract class AbstractArtifactSpec(
     val kind: OperationKind,
-    val returnType: Type,
+    val type: Type,
     val name: String,
     val description: String,
     val parameters: List<ParameterSpec>,
@@ -16,7 +15,7 @@ data class OperationSpec(
 ) : ToJson {
 
     override fun toJson(sb: StringBuilder) {
-        sb.append("""{"name":${name.quote()},"kind":"$kind","returnType":"$returnType","description":${description.quote()},"params":[""")
+        sb.append("""{"name":${name.quote()},"kind":"$kind","returnType":"$type","description":${description.quote()},"params":[""")
         var first = true
         for (param in parameters) {
             if (first) {
@@ -36,11 +35,11 @@ data class OperationSpec(
     }
 
     companion object {
-        fun createTombstone(original: OperationSpec, tag: Long) = OperationSpec(
-            original.kind, original.returnType, original.name, "Tombstone for '${original.kind}:${original.name}'.", emptyList(), setOf(Modifier.DELETED),  tag
-        ) {
+        fun createTombstone(original: AbstractArtifactSpec, tag: Long) = object : AbstractArtifactSpec(
+            original.kind, original.type, original.name, "Tombstone for '${original.kind}:${original.name}'.", emptyList(), setOf(Modifier.DELETED),  tag
+        , {
             throw UnsupportedOperationException("Tombstone for '${original.kind}:${original.name}' can't be instantiated.")
-        }
+        }) {}
     }
 
     enum class Modifier {

@@ -23,7 +23,7 @@ class SvgManager(root: File) : Plugin {
         }
     }
 
-    override val operationSpecs = emptyList<OperationSpec>()
+    override val operationSpecs = emptyList<AbstractArtifactSpec>()
     /*
     override val operationSpecs: List<OperationSpec>
         get() {

@@ -2,18 +2,13 @@ package org.kobjects.tablecraft.plugins.pi4j
 
 
 import freenove.Freenove_LCD1602
-import org.kobjects.tablecraft.json.quote
-import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.pluginapi.*
 
 class Lcd1602(
     val plugin: Pi4jPlugin,
-    val configuration: Map<String, Any>
-)  : Integration {
+    configuration: Map<String, Any>
+)  : IntegrationInstance(configuration) {
 
-    val name = configuration["name"] as String
-
-    override val tag = configuration["tag"] as Long
     override val type: String
         get() = "Lcd1602"
 
@@ -32,18 +27,12 @@ class Lcd1602(
     }
 
 
-    override fun toJson(sb: StringBuilder) {
-        sb.append("""{"name":${name.quote()}, "type":"Lcd1602", "configuration": """)
-        configuration.filterKeys { it != "name" && it != "tag" }.toJson(sb)
-        sb.append("}")
-    }
 
     override fun detach() {
     }
 
-    override val operationSpecs: List<OperationSpec> = listOf(
-        OperationSpec(
-            OperationKind.OUTPUT_PORT,
+    override val operationSpecs: List<AbstractArtifactSpec> = listOf(
+        OutputPortSpec(
             Type.STRING,
             name + ".section",
             ".",
@@ -77,8 +66,7 @@ class Lcd1602(
     }
 
     companion object {
-        fun spec(plugin: Pi4jPlugin) = OperationSpec(
-            OperationKind.INTEGRATION,
+        fun spec(plugin: Pi4jPlugin) = IntegrationSpec(
             Type.VOID,
             "Lcd1602",
             "Configures the size of a lcd display",

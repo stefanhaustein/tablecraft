@@ -25,11 +25,11 @@ object Model : ModelInterface {
     val sheets = mutableMapOf<String, Sheet>("Sheet1" to Sheet("Sheet1"))
     val listeners = mutableSetOf<() -> Unit>()
 
-    val functionMap = mutableMapOf<String, OperationSpec>()
+    val functionMap = mutableMapOf<String, AbstractArtifactSpec>()
     val plugins = mutableListOf<Plugin>()
 
     val portMap = mutableMapOf<String, Port>()
-    val integrationMap = mutableMapOf<String, Integration>()
+    val integrationMap = mutableMapOf<String, IntegrationInstance>()
 
     val svgs = SvgManager(File("src/main/resources/static/img"))
 
@@ -187,7 +187,7 @@ object Model : ModelInterface {
     fun serializeIntegrations(writer: Writer, forClient: Boolean, tag: Long) {
         val sb = StringBuilder()
         for ((name, integration) in integrationMap) {
-            if (integration.tag > tag && (forClient || integration !is Integration.Tombstone)) {
+            if (integration.tag > tag && (forClient || integration !is IntegrationInstance.Tombstone)) {
                 sb.append(name).append(": ")
                 integration.toJson(sb)
                 sb.append('\n')
@@ -202,26 +202,26 @@ object Model : ModelInterface {
     fun deletePort(name: String, token: ModificationToken) {
         token.symbolsChanged = true
         portMap[name]?.detach()
-        portMap[name] = InputPort(name, OperationSpec(
+        portMap[name] = InputPort(name, object : AbstractArtifactSpec(
             OperationKind.INPUT_PORT,
             Type.STRING,
             "TOMBSTONE",  // The operation name; used to identify tombstone ports on the client
             "",
             emptyList(),
             emptySet(),
-            token.tag
-        ) {
-            object : StatefulOperation {
-                override fun attach(host: OperationHost) {}
-                override fun detach() {}
-                override fun apply(params: Map<String, Any>) = Unit
-            }
-        }, emptyMap(), token.tag)
+            token.tag,
+            {
+                object : StatefulOperation {
+                    override fun attach(host: OperationHost) {}
+                    override fun detach() {}
+                    override fun apply(params: Map<String, Any>) = Unit
+                }
+            }) {}, emptyMap(), token.tag)
     }
 
     fun deleteIntegration(name: String, token: ModificationToken) {
         integrationMap[name]?.detach()
-        integrationMap[name] = Integration.Tombstone(token.tag)
+        integrationMap[name] = IntegrationInstance.Tombstone(token.tag)
         token.symbolsChanged = true
     }
 
@@ -279,7 +279,7 @@ object Model : ModelInterface {
             val config = jsonSpec["configuration"] as Map<String, Any> +
                     mapOf("name" to name, "tag" to token.tag)
 
-            val integration = specification.createFn(config) as Integration
+            val integration = specification.createFn(config) as IntegrationInstance
             integrationMap[name] = integration
 
             for (operation in integration.operationSpecs) {

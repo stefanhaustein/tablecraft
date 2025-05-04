@@ -24,7 +24,7 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
         }
     }
 
-    override val operationSpecs = listOf<OperationSpec>(
+    override val operationSpecs = listOf<AbstractArtifactSpec>(
         DigitalInput.spec(this),
         PwmInput.spec(this),
         DigitalOutput.spec(this),

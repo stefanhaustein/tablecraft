@@ -1,9 +1,7 @@
 package org.kobjects.tablecraft.model.type
 
 
-import org.kobjects.tablecraft.model.parser.TcFormulaParser.parseExpression
 import org.kobjects.tablecraft.pluginapi.ParameterSpec
-import org.kobjects.tablecraft.svg.ParameterType
 
 object Configuration {
 
@@ -19,7 +17,7 @@ object Configuration {
                     "Required configuration parameter '${parameter.name}' is missing."
                 }
             } else if (parameter.modifiers.contains(ParameterSpec.Modifier.CONSTANT)) {
-                result[parameter.name] =  parameter.type.fromJson(value)
+                result[parameter.name] =  parameter.type.valueFromJson(value)
             } else {
                 result[parameter.name] = value
             }

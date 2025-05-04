@@ -4,8 +4,7 @@ import org.kobjects.tablecraft.pluginapi.*
 
 object BuiltinFunctions : Plugin {
     override val operationSpecs = listOf(
-        OperationSpec(
-            OperationKind.FUNCTION,
+        FunctionSpec(
             Type.DATE,
             "now",
             "The current local time",
@@ -14,15 +13,13 @@ object BuiltinFunctions : Plugin {
             0,
             NowFunction::create),
 
-        OperationSpec(
-            OperationKind.FUNCTION,
+        FunctionSpec(
             Type.REAL,
             "pi",
             "The value of pi",
             emptyList()) { PiFunction },
 
-        OperationSpec(
-            OperationKind.FUNCTION,
+        FunctionSpec(
             Type.BOOL,
             "toff",
             "Timed Off",
@@ -31,8 +28,7 @@ object BuiltinFunctions : Plugin {
             0,
             TimedOnOff::createToff),
 
-        OperationSpec(
-            OperationKind.FUNCTION,
+        FunctionSpec(
             Type.BOOL,
             "ton",
             "Timed On",
@@ -41,9 +37,7 @@ object BuiltinFunctions : Plugin {
             0,
             TimedOnOff::createTon),
 
-
-        OperationSpec(
-            OperationKind.FUNCTION,
+        FunctionSpec(
             Type.BOOL,
             "tp",
             "Timed Pulse",
@@ -52,8 +46,7 @@ object BuiltinFunctions : Plugin {
             0,
             TimedPulse::create),
 
-        OperationSpec(
-            OperationKind.FUNCTION,
+        FunctionSpec(
             Type.BOOL,
             "rs",
             "RS-Flipflop",
@@ -63,8 +56,7 @@ object BuiltinFunctions : Plugin {
             emptySet(),
             0) { FlipflopFunction.createRs() },
 
-        OperationSpec(
-            OperationKind.FUNCTION,
+        FunctionSpec(
             Type.BOOL,
             "sr",
             "SR-Flipflop",
@@ -74,8 +66,7 @@ object BuiltinFunctions : Plugin {
             emptySet(),
             0) { FlipflopFunction.createSr() },
 
-        OperationSpec(
-          OperationKind.FUNCTION,
+        FunctionSpec(
             Type.STRING,
             "statemachine",
             """A state machine specified by the given cell range. 

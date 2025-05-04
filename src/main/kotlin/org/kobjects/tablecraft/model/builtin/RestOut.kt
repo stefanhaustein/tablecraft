@@ -22,13 +22,12 @@ class RestOut(val fieldName: String) : StatefulOperation {
     }
 
     companion object {
-        val SPEC = OperationSpec(
-            OperationKind.OUTPUT_PORT,
+        val SPEC = OutputPortSpec(
             Type.STRING,
             "rest.out",
             """Makes the given value accessible via an JSON object under the '/rest' path of this server.""",
             listOf(ParameterSpec("fieldName", Type.STRING, setOf(ParameterSpec.Modifier.CONSTANT))),
-            setOf(OperationSpec.Modifier.NO_SIMULATION)
+            setOf(AbstractArtifactSpec.Modifier.NO_SIMULATION)
         ) {
             RestOut(it["fieldName"] as String)
         }

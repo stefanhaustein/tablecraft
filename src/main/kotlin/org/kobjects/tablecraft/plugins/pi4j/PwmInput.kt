@@ -68,8 +68,7 @@ class PwmInput(
     }
 
     companion object {
-        fun spec(plugin: Pi4jPlugin) = OperationSpec(
-            OperationKind.INPUT_PORT,
+        fun spec(plugin: Pi4jPlugin) = InputPortSpec(
             Type.REAL,
             "pwmin",
             "Configures the given pin address for input and reports the pulse width in seconds.",

@@ -6,7 +6,7 @@ import org.kobjects.tablecraft.pluginapi.*
 
 class InputPort(
     override val name: String,
-    val specification: OperationSpec,
+    val specification: AbstractArtifactSpec,
     val configuration: Map<String, Any>,
     override val tag: Long
 
@@ -20,7 +20,7 @@ class InputPort(
     var attached: Boolean = false
     override var valueTag  = 0L
 
-    override var value: Any = when(specification.returnType) {
+    override var value: Any = when(specification.type) {
         Type.INT -> 0
         Type.REAL -> 0.0
         Type.BOOL -> false

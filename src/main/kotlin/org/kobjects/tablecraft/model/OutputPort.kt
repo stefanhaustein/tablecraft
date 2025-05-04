@@ -6,7 +6,7 @@ import org.kobjects.tablecraft.pluginapi.*
 
 class OutputPort(
     override val name: String,
-    val specification: OperationSpec,
+    val specification: AbstractArtifactSpec,
     val configuration: Map<String, Any>,
     override val rawFormula: String,
     override val tag: Long
@@ -36,7 +36,7 @@ class OutputPort(
 
         reparse()
 
-        if (!simulationMode || specification.modifiers.contains(OperationSpec.Modifier.NO_SIMULATION)) {
+        if (!simulationMode || specification.modifiers.contains(AbstractArtifactSpec.Modifier.NO_SIMULATION)) {
             try {
                 portOperation.attach(this)
                 attached = true
