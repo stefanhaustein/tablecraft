@@ -5,12 +5,12 @@ import org.kobjects.tablecraft.model.CellRange
 import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.model.expression.CellRangeReference
 import org.kobjects.tablecraft.pluginapi.ValueChangeListener
-import org.kobjects.tablecraft.pluginapi.StatefulOperation
+import org.kobjects.tablecraft.pluginapi.StatefulFunctionInstance
 import java.util.*
 
 class StateMachine(
     val cellRange: CellRange
-) : StatefulOperation {
+) : StatefulFunctionInstance {
     var currentRow: Int = 0
     var currentState = ""
     val timer = Timer()

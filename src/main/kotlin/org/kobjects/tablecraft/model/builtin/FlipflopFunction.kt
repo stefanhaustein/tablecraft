@@ -1,11 +1,11 @@
 package org.kobjects.tablecraft.model.builtin
 
 import org.kobjects.tablecraft.pluginapi.ValueChangeListener
-import org.kobjects.tablecraft.pluginapi.StatefulOperation
+import org.kobjects.tablecraft.pluginapi.StatefulFunctionInstance
 
 class FlipflopFunction(
     val rs: Boolean,
-) : StatefulOperation {
+) : StatefulFunctionInstance {
 
     var q: Boolean = false
 

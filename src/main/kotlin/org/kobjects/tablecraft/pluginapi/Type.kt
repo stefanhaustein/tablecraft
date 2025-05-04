@@ -1,9 +1,12 @@
 package org.kobjects.tablecraft.pluginapi
 
+import org.kobjects.tablecraft.json.ToJson
+import org.kobjects.tablecraft.json.quote
+import org.kobjects.tablecraft.json.toJson
 import kotlin.enums.EnumEntries
 
 /** This looks odd because it used to be an enum */
-interface Type {
+interface Type : ToJson {
     object INT: Type {
         override fun toString() = "Int"
     }
@@ -26,6 +29,10 @@ interface Type {
         override fun toString() = "Range"
     }
 
+    override fun toJson(sb: StringBuilder) {
+        sb.append(toString().quote())
+    }
+
     fun valueFromString(s: String): Any = when(this) {
         INT -> s.toInt()
         REAL -> s.toDouble()
@@ -44,6 +51,12 @@ interface Type {
 
     class ENUM<T : Enum<T>>(val entries: EnumEntries<T>) : Type {
 
+        override fun toJson(sb: StringBuilder) {
+            entries.map {it.name}.toJson(sb)
+        }
+
+        override fun valueFromString(s: String) =
+            entries.first { it.name.lowercase() == s.lowercase() }
 
     }
 

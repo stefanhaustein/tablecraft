@@ -3,7 +3,6 @@ package org.kobjects.tablecraft.model
 import org.kobjects.tablecraft.json.JsonParser
 import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.model.builtin.BuiltinFunctions
-import org.kobjects.tablecraft.model.type.Configuration
 import org.kobjects.tablecraft.pluginapi.*
 import org.kobjects.tablecraft.plugins.pi4j.Pi4jPlugin
 import org.kobjects.tablecraft.svg.SvgManager
@@ -243,8 +242,7 @@ object Model : ModelInterface {
 
             val specification = Model.functionMap[type]!!
 
-            val config = Configuration.fromJson(
-                specification.parameters,
+            val config = specification.convertConfiguration(
                 jsonSpec["configuration"] as Map<String, Any>)
 
             val port = when (specification) {
@@ -274,7 +272,7 @@ object Model : ModelInterface {
             val type = jsonSpec["type"].toString()
             val specification = Model.functionMap[type] as IntegrationSpec
 
-            val config = jsonSpec["configuration"] as Map<String, Any> +
+            val config = specification.convertConfiguration(jsonSpec["configuration"] as Map<String, Any>) +
                     mapOf("name" to name, "tag" to token.tag)
 
             val integration = specification.createFn(config) as IntegrationInstance

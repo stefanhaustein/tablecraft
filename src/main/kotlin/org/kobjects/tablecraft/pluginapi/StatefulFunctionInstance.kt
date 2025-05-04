@@ -1,6 +1,6 @@
 package org.kobjects.tablecraft.pluginapi
 
-interface StatefulOperation : Operation {
+interface StatefulFunctionInstance : FunctionInstance {
 
     fun attach(host: ValueChangeListener)
 

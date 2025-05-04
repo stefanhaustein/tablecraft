@@ -3,13 +3,13 @@ package org.kobjects.tablecraft.model.builtin
 import kotlinx.datetime.Clock
 import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.pluginapi.ValueChangeListener
-import org.kobjects.tablecraft.pluginapi.StatefulOperation
+import org.kobjects.tablecraft.pluginapi.StatefulFunctionInstance
 import java.util.Timer
 import java.util.TimerTask
 
 class NowFunction(
     val updateInterval: Double,
-) : StatefulOperation {
+) : StatefulFunctionInstance {
     val timer = Timer()
     val timerId = timerCounter++
     var task: TimerTask? = null

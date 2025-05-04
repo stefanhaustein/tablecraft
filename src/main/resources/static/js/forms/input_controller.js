@@ -27,7 +27,7 @@ export class InputController {
 
         this.listeners = []
 
-        this.inputElement.addEventListener("input", () => {
+        this.inputElement.addEventListener("change", () => {
             this.validate()
             for (let listener of this.listeners) {
                 listener(this.getValue(), this)
@@ -39,8 +39,8 @@ export class InputController {
 
     static create(schema) {
         if (schema.modifiers != null && schema.modifiers.indexOf("CONSTANT") != -1) {
-            if (schema.options != null) {
-                return new EnumInputController(schema, schema.options)
+            if (schema.options != null || Array.isArray(schema.type)) {
+                return new EnumInputController(schema, schema.options || schema.type)
             }
             if (schema.type.toLowerCase() == "bool") {
                 return new EnumInputController(schema, ["True", "False"])
@@ -90,7 +90,7 @@ export class InputController {
 
     getType() {
         if (this.schema.type) {
-            return this.schema.type.toString().toLowerCase()
+            return Array.isArray(this.schema.type) ? "enum" : this.schema.type.toString().toLowerCase();
         }
         if (this.schema.options) {
             return "enum"

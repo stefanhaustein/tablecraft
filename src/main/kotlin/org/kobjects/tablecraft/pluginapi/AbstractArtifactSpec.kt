@@ -2,6 +2,8 @@ package org.kobjects.tablecraft.pluginapi
 
 import org.kobjects.tablecraft.json.ToJson
 import org.kobjects.tablecraft.json.quote
+import org.kobjects.tablecraft.json.toJson
+import org.kobjects.tablecraft.model.expression.Literal
 
 abstract class AbstractArtifactSpec(
     val kind: OperationKind,
@@ -9,13 +11,30 @@ abstract class AbstractArtifactSpec(
     val name: String,
     val description: String,
     val parameters: List<ParameterSpec>,
-    val modifiers: Set<Modifier> = emptySet(),
-    val tag: Long = 0,
-   // val createFn: (configuration: Map<String, Any>) -> Any,
+    val modifiers: Set<Modifier>,
+    val tag: Long,
 ) : ToJson {
 
+    fun convertConfiguration(rawConfig: Map<String, Any>): Map<String, Any> {
+        val result = mutableMapOf<String, Any>()
+        for (paramSpec in parameters) {
+            val paramName = paramSpec.name
+            val rawValue = rawConfig[paramName]
+            if (rawValue == null) {
+                require (paramSpec.modifiers.contains(ParameterSpec.Modifier.OPTIONAL)) {
+                    "Missing mandatory configuration parameter: $paramName for $name"
+                }
+            } else if (paramSpec.modifiers.contains(ParameterSpec.Modifier.REFERENCE)) {
+                throw RuntimeException("References NYI (config param $paramName for $name")
+            } else {
+                result[paramName] = paramSpec.type.valueFromJson(rawValue)
+            }
+        }
+        return result
+    }
+
     override fun toJson(sb: StringBuilder) {
-        sb.append("""{"name":${name.quote()},"kind":"$kind","returnType":"$type","description":${description.quote()},"params":[""")
+        sb.append("""{"name":${name.quote()},"kind":"$kind","returnType":${type.toJson()},"description":${description.quote()},"params":[""")
         var first = true
         for (param in parameters) {
             if (first) {

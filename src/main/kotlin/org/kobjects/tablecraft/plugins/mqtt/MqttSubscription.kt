@@ -1,9 +1,9 @@
 package org.kobjects.tablecraft.plugins.mqtt
 
 import org.kobjects.tablecraft.pluginapi.ValueChangeListener
-import org.kobjects.tablecraft.pluginapi.StatefulOperation
+import org.kobjects.tablecraft.pluginapi.StatefulFunctionInstance
 
-class MqttSubscription(val port: MqttPort, configuration: Map<String, Any>) : StatefulOperation {
+class MqttSubscription(val port: MqttPort, configuration: Map<String, Any>) : StatefulFunctionInstance {
     val topic = configuration["topic"].toString()
     var host: ValueChangeListener? = null
 

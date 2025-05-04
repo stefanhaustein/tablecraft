@@ -1,5 +1,5 @@
 package org.kobjects.tablecraft.pluginapi
 
-interface Operation {
+interface FunctionInstance {
     fun apply(params: Map<String, Any>): Any
 }

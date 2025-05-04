@@ -11,7 +11,7 @@ data class ParameterSpec(
 ) : ToJson {
 
     override fun toJson(sb: StringBuilder) {
-        sb.append("""{"name":${name.quote()},"modifiers":${modifiers.map { it.name.quote() }.toJson()}, "type":${type.toString().quote()}}""")
+        sb.append("""{"name":${name.quote()},"modifiers":${modifiers.map { it.name }.toJson()}, "type":${type.toJson()}}""")
     }
 
     enum class Modifier {

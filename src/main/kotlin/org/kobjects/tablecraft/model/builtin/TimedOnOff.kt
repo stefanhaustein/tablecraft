@@ -2,7 +2,7 @@ package org.kobjects.tablecraft.model.builtin
 
 import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.pluginapi.ValueChangeListener
-import org.kobjects.tablecraft.pluginapi.StatefulOperation
+import org.kobjects.tablecraft.pluginapi.StatefulFunctionInstance
 import java.util.Timer
 import java.util.TimerTask
 
@@ -10,7 +10,7 @@ class TimedOnOff(
     val delayedState: Boolean,
     val delay: Double,
 
-) : StatefulOperation {
+) : StatefulFunctionInstance {
 
     val timer = Timer()
     var task: TimerTask? = null
