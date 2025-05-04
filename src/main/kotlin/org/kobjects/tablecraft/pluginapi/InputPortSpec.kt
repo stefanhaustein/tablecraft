@@ -7,7 +7,7 @@ class InputPortSpec(
     parameters: List<ParameterSpec>,
     modifiers: Set<Modifier> = emptySet(),
     tag: Long = 0,
-    createFn: (configuration: Map<String, Any>) -> Any,
+    val createFn: (configuration: Map<String, Any>) -> StatefulOperation,
 ) : AbstractArtifactSpec(
     OperationKind.INPUT_PORT,
     returnType,
@@ -15,6 +15,5 @@ class InputPortSpec(
     description,
     parameters,
     modifiers,
-    tag,
-    createFn
+    tag
 )

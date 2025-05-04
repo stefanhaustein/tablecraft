@@ -7,7 +7,7 @@ class FunctionSpec(
     parameters: List<ParameterSpec>,
     modifiers: Set<Modifier> = emptySet(),
     tag: Long = 0,
-    createFn: (configuration: Map<String, Any>) -> Any,
+    val createFn: (configuration: Map<String, Any>) -> Operation,
 ) : AbstractArtifactSpec(
     OperationKind.FUNCTION,
     returnType,
@@ -16,5 +16,4 @@ class FunctionSpec(
     parameters,
     modifiers,
     tag,
-    createFn
 )

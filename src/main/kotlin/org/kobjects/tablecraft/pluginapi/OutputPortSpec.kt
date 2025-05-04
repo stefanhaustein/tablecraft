@@ -1,5 +1,7 @@
 package org.kobjects.tablecraft.pluginapi
 
+import org.kobjects.tablecraft.model.OutputPort
+
 class OutputPortSpec(
     returnType: Type,
     name: String,
@@ -7,7 +9,7 @@ class OutputPortSpec(
     parameters: List<ParameterSpec>,
     modifiers: Set<Modifier> = emptySet(),
     tag: Long = 0,
-    createFn: (configuration: Map<String, Any>) -> Any,
+    val createFn: (configuration: Map<String, Any>) -> StatefulOperation,
 ) : AbstractArtifactSpec(
     OperationKind.OUTPUT_PORT,
     returnType,
@@ -15,6 +17,5 @@ class OutputPortSpec(
     description,
     parameters,
     modifiers,
-    tag,
-    createFn
+    tag
 )

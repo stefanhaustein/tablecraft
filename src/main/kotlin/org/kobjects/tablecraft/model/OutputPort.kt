@@ -6,7 +6,7 @@ import org.kobjects.tablecraft.pluginapi.*
 
 class OutputPort(
     override val name: String,
-    val specification: AbstractArtifactSpec,
+    val specification: OutputPortSpec,
     val configuration: Map<String, Any>,
     override val rawFormula: String,
     override val tag: Long

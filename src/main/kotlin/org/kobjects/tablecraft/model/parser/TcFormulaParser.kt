@@ -5,8 +5,8 @@ import org.kobjects.parsek.expression.PrattParser
 import org.kobjects.tablecraft.model.Cell
 import org.kobjects.tablecraft.model.CellRange
 import org.kobjects.tablecraft.model.Model
-import org.kobjects.tablecraft.model.Sheet
 import org.kobjects.tablecraft.model.expression.*
+import org.kobjects.tablecraft.pluginapi.FunctionSpec
 
 
 fun createBinaryOperatorNode(name: String, leftOperand: Expression, rightOperand: Expression): Expression =
@@ -71,7 +71,7 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
                     }
                     else -> {
                         val lowercase = name.lowercase()
-                        val functionSpec = Model.functionMap[lowercase]
+                        val functionSpec = Model.functionMap[lowercase] as FunctionSpec?
                         if (functionSpec != null) {
                             PluginOperationCall.create(context.expressionNode, functionSpec, parameterList)
                         } else {

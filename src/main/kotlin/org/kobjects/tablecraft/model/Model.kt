@@ -202,21 +202,19 @@ object Model : ModelInterface {
     fun deletePort(name: String, token: ModificationToken) {
         token.symbolsChanged = true
         portMap[name]?.detach()
-        portMap[name] = InputPort(name, object : AbstractArtifactSpec(
-            OperationKind.INPUT_PORT,
+        portMap[name] = InputPort(name, InputPortSpec(
             Type.STRING,
             "TOMBSTONE",  // The operation name; used to identify tombstone ports on the client
             "",
             emptyList(),
             emptySet(),
-            token.tag,
-            {
+            token.tag) {
                 object : StatefulOperation {
                     override fun attach(host: OperationHost) {}
                     override fun detach() {}
                     override fun apply(params: Map<String, Any>) = Unit
                 }
-            }) {}, emptyMap(), token.tag)
+            }, emptyMap(), token.tag)
     }
 
     fun deleteIntegration(name: String, token: ModificationToken) {
@@ -249,9 +247,9 @@ object Model : ModelInterface {
                 specification.parameters,
                 jsonSpec["configuration"] as Map<String, Any>)
 
-            val port = when (specification.kind) {
-                OperationKind.INPUT_PORT -> InputPort(name, specification, config, token.tag)
-                OperationKind.OUTPUT_PORT -> OutputPort(name, specification, config, jsonSpec["expression"] as String, token.tag)
+            val port = when (specification) {
+                is InputPortSpec -> InputPort(name, specification, config, token.tag)
+                is OutputPortSpec -> OutputPort(name, specification, config, jsonSpec["expression"] as String, token.tag)
                 else -> throw IllegalArgumentException("Operation specification $specification does not specify a port.")
             }
             portMap[name] = port
@@ -274,7 +272,7 @@ object Model : ModelInterface {
             integrationMap[name]?.detach()
 
             val type = jsonSpec["type"].toString()
-            val specification = Model.functionMap[type]!!
+            val specification = Model.functionMap[type] as IntegrationSpec
 
             val config = jsonSpec["configuration"] as Map<String, Any> +
                     mapOf("name" to name, "tag" to token.tag)

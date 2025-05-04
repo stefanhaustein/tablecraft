@@ -6,7 +6,7 @@ import org.kobjects.tablecraft.pluginapi.*
 
 class InputPort(
     override val name: String,
-    val specification: AbstractArtifactSpec,
+    val specification: InputPortSpec,
     val configuration: Map<String, Any>,
     override val tag: Long
 

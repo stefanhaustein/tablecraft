@@ -7,7 +7,7 @@ class IntegrationSpec(
     parameters: List<ParameterSpec>,
     modifiers: Set<Modifier> = emptySet(),
     tag: Long = 0,
-    createFn: (configuration: Map<String, Any>) -> Any,
+    val createFn: (configuration: Map<String, Any>) -> IntegrationInstance,
 ) : AbstractArtifactSpec(
     OperationKind.INTEGRATION,
     returnType,
@@ -16,5 +16,4 @@ class IntegrationSpec(
     parameters,
     modifiers,
     tag,
-    createFn
 )

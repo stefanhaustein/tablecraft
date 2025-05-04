@@ -4,13 +4,27 @@ import kotlin.enums.EnumEntries
 
 /** This looks odd because it used to be an enum */
 interface Type {
-    object INT: Type {}
-    object REAL: Type {}
-    object BOOL: Type
-    object STRING: Type
-    object DATE: Type
-    object VOID: Type
-    object RANGE: Type;
+    object INT: Type {
+        override fun toString() = "Int"
+    }
+    object REAL: Type {
+        override fun toString() = "Real"
+    }
+    object BOOL: Type {
+        override fun toString() = "Bool"
+    }
+    object STRING: Type {
+        override fun toString() = "String"
+    }
+    object DATE: Type {
+        override fun toString() = "Date"
+    }
+    object VOID: Type {
+        override fun toString() = "Void"
+    }
+    object RANGE: Type {
+        override fun toString() = "Range"
+    }
 
     fun valueFromString(s: String): Any = when(this) {
         INT -> s.toInt()

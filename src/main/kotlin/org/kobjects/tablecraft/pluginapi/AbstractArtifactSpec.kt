@@ -11,7 +11,7 @@ abstract class AbstractArtifactSpec(
     val parameters: List<ParameterSpec>,
     val modifiers: Set<Modifier> = emptySet(),
     val tag: Long = 0,
-    val createFn: (configuration: Map<String, Any>) -> Any,
+   // val createFn: (configuration: Map<String, Any>) -> Any,
 ) : ToJson {
 
     override fun toJson(sb: StringBuilder) {
@@ -34,13 +34,6 @@ abstract class AbstractArtifactSpec(
         sb.append("}")
     }
 
-    companion object {
-        fun createTombstone(original: AbstractArtifactSpec, tag: Long) = object : AbstractArtifactSpec(
-            original.kind, original.type, original.name, "Tombstone for '${original.kind}:${original.name}'.", emptyList(), setOf(Modifier.DELETED),  tag
-        , {
-            throw UnsupportedOperationException("Tombstone for '${original.kind}:${original.name}' can't be instantiated.")
-        }) {}
-    }
 
     enum class Modifier {
          NO_SIMULATION, DELETED
