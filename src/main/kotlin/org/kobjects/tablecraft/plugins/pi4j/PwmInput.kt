@@ -6,25 +6,19 @@ import org.kobjects.tablecraft.pluginapi.*
 
 class PwmInput(
     val plugin: Pi4jPlugin,
-    val configuration: Map<String, Any>
-) : InputPortInstance, Pi4JPortHolder, DigitalStateChangeListener {
+    val address: Int
+) : InputPortInstance, DigitalStateChangeListener {
 
     var digitalInput: DigitalInput? = null
     var t0: Long = 0
     var value: Double = 0.0
-    var error: Exception? = null
+    var error: Exception? = IllegalStateException("Detached")
     var host: ValueChangeListener? = null
 
     override fun attach(host: ValueChangeListener) {
         this.host = host
-        plugin.addPort(this)
-        attachPort()
-    }
-
-    override fun attachPort() {
-        val address = (configuration["address"] as Number).toInt()
         try {
-            digitalInput = plugin.pi4J.create(DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
+            digitalInput = plugin.createDigitalInput(DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
             error = null
         } catch (e: Exception) {
             e.printStackTrace()
@@ -54,17 +48,10 @@ class PwmInput(
     }
 
     override fun detach() {
-        detachPort()
-
-        plugin.removePort(this)
-        /*if (digitalInput != null) {
-            plugin.pi4J.shutdown<DigitalInput>(digitalInput!!.id)
-            digitalInput = null
-        }*/
-    }
-
-    override fun detachPort() {
         digitalInput?.removeListener(this)
+        plugin.releasePort(address, digitalInput)
+        digitalInput = null
+        error = IllegalStateException("Detached")
     }
 
     companion object {
@@ -74,7 +61,7 @@ class PwmInput(
             "Configures the given pin address for input and reports the pulse width in seconds.",
             listOf(ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
         ) {
-            PwmInput(plugin, it)
+            PwmInput(plugin, it["address"] as Int)
         }
     }
 

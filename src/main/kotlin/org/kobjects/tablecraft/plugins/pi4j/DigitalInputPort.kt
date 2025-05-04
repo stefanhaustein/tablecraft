@@ -4,28 +4,24 @@ import com.pi4j.io.gpio.digital.*
 import com.pi4j.io.gpio.digital.DigitalInput
 import org.kobjects.tablecraft.pluginapi.*
 
-class DigitalInput(
+class DigitalInputPort(
     val plugin: Pi4jPlugin,
-    val configuration: Map<String, Any>
-) : InputPortInstance, Pi4JPortHolder, DigitalStateChangeListener {
+    val address: Int
+) : InputPortInstance, DigitalStateChangeListener {
 
     var digitalInput: DigitalInput? = null
-    var error: Exception? = null
+    var error: Exception? = IllegalStateException("Detached")
     var value = false
     var host: ValueChangeListener? = null
 
     override fun attach(host: ValueChangeListener) {
         this.host = host
-        plugin.addPort(this)
-        attachPort()
-    }
-
-    override fun attachPort() {
-        val address = (configuration["address"] as Number).toInt()
         try {
-            digitalInput = plugin.pi4J.create(DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
+            digitalInput = plugin.createDigitalInput(
+                DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
             digitalInput?.addListener(this)
             error = null
+            value = digitalInput?.isHigh ?: false
         } catch (e: Exception) {
             e.printStackTrace()
             error = e
@@ -35,25 +31,24 @@ class DigitalInput(
 
     override fun getValue(): Any {
         if (error != null) {
-            throw error!!
+            throw RuntimeException(error!!)
         }
         return value
     }
 
     override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
         plugin.model.applySynchronizedWithToken {
+            value = event?.state()?.isHigh ?: false
             host?.notifyValueChanged(it)
         }
     }
 
     override fun detach() {
-        detachPort()
-        plugin.removePort(this)
+        digitalInput?.removeListener(this)
+        plugin.releasePort(address, digitalInput)
+        digitalInput = null
     }
 
-    override fun detachPort() {
-        digitalInput?.removeListener(this)
-    }
 
     companion object {
         fun spec(plugin: Pi4jPlugin) = InputPortSpec(
@@ -61,6 +56,6 @@ class DigitalInput(
             "din",
             "Configures the given pin address for digital input and reports a high value as TRUE and a low value as FALSE.",
             listOf(ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
-        ) { DigitalInput(plugin, it) }
+        ) { DigitalInputPort(plugin, it["address"] as Int) }
     }
 }
