@@ -75,7 +75,7 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
                         if (functionSpec != null) {
                             PluginOperationCall.create(context.expressionNode, functionSpec, parameterList)
                         } else {
-                            val port = Model.portMap[lowercase]
+                            val port = Model.ports[lowercase]
                             require(port != null) {
                                 "Unresolved identifier $lowercase"
                             }

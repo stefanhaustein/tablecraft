@@ -22,7 +22,10 @@ abstract class IntegrationInstance(
         sb.append("}")
     }
 
-    class Tombstone(tag: Long) : IntegrationInstance(mapOf("tag" to tag)) {
+
+
+
+    class Tombstone(deletedInstance: IntegrationInstance, tag: Long) : IntegrationInstance(mapOf("tag" to tag, "name" to deletedInstance.name)) {
 
             override val operationSpecs = emptyList<AbstractArtifactSpec>()
             override val type: String
@@ -31,9 +34,6 @@ abstract class IntegrationInstance(
             override fun detach() {
             }
 
-            override fun toJson(sb: StringBuilder) {
-                sb.append("""{"type":"TOMBSTONE"}""")
-            }
 
         }
 

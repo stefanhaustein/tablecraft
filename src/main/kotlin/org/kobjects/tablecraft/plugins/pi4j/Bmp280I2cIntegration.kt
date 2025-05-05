@@ -54,7 +54,7 @@ class Bmp280I2cIntegration(
     )
 
     override val type: String
-        get() = "BMP280"
+        get() = FACTORY_NAME
 
     override fun detach() {
         timer.cancel()
@@ -95,7 +95,7 @@ class Bmp280I2cIntegration(
         companion object {
             fun spec(integration: Bmp280I2cIntegration) = InputPortSpec(
                 Type.REAL,
-                integration.name,
+                integration.name + ".value",
                 "Returns a measurement value of the BMP 280 sensor",
                 parameters = listOf(ParameterSpec("kind", Type.ENUM(MeasurementType.entries), setOf(ParameterSpec.Modifier.CONSTANT)))
             ) {
@@ -110,10 +110,11 @@ class Bmp280I2cIntegration(
 
 
     companion object {
+        val FACTORY_NAME = "BMP280"
 
         fun spec(plugin: Pi4jPlugin) = IntegrationSpec(
             Type.VOID,
-            "BMP280",
+            FACTORY_NAME,
             "BMP 280 sensor",
             listOf(
                 ParameterSpec("bus", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),

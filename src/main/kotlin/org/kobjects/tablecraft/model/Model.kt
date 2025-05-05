@@ -27,7 +27,7 @@ object Model : ModelInterface {
     val functionMap = mutableMapOf<String, AbstractArtifactSpec>()
     val plugins = mutableListOf<Plugin>()
 
-    val portMap = mutableMapOf<String, PortHolder>()
+    val ports = Ports()
     val integrationMap = mutableMapOf<String, IntegrationInstance>()
 
     val svgs = SvgManager(File("src/main/resources/static/img"))
@@ -57,7 +57,7 @@ object Model : ModelInterface {
 
     fun setSimulationMode(value: Boolean, token: ModificationToken) {
         simulationMode_ = value
-        for (port in portMap.values.filterIsInstance<InputPortHolder>()) {
+        for (port in ports.filterIsInstance<InputPortHolder>()) {
             port.notifyValueChanged(token)
         }
     }
@@ -77,7 +77,7 @@ object Model : ModelInterface {
                 } else if (key == "ports") {
                     for ((name, value) in map) {
                         try {
-                            definePort(name, value as Map<String, Any>, token)
+                            ports.definePort(name, value as Map<String, Any>, token)
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -85,7 +85,7 @@ object Model : ModelInterface {
                 } else if (key == "integrations") {
                     for ((name, value) in map) {
                         try {
-                            defineIntegration(name, value as Map<String, Any>, token)
+                            Integrations.defineIntegration(name, value as Map<String, Any>, token)
                         } catch (e: Exception) {
                             System.err.println("Failed to load integration '$name'.")
                             e.printStackTrace()
@@ -93,7 +93,7 @@ object Model : ModelInterface {
                     }
                 } else if (key == "simulationValues") {
                     for((key, value) in map) {
-                        val port = portMap[key]
+                        val port = ports[key]
                         if (port is InputPortHolder) {
                             port.notifyValueChanged(token)
                         }
@@ -122,7 +122,7 @@ object Model : ModelInterface {
             writer.write(serializeFunctions(tag))
         }
 
-        serializePorts(writer, tag)
+        ports.serialize(writer, tag)
 
         writer.write("\n")
 
@@ -153,35 +153,7 @@ object Model : ModelInterface {
         return if (sb.isEmpty()) "" else "[functions]\n\n$sb"
     }
 
-    fun serializePorts(writer: Writer, tag: Long) {
-        val definitions = StringBuilder()
-        val values = StringBuilder()
-        val simulationValues = StringBuilder()
-        for (port in portMap.values) {
-            if (port.tag > tag) {
-                definitions.append(port.name).append(": ")
-                port.toJson(definitions)
-                definitions.append('\n')
-            }
-            if (port.valueTag > tag) {
-                values.append("${port.name}: ${port.value.toJson()}\n")
-            }
-            if (port is InputPortHolder && port.simulationValueTag > tag) {
-                simulationValues.append("${port.name}: ${port.simulationValue.toJson()}\n")
-            }
-        }
 
-        if (definitions.isNotEmpty()) {
-            writer.write("[ports]\n\n$definitions\n")
-        }
-        if (values.isNotEmpty()) {
-            writer.write("[portValues]\n\n$values\n")
-        }
-
-        if (simulationValues.isNotEmpty()) {
-            writer.write("[simulationValues]\n\n$simulationValues\n")
-        }
-    }
 
     fun serializeIntegrations(writer: Writer, forClient: Boolean, tag: Long) {
         val sb = StringBuilder()
@@ -198,93 +170,7 @@ object Model : ModelInterface {
         }
     }
 
-    fun deletePort(name: String, token: ModificationToken) {
-        token.symbolsChanged = true
-        portMap[name]?.detach()
-        portMap[name] = InputPortHolder(name, InputPortSpec(
-            Type.STRING,
-            "TOMBSTONE",  // The operation name; used to identify tombstone ports on the client
-            "",
-            emptyList(),
-            emptySet(),
-            token.tag) {
-                object : InputPortInstance {
-                    override fun attach(host: ValueChangeListener) {}
-                    override fun detach() {}
-                    override fun getValue() = Unit
-                }
-            }, emptyMap(), token.tag)
-    }
 
-    fun deleteIntegration(name: String, token: ModificationToken) {
-        integrationMap[name]?.detach()
-        integrationMap[name] = IntegrationInstance.Tombstone(token.tag)
-        token.symbolsChanged = true
-    }
-
-    fun definePort(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken) {
-        token.symbolsChanged = true
-
-        val previousName = jsonSpec["previousName"]
-
-        if (previousName is String && !previousName.isNullOrBlank()) {
-            try {
-                deletePort(previousName, token)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-
-        if (!name.isNullOrBlank()) {
-            val type = jsonSpec["type"].toString()
-
-            portMap[name]?.detach()
-
-            val specification = Model.functionMap[type]!!
-
-            val config = specification.convertConfiguration(
-                jsonSpec["configuration"] as Map<String, Any>)
-
-            val port = when (specification) {
-                is InputPortSpec -> InputPortHolder(name, specification, config, token.tag)
-                is OutputPortSpec -> OutputPortHolder(name, specification, config, jsonSpec["expression"] as String, token.tag)
-                else -> throw IllegalArgumentException("Operation specification $specification does not specify a port.")
-            }
-            portMap[name] = port
-            port.reset(simulationMode_, token)
-        }
-    }
-
-    fun defineIntegration(name: String?,  jsonSpec: Map<String, Any>, token: ModificationToken) {
-        val previousName = jsonSpec["previousName"] as? String?
-
-        if (!previousName.isNullOrBlank()) {
-            try {
-                deleteIntegration(previousName, token)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-
-        if (!name.isNullOrBlank()) {
-            integrationMap[name]?.detach()
-
-            val type = jsonSpec["type"].toString()
-            val specification = Model.functionMap[type] as IntegrationSpec
-
-            val config = specification.convertConfiguration(jsonSpec["configuration"] as Map<String, Any>) +
-                    mapOf("name" to name, "tag" to token.tag)
-
-            val integration = specification.createFn(config) as IntegrationInstance
-            integrationMap[name] = integration
-
-            for (operation in integration.operationSpecs) {
-                functionMap[operation.name] = operation
-            }
-
-            token.symbolsChanged = true
-        }
-    }
 
 
     fun updateSheet(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken) {
@@ -316,8 +202,8 @@ object Model : ModelInterface {
     fun clearAll(modificationToken: ModificationToken) {
         modificationToken.symbolsChanged = true
 
-        for (key in portMap.keys.toList()) {
-            deletePort(key, modificationToken)
+        for (key in ports.keys.toList()) {
+            ports.deletePort(key, modificationToken)
         }
 
         for (sheet in sheets.values) {
@@ -327,7 +213,7 @@ object Model : ModelInterface {
 
     fun setSimulationValue(name: String, value: Any, token: ModificationToken) {
         if (simulationMode_) {
-            val port = portMap[name]
+            val port = ports[name]
             if (port is InputPortHolder) {
                 port.setSimulationValue(value, token)
             }
@@ -341,7 +227,7 @@ object Model : ModelInterface {
             val result = action(modificationToken)
 
             if (modificationToken.symbolsChanged) {
-                for (port in portMap.values.filterIsInstance<OutputPortHolder>()) {
+                for (port in ports.filterIsInstance<OutputPortHolder>()) {
                     port.reparse()
                 }
                 for (sheet in sheets.values) {
@@ -364,7 +250,7 @@ object Model : ModelInterface {
                         modificationToken.addRefresh(cell)
                     }
                 }
-                for (port in portMap.values.filterIsInstance<OutputPortHolder>()) {
+                for (port in ports.filterIsInstance<OutputPortHolder>()) {
                     modificationToken.addRefresh(port)
                 }
             }
