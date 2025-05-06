@@ -69,7 +69,7 @@ fun Application.module() {
             val jsonSpec = JsonParser.parseObject(jsonText)
             val name = jsonSpec["name"] as String?
             Model.applySynchronizedWithToken { token ->
-                Integrations.defineIntegration(name, jsonSpec, token)
+                Model.integrations.defineIntegration(name, jsonSpec, token)
             }
             call.respond(HttpStatusCode.OK, null)
         }

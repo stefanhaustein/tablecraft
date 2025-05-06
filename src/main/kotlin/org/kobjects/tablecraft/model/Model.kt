@@ -1,7 +1,6 @@
 package org.kobjects.tablecraft.model
 
 import org.kobjects.tablecraft.json.JsonParser
-import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.model.builtin.BuiltinFunctions
 import org.kobjects.tablecraft.pluginapi.*
 import org.kobjects.tablecraft.plugins.pi4j.Pi4jPlugin
@@ -28,7 +27,7 @@ object Model : ModelInterface {
     val plugins = mutableListOf<Plugin>()
 
     val ports = Ports()
-    val integrationMap = mutableMapOf<String, IntegrationInstance>()
+    val integrations = Integrations()
 
     val svgs = SvgManager(File("src/main/resources/static/img"))
 
@@ -85,7 +84,7 @@ object Model : ModelInterface {
                 } else if (key == "integrations") {
                     for ((name, value) in map) {
                         try {
-                            Integrations.defineIntegration(name, value as Map<String, Any>, token)
+                            integrations.defineIntegration(name, value as Map<String, Any>, token)
                         } catch (e: Exception) {
                             System.err.println("Failed to load integration '$name'.")
                             e.printStackTrace()
@@ -116,7 +115,7 @@ object Model : ModelInterface {
     fun serialize(writer: Writer, forClient: Boolean = false, tag: Long = -1) {
         writer.write("simulationMode = $simulationMode_\n\n")
 
-        serializeIntegrations(writer, forClient, tag)
+        integrations.serialize(writer, forClient, tag)
 
         if (forClient) {
             writer.write(serializeFunctions(tag))
@@ -151,23 +150,6 @@ object Model : ModelInterface {
             }
         }
         return if (sb.isEmpty()) "" else "[functions]\n\n$sb"
-    }
-
-
-
-    fun serializeIntegrations(writer: Writer, forClient: Boolean, tag: Long) {
-        val sb = StringBuilder()
-        for ((name, integration) in integrationMap) {
-            if (integration.tag > tag && (forClient || integration !is IntegrationInstance.Tombstone)) {
-                sb.append(name).append(": ")
-                integration.toJson(sb)
-                sb.append('\n')
-            }
-        }
-        if (sb.isNotEmpty()) {
-            writer.write("[integrations]\n\n")
-            writer.write(sb.toString())
-        }
     }
 
 

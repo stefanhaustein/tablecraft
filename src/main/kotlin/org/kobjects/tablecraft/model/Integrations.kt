@@ -1,16 +1,20 @@
 package org.kobjects.tablecraft.model
 
+import org.kobjects.tablecraft.model.Model.integrations
 import org.kobjects.tablecraft.pluginapi.IntegrationInstance
 import org.kobjects.tablecraft.pluginapi.IntegrationSpec
 import org.kobjects.tablecraft.pluginapi.ModificationToken
+import java.io.Writer
 
-object Integrations {
+class Integrations : Iterable<IntegrationInstance> {
+
+    val integrationMap = mutableMapOf<String, IntegrationInstance>()
 
     fun deleteIntegration(name: String, token: ModificationToken) {
-        val integration = Model.integrationMap[name]
+        val integration = integrationMap[name]
         if (integration != null) {
             integration.detach()
-            Model.integrationMap[name] = IntegrationInstance.Tombstone(integration, token.tag)
+            integrationMap[name] = IntegrationInstance.Tombstone(integration, token.tag)
         }
         token.symbolsChanged = true
     }
@@ -27,7 +31,7 @@ object Integrations {
         }
 
         if (!name.isNullOrBlank()) {
-            Model.integrationMap[name]?.detach()
+            integrationMap[name]?.detach()
 
             val type = jsonSpec["type"].toString()
             val specification = Model.functionMap[type] as IntegrationSpec
@@ -36,7 +40,7 @@ object Integrations {
                     mapOf("name" to name, "tag" to token.tag)
 
             val integration = specification.createFn(config)
-            Model.integrationMap[name] = integration
+            integrationMap[name] = integration
 
             for (operation in integration.operationSpecs) {
                 Model.functionMap[operation.name] = operation
@@ -45,4 +49,23 @@ object Integrations {
             token.symbolsChanged = true
         }
     }
+
+
+    fun serialize(writer: Writer, forClient: Boolean, tag: Long) {
+        val sb = StringBuilder()
+        for (integration in integrations) {
+            if (integration.tag > tag && (forClient || integration !is IntegrationInstance.Tombstone)) {
+                sb.append(integration.name).append(": ")
+                integration.toJson(sb)
+                sb.append('\n')
+            }
+        }
+        if (sb.isNotEmpty()) {
+            writer.write("[integrations]\n\n")
+            writer.write(sb.toString())
+        }
+    }
+
+
+    override fun iterator() = integrationMap.values.iterator()
 }
