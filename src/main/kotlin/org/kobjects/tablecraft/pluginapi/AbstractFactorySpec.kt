@@ -1,19 +1,19 @@
 package org.kobjects.tablecraft.pluginapi
 
-class InputPortSpec(
+abstract class AbstractFactorySpec(
+    kind: OperationKind,
     returnType: Type,
     name: String,
     description: String,
     parameters: List<ParameterSpec>,
-    modifiers: Set<Modifier> = emptySet(),
-    tag: Long = 0,
-    val createFn: (configuration: Map<String, Any>) -> InputPortInstance,
-) : AbstractFactorySpec(
-    OperationKind.INPUT_PORT,
+    modifiers: Set<Modifier>,
+    tag: Long
+) : AbstractArtifactSpec(
+    kind,
     returnType,
     name,
     description,
     parameters,
     modifiers,
-    tag
+    tag,
 )

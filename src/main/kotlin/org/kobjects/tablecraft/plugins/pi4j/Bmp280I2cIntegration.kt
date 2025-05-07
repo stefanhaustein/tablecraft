@@ -49,7 +49,7 @@ class Bmp280I2cIntegration(
         }, 0, 100)
     }
 
-    override val operationSpecs: List<AbstractArtifactSpec> = listOf(
+    override val operationSpecs: List<AbstractFactorySpec> = listOf(
         Bmp280Port.spec(this)
     )
 
@@ -113,7 +113,6 @@ class Bmp280I2cIntegration(
         val FACTORY_NAME = "BMP280"
 
         fun spec(plugin: Pi4jPlugin) = IntegrationSpec(
-            Type.VOID,
             FACTORY_NAME,
             "BMP 280 sensor",
             listOf(

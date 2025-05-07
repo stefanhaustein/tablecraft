@@ -23,9 +23,10 @@ object Model : ModelInterface {
     val sheets = mutableMapOf<String, Sheet>("Sheet1" to Sheet("Sheet1"))
     val listeners = mutableSetOf<() -> Unit>()
 
-    val functionMap = mutableMapOf<String, AbstractArtifactSpec>()
     val plugins = mutableListOf<Plugin>()
 
+    val functions = Functions()
+    val factories = Factories()
     val ports = Ports()
     val integrations = Integrations()
 
@@ -49,8 +50,12 @@ object Model : ModelInterface {
 
     fun addPlugin(plugin: Plugin) {
         plugins.add(plugin)
-        for (function in plugin.operationSpecs) {
-            functionMap[function.name] = function
+        for (spec in plugin.operationSpecs) {
+            when (spec) {
+                is FunctionSpec -> functions.add(spec)
+                is AbstractFactorySpec -> factories.add(spec)
+                else -> throw IllegalArgumentException("Function or factory expected; got $spec (${spec::class.simpleName})")
+            }
         }
     }
 
@@ -118,7 +123,8 @@ object Model : ModelInterface {
         integrations.serialize(writer, forClient, tag)
 
         if (forClient) {
-            writer.write(serializeFunctions(tag))
+            writer.write(factories.serialize(tag))
+            writer.write(functions.serialize(tag))
         }
 
         ports.serialize(writer, tag)
@@ -139,18 +145,6 @@ object Model : ModelInterface {
         writer.close()
     }
 
-
-    fun serializeFunctions(tag: Long): String {
-        val sb = StringBuilder()
-        for (function in functionMap.values) {
-            if (function.tag > tag) {
-                sb.append(function.name).append(": ")
-                function.toJson(sb)
-                sb.append('\n')
-            }
-        }
-        return if (sb.isEmpty()) "" else "[functions]\n\n$sb"
-    }
 
 
 

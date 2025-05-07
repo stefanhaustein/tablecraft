@@ -71,7 +71,7 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
                     }
                     else -> {
                         val lowercase = name.lowercase()
-                        val functionSpec = Model.functionMap[lowercase] as FunctionSpec?
+                        val functionSpec = Model.functions[lowercase] as FunctionSpec?
                         if (functionSpec != null) {
                             PluginOperationCall.create(context.expressionNode, functionSpec, parameterList)
                         } else {

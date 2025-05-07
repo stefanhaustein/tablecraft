@@ -31,7 +31,7 @@ class Lcd1602(
     override fun detach() {
     }
 
-    override val operationSpecs: List<AbstractArtifactSpec> = listOf(
+    override val operationSpecs: List<AbstractFactorySpec> = listOf(
         OutputPortSpec(
             Type.STRING,
             name + ".section",
@@ -63,7 +63,6 @@ class Lcd1602(
 
     companion object {
         fun spec(plugin: Pi4jPlugin) = IntegrationSpec(
-            Type.VOID,
             "Lcd1602",
             "Configures the size of a lcd display",
             listOf(

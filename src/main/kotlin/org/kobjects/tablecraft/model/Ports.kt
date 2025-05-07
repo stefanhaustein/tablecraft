@@ -53,7 +53,7 @@ class Ports : Iterable<PortHolder> {
 
             portMap[name]?.detach()
 
-            val specification = Model.functionMap[type]!!
+            val specification = Model.factories[type]!!
 
             val config = specification.convertConfiguration(
                 jsonSpec["configuration"] as Map<String, Any>)

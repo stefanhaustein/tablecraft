@@ -34,7 +34,7 @@ class Integrations : Iterable<IntegrationInstance> {
             integrationMap[name]?.detach()
 
             val type = jsonSpec["type"].toString()
-            val specification = Model.functionMap[type] as IntegrationSpec
+            val specification = Model.functions[type] as IntegrationSpec
 
             val config = specification.convertConfiguration(jsonSpec["configuration"] as Map<String, Any>) +
                     mapOf("name" to name, "tag" to token.tag)
@@ -43,7 +43,7 @@ class Integrations : Iterable<IntegrationInstance> {
             integrationMap[name] = integration
 
             for (operation in integration.operationSpecs) {
-                Model.functionMap[operation.name] = operation
+                Model.factories.add(operation)
             }
 
             token.symbolsChanged = true

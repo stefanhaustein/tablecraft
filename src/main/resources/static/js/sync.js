@@ -88,6 +88,7 @@ function processSection(sectionName, map) {
                 document.getElementById("simulationMode").checked = simulationMode
             }
             break
+        case "factories":
         case "functions":
             for (let name in map) {
                 processFunctionUpdate(name, map[name])

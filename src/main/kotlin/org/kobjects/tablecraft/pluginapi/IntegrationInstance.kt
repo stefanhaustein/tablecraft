@@ -10,7 +10,7 @@ abstract class IntegrationInstance(
     val name = config["name"] as String
     val tag = config["tag"] as Long
 
-    abstract val operationSpecs: List<AbstractArtifactSpec>
+    abstract val operationSpecs: List<AbstractFactorySpec>
 
     abstract val type: String
 
@@ -27,7 +27,7 @@ abstract class IntegrationInstance(
 
     class Tombstone(deletedInstance: IntegrationInstance, tag: Long) : IntegrationInstance(mapOf("tag" to tag, "name" to deletedInstance.name)) {
 
-            override val operationSpecs = emptyList<AbstractArtifactSpec>()
+            override val operationSpecs = emptyList<AbstractFactorySpec>()
             override val type: String
                 get() = "TOMBSTONE"
 
