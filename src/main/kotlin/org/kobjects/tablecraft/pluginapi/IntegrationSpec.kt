@@ -6,7 +6,7 @@ class IntegrationSpec(
     parameters: List<ParameterSpec>,
     modifiers: Set<Modifier> = emptySet(),
     tag: Long = 0,
-    val createFn: (configuration: Map<String, Any>) -> IntegrationInstance,
+    val createFn: (kind: String, name: String, tag: Long, initialConfiguration: Map<String, Any>) -> IntegrationInstance,
 ) : AbstractFactorySpec(
     OperationKind.INTEGRATION,
     Type.VOID,

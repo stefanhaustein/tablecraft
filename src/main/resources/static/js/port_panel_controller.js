@@ -96,7 +96,7 @@ export function processPortUpdate(name, f) {
             let sourceElement = document.createElement("div")
             sourceElement.style.float = "right"
             sourceElement.style.paddingRight = "5px"
-            sourceElement.textContent = "(" + f.expression + ")"
+            sourceElement.textContent = "(" + f.source + ")"
 
             entryContentElement.append(sourceElement)
         }

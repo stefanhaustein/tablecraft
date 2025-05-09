@@ -8,34 +8,23 @@ import java.util.*
 
 class Bmp280I2cIntegration(
     val plugin: Pi4jPlugin,
+    kind: String,
+    name: String,
+    tag: Long,
     configuration: Map<String, Any>
 ) : IntegrationInstance (
-    configuration
+    kind, name, tag
 ) {
-    var bmp280: Bmp280Driver?
-    var error: Exception?
+    var bmp280: Bmp280Driver? = null
+    var error: Exception? = null
 
     val timer = Timer()
     val ports = mutableListOf<Bmp280Port>()
+    override var configuration: Map<String, Any> = emptyMap()
 
     init {
-        try {
-            val i2c: I2C = plugin.pi4J.create(
-                I2C.newConfigBuilder(plugin.pi4J)
-                    .bus(configuration["bus"] as Int? ?: 1)
-                    .device(configuration["address"] as Int? ?: 0x76)
-                    .provider("linuxfs-i2c")
-                    .build()
-            )
+        reconfigure(configuration)
 
-            bmp280 = Bmp280Driver.create(i2c)
-
-
-            error = null
-        } catch (e: Exception) {
-            error = e
-            bmp280 = null
-        }
         timer.schedule(object : TimerTask() {
             override fun run() {
                 if (ports.isNotEmpty()) {
@@ -49,12 +38,30 @@ class Bmp280I2cIntegration(
         }, 0, 100)
     }
 
+    override fun reconfigure(configuration: Map<String, Any>) {
+        this.configuration = configuration
+        try {
+            val i2c: I2C = plugin.pi4J.create(
+                I2C.newConfigBuilder(plugin.pi4J)
+                    .bus(configuration["bus"] as Int? ?: 1)
+                    .device(configuration["address"] as Int? ?: 0x76)
+                    .provider("linuxfs-i2c")
+                    .build()
+            )
+
+            bmp280 = Bmp280Driver.create(i2c)
+
+            error = null
+        } catch (e: Exception) {
+            error = e
+            bmp280 = null
+        }
+
+    }
+
     override val operationSpecs: List<AbstractFactorySpec> = listOf(
         Bmp280Port.spec(this)
     )
-
-    override val type: String
-        get() = FACTORY_NAME
 
     override fun detach() {
         timer.cancel()
@@ -119,8 +126,8 @@ class Bmp280I2cIntegration(
                 ParameterSpec("bus", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),
                 ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),
                 )
-        ) {
-            Bmp280I2cIntegration(plugin, it)
+        ) { FACTORY_NAME, name, tag, configuration ->
+            Bmp280I2cIntegration(plugin, FACTORY_NAME, name, tag, configuration)
         }
     }
 

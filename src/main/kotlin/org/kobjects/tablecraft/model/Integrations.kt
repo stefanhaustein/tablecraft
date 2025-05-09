@@ -20,14 +20,9 @@ class Integrations : Iterable<IntegrationInstance> {
     }
 
     fun defineIntegration(name: String?,  jsonSpec: Map<String, Any>, token: ModificationToken) {
-        val previousName = jsonSpec["previousName"] as? String?
+        val integration = integrationMap[name]
+        if (integration == null) {
 
-        if (!previousName.isNullOrBlank()) {
-            try {
-                deleteIntegration(previousName, token)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
         }
 
         if (!name.isNullOrBlank()) {
@@ -39,8 +34,9 @@ class Integrations : Iterable<IntegrationInstance> {
             val config = specification.convertConfiguration(jsonSpec["configuration"] as Map<String, Any>) +
                     mapOf("name" to name, "tag" to token.tag)
 
-            val integration = specification.createFn(config)
+            val integration = specification.createFn(type, name, token.tag, config)
             integrationMap[name] = integration
+            integration.reconfigure(config)
 
             for (operation in integration.operationSpecs) {
                 Model.factories.add(operation)

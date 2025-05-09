@@ -68,7 +68,7 @@ class OutputPortHolder(
         configuration.toJson(sb)
         serializeDependencies(sb)
 
-        sb.append(""", "expression":${rawFormula.quote()}}""")
+        sb.append(""", "source":${rawFormula.quote()}}""")
 
     }
 

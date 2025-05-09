@@ -40,7 +40,7 @@ export function showPortDialog(constructorSpec, portSpec) {
 
     let portSchema = [{"name": "name"}]
     if (kind == "OUTPUT_PORT") {
-        portSchema.push({"name": "expression"})
+        portSchema.push({"name": "source"})
         dialogTitleElement.append("Output Port")
     } else {
         dialogTitleElement.append("Input Port")
