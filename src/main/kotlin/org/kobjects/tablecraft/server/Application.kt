@@ -67,7 +67,7 @@ fun Application.module() {
             val jsonText = call.receiveText()
             println("Received JSON: $jsonText")
             val jsonSpec = JsonParser.parseObject(jsonText)
-            val name = jsonSpec["name"] as String?
+            val name = jsonSpec["name"] as String
             Model.applySynchronizedWithToken { token ->
                 Model.integrations.defineIntegration(name, jsonSpec, token)
             }

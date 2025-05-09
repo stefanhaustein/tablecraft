@@ -19,30 +19,21 @@ class Integrations : Iterable<IntegrationInstance> {
         token.symbolsChanged = true
     }
 
-    fun defineIntegration(name: String?,  jsonSpec: Map<String, Any>, token: ModificationToken) {
-        val integration = integrationMap[name]
+    fun defineIntegration(name: String,  jsonSpec: Map<String, Any>, token: ModificationToken) {
+        val type = jsonSpec["type"].toString()
+        val specification = Model.functions[type] as IntegrationSpec
+        val config = specification.convertConfiguration(jsonSpec["configuration"] as Map<String, Any>)
+        var integration = integrationMap[name]
+
         if (integration == null) {
-
-        }
-
-        if (!name.isNullOrBlank()) {
-            integrationMap[name]?.detach()
-
-            val type = jsonSpec["type"].toString()
-            val specification = Model.functions[type] as IntegrationSpec
-
-            val config = specification.convertConfiguration(jsonSpec["configuration"] as Map<String, Any>) +
-                    mapOf("name" to name, "tag" to token.tag)
-
-            val integration = specification.createFn(type, name, token.tag, config)
+            integration = specification.createFn(type, name, token.tag, config)
             integrationMap[name] = integration
-            integration.reconfigure(config)
-
             for (operation in integration.operationSpecs) {
                 Model.factories.add(operation)
             }
-
             token.symbolsChanged = true
+        } else {
+            integration.reconfigure(config)
         }
     }
 
