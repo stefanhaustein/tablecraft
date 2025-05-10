@@ -11,9 +11,7 @@ import io.ktor.utils.io.*
 import kotlinx.html.dom.serialize
 import org.kobjects.tablecraft.json.JsonParser
 import org.kobjects.tablecraft.json.toJson
-import org.kobjects.tablecraft.model.Integrations
 import org.kobjects.tablecraft.model.Model
-import org.kobjects.tablecraft.model.Ports
 import java.io.File
 import java.io.StringWriter
 import kotlin.coroutines.resume
@@ -69,7 +67,7 @@ fun Application.module() {
             val jsonSpec = JsonParser.parseObject(jsonText)
             val name = jsonSpec["name"] as String
             Model.applySynchronizedWithToken { token ->
-                Model.integrations.defineIntegration(name, jsonSpec, token)
+                Model.integrations.configureIntegration(name, jsonSpec, token)
             }
             call.respond(HttpStatusCode.OK, null)
         }

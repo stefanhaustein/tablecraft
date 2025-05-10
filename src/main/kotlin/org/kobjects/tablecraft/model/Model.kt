@@ -89,7 +89,7 @@ object Model : ModelInterface {
                 } else if (key == "integrations") {
                     for ((name, value) in map) {
                         try {
-                            integrations.defineIntegration(name, value as Map<String, Any>, token)
+                            integrations.configureIntegration(name, value as Map<String, Any>, token)
                         } catch (e: Exception) {
                             System.err.println("Failed to load integration '$name'.")
                             e.printStackTrace()
