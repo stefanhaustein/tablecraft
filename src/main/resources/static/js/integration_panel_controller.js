@@ -1,6 +1,6 @@
-import {insertById, updateSpec} from "./lib/util.js";
+import {insertById, promptDialog, updateSpec} from "./lib/util.js";
 import {functions, integrations} from "./shared_state.js";
-import {showIntegrationDialog} from "./integration_editor.js"
+import {showIntegrationInstanceConfigurationDialog} from "./integration_editor.js"
 
 let integrationListElement = document.getElementById("integrationList")
 let integrationSpecListElement = document.getElementById("integrationSpecList")
@@ -32,7 +32,7 @@ export function processIntegrationUpdate(name, integration) {
 
             element.onclick = () => {
                 let spec = functions[integration.type]
-                showIntegrationDialog(spec, integration)
+                showIntegrationInstanceConfigurationDialog(spec, integration)
             }
         }
     }
@@ -43,5 +43,12 @@ export function updateIntegrationSpec(spec) {
         integrationSpecListElement,
         "integration.spec.",
         spec,
-        () => { showIntegrationDialog(spec) })
+        () => { showIntegrationCreationDialog(spec) })
+}
+
+async function showIntegrationCreationDialog(spec) {
+    // Skip for singletons
+    // TODO: Name validation
+    let name = await promptDialog("Add " + spec.name, "Name")
+    showIntegrationInstanceConfigurationDialog(spec, {name: name, type: spec.name, kind: spec.name})
 }

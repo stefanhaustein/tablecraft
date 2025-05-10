@@ -6,38 +6,25 @@ let integrationListElement = document.getElementById("integrationList")
 let dialogElement = document.getElementById("dialog")
 
 
-export function showIntegrationDialog(constructorSpec, integrationSpec) {
+export function showIntegrationInstanceConfigurationDialog(spec, instance) {
+    let instanceConfiguration = instance["configuration"]
+    let isNewInstance = instanceConfiguration == null
+    if (isNewInstance) {
+        instanceConfiguration = {}
+    }
 
-    let configuration = integrationSpec != null ? integrationSpec["configuration"] : {}
     dialogElement.textContent = ""
     let dialogTitleElement = document.createElement("div")
     dialogTitleElement.className = "dialogTitle"
-    dialogTitleElement.textContent = "Integration Specification"
+    dialogTitleElement.textContent = "Configure " + instance.name + (instance.name != instance.type ? " (" + instance.type + ")" : "")
     dialogElement.appendChild(dialogTitleElement)
 
     let inputDiv = document.createElement("div")
     inputDiv.className = "dialogFields"
 
-    let integrationSchema = [{"name": "name"}]
+    let bindingFormController = FormController.create(inputDiv, spec["params"])
 
-    let previousName = integrationSpec == null ? null : integrationSpec["name"]
-
-    let integrationFormController = FormController.create(inputDiv, integrationSchema)
-    integrationFormController.setValues(integrationSpec)
-
-    let typeLabelElement = document.createElement("label")
-    typeLabelElement.textContent = "binding"
-    inputDiv.appendChild(typeLabelElement)
-
-    let typeNameElement = document.createElement("div")
-    typeNameElement.textContent = constructorSpec.name
-    inputDiv.appendChild(typeNameElement)
-
-    let bindingFormController = FormController.create(inputDiv, constructorSpec["params"])
-
-    if (configuration != null) {
-        bindingFormController.setValues(configuration)
-    }
+    bindingFormController.setValues(instanceConfiguration)
 
     dialogElement.appendChild(inputDiv)
 
@@ -47,11 +34,8 @@ export function showIntegrationDialog(constructorSpec, integrationSpec) {
     okButton.textContent = "Ok"
     okButton.className = "dialogButton"
     okButton.addEventListener("click", () => {
-        let values = integrationFormController.getValues()
-        values["configuration"] = bindingFormController.getValues()
-        values["type"] = constructorSpec["name"]
-        values["previousName"] = previousName
-        if (sendPort(values)) {
+        instance["configuration"] = bindingFormController.getValues()
+        if (sendIntegration(instance)) {
             dialogElement.close()
         }
     })
@@ -63,7 +47,7 @@ export function showIntegrationDialog(constructorSpec, integrationSpec) {
     cancelButton.addEventListener("click", () => { dialogElement.close() })
     buttonDiv.appendChild(cancelButton)
 
-    if (previousName != null) {
+    if (!isNewInstance) {
         let deleteButton = document.createElement("button")
         deleteButton.textContent = "Delete"
         deleteButton.className = "dialogButton"
@@ -79,7 +63,7 @@ export function showIntegrationDialog(constructorSpec, integrationSpec) {
 }
 
 
-function sendPort(definition) {
-    sendJson("updateIntegration?name=" + definition["name"], definition)
+function sendIntegration(instance) {
+    sendJson("updateIntegration?name=" + instance["name"], instance)
     return true
 }

@@ -25,6 +25,25 @@ export async function confirmDialog(title, message = "") {
     })
 }
 
+export async function promptDialog(title, message = "", defautValue = "") {
+    let promptDialog = document.getElementById("promptDialog")
+    document.getElementById("promptDialogTitle").textContent = title
+    document.getElementById("promptDialogText").textContent = message
+    let inputElement = document.getElementById("promptDialogInput")
+    inputElement.value = defautValue
+    promptDialog.showModal()
+    return new Promise(resolve => {
+        document.getElementById("promptDialogOkButton").onclick = () => {
+            promptDialog.close()
+            resolve(inputElement.value)
+        }
+        document.getElementById("promptDialogCancelButton").onclick = () => {
+            promptDialog.close()
+            resolve(null)
+        }
+    })
+}
+
 
 export function addOption(selectElement, name) {
     let option = document.createElement("option")
