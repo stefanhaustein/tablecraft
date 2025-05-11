@@ -30,7 +30,7 @@ fun Application.module() {
             Model.applySynchronizedWithToken { token ->
                 Model.getOrCreate(cell).setJson(json, token)
             }
-            call.respond(HttpStatusCode.OK, null)
+            call.respond(HttpStatusCode.OK)
         }
         post("/simulationMode") {
             val jsonText = call.receiveText()
@@ -39,7 +39,7 @@ fun Application.module() {
             Model.applySynchronizedWithToken { token ->
                 Model.setSimulationMode(value as Boolean, token)
             }
-            call.respond(HttpStatusCode.OK, null)
+            call.respond(HttpStatusCode.OK)
         }
         post("/portSimulation") {
             val name = call.request.queryParameters["name"]!!
@@ -59,17 +59,17 @@ fun Application.module() {
             Model.applySynchronizedWithToken { token ->
                 Model.ports.definePort(name, jsonSpec, token)
             }
-            call.respond(HttpStatusCode.OK, null)
+            call.respond(HttpStatusCode.OK)
         }
-        post("/updateIntegration") {
+        post("/integrations/{name}") {
+            val name = call.parameters["name"]!!
             val jsonText = call.receiveText()
-            println("Received JSON: $jsonText")
+            println("/integrations/$name: $jsonText")
             val jsonSpec = JsonParser.parseObject(jsonText)
-            val name = jsonSpec["name"] as String
             Model.applySynchronizedWithToken { token ->
                 Model.integrations.configureIntegration(name, jsonSpec, token)
             }
-            call.respond(HttpStatusCode.OK, null)
+            call.respond(HttpStatusCode.OK)
         }
         post("/sheet") {
             val jsonText = call.receiveText()
@@ -79,7 +79,7 @@ fun Application.module() {
             Model.applySynchronizedWithToken { token ->
                 Model.updateSheet(name, jsonSpec, token)
             }
-            call.respond(HttpStatusCode.OK, null)
+            call.respond(HttpStatusCode.OK)
         }
         post("/upload") {
             val fileItem = call.receiveMultipart().readPart() as PartData.FileItem
@@ -90,7 +90,7 @@ fun Application.module() {
                 it.symbolsChanged = true
                 it.formulaChanged = true
             }
-            call.respond(HttpStatusCode.OK, null)
+            call.respond(HttpStatusCode.OK)
         }
         post("/loadExample") {
             val name = call.receiveText()

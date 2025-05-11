@@ -96,13 +96,6 @@ export function sendJson(path, data) {
     xhr.send(JSON.stringify(data))
 }
 
-export function sendText(path, data) {
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", path, true);
-    xhr.setRequestHeader('Content-Type', 'text/plain');
-    xhr.send(data)
-}
-
 export function getColumn(cellId) {
     return cellId.codePointAt(0) - 64
 }

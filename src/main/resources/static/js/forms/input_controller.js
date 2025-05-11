@@ -14,6 +14,12 @@ export class InputController {
         this.schema = schema
         this.inputElement = inputElement
 
+
+        this.labelElement = document.createElement("label")
+        let label = schema.label != null ? schema.label
+            : schema.name == null ? getType(schema) : schema.name + " (" + getType(schema) + ")"
+        this.labelElement.textContent = label + ": "
+
         this.messageElement = document.createElement("div")
         this.messageElement.innerHTML = "&nbsp;"
         this.messageElement.style.fontSize = "smaller"

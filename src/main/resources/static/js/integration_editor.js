@@ -63,6 +63,6 @@ export function showIntegrationInstanceConfigurationDialog(spec, instance) {
 
 
 function sendIntegration(instance) {
-    sendJson("updateIntegration?name=" + instance["name"], instance)
+    sendJson("integrations/" + instance["name"], instance)
     return true
 }

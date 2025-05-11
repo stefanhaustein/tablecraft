@@ -36,11 +36,10 @@ export class FormController {
             let inputController = InputController.create(entry)
             let inputContainer = document.createElement("div")
             inputContainer.className = "inputContainer"
-            inputContainer.appendChild(inputController.inputElement)
-            inputContainer.appendChild(inputController.messageElement)
 
-            let labelElement = document.createElement("label")
-            rootElement.append(labelElement, inputContainer)
+            inputContainer.append(inputController.inputElement, inputController.messageElement)
+            rootElement.append(inputController.labelElement, inputContainer)
+
             result[entry.name] = inputController
 
             inputController.inputElement.addEventListener("change", () => {

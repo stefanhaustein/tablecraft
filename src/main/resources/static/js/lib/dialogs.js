@@ -35,12 +35,7 @@ export async function promptDialog(title, initialValue = "", schema = {}) {
         okButton.disabled = !inputController.validate()
     })
 
-    if (schema && schema.label) {
-        let labelElement = document.createElement("label")
-        labelElement.textContent = schema.label + ": "
-        contentDiv.appendChild(labelElement)
-    }
-
+    contentDiv.appendChild(inputController.labelElement)
     contentDiv.appendChild(inputController.inputElement)
     contentDiv.appendChild(inputController.messageElement)
 
