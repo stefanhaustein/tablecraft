@@ -1,4 +1,3 @@
-import {functions, integrations} from "./shared_state.js";
 import {FormController} from "./forms/form_builder.js";
 import {sendJson} from "./lib/util.js";
 

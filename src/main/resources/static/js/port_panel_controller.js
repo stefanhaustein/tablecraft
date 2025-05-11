@@ -1,4 +1,4 @@
-import {functions, ports, portValues, showDependencies, simulationValues} from "./shared_state.js";
+import {factories, ports, portValues, showDependencies, simulationValues} from "./shared_state.js";
 import {showPortDialog} from "./port_editor.js";
 import {InputController} from "./forms/input_controller.js";
 import {camelCase, insertById, sendJson, updateSpec} from "./lib/util.js";
@@ -6,12 +6,6 @@ import {camelCase, insertById, sendJson, updateSpec} from "./lib/util.js";
 let inputPortSpecListElement = document.getElementById("inputPortSpecList")
 let outputPortSpecListElement = document.getElementById("outputPortSpecList")
 
-export function deletePortSpec(name) {
-    let element = document.getElementById("portspec." + name)
-    if (element) {
-        element.parentElement.removeChild(element)
-    }
-}
 
 export function processPortSpec(spec) {
     let container = spec.kind == "OUTPUT_PORT" ? outputPortSpecListElement : inputPortSpecListElement
@@ -48,7 +42,7 @@ export function processPortUpdate(name, f) {
             entryElement.parentElement.removeChild(entryElement)
         }
     } else {
-        let spec = functions[f.type]
+        let spec = factories[f.type]
         let entryElement = document.createElement("div")
         entryElement.id = "port." + f.name
         entryElement.className = "port"
@@ -86,8 +80,8 @@ export function processPortUpdate(name, f) {
                 type: camelCase(spec.returnType),
                 modifiers: ["CONSTANT"]})
             entryValueElement.appendChild(controller.inputElement)
-            controller.addListener((value, source) => {
-                sendJson("portSimulation?name=" + name, value)
+            controller.inputElement.addEventListener("change", () => {
+                sendJson("portSimulation?name=" + name, controller.getValue())
             })
             showValue = !document.getElementById("simulationMode").checked
             entryValueElement.style.display = showValue ? "none" : "inline"

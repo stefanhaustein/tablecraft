@@ -1,19 +1,17 @@
+import {getType, getOptions, containsModifier} from "./input_schema.js";
+
+
 /**
  * Schema fields:
  *
- * - name: The name of the input element.
- * - options: Input options for this element
- * - type: The type of this input element. One of Boolean, Integer, Number, String, Enum.
+ * - options: Array of Input options for this element
+ * - type: The type of this input element. One of Bool, Integer, Real, String, Enum.
  */
 
 export class InputController {
 
     constructor(schema, inputElement) {
         this.schema = schema
-
-        this.labelElement = document.createElement("label")
-        this.labelElement.textContent = schema.name + (this.getType() != null ? " (" +  this.getType() + "):" : ":")
-
         this.inputElement = inputElement
 
         this.messageElement = document.createElement("div")
@@ -25,46 +23,37 @@ export class InputController {
         this.messageElement.style.lineHeight = "normal"
         this.messageElement.style.textAlign = "right"
 
-        this.listeners = []
+        this.validation = schema.validation || {}
 
-        this.inputElement.addEventListener("change", () => {
-            this.validate()
-            for (let listener of this.listeners) {
-                listener(this.getValue(), this)
-            }
-        })
+        this.inputElement.addEventListener("input", () => { this.validate() })
 
         this.validate()
     }
 
     static create(schema) {
-        if (schema.modifiers != null && schema.modifiers.indexOf("CONSTANT") != -1) {
-            if (schema.options != null || Array.isArray(schema.type)) {
+        if (containsModifier(schema, "CONSTANT")) {
+            let options = getOptions(schema)
+            if (options != null) {
                 return new EnumInputController(schema, schema.options || schema.type)
             }
-            if (schema.type.toLowerCase() == "bool") {
+            if (getType(schema).toLowerCase() == "bool") {
                 return new EnumInputController(schema, ["True", "False"])
             }
         }
-
         return new TextInputController(schema)
     }
 
-    addListener(listener) {
-        this.listeners.push(listener)
-    }
-
-
     isConstant() {
-        let modifiers = this.schema.modifiers || []
-        return modifiers.indexOf("CONSTANT") != -1
+        return containsModifier(this.schema, "CONSTANT")
     }
 
-    validate() {}
+    validate() {
+        return true
+    }
 
     getValue() {
         if (this.isConstant()) {
-            switch (this.getType()) {
+            switch (getType(this.schema).toLowerCase()) {
                 case "bool":
                     return this.inputElement.value == "True"
                 case "real":
@@ -78,24 +67,12 @@ export class InputController {
     }
 
     setValue(value) {
-        switch (this.getType()) {
-            case "bool":
-                this.inputElement.value = value ? "True" : "False"
-                break
-            default:
-                this.inputElement.value = value
+        if (this.isConstant() && getType(this.schema).toLowerCase() == "bool") {
+            this.inputElement.value = value ? "True" : "False"
+        } else {
+            this.inputElement.value = value == null ? "" : value.toString()
         }
         this.validate()
-    }
-
-    getType() {
-        if (this.schema.type) {
-            return Array.isArray(this.schema.type) ? "enum" : this.schema.type.toString().toLowerCase();
-        }
-        if (this.schema.options) {
-            return "enum"
-        }
-        return null
     }
 }
 
@@ -104,30 +81,38 @@ class TextInputController extends InputController {
     constructor(schema) {
         super(schema, document.createElement("input"))
 
-        switch(this.getType()) {
+        switch(getType(this.schema).toLowerCase()) {
             case "real":
-                this.validations = {"Number expected": /^[+-]?(\d+([.]\d*)?([eE][+-]?\d+)?|[.]\d+([eE][+-]?\d+)?)$/}
+                this.validation["Number expected"] = /^[+-]?(\d+([.]\d*)?([eE][+-]?\d+)?|[.]\d+([eE][+-]?\d+)?)$/
                 break
             case "int":
-                this.validations = {"Integer expected": /^[-+]?[0-9]+$/}
+                this.validation["Integer expected"] = /^[-+]?[0-9]+$/
                 break
         }
     }
 
     validate() {
+        let errorMessage = "\u00a0"
         if (this.inputElement.value == "") {
-            this.messageElement.textContent = "Required Field"
+            errorMessage = "Required Field"
         } else {
-            if (this.validations) {
-                for (const msg in this.validations) {
-                    if (!this.inputElement.value.match(this.validations[msg])) {
-                        this.messageElement.textContent = msg
-                        return
+            if (this.validation) {
+                for (const msg in this.validation) {
+                    let check = this.validation[msg]
+                    if (check instanceof RegExp) {
+                        if (!this.inputElement.value.match(check)) {
+                            errorMessage = msg
+                            break
+                        }
+                    } else if (!check(this.inputElement.value)) {
+                        errorMessage = msg
+                        break
                     }
                 }
             }
-            this.messageElement.innerHTML = "&nbsp"
         }
+        this.messageElement.textContent = errorMessage
+        return errorMessage == "\u00a0"
     }
 }
 

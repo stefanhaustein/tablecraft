@@ -8,43 +8,6 @@ export function makeEnum(arr){
     return Object.freeze(obj);
 }
 
-export async function confirmDialog(title, message = "") {
-    let confirmDialog = document.getElementById("confirmDialog")
-    document.getElementById("confirmDialogTitle").textContent = title
-    document.getElementById("confirmDialogText").textContent = message
-    confirmDialog.showModal()
-    return new Promise(resolve => {
-        document.getElementById("confirmDialogOkButton").onclick = () => {
-            confirmDialog.close()
-            resolve(true)
-        }
-        document.getElementById("confirmDialogCancelButton").onclick = () => {
-            confirmDialog.close()
-            resolve(false)
-        }
-    })
-}
-
-export async function promptDialog(title, message = "", defautValue = "") {
-    let promptDialog = document.getElementById("promptDialog")
-    document.getElementById("promptDialogTitle").textContent = title
-    document.getElementById("promptDialogText").textContent = message
-    let inputElement = document.getElementById("promptDialogInput")
-    inputElement.value = defautValue
-    promptDialog.showModal()
-    return new Promise(resolve => {
-        document.getElementById("promptDialogOkButton").onclick = () => {
-            promptDialog.close()
-            resolve(inputElement.value)
-        }
-        document.getElementById("promptDialogCancelButton").onclick = () => {
-            promptDialog.close()
-            resolve(null)
-        }
-    })
-}
-
-
 export function addOption(selectElement, name) {
     let option = document.createElement("option")
     option.textContent = name

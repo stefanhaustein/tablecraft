@@ -6,6 +6,7 @@ export var model = {
     sheets: {}
 }
 
+export var factories = {}
 export var functions = {}
 export var integrations = {}
 export var ports = {}

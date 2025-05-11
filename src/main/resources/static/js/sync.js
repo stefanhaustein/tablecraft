@@ -1,6 +1,7 @@
 import {renderComputedValue} from "./cell_renderer.js";
 import {
     currentSheet,
+    factories,
     functions,
     integrations,
     model,
@@ -11,7 +12,7 @@ import {
 } from "./shared_state.js";
 
 import {addOption} from "./lib/util.js";
-import {updateOperation} from "./operation_panel_controller.js";
+import {processFunction} from "./operation_panel_controller.js";
 import {processIntegrationUpdate, updateIntegrationSpec} from "./integration_panel_controller.js";
 import {
     processPortSpec,
@@ -89,9 +90,13 @@ function processSection(sectionName, map) {
             }
             break
         case "factories":
+            for (let name in map) {
+                processFactoryUpdate(name, map[name])
+            }
+            break
         case "functions":
             for (let name in map) {
-                processFunctionUpdate(name, map[name])
+                processFunction(name, map[name])
             }
             break
         case "ports":
@@ -178,20 +183,21 @@ function processSheetCellsUpdate(name, map) {
     }
 }
 
-function processFunctionUpdate(name, f) {
+
+function processFactoryUpdate(name, f) {
+    f.name = name
+    factories[f.name] = f
+
     switch (f.kind) {
         case "INTEGRATION":
             updateIntegrationSpec(f)
             break
-        case "FUNCTION":
-            updateOperation(f)
-            break;
         case "INPUT_PORT":
         case "OUTPUT_PORT":
             processPortSpec(f)
+            break
+        default:
+            console.log("Unrecognized Factory: ", name, f)
     }
-
-    // console.log("received function spec", f)
-    functions[f.name] = f
 }
 

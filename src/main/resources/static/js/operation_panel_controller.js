@@ -1,14 +1,17 @@
-import {confirmDialog, insertById, updateSpec} from "./lib/util.js";
-import {currentCellData, currentCellId, setCurrentCellFormula} from "./shared_state.js";
+import {insertById, updateSpec} from "./lib/util.js";
+import {confirmDialog} from "./lib/dialogs.js"
+import {currentCellData, currentCellId, factories, functions, setCurrentCellFormula} from "./shared_state.js";
 
 let operationListContainerElement = document.getElementById("operationListContainer")
 
 
-export function updateOperation(op) {
-    updateSpec(operationListContainerElement, "op.details.", op, async () => {
-        let value = "=" + op.name + "("
+export function processFunction(name, spec) {
+    spec.name = name
+    functions[name] = spec
+    updateSpec(operationListContainerElement, "op.details.", spec, async () => {
+        let value = "=" + spc.name + "("
         if (currentCellData.f == null || currentCellData.f == "" || await confirmDialog("Overwrite Current Formula?", currentCellId + ": '" + currentCellData.f + "'")) {
-            setCurrentCellFormula("=" + op.name + "(")
+            setCurrentCellFormula("=" + spec.name + "(")
         }
     })
 }

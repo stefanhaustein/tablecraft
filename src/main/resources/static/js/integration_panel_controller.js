@@ -1,5 +1,6 @@
-import {insertById, promptDialog, updateSpec} from "./lib/util.js";
-import {functions, integrations} from "./shared_state.js";
+import {updateSpec} from "./lib/util.js"
+import {promptDialog} from "./lib/dialogs.js"
+import {factories, integrations, ports} from "./shared_state.js";
 import {showIntegrationInstanceConfigurationDialog} from "./integration_editor.js"
 
 let integrationListElement = document.getElementById("integrationList")
@@ -31,7 +32,7 @@ export function processIntegrationUpdate(name, integration) {
             integrationListElement.appendChild(element)
 
             element.onclick = () => {
-                let spec = functions[integration.type]
+                let spec = factories[integration.type]
                 showIntegrationInstanceConfigurationDialog(spec, integration)
             }
         }
@@ -47,8 +48,21 @@ export function updateIntegrationSpec(spec) {
 }
 
 async function showIntegrationCreationDialog(spec) {
-    // Skip for singletons
-    // TODO: Name validation
-    let name = await promptDialog("Add " + spec.name, "Name")
+    let name = spec.name
+
+    if (spec.modifiers == null || spec.modifiers.indexOf("SINGLETON") == -1) {
+        name = await promptDialog("Add " + name, name, {
+            label: "Name",
+            modifiers: ["CONSTANT"],
+            validation: {
+                "Integration name conflict": (name) => integrations[name] == null && (factories[name] == null || factories[name] == spec),
+                "Port name conflict": (name) => ports[name] == null,
+                "Valid: letters, '_', non-leading digits": /^[a-zA-Z_][a-zA-Z_0-9]*$/
+            }
+        })
+        if (name == null) {
+            return
+        }
+    }
     showIntegrationInstanceConfigurationDialog(spec, {name: name, type: spec.name, kind: spec.name})
 }
