@@ -8,14 +8,22 @@ import {getType, getOptions, containsModifier} from "./input_schema.js";
  * - type: The type of this input element. One of Bool, Integer, Real, String, Enum.
  */
 
+let labelCounter = 0
+
 export class InputController {
+
+
 
     constructor(schema, inputElement) {
         this.schema = schema
         this.inputElement = inputElement
 
+        let id = "lbl" + (++labelCounter);
+        this.inputElement.setAttribute("id", id)
 
         this.labelElement = document.createElement("label")
+        this.labelElement.setAttribute("for", id)
+
         let label = schema.label != null ? schema.label
             : schema.name == null ? getType(schema) : schema.name + " (" + getType(schema) + ")"
         this.labelElement.textContent = label + ": "
