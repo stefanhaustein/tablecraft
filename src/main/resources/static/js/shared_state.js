@@ -1,4 +1,4 @@
-import {getColumn, getRow, makeEnum, sendJson, toCellId} from "./lib/util.js";
+import {getColumn, getRow, makeEnum, postJson, toCellId} from "./lib/util.js";
 import {nullToEmtpy} from "./lib/values.js";
 import {renderComputedValue} from "./cell_renderer.js";
 
@@ -49,7 +49,7 @@ document.getElementById("simulationMode").addEventListener("change", (event) =>{
         }
     }
 
-    sendJson("/simulationMode", checked)
+    postJson("/simulationMode", checked)
 })
 
 export function addCellSelectionListener(listener) {
@@ -62,7 +62,7 @@ export function addCellContentChangeListener(name, listener) {
 
 export function commitCurrentCell() {
     committedFormula = currentCellData.f
-    sendJson("update/" + currentSheet.name + "!" + currentCellId, currentCellData)
+    postJson("update/" + currentSheet.name + "!" + currentCellId, currentCellData)
 }
 
 

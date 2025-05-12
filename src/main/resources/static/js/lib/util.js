@@ -89,11 +89,13 @@ export function updateSpec(parent, idPrefix, spec, createAction) {
 }
 
 
-export function sendJson(path, data) {
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", path, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify(data))
+export function postJson(path, data) {
+    let request = new Request(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    })
+    fetch(request)
 }
 
 export function getColumn(cellId) {

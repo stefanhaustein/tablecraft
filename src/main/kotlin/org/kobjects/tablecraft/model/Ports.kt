@@ -17,38 +17,42 @@ class Ports : Iterable<PortHolder> {
         get() = portMap.keys
 
     fun deletePort(name: String, token: ModificationToken) {
-        token.symbolsChanged = true
-        portMap[name]?.detach()
-        portMap[name] = InputPortHolder(name, InputPortSpec(
-            Type.STRING,
-            "TOMBSTONE",  // The operation name; used to identify tombstone ports on the client
-            "",
-            emptyList(),
-            emptySet(),
-            token.tag) {
-            object : InputPortInstance {
-                override fun attach(host: ValueChangeListener) {}
-                override fun detach() {}
-                override fun getValue() = Unit
-            }
-        }, emptyMap(), token.tag)
+        val port = portMap[name]
+        if (port != null) {
+            token.symbolsChanged = true
+            port.detach()
+            portMap[name] = InputPortHolder(
+                name, InputPortSpec(
+                    Type.STRING,
+                    "TOMBSTONE",  // The operation name; used to identify tombstone ports on the client
+                    "",
+                    emptyList(),
+                    emptySet(),
+                    token.tag
+                ) {
+                    object : InputPortInstance {
+                        override fun attach(host: ValueChangeListener) {}
+                        override fun detach() {}
+                        override fun getValue() = Unit
+                    }
+                }, emptyMap(), token.tag
+            )
+        }
     }
 
     // The name is separate because it's typically the key of the spec map
-    fun definePort(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken) {
+    fun definePort(name: String, jsonSpec: Map<String, Any>, token: ModificationToken) {
         token.symbolsChanged = true
 
-        val previousName = jsonSpec["previousName"]
-
-        if (previousName is String && !previousName.isNullOrBlank()) {
-            try {
-                deletePort(previousName, token)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+        // Always delete what's there.
+        val previousName = jsonSpec["previousName"]?.toString() ?: name
+        try {
+            deletePort(previousName, token)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
 
-        if (!name.isNullOrBlank()) {
+        if (jsonSpec["deleted"] as Boolean? != true) {
             val type = jsonSpec["type"].toString()
 
             portMap[name]?.detach()

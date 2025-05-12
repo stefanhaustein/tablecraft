@@ -51,11 +51,11 @@ fun Application.module() {
             }
             call.respond(HttpStatusCode.OK, null)
         }
-        post("/updatePort") {
+        post("/ports/{name}") {
+            val name = call.parameters["name"]!!
             val jsonText = call.receiveText()
-            println("Received JSON: $jsonText")
+            println("/ports/$name: $jsonText")
             val jsonSpec = JsonParser.parseObject(jsonText)
-            val name = jsonSpec["name"] as String?
             Model.applySynchronizedWithToken { token ->
                 Model.ports.definePort(name, jsonSpec, token)
             }

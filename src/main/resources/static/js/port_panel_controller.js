@@ -1,7 +1,7 @@
 import {factories, ports, portValues, showDependencies, simulationValues} from "./shared_state.js";
 import {showPortDialog} from "./port_editor.js";
 import {InputController} from "./forms/input_controller.js";
-import {camelCase, insertById, sendJson, updateSpec} from "./lib/util.js";
+import {camelCase, insertById, postJson, updateSpec} from "./lib/util.js";
 
 let inputPortSpecListElement = document.getElementById("inputPortSpecList")
 let outputPortSpecListElement = document.getElementById("outputPortSpecList")
@@ -81,7 +81,7 @@ export function processPortUpdate(name, f) {
                 modifiers: ["CONSTANT"]})
             entryValueElement.appendChild(controller.inputElement)
             controller.inputElement.addEventListener("change", () => {
-                sendJson("portSimulation?name=" + name, controller.getValue())
+                postJson("portSimulation?name=" + name, controller.getValue())
             })
             showValue = !document.getElementById("simulationMode").checked
             entryValueElement.style.display = showValue ? "none" : "inline"

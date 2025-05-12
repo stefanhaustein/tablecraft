@@ -1,6 +1,6 @@
 import {FormController} from "./forms/form_builder.js";
-import {sendJson} from "./lib/util.js";
-import {functions} from "./shared_state.js";
+import {postJson} from "./lib/util.js";
+import {factories, functions} from "./shared_state.js";
 
 let portListContainer = document.getElementById("portListContainer")
 let portEditorContainer = document.getElementById("portEditorContainer")
@@ -11,7 +11,8 @@ function hidePortDialog() {
 }
 
 function renderBinding(targetDiv, constructorSpec, instanceSpec) {
-    targetDiv.textContent = ""
+    targetDiv.textContent = constructorSpec.description
+    targetDiv.appendChild(document.createElement("p"))
 
     let bindingFormController = FormController.create(targetDiv, constructorSpec["params"])
 
@@ -57,19 +58,12 @@ export function showPortDialog(constructorSpec, portSpec) {
     inputDiv.appendChild(typeLabelElement)
 
     let bindingDiv = document.createElement("div")
-
     let typeSelectElement = document.createElement("select")
-
     let okButton = document.createElement("button")
-    if (portSpec == null) {
-        okButton.textContent = "Create"
-    } else {
-        okButton.textContent = "Ok"
-    }
+    okButton.textContent = portSpec == null ? "Create" : "Ok"
 
-
-    for (let name in functions) {
-        let f = functions[name]
+    for (let name in factories) {
+        let f = factories[name]
         if (f.kind == kind) {
             let typeOptionElement = document.createElement("option")
             typeOptionElement.textContent = name
@@ -83,13 +77,9 @@ export function showPortDialog(constructorSpec, portSpec) {
 
     typeSelectElement.addEventListener("input", () => {
         let type = typeSelectElement.value
-        constructorSpec = functions[type]
+        constructorSpec = factories[type]
         if (constructorSpec != null) {
             bindingFormController = renderBinding(bindingDiv, constructorSpec, instanceSpec)
-            if (typeSelectElement.firstElementChild.textContent == "(select)") {
-                typeSelectElement.removeChild(typeSelectElement.firstElementChild)
-                okButton.disabled = false
-            }
         }
     })
 
@@ -111,9 +101,8 @@ export function showPortDialog(constructorSpec, portSpec) {
         values["configuration"] = bindingFormController.getValues()
         values["type"] = constructorSpec["name"]
         values["previousName"] = previousName
-        if (sendPort(values)) {
-            hidePortDialog()
-        }
+        postJson("ports/" + values["name"], values)
+        hidePortDialog()
     })
     buttonDiv.appendChild(okButton)
 
@@ -128,7 +117,7 @@ export function showPortDialog(constructorSpec, portSpec) {
         deleteButton.textContent = "Delete"
         deleteButton.className = "dialogButton"
         deleteButton.addEventListener("click", () => {
-            sendJson("updatePort", {previousName: previousName})
+            postJson("ports/" + previousName, {deleted: true})
             hidePortDialog()
         })
         buttonDiv.appendChild(deleteButton)
@@ -137,8 +126,3 @@ export function showPortDialog(constructorSpec, portSpec) {
     portEditorContainer.appendChild(buttonDiv)
 }
 
-
-function sendPort(definition) {
-    sendJson("updatePort", definition)
-    return true
-}
