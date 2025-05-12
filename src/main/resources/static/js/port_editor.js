@@ -1,6 +1,6 @@
 import {FormController} from "./forms/form_builder.js";
 import {postJson} from "./lib/util.js";
-import {factories, functions} from "./shared_state.js";
+import {factories, functions, integrations, ports} from "./shared_state.js";
 
 let portListContainer = document.getElementById("portListContainer")
 let portEditorContainer = document.getElementById("portEditorContainer")
@@ -39,7 +39,14 @@ export function showPortDialog(constructorSpec, portSpec) {
     let inputDiv = document.createElement("div")
     //inputDiv.className = "dialogFields"
 
-    let portSchema = [{"name": "name"}]
+    let portSchema = [{
+        "name": "name",
+        "validation": {
+            "Integration name conflict": (name) => integrations[name] == null && factories[name] == null,
+            "Port name conflict": (name) => ports[name] == null || (portSpec != null && name == portSpec.name),
+            "Valid: letters, '_', non-leading digits": /^[a-zA-Z_][a-zA-Z_0-9]*$/
+        }}]
+
     if (kind == "OUTPUT_PORT") {
         portSchema.push({"name": "source"})
         dialogTitleElement.append("Output Port")
