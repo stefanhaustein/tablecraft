@@ -42,7 +42,9 @@ export function showPortDialog(constructorSpec, portSpec) {
     let portSchema = [{
         "name": "name",
         "validation": {
-            "Integration name conflict": (name) => integrations[name] == null && factories[name] == null,
+            "Integration name conflict": (name) => integrations[name] == null,
+            "Factory name conflict": (name) => factories[name] == null,
+            "Function name conflict": (name) => ifunctions[name] == null,
             "Port name conflict": (name) => ports[name] == null || (portSpec != null && name == portSpec.name),
             "Valid: letters, '_', digits after '_'": /^[a-zA-Z]+(_[a-zA-Z0-9_]*)?$/
         }}]
