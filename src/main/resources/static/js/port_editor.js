@@ -44,7 +44,7 @@ export function showPortDialog(constructorSpec, portSpec) {
         "validation": {
             "Integration name conflict": (name) => integrations[name] == null && factories[name] == null,
             "Port name conflict": (name) => ports[name] == null || (portSpec != null && name == portSpec.name),
-            "Valid: letters, '_', non-leading digits": /^[a-zA-Z_][a-zA-Z_0-9]*$/
+            "Valid: letters, '_', digits after '_'": /^[a-zA-Z]+(_[a-zA-Z0-9_]*)?$/
         }}]
 
     if (kind == "OUTPUT_PORT") {

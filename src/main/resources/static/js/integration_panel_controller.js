@@ -57,7 +57,7 @@ async function showIntegrationCreationDialog(spec) {
             validation: {
                 "Integration name conflict": (name) => integrations[name] == null && (factories[name] == null || factories[name] == spec),
                 "Port name conflict": (name) => ports[name] == null,
-                "Valid: letters, '_', non-leading digits": /^[a-zA-Z_][a-zA-Z_0-9]*$/
+                "Valid: letters, non-leading '_' or digits": /^[a-zA-Z][a-zA-Z_0-9]*$/
             }
         })
         if (name == null) {
