@@ -11,7 +11,7 @@ class CellRangeReference(
     init {
         // All dDependencies are removed on re-parse. This can't be "balanced" as
         // an expression might reference the same cells multiple times
-        for (t in target) {
+        for (t in target.cellIterator()) {
             owner.inputs.add(t)
             t.dependencies.add(owner)
         }

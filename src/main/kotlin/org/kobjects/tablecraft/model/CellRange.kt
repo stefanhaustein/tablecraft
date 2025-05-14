@@ -2,17 +2,18 @@ package org.kobjects.tablecraft.model
 
 import org.kobjects.tablecraft.model.expression.CellRangeReference
 import org.kobjects.tablecraft.model.expression.CellReference
+import org.kobjects.tablecraft.pluginapi.RangeValues
 import java.lang.Integer.max
 import java.lang.Integer.min
 
 class CellRange(
     val sheet: Sheet,
     definition: String
-) : Iterable<Cell> {
+) : RangeValues {
     val fromColumn: Int
-    val toColumn: Int
+    val toColumn: Int   // Inclusive
     val fromRow: Int
-    val toRow: Int
+    val toRow: Int      // Inclusive
 
     init {
         val cut = definition.indexOf(":")
@@ -33,7 +34,24 @@ class CellRange(
         }
     }
 
-    override fun iterator(): Iterator<Cell> {
+    override val width: Int
+        get() = toColumn - fromColumn + 1
+
+    override val height: Int
+        get() = toRow - fromRow + 1
+
+    override fun get(column: Int, row: Int) =
+        sheet.getOrCreateCell(Cell.id(column + fromColumn, row + fromRow))
+    
+
+    override fun iterator(): Iterator<Any> = object : Iterator<Any> {
+        val cellIterator = cellIterator()
+
+        override fun hasNext() = cellIterator.hasNext()
+        override fun next() = cellIterator.next().value
+    }
+
+    fun cellIterator(): Iterator<Cell> {
         val result = mutableListOf<Cell>()
         for (r in fromRow..toRow) {
             for (c in fromColumn..toColumn) {

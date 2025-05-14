@@ -57,7 +57,7 @@ class Ports : Iterable<PortHolder> {
 
             portMap[name]?.detach()
 
-            val specification = Model.factories[type]!!
+            val specification = Model.factories[type] ?: throw IllegalArgumentException("Unrecognized port type '$type'")
 
             val config = specification.convertConfiguration(
                 jsonSpec["configuration"] as Map<String, Any>)
