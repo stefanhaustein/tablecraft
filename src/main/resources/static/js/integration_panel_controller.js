@@ -1,24 +1,21 @@
 import {updateSpec} from "./lib/util.js"
 import {promptDialog} from "./lib/dialogs.js"
-import {factories, integrations, ports} from "./shared_state.js";
 import {showIntegrationInstanceConfigurationDialog} from "./integration_editor.js"
+import {getFactory, getIntegrationInstance, registerIntegrationInstance} from "./shared_model.js";
 
 let integrationListElement = document.getElementById("integrationList")
 let integrationSpecListElement = document.getElementById("integrationSpecList")
 
 export function processIntegrationUpdate(name, integration) {
-    let id = "integration." + name
+    let key = name.toLowerCase()
+    let id = "integration." + key
     let element = document.getElementById(id)
 
-    if (integration.type == "TOMBSTONE") {
+    if (!registerIntegrationInstance(name, integration)) {
         if (element != null) {
             integrationListElement.removeChild(element)
         }
-        delete integrations[name]
     } else {
-        integration.name = name
-        integrations[name] = integration
-
         if (element == null) {
             element = document.createElement("div")
             element.id = id
@@ -32,7 +29,7 @@ export function processIntegrationUpdate(name, integration) {
             integrationListElement.appendChild(element)
 
             element.onclick = () => {
-                let spec = factories[integration.type.toLowerCase()]
+                let spec = getFactory(integration.type)
                 showIntegrationInstanceConfigurationDialog(spec, integration)
             }
         }
@@ -55,8 +52,8 @@ async function showIntegrationCreationDialog(spec) {
             label: "Name",
             modifiers: ["CONSTANT"],
             validation: {
-                "Integration name conflict": (name) => integrations[name.toLowerCase()] == null && (factories[name.toLowerCase()] == null || factories[name.toLowerCase()] == spec),
-                "Port name conflict": (name) => ports[name.toLowerCase()] == null,
+                "Integration name conflict": (name) => getIntegrationInstance(name) == null && (getFactory(name) == null || getFactory(name) == spec),
+                "Port name conflict": (name) => getPortInstance(name) == null,
                 "Valid: letters, non-leading '_' or digits": /^[a-zA-Z][a-zA-Z_0-9]*$/
             }
         })

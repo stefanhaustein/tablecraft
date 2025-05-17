@@ -1,15 +1,13 @@
 import {renderComputedValue} from "./cell_renderer.js";
 import {
     currentSheet,
-    factories,
-    functions,
-    integrations,
     model,
-    ports,
     portValues,
     selectSheet,
     simulationValues
 } from "./shared_state.js";
+import { registerFactory } from "./shared_model.js"
+
 
 import {addOption} from "./lib/util.js";
 import {processFunction} from "./operation_panel_controller.js";
@@ -185,8 +183,7 @@ function processSheetCellsUpdate(name, map) {
 
 
 function processFactoryUpdate(name, f) {
-    f.name = name
-    factories[f.name.toLowerCase()] = f
+    registerFactory(name, f)
 
     switch (f.kind) {
         case "INTEGRATION":

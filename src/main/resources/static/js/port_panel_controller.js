@@ -1,7 +1,8 @@
-import {factories, ports, portValues, showDependencies, simulationValues} from "./shared_state.js";
+import {portValues, showDependencies, simulationValues} from "./shared_state.js";
 import {showPortDialog} from "./port_editor.js";
 import {InputController} from "./forms/input_controller.js";
 import {camelCase, insertById, postJson, updateSpec} from "./lib/util.js";
+import {getFactory, getPortInstance, registerPortInstance} from "./shared_model.js";
 
 let inputPortSpecListElement = document.getElementById("inputPortSpecList")
 let outputPortSpecListElement = document.getElementById("outputPortSpecList")
@@ -26,7 +27,7 @@ export function processPortValue(key, map) {
 export function processSimulationValue(key, map) {
     let value = map[key]
     simulationValues[key] = value
-    let port = ports[key]
+    let port = getPortInstance(key)
     if (port != null) {
         let controller = port.valueController
         if (controller != null) {
@@ -36,13 +37,13 @@ export function processSimulationValue(key, map) {
 }
 
 export function processPortUpdate(name, f) {
-    if (f.type == "TOMBSTONE") {
+    if (!registerPortInstance(name, f)) {
         let entryElement = document.getElementById("port." + name)
         if (entryElement != null) {
             entryElement.parentElement.removeChild(entryElement)
         }
     } else {
-        let spec = factories[f.type.toLowerCase()]
+        let spec = getFactory(f.type)
         let entryElement = document.createElement("div")
         entryElement.id = "port." + f.name
         entryElement.className = "port"
@@ -113,27 +114,5 @@ export function processPortUpdate(name, f) {
             showDependencies(f)
         }
     }
-
-    // console.log("received function spec", f)
-    ports[name] = f
 }
 
-
-/*
-function editPort(event) {
-    if (event.target.className != "portConfig") {
-        return;
-    }
-    let entryElement = event.target.parentNode
-    let id = entryElement.id
-    if (!id.startsWith("port.")) {
-        // Clicked on input; not handled here.
-        // console.log("Target element id not recognized: ", entryElement)
-        return
-    }
-    let name = id.substring("port.".length)
-    let portSpec = ports[name]
-
-    showPortDialog(functions[portSpec.type].kind, portSpec)
-}
-*/

@@ -6,10 +6,6 @@ export var model = {
     sheets: {}
 }
 
-export var factories = {}
-export var functions = {}
-export var integrations = {}
-export var ports = {}
 export var portValues = {}
 export var simulationValues = {}
 export var currentSheet = null
@@ -40,7 +36,8 @@ export function setSelectionRange(x, y) {
 
 document.getElementById("simulationMode").addEventListener("change", (event) =>{
     let checked = event.target.checked
-    for (let name in ports) {
+    for (let port of getAllPorts()) {
+        let name = port.name
         let simulationValueElement = document.getElementById("port." + name + ".simulationValue")
         if (simulationValueElement != null) {
             let valueElement =  document.getElementById("port." + name + ".value")

@@ -1,6 +1,6 @@
 import {FormController} from "./forms/form_builder.js";
 import {postJson} from "./lib/util.js";
-import {factories, functions, integrations, ports} from "./shared_state.js";
+import {getAllFactories, getFactory, getFunction, getIntegrationInstance, getPortInstance} from "./shared_model.js";
 
 let portListContainer = document.getElementById("portListContainer")
 let portEditorContainer = document.getElementById("portEditorContainer")
@@ -42,10 +42,10 @@ export function showPortDialog(constructorSpec, portSpec) {
     let portSchema = [{
         "name": "name",
         "validation": {
-            "Integration name conflict": (name) => integrations[name.toLowerCase()] == null,
-            "Factory name conflict": (name) => factories[name.toLowerCase()] == null,
-            "Function name conflict": (name) => functions[name.toLowerCase()] == null,
-            "Port name conflict": (name) => ports[name.toLowerCase()] == null || (portSpec != null && name.toLowerCase() == portSpec.name.toLowerCase()),
+            "Integration name conflict": (name) => getIntegrationInstance(name) == null,
+            "Factory name conflict": (name) => getFactory(name) == null,
+            "Function name conflict": (name) => getFunction(name) == null,
+            "Port name conflict": (name) => getPortInstance(name) == null || (portSpec != null && name.toLowerCase() == portSpec.name.toLowerCase()),
             "Valid: letters, '_', digits after '_'": /^[a-zA-Z]+(_[a-zA-Z0-9_]*)?$/
         }}]
 
@@ -71,8 +71,7 @@ export function showPortDialog(constructorSpec, portSpec) {
     let okButton = document.createElement("button")
     okButton.textContent = portSpec == null ? "Create" : "Ok"
 
-    for (let key in factories) {
-        let f = factories[key]
+    for (let f in getAllFactories()) {
         let name = f.name
         if (f.kind == kind) {
             let typeOptionElement = document.createElement("option")

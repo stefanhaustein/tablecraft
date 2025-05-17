@@ -1,12 +1,11 @@
 import {
-    functions,
     setCurrentCellFormula,
-    selectPanel,
     addCellContentChangeListener,
     addCellSelectionListener, currentCellData, setEditMode, EditMode, currentCellElement, commitCurrentCell
 } from "./shared_state.js";
 import {FormController} from "./forms/form_builder.js";
 import {extractParameters} from "./lib/expressions.js";
+import {getFunction} from "./shared_model.js";
 
 let formulaInputElement = document.getElementById("formulaInput")
 let functionPanelElement = document.getElementById("operationEditorContainer")
@@ -39,7 +38,7 @@ function updateParameterTab() {
     if (currentInput != null && currentInput.startsWith("=")) {
         cut = currentInput.indexOf("(")
         name = currentInput.substring(1, cut === -1 ? currentInput.length : cut)
-        found = functions[name]
+        found = getFunction(name)
     }
 
     if (found == null) {
