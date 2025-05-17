@@ -6,7 +6,7 @@ import org.kobjects.pi4jdriver.display.lcd.LcdDriver
 import org.kobjects.tablecraft.pluginapi.*
 import kotlin.math.min
 
-class Lcd1602(
+class Lcd(
     val plugin: Pi4jPlugin,
     val bus: Int,
     val address: Int,
@@ -24,8 +24,10 @@ class Lcd1602(
 
         val range = value as RangeValues
         for (row in 0 until min(range.height, height)) {
-            lcdDriver?.setCursorPosition(row, 0)
-            lcdDriver?.write(range[0, row].toString())
+            for (col in 0 until range.width) {
+                lcdDriver?.setCursorPosition(row, width * col / range.width)
+                lcdDriver?.write(range[col, row].toString())
+            }
         }
 
     }
@@ -67,7 +69,7 @@ class Lcd1602(
                 ParameterSpec("width", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)),
                 ParameterSpec("height", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)),
         )) {
-            Lcd1602(plugin, it["bus"] as Int? ?: 1, it["address"] as Int? ?: 0x76, it["width"] as Int? ?: 16, it["height"] as Int? ?: 2) }
+            Lcd(plugin, it["bus"] as Int? ?: 1, it["address"] as Int? ?: 0x76, it["width"] as Int? ?: 16, it["height"] as Int? ?: 2) }
     }
 
 }
