@@ -20,7 +20,7 @@ abstract class AbstractArtifactSpec(
         for (paramSpec in parameters) {
             val paramName = paramSpec.name
             val rawValue = rawConfig[paramName]
-            if (rawValue == null) {
+            if (rawValue == null || rawValue == Unit) {
                 require (paramSpec.modifiers.contains(ParameterSpec.Modifier.OPTIONAL)) {
                     "Missing mandatory configuration parameter: $paramName for $name"
                 }

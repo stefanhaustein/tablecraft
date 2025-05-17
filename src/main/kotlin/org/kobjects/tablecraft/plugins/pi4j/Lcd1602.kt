@@ -8,16 +8,20 @@ import kotlin.math.min
 
 class Lcd1602(
     val plugin: Pi4jPlugin,
+    val bus: Int,
+    val address: Int,
     val width: Int,
     val height: Int,
-    val bus: Int,
-    val address: Int
 )  : OutputPortInstance {
 
     var lcdDriver: LcdDriver? = null
     var error: Exception? = null
 
     override fun setValue(value: Any) {
+        if (error != null) {
+            throw IllegalStateException("Lcd Driver initialization error", error)
+        }
+
         val range = value as RangeValues
         for (row in 0 until min(range.height, height)) {
             lcdDriver?.setCursorPosition(row, 0)
@@ -35,7 +39,7 @@ class Lcd1602(
                     .provider("linuxfs-i2c")
                     .build()
             )
-            lcdDriver = LcdDriver.create(i2c, width, height)
+            lcdDriver = LcdDriver.create(i2c, height, width)
             error = null
         } catch (e: Exception) {
             error = e
