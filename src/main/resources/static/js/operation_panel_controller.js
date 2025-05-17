@@ -9,7 +9,7 @@ export function processFunction(name, spec) {
     spec.name = name
     functions[name] = spec
     updateSpec(operationListContainerElement, "op.details.", spec, async () => {
-        let value = "=" + spc.name + "("
+        let value = "=" + spec.name + "("
         if (currentCellData.f == null || currentCellData.f == "" || await confirmDialog("Overwrite Current Formula?", currentCellId + ": '" + currentCellData.f + "'")) {
             setCurrentCellFormula("=" + spec.name + "(")
         }

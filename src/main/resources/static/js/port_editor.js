@@ -42,10 +42,10 @@ export function showPortDialog(constructorSpec, portSpec) {
     let portSchema = [{
         "name": "name",
         "validation": {
-            "Integration name conflict": (name) => integrations[name] == null,
-            "Factory name conflict": (name) => factories[name] == null,
-            "Function name conflict": (name) => ifunctions[name] == null,
-            "Port name conflict": (name) => ports[name] == null || (portSpec != null && name == portSpec.name),
+            "Integration name conflict": (name) => integrations[name.toLowerCase()] == null,
+            "Factory name conflict": (name) => factories[name.toLowerCase()] == null,
+            "Function name conflict": (name) => functions[name.toLowerCase()] == null,
+            "Port name conflict": (name) => ports[name.toLowerCase()] == null || (portSpec != null && name.toLowerCase() == portSpec.name.toLowerCase()),
             "Valid: letters, '_', digits after '_'": /^[a-zA-Z]+(_[a-zA-Z0-9_]*)?$/
         }}]
 
@@ -71,8 +71,9 @@ export function showPortDialog(constructorSpec, portSpec) {
     let okButton = document.createElement("button")
     okButton.textContent = portSpec == null ? "Create" : "Ok"
 
-    for (let name in factories) {
-        let f = factories[name]
+    for (let key in factories) {
+        let f = factories[key]
+        let name = f.name
         if (f.kind == kind) {
             let typeOptionElement = document.createElement("option")
             typeOptionElement.textContent = name
@@ -86,7 +87,7 @@ export function showPortDialog(constructorSpec, portSpec) {
 
     typeSelectElement.addEventListener("input", () => {
         let type = typeSelectElement.value
-        constructorSpec = factories[type]
+        constructorSpec = factories[type.toLowerCase()]
         if (constructorSpec != null) {
             bindingFormController = renderBinding(bindingDiv, constructorSpec, instanceSpec)
         }

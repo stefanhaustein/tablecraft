@@ -42,7 +42,7 @@ export function processPortUpdate(name, f) {
             entryElement.parentElement.removeChild(entryElement)
         }
     } else {
-        let spec = factories[f.type]
+        let spec = factories[f.type.toLowerCase()]
         let entryElement = document.createElement("div")
         entryElement.id = "port." + f.name
         entryElement.className = "port"

@@ -186,7 +186,7 @@ function processSheetCellsUpdate(name, map) {
 
 function processFactoryUpdate(name, f) {
     f.name = name
-    factories[f.name] = f
+    factories[f.name.toLowerCase()] = f
 
     switch (f.kind) {
         case "INTEGRATION":

@@ -32,7 +32,7 @@ export function processIntegrationUpdate(name, integration) {
             integrationListElement.appendChild(element)
 
             element.onclick = () => {
-                let spec = factories[integration.type]
+                let spec = factories[integration.type.toLowerCase()]
                 showIntegrationInstanceConfigurationDialog(spec, integration)
             }
         }
@@ -55,8 +55,8 @@ async function showIntegrationCreationDialog(spec) {
             label: "Name",
             modifiers: ["CONSTANT"],
             validation: {
-                "Integration name conflict": (name) => integrations[name] == null && (factories[name] == null || factories[name] == spec),
-                "Port name conflict": (name) => ports[name] == null,
+                "Integration name conflict": (name) => integrations[name.toLowerCase()] == null && (factories[name.toLowerCase()] == null || factories[name.toLowerCase()] == spec),
+                "Port name conflict": (name) => ports[name.toLowerCase()] == null,
                 "Valid: letters, non-leading '_' or digits": /^[a-zA-Z][a-zA-Z_0-9]*$/
             }
         })

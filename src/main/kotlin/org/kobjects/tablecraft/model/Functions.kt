@@ -7,12 +7,12 @@ class Functions : Iterable<FunctionSpec> {
     private val functionMap = mutableMapOf<String, FunctionSpec>()
 
     fun add(function: FunctionSpec) {
-        functionMap[function.name] = function
+        functionMap[function.name.lowercase()] = function
     }
 
     override fun iterator() = functionMap.values.iterator()
 
-    operator fun get(name: String): FunctionSpec? = functionMap[name]
+    operator fun get(name: String): FunctionSpec? = functionMap[name.lowercase()]
 
 
     fun serialize(tag: Long): String {
