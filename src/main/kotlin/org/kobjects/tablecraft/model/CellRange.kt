@@ -9,7 +9,7 @@ import java.lang.Integer.min
 class CellRange(
     val sheet: Sheet,
     definition: String
-) : RangeValues {
+): Iterable<Cell> {
     val fromColumn: Int
     val toColumn: Int   // Inclusive
     val fromRow: Int
@@ -34,24 +34,16 @@ class CellRange(
         }
     }
 
-    override val width: Int
+    val width: Int
         get() = toColumn - fromColumn + 1
 
-    override val height: Int
+    val height: Int
         get() = toRow - fromRow + 1
 
-    override fun get(column: Int, row: Int) =
-        sheet.getOrCreateCell(Cell.id(column + fromColumn, row + fromRow))
-    
+    operator fun get(x: Int, y: Int) =
+        sheet.getOrCreateCell(Cell.id(x + fromColumn, y + fromRow))
 
-    override fun iterator(): Iterator<Any> = object : Iterator<Any> {
-        val cellIterator = cellIterator()
-
-        override fun hasNext() = cellIterator.hasNext()
-        override fun next() = cellIterator.next().value
-    }
-
-    fun cellIterator(): Iterator<Cell> {
+    override fun iterator(): Iterator<Cell> {
         val result = mutableListOf<Cell>()
         for (r in fromRow..toRow) {
             for (c in fromColumn..toColumn) {

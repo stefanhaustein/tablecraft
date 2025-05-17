@@ -50,7 +50,7 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
                 if (name.contains(":")) {
                     CellRangeReference(context.expressionNode,  cellRange)
                 } else {
-                    CellReference(context.expressionNode, cellRange.cellIterator().next())
+                    CellReference(context.expressionNode, cellRange.iterator().next())
                 }
             }
             TcTokenType.IDENTIFIER -> {
