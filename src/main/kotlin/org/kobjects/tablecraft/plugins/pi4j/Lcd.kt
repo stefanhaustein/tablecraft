@@ -25,8 +25,10 @@ class Lcd(
         val range = value as RangeValues
         for (row in 0 until min(range.height, height)) {
             for (col in 0 until range.width) {
-                lcdDriver?.setCursorPosition(row, width * col / range.width)
-                lcdDriver?.write(range[col, row].toString())
+                val xPos = col * width / range.width
+                lcdDriver?.setCursorPosition(row, xPos)
+                val columnWidth = (col + 1) * width / range.width - xPos
+                lcdDriver?.write(range[col, row].toString().take(columnWidth))
             }
         }
 
