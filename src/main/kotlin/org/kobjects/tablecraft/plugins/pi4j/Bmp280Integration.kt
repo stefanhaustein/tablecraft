@@ -6,7 +6,7 @@ import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.pluginapi.*
 import java.util.*
 
-class Bmp280I2cIntegration(
+class Bmp280Integration(
     val plugin: Pi4jPlugin,
     kind: String,
     name: String,
@@ -69,7 +69,7 @@ class Bmp280I2cIntegration(
 
 
     class Bmp280Port(
-        val integration: Bmp280I2cIntegration,
+        val integration: Bmp280Integration,
         val kind: MeasurementType
     ) : InputPortInstance {
         var host: ValueChangeListener? = null
@@ -77,8 +77,12 @@ class Bmp280I2cIntegration(
 
         fun update(token: ModificationToken) {
             val newValue = when(kind) {
-                MeasurementType.C -> integration.bmp280?.getTemperatureC()
-                MeasurementType.MBAR -> integration.bmp280?.getPressureMb()
+                MeasurementType.TEMP_C -> integration.bmp280?.getTemperatureC()
+                MeasurementType.TEMP_F -> integration.bmp280?.getTemperatureF()
+                MeasurementType.PRESS_PA -> integration.bmp280?.getPressurePa()
+                MeasurementType.PRESS_MBAR -> integration.bmp280?.getPressureMb()
+                MeasurementType.PRESS_IN_HG -> integration.bmp280?.getPressureInHg()
+                MeasurementType.HUMIDITY -> integration.bmp280?.getHumidity()
             } ?: Double.NaN
             if (value != newValue) {
                 value = newValue
@@ -100,7 +104,7 @@ class Bmp280I2cIntegration(
         }
 
         companion object {
-            fun spec(integration: Bmp280I2cIntegration) = InputPortSpec(
+            fun spec(integration: Bmp280Integration) = InputPortSpec(
                 Type.REAL,
                 integration.name + ".value",
                 "Returns a measurement value of the BMP 280 sensor",
@@ -112,7 +116,9 @@ class Bmp280I2cIntegration(
     }
 
     enum class MeasurementType {
-        C, MBAR;
+        TEMP_C, TEMP_F,
+        PRESS_MBAR, PRESS_PA, PRESS_IN_HG,
+        HUMIDITY;
     }
 
 
@@ -127,7 +133,7 @@ class Bmp280I2cIntegration(
                 ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT)),
                 )
         ) { FACTORY_NAME, name, tag, configuration ->
-            Bmp280I2cIntegration(plugin, FACTORY_NAME, name, tag, configuration)
+            Bmp280Integration(plugin, FACTORY_NAME, name, tag, configuration)
         }
     }
 
