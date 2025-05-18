@@ -22,7 +22,7 @@
  *  License along with this program.  If not, see
  *  <http://www.gnu.org/licenses/lgpl-3.0.html>.
  */
-package org.kobjects.pi4jdriver.sensor.bmp280;
+package org.kobjects.pi4jdriver.sensor.environment.bmx280;
 
 /**
  * <p>BMP280 Sensor interface.</p>
@@ -33,13 +33,13 @@ package org.kobjects.pi4jdriver.sensor.bmp280;
  * This class permits the BMP280 device to create additional methods specific to the
  * BMP280 .
  */
-public interface Bmp280Io {
-
+public abstract class AbstractConnection {
+    private final byte[] ioBuf = new byte[2];
     /**
      * @param register
      * @return 8bit value read from register
      */
-    int readRegister(int register);
+    abstract int readU8Register(int register);
 
     /**
      *
@@ -54,15 +54,31 @@ public interface Bmp280Io {
      * @param buffer   Buffer to return read data
      * @return count     number bytes read or fail -1
      */
-    int readRegister(int register, byte[] buffer);
+    abstract int readRegister(int register, byte[] buffer);
 
     /**
      * @param register byte register
      * @param data     byte data to write
      * @return bytes written, else -1
      */
-    int writeRegister(int register, int data);
+    abstract int writeU8Register(int register, int data);
 
+    final int readS16Register(int register) {
+        int count = readRegister(register, ioBuf);
+        if (count != 2) {
+            throw new IllegalStateException("Expected two bytes reading register "+ register +"; received: " + count);
+        }
+        return (ioBuf[0] & 0xff) | (ioBuf[1] << 8);
+    }
+
+    final int readU16Register(int register) {
+        return readS16Register(register) & 0xFFFF;
+    }
+
+    final int readS8Register(int register) {
+        int unsigned = readU8Register(register);
+        return unsigned > 128 ? unsigned | 0xffff_fff0 : unsigned;
+    }
 }
 
 

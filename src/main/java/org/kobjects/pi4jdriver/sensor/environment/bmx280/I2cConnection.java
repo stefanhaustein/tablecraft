@@ -7,7 +7,7 @@
  *     * **********************************************************************
  *     * ORGANIZATION  :  Pi4J
  *     * PROJECT       :  Pi4J :: EXTENSION
- *     * FILENAME      :  BMP280DeviceSPI.java
+ *     * FILENAME      :  BMP280DeviceI2C.java
  *     *
  *     * This file is part of the Pi4J project. More information about
  *     * this project can be found here:  https://pi4j.com/
@@ -33,51 +33,26 @@
  *
  *
  */
-package org.kobjects.pi4jdriver.sensor.bmp280;
 
-import com.pi4j.context.Context;
-import com.pi4j.io.gpio.digital.DigitalOutput;
-import com.pi4j.io.gpio.digital.DigitalState;
-import com.pi4j.io.spi.*;
-import com.pi4j.util.Console;
-import org.slf4j.LoggerFactory;
+package org.kobjects.pi4jdriver.sensor.environment.bmx280;
 
+import com.pi4j.io.i2c.I2C;
 
-/*
-SPI operates mode0 or mode1
-Register address use the MSB to indicate read (1) or write (0)
-Access register 0x7f
-    Read access transfer 0xf7
-    Write access transfer 0x77
+class I2cConnection extends AbstractConnection {
 
- Write 2 bytes to register 0xF7
- Send  0x77  byte1   0x77 byte2
+    // local/internal I2C reference for communication with hardware chip
+    private final  I2C i2c;
 
- Read two bytes from register 0xf7
- Send 0xf7  rcv byte1  rcv byte2
-
-
- */
-
-public class Bmp280IoSpi implements Bmp280Io {
-    private final Spi spi;
-    private final DigitalOutput csGpio;
-
-    public Bmp280IoSpi(Spi spi, DigitalOutput csGpio) {
-        this.spi = spi;
-        this.csGpio = csGpio;
+    public I2cConnection(I2C i2c) {
+        this.i2c = i2c;
     }
 
     /**
      * @param register
      * @return 8bit value read from register
      */
-    public int readRegister(int register) {
-        csGpio.low();
-        spi.write((byte) (0b10000000 | register));
-        byte rval = this.spi.readByte();
-        csGpio.high();
-        return rval;
+    public int readU8Register(int register) {
+        return i2c.readRegister(register);
     }
 
     /**
@@ -86,25 +61,15 @@ public class Bmp280IoSpi implements Bmp280Io {
      * @return count     number bytes read or fail -1
      */
     public int readRegister(int register, byte[] buffer) {
-        this.csGpio.low();
-        this.spi.write((byte) (0b10000000 | register));
-        int bytesRead = spi.read(buffer);
-        this.csGpio.high();
-        return bytesRead;
+        return i2c.readRegister(register, buffer);
     }
-
 
     /**
      * @param register register
      * @param data     byte to write
      * @return bytes written, else -1
      */
-    public int writeRegister(int register, int data) {
-        // send read request to BMP chip via SPI channel
-        this.csGpio.low();
-        int byteswritten = spi.write((byte) (0b01111111 & register), (byte) data);
-        this.csGpio.high();
-        return byteswritten;
+    public int writeU8Register(int register, int data) {
+        return i2c.writeRegister(register, data);
     }
 }
-

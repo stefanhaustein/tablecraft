@@ -26,13 +26,12 @@
  *  License along with this program.  If not, see
  *  <http://www.gnu.org/licenses/lgpl-3.0.html>.
  */
-package org.kobjects.pi4jdriver.examples.sensor.bmp280;
+package org.kobjects.pi4jdriver.examples.sensor.environment.bmx280;
 
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
-import org.kobjects.pi4jdriver.sensor.bmp280.Bmp280Driver;
-import org.kobjects.pi4jdriver.sensor.bmp280.Bmp280IoI2c;
+import org.kobjects.pi4jdriver.sensor.environment.bmx280.Bmx280Driver;
 
 
 /**
@@ -41,7 +40,7 @@ import org.kobjects.pi4jdriver.sensor.bmp280.Bmp280IoI2c;
 public class Bmp280I2cExample {
 
     private static final int I2C_BUS = 1;
-    private static final int I2C_ADDRESS = 0x76;
+    private static final int I2C_ADDRESS = 0x77;
 
     public static void main(String[] args) throws Exception {
         
@@ -53,14 +52,25 @@ public class Bmp280I2cExample {
                 .provider("linuxfs-i2c")
                 .build());
 
-        Bmp280Driver bmp280 = Bmp280Driver.create(i2c);
+        Bmx280Driver bmp280 = Bmx280Driver.create(i2c);
 
 
-        System.out.println(" Temperatue C = " + bmp280.temperatureC());
-        System.out.println(" Temperatue F = " + bmp280.temperatureF());
-        System.out.println(" Pressure Pa = " + bmp280.pressurePa());
-        System.out.println(" Pressure InHg = " + bmp280.pressureIn());
-        System.out.println(" Pressure mb = " + bmp280.pressureMb());
+         bmp280.reset();
+
+         for (int i = 0; i < 10; i++) {
+
+             bmp280.readMeasurements();
+
+        System.out.println(" Sensor Type: " + bmp280.getSensorType());
+
+        System.out.println(" Temperature C = " + bmp280.getTemperatureC());
+        System.out.println(" Temperature F = " + bmp280.getTemperatureF());
+        System.out.println(" Pressure Pa = " + bmp280.getPressurePa());
+        System.out.println(" Pressure InHg = " + bmp280.getPressureInHg());
+        System.out.println(" Pressure mb = " + bmp280.getPressureMb());
+        System.out.println(" Humidity = " + bmp280.getHumidity());
+
+         }
 
 
         // Shutdown Pi4J

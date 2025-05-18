@@ -27,7 +27,7 @@
  * limitations under the License.
  */
 
-package org.kobjects.pi4jdriver.examples.sensor.bmp280;
+package org.kobjects.pi4jdriver.examples.sensor.environment.bmx280;
 
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
@@ -35,8 +35,7 @@ import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.pi4j.io.spi.*;
 
-import org.kobjects.pi4jdriver.sensor.bmp280.Bmp280Driver;
-import org.kobjects.pi4jdriver.sensor.bmp280.Bmp280IoSpi;
+import org.kobjects.pi4jdriver.sensor.environment.bmx280.Bmx280Driver;
 
 /**
  * Sample application accessing the BMP280 sensor chip via SPI.
@@ -60,13 +59,14 @@ public class Bmp280SpiExample {
                 .shutdown(DigitalState.HIGH)
                 .initial(DigitalState.HIGH));
 
-        var bmp280 = Bmp280Driver.create(spi, csPin);
+        var bmp280 = Bmx280Driver.create(spi, csPin);
 
-        System.out.println(" Temperatue C = " + bmp280.temperatureC());
-        System.out.println(" Temperatue F = " + bmp280.temperatureF());
-        System.out.println(" Pressure Pa = " + bmp280.pressurePa());
-        System.out.println(" Pressure InHg = " + bmp280.pressureIn());
-        System.out.println(" Pressure mb = " + bmp280.pressureMb());
+        System.out.println(" Recognized Sensor type: " + bmp280.getSensorType());
+        System.out.println(" Temperatue C = " + bmp280.getTemperatureC());
+        System.out.println(" Temperatue F = " + bmp280.getTemperatureF());
+        System.out.println(" Pressure Pa = " + bmp280.getPressurePa());
+        System.out.println(" Pressure InHg = " + bmp280.getPressureInHg());
+        System.out.println(" Pressure mb = " + bmp280.getPressureMb());
 
 
         // Shutdown Pi4J

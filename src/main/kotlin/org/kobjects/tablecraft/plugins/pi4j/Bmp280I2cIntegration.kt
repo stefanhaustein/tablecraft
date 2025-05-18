@@ -1,7 +1,7 @@
 package org.kobjects.tablecraft.plugins.pi4j
 
 import com.pi4j.io.i2c.I2C
-import org.kobjects.pi4jdriver.sensor.bmp280.Bmp280Driver
+import org.kobjects.pi4jdriver.sensor.environment.bmx280.Bmx280Driver
 import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.pluginapi.*
 import java.util.*
@@ -15,7 +15,7 @@ class Bmp280I2cIntegration(
 ) : IntegrationInstance (
     kind, name, tag
 ) {
-    var bmp280: Bmp280Driver? = null
+    var bmp280: Bmx280Driver? = null
     var error: Exception? = null
 
     val timer = Timer()
@@ -49,7 +49,7 @@ class Bmp280I2cIntegration(
                     .build()
             )
 
-            bmp280 = Bmp280Driver.create(i2c)
+            bmp280 = Bmx280Driver.create(i2c)
 
             error = null
         } catch (e: Exception) {
@@ -77,8 +77,8 @@ class Bmp280I2cIntegration(
 
         fun update(token: ModificationToken) {
             val newValue = when(kind) {
-                MeasurementType.C -> integration.bmp280?.temperatureC()
-                MeasurementType.MBAR -> integration.bmp280?.pressureMb()
+                MeasurementType.C -> integration.bmp280?.getTemperatureC()
+                MeasurementType.MBAR -> integration.bmp280?.getPressureMb()
             } ?: Double.NaN
             if (value != newValue) {
                 value = newValue
