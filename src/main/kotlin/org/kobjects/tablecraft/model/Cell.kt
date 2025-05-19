@@ -121,21 +121,6 @@ class Cell(
 
     override fun toString() = qualifiedId() + ":" + rawFormula// rawFormula
 
-
-    override fun equivalentNodes(): Set<Node> {
-        val eq = mutableSetOf<Node>(this)
-        if (expression is PortReference) {
-            eq.addAll((expression as PortReference).port.equivalentNodes())
-        }
-        for (dep in dependencies) {
-            if (dep is OutputPortHolder) {
-                eq.addAll(dep.equivalentNodes())
-            }
-        }
-        return eq.toSet()
-    }
-
-
     companion object {
         val TIME_FORMAT_MINUTES = LocalTime.Format {
             hour(); char(':'); minute(); // char(':'); second()

@@ -111,7 +111,7 @@ export function processPortUpdate(name, f) {
             if (f.equivalent.indexOf(f.name) == -1) {
                 f.equivalent.push(name)
             }
-            showDependencies(f)
+            showDependencies(f.name)
         }
     }
 }

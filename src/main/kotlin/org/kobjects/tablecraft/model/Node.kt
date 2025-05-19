@@ -12,34 +12,14 @@ interface Node {
     fun detach()
 
     fun qualifiedId(): String
-    fun equivalentNodes(): Set<Node>
 
     fun serializeDependencies(sb: StringBuilder) {
-        val eq = equivalentNodes()
-        val saturatedInputs = mutableSetOf<Node>()
-        val saturatedDependencies = mutableSetOf<Node>()
-        for (node in eq) {
-            for (dependency in node.dependencies) {
-                saturatedDependencies.addAll(dependency.equivalentNodes())
-            }
-            for (input in node.inputs) {
-                saturatedInputs.addAll(input.equivalentNodes())
-            }
-        }
-        saturatedInputs.removeAll(eq)
-        saturatedDependencies.removeAll(eq)
-
-        val otherEq = eq.filter { it != this }
-        if (otherEq.isNotEmpty()) {
-            sb.append(""", "equivalent":[${otherEq.joinToString(",") {
+        if (inputs.isNotEmpty()) {
+            sb.append(""", "inputs":[${inputs.joinToString(",") {
                 it.qualifiedId().quote() }}]""")
         }
-        if (saturatedInputs.isNotEmpty()) {
-            sb.append(""", "inputs":[${saturatedInputs.joinToString(",") {
-                it.qualifiedId().quote() }}]""")
-        }
-        if (saturatedDependencies.isNotEmpty()) {
-            sb.append(""", "dependencies":[${saturatedDependencies.joinToString(",") {
+        if (dependencies.isNotEmpty()) {
+            sb.append(""", "dependencies":[${dependencies.joinToString(",") {
                 it.qualifiedId().quote() }}]""")
         }
     }

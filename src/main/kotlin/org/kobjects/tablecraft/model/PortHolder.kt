@@ -13,15 +13,4 @@ interface PortHolder: ValueChangeListener, ToJson, Node {
     fun reset(simulationMode: Boolean, token: ModificationToken)
 
     override fun qualifiedId() = name
-
-    override fun equivalentNodes(): Set<Node> {
-        val nodes = mutableSetOf<Node>(this)
-        nodes.addAll(inputs)
-        for (node in dependencies) {
-            if (node is Cell && node.expression is PortReference) {
-                nodes.add(node)
-            }
-        }
-        return nodes.toSet()
-    }
 }

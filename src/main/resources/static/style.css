@@ -51,7 +51,7 @@ html {
     background-color: #fce4cd;
 }
 
-.equivalent {
+#inputPortList .self, #outputPortList .self {
     background-color: #ddd;
 }
 
