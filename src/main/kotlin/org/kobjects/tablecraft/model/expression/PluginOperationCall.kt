@@ -1,11 +1,11 @@
 package org.kobjects.tablecraft.model.expression
 
-import org.kobjects.tablecraft.model.ExpressionNode
+import org.kobjects.tablecraft.model.Cell
 import org.kobjects.tablecraft.pluginapi.ModificationToken
 import org.kobjects.tablecraft.pluginapi.*
 
 class PluginOperationCall(
-    val owner: ExpressionNode,
+    val owner: Cell,
     operationSpec: FunctionSpec,
     val configuration: Map<String, Any>,
     val parameters: Map<String, Pair<Expression, Type>>
@@ -48,7 +48,7 @@ class PluginOperationCall(
 
 
     companion object {
-        fun create(expressionHolder: ExpressionNode, operationSpec: FunctionSpec, parameters: Map<String, Expression>): PluginOperationCall {
+        fun create(expressionHolder: Cell, operationSpec: FunctionSpec, parameters: Map<String, Expression>): PluginOperationCall {
             val mappedConfig = mutableMapOf<String, Any>()
             val mappedParameters = mutableMapOf<String, Pair<Expression, Type>>()
             for ((index, specParam) in operationSpec.parameters.withIndex()) {

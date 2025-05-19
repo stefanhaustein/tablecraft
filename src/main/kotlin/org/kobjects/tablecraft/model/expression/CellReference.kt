@@ -1,10 +1,9 @@
 package org.kobjects.tablecraft.model.expression;
 
 import org.kobjects.tablecraft.model.Cell
-import org.kobjects.tablecraft.model.ExpressionNode
 
 class CellReference(
-    owner: ExpressionNode,
+    owner: Cell,
     val target: Cell
 ) : Expression() {
 

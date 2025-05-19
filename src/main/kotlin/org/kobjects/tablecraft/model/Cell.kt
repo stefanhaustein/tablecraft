@@ -5,13 +5,18 @@ import kotlinx.datetime.format.char
 import org.kobjects.tablecraft.json.ToJson
 import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.json.toJson
+import org.kobjects.tablecraft.model.expression.EvaluationContext
+import org.kobjects.tablecraft.model.expression.Expression
+import org.kobjects.tablecraft.model.expression.Literal
 import org.kobjects.tablecraft.model.expression.PortReference
+import org.kobjects.tablecraft.model.parser.ParsingContext
+import org.kobjects.tablecraft.model.parser.TcFormulaParser
 import org.kobjects.tablecraft.pluginapi.ModificationToken
 
 class Cell(
     val sheet: Sheet,
     id: String
-) : ExpressionNode(), Iterable<Cell>, ToJson {
+) : Node, Iterable<Cell>, ToJson {
 
     val column: Int
     val row: Int
@@ -24,8 +29,75 @@ class Cell(
     val id: String
         get() = id(column, row)
 
-    override var rawFormula = ""
+    var rawFormula = ""
     var image: String? = null
+
+    var validation: Map<String, Any?>? = null
+
+    var expression: Expression = Literal(Unit)
+    override var value: Any = Unit
+
+    override var valueTag = 0L
+    var formulaTag = 0L
+
+    override val inputs = mutableSetOf<Node>()
+    override val dependencies = mutableSetOf<Node>()
+
+
+    override fun updateValue(tag: Long): Boolean {
+        var newValue: Any
+        try {
+            newValue = expression.eval(EvaluationContext())
+        } catch (e: Exception) {
+            e.printStackTrace()
+            newValue = e
+        }
+        return if (newValue == value) false else {
+            value = newValue
+            valueTag = tag
+            true
+        }
+    }
+
+    override fun detach() {
+        clearDependsOn()
+    }
+
+    fun clearDependsOn() {
+        for (dep in inputs) {
+            dep.dependencies.remove(this)
+        }
+        inputs.clear()
+    }
+
+    fun reparse() {
+        clearDependsOn()
+        expression.detachAll()
+        expression = if (rawFormula.startsWith("=")) {
+            try {
+                val context = ParsingContext(this)
+                val parsed = TcFormulaParser.parseExpression(rawFormula.substring(1), context)
+                parsed.attachAll()
+                parsed
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Literal(e)
+            }
+        } else {
+            when (rawFormula.lowercase()) {
+                "true" -> Literal(true)
+                "false" -> Literal(false)
+                else -> {
+                    try {
+                        Literal(Values.parseNumber(rawFormula))
+                    } catch (e: Exception) {
+                        Literal(rawFormula)
+                    }
+                }
+            }
+        }
+    }
+
 
 
     fun setFormula(value: String, modificationToken: ModificationToken) {

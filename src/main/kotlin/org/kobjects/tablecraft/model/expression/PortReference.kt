@@ -3,7 +3,7 @@ package org.kobjects.tablecraft.model.expression;
 import org.kobjects.tablecraft.model.*
 
 class PortReference(
-    owner: ExpressionNode,
+    owner: Cell,
     val port: PortHolder
 
 ) : Expression() {

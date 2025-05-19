@@ -45,12 +45,12 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
             }
             TcTokenType.CELL_IDENTIFIER -> {
                 val name = scanner.consume().text
-                val cellRange = CellRange.parse(name, (context.expressionNode as? Cell)?.sheet)
+                val cellRange = CellRange.parse(name, context.cell.sheet)
 
                 if (name.contains(":")) {
-                    CellRangeReference(context.expressionNode,  cellRange)
+                    CellRangeReference(context.cell,  cellRange)
                 } else {
-                    CellReference(context.expressionNode, cellRange.iterator().next())
+                    CellReference(context.cell, cellRange.iterator().next())
                 }
             }
             TcTokenType.IDENTIFIER -> {
@@ -73,13 +73,13 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
                         val lowercase = name.lowercase()
                         val functionSpec = Model.functions[lowercase] as FunctionSpec?
                         if (functionSpec != null) {
-                            PluginOperationCall.create(context.expressionNode, functionSpec, parameterList)
+                            PluginOperationCall.create(context.cell, functionSpec, parameterList)
                         } else {
                             val port = Model.ports[lowercase]
                             require(port != null) {
                                 "Unresolved identifier $lowercase"
                             }
-                            PortReference(context.expressionNode, port)
+                            PortReference(context.cell, port)
                         }
                     }
                 }

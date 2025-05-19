@@ -1,11 +1,11 @@
 package org.kobjects.tablecraft.model.expression;
 
+import org.kobjects.tablecraft.model.Cell
 import org.kobjects.tablecraft.model.CellRange
 import org.kobjects.tablecraft.model.CellRangeValues
-import org.kobjects.tablecraft.model.ExpressionNode
 
 class CellRangeReference(
-    owner: ExpressionNode,
+    owner: Cell,
     val target: CellRange
 ) : Expression() {
 
