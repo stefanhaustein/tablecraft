@@ -4,11 +4,11 @@ let integrations = {}
 let ports = {}
 
 export function getAllPorts() {
-    return ports.values
+    return Object.values(ports)
 }
 
 export function getAllFactories() {
-    return factories.values
+    return Object.values(factories)
 }
 
 export function getFactory(name) {

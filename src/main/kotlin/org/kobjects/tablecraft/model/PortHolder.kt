@@ -1,7 +1,6 @@
 package org.kobjects.tablecraft.model
 
 import org.kobjects.tablecraft.json.ToJson
-import org.kobjects.tablecraft.model.expression.PortReference
 import org.kobjects.tablecraft.pluginapi.*
 
 // Can't be an abstract class because ExpressionNode already is a superclass of OutputPortHolder.

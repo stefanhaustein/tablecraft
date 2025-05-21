@@ -2,7 +2,7 @@ package org.kobjects.tablecraft.model
 
 import org.kobjects.tablecraft.pluginapi.RangeValues
 
-class CellRangeValues(val cellRange: CellRange): RangeValues {
+class CellRangeValues(val cellRange: CellRangeReference): RangeValues {
 
     val values = Array<Any>(cellRange.width * cellRange.height) {
         cellRange[it % cellRange.width, it / cellRange.width].value }

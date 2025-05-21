@@ -52,7 +52,7 @@ html {
 }
 
 #inputPortList .self, #outputPortList .self {
-    background-color: #ddd;
+    background-color: lightblue;
 }
 
 h2, h3 {

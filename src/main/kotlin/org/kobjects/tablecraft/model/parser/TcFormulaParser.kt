@@ -2,8 +2,7 @@ package org.kobjects.tablecraft.model.parser
 
 import org.kobjects.parsek.expression.Operator
 import org.kobjects.parsek.expression.PrattParser
-import org.kobjects.tablecraft.model.Cell
-import org.kobjects.tablecraft.model.CellRange
+import org.kobjects.tablecraft.model.CellRangeReference
 import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.model.expression.*
 import org.kobjects.tablecraft.pluginapi.FunctionSpec
@@ -45,12 +44,12 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
             }
             TcTokenType.CELL_IDENTIFIER -> {
                 val name = scanner.consume().text
-                val cellRange = CellRange.parse(name, context.cell.sheet)
+                val cellRange = CellRangeReference.parse(name, context.cell.sheet)
 
                 if (name.contains(":")) {
-                    CellRangeReference(context.cell,  cellRange)
+                    CellRangeExpression(context.cell,  cellRange)
                 } else {
-                    CellReference(context.cell, cellRange.iterator().next())
+                    CellExpression(context.cell, cellRange.iterator().next())
                 }
             }
             TcTokenType.IDENTIFIER -> {
@@ -79,7 +78,7 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
                             require(port != null) {
                                 "Unresolved identifier $lowercase"
                             }
-                            PortReference(context.cell, port)
+                            PortExpression(context.cell, port)
                         }
                     }
                 }

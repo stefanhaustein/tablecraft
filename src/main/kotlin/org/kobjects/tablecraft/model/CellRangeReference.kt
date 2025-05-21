@@ -1,12 +1,9 @@
 package org.kobjects.tablecraft.model
 
-import org.kobjects.tablecraft.model.expression.CellRangeReference
-import org.kobjects.tablecraft.model.expression.CellReference
-import org.kobjects.tablecraft.pluginapi.RangeValues
 import java.lang.Integer.max
 import java.lang.Integer.min
 
-class CellRange(
+class CellRangeReference(
     val sheet: Sheet,
     definition: String
 ): Iterable<Cell> {
@@ -55,20 +52,20 @@ class CellRange(
 
     companion object {
 
-        fun parse(name: String, impliedSheet: Sheet? = null): CellRange {
+        fun parse(name: String, impliedSheet: Sheet? = null): CellRangeReference {
             val cut = name.indexOf("!")
             if (cut == -1) {
                 require(impliedSheet != null) {
                     "Cannot parse cell reference '${name}' without explicit sheet reference"
                 }
-                return CellRange(impliedSheet, name)
+                return CellRangeReference(impliedSheet, name)
             }
             val sheetName = name.substring(0, cut)
             val sheet = Model.sheets[sheetName] ?: throw IllegalArgumentException(
                     "Sheet '$sheetName' not found.")
 
             val localName = name.substring(name.indexOf('!') + 1)
-            return CellRange(sheet, localName)
+            return CellRangeReference(sheet, localName)
         }
 
 

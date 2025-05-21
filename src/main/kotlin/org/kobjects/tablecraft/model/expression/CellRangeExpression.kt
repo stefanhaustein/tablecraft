@@ -1,12 +1,12 @@
 package org.kobjects.tablecraft.model.expression;
 
 import org.kobjects.tablecraft.model.Cell
-import org.kobjects.tablecraft.model.CellRange
+import org.kobjects.tablecraft.model.CellRangeReference
 import org.kobjects.tablecraft.model.CellRangeValues
 
-class CellRangeReference(
+class CellRangeExpression(
     owner: Cell,
-    val target: CellRange
+    val target: CellRangeReference
 ) : Expression() {
 
     init {

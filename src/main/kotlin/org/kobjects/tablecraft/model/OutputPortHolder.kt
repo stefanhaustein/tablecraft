@@ -14,7 +14,7 @@ class OutputPortHolder(
     val instance = specification.createFn(configuration)
     var error: Exception? = null
     var attached = false
-    var cellRange: CellRange? = null
+    var cellRange: CellRangeReference? = null
     var singleCell = false
     override var value: Any = Unit
     override var valueTag: Long = tag
@@ -55,15 +55,21 @@ class OutputPortHolder(
     fun reparse() {
         singleCell = !rawFormula.contains(":")
         val rawReference = if (rawFormula.startsWith("=")) rawFormula.substring(1) else rawFormula
-        cellRange = CellRange.parse(rawReference)
+        cellRange = CellRangeReference.parse(rawReference)
 
-        inputs.clear()
+        clearDependsOn()
         for (cell in cellRange!!) {
             inputs.add(cell)
+            cell.dependencies.add(this)
         }
-
     }
 
+    fun clearDependsOn() {
+        for (dep in inputs) {
+            dep.dependencies.remove(this)
+        }
+        inputs.clear()
+    }
 
     override fun reset(simulationMode: Boolean, token: ModificationToken) {
         detach()

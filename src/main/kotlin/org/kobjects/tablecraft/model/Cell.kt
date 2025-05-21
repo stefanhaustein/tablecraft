@@ -8,7 +8,6 @@ import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.model.expression.EvaluationContext
 import org.kobjects.tablecraft.model.expression.Expression
 import org.kobjects.tablecraft.model.expression.Literal
-import org.kobjects.tablecraft.model.expression.PortReference
 import org.kobjects.tablecraft.model.parser.ParsingContext
 import org.kobjects.tablecraft.model.parser.TcFormulaParser
 import org.kobjects.tablecraft.pluginapi.ModificationToken

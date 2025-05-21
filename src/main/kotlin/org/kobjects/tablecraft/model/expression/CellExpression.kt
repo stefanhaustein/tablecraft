@@ -2,7 +2,7 @@ package org.kobjects.tablecraft.model.expression;
 
 import org.kobjects.tablecraft.model.Cell
 
-class CellReference(
+class CellExpression(
     owner: Cell,
     val target: Cell
 ) : Expression() {

@@ -71,7 +71,7 @@ export function showPortDialog(constructorSpec, portSpec) {
     let okButton = document.createElement("button")
     okButton.textContent = portSpec == null ? "Create" : "Ok"
 
-    for (let f in getAllFactories()) {
+    for (let f of getAllFactories()) {
         let name = f.name
         if (f.kind == kind) {
             let typeOptionElement = document.createElement("option")
@@ -86,7 +86,7 @@ export function showPortDialog(constructorSpec, portSpec) {
 
     typeSelectElement.addEventListener("input", () => {
         let type = typeSelectElement.value
-        constructorSpec = factories[type.toLowerCase()]
+        constructorSpec = getFactory(type)
         if (constructorSpec != null) {
             bindingFormController = renderBinding(bindingDiv, constructorSpec, instanceSpec)
         }

@@ -1,15 +1,15 @@
 package org.kobjects.tablecraft.model.builtin
 
 import org.kobjects.tablecraft.model.Cell
-import org.kobjects.tablecraft.model.CellRange
+import org.kobjects.tablecraft.model.CellRangeReference
 import org.kobjects.tablecraft.model.Model
-import org.kobjects.tablecraft.model.expression.CellRangeReference
+import org.kobjects.tablecraft.model.expression.CellRangeExpression
 import org.kobjects.tablecraft.pluginapi.ValueChangeListener
 import org.kobjects.tablecraft.pluginapi.StatefulFunctionInstance
 import java.util.*
 
 class StateMachine(
-    val cellRange: CellRange
+    val cellRange: CellRangeReference
 ) : StatefulFunctionInstance {
     var currentRow: Int = 0
     var currentState = ""
@@ -97,7 +97,7 @@ class StateMachine(
 
     companion object {
         fun create(configuration: Map<String, Any>) = StateMachine(
-            (configuration["transitions"] as CellRangeReference).target)
+            (configuration["transitions"] as CellRangeExpression).target)
     }
 
 }

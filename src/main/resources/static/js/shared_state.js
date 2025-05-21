@@ -1,7 +1,7 @@
 import {getColumn, getRow, makeEnum, postJson, toCellId} from "./lib/util.js";
 import {nullToEmtpy} from "./lib/values.js";
 import {renderComputedValue} from "./cell_renderer.js";
-import {getPortInstance} from "./shared_model.js";
+import {getPortInstance, getAllPorts} from "./shared_model.js";
 
 export var model = {
     sheets: {}
@@ -100,8 +100,19 @@ export function setEditMode(editMode) {
     notifySelectionListeners()
 }
 
+function removeClasses(keys, classList) {
+    for (let key of keys) {
+        let cut = key.indexOf("!")
+        let id = cut == -1 ? "port." + key : key.substring(cut + 1)
+        let element = document.getElementById(id)
+        if (element != null) {
+            element.classList.remove(...classList)
+        }
+    }
+}
+
 function renderDependencies(
-    key, propertyName, add, seen, depth, className0, className1, className2) {
+    key, propertyName, seen, depth, classNames) {
     if (seen[key] != null && seen[key] < depth) {
         return
     }
@@ -111,12 +122,7 @@ function renderDependencies(
 
     let element = document.getElementById(id)
     if (element != null) {
-        element.classList.remove(className0)
-        element.classList.remove(className1)
-        element.classList.remove(className2)
-        if (add) {
-            element.classList.add(depth == 0 ? className0 : (depth == 1 ? className1 : className2))
-        }
+            element.classList.add(classNames[depth >= classNames.length ? classNames.length - 1 : depth])
     }
 
     let entity = cut == -1 ? getPortInstance(key) : currentSheet.cells[key.substring(cut + 1)]
@@ -124,7 +130,7 @@ function renderDependencies(
         let depList = entity[propertyName]
         if (depList != null) {
             for (let childKey of depList) {
-                renderDependencies(childKey, propertyName, add, seen, depth + 1, className0, className1, className2)
+                renderDependencies(childKey, propertyName, seen, depth + 1, classNames)
             }
         }
     }
@@ -189,19 +195,19 @@ export function setRangeHighlight(setReset) {
     }
 }
 
-let dependenciesShown = null
+let dependenciesShown = []
 
 export function showDependencies(targetKey) {
-    if (dependenciesShown != null) {
-        //renderDependencies(dependenciesShown, "equivalent", false, {}, 0, "equivalent", "equivalent2")
-        renderDependencies(dependenciesShown, "inputs", false, {},0, "self","input", "input2")
-        renderDependencies(dependenciesShown, "dependencies", false,{},0, "self","dependency", "dependency2")
-    }
-    dependenciesShown = targetKey
-    if (dependenciesShown != null) {
-        //renderDependencies(dependenciesShown, "equivalent", true, {},0, "equivalent", "equivalent")
-        renderDependencies(dependenciesShown, "inputs", true, {},0, "self","input", "input2")
-        renderDependencies(dependenciesShown, "dependencies", true,  {},0, "self","dependency", "dependency2", true)
+    removeClasses(dependenciesShown, ["self","input", "input2", "dependency", "dependency2"])
+    if (targetKey == null) {
+        dependenciesShown = []
+    } else {
+        let seenIn = {}
+        renderDependencies(targetKey, "inputs",  seenIn,0, ["self","input", "input2"])
+        let seenOut = {}
+        renderDependencies(targetKey, "dependencies", seenOut,0, ["self","dependency", "dependency2"])
+
+        dependenciesShown = Object.getOwnPropertyNames(seenIn).concat(Object.getOwnPropertyNames(seenOut));
     }
 }
 
