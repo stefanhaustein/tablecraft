@@ -41,6 +41,8 @@ export function showPortDialog(constructorSpec, portSpec) {
 
     let portSchema = [{
         "name": "name",
+        "type": "String",
+        "modifiers": ["CONSTANT"],
         "validation": {
             "Integration name conflict": (name) => getIntegrationInstance(name) == null,
             "Factory name conflict": (name) => getFactory(name) == null,
@@ -50,7 +52,7 @@ export function showPortDialog(constructorSpec, portSpec) {
         }}]
 
     if (kind == "OUTPUT_PORT") {
-        portSchema.push({"name": "source"})
+        portSchema.push({"name": "source", modifiers: ["REFERENCE"]})
         dialogTitleElement.append("Output Port")
     } else {
         dialogTitleElement.append("Input Port")

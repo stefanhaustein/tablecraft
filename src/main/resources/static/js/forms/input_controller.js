@@ -1,4 +1,4 @@
-import {getType, getOptions, containsModifier} from "./input_schema.js";
+import {getType, getOptions, isLiteral, getTypeLabel, isReference, containsModifier} from "./input_schema.js";
 
 
 /**
@@ -12,8 +12,6 @@ let labelCounter = 0
 
 export class InputController {
 
-
-
     constructor(schema, inputElement) {
         this.schema = schema
         this.inputElement = inputElement
@@ -25,7 +23,7 @@ export class InputController {
         this.labelElement.setAttribute("for", id)
 
         let label = schema.label != null ? schema.label
-            : schema.name == null ? getType(schema) : schema.name + " (" + getType(schema) + ")"
+            : schema.name == null ? getTypeLabel(schema) : schema.name + " (" + getTypeLabel(schema) + ")"
         this.labelElement.textContent = label + ": "
 
         this.messageElement = document.createElement("div")
@@ -45,7 +43,7 @@ export class InputController {
     }
 
     static create(schema) {
-        if (containsModifier(schema, "CONSTANT")) {
+        if (isLiteral(schema)) {
             let options = getOptions(schema)
             if (options != null) {
                 return new EnumInputController(schema, schema.options || schema.type)
@@ -57,16 +55,12 @@ export class InputController {
         return new TextInputController(schema)
     }
 
-    isConstant() {
-        return containsModifier(this.schema, "CONSTANT")
-    }
-
     validate() {
         return true
     }
 
     getValue() {
-        if (this.isConstant()) {
+        if (isLiteral(this.schema)) {
             switch (getType(this.schema).toLowerCase()) {
                 case "bool":
                     return this.inputElement.value == "True"
@@ -81,7 +75,7 @@ export class InputController {
     }
 
     setValue(value) {
-        if (this.isConstant() && getType(this.schema).toLowerCase() == "bool") {
+        if (isLiteral(this.schema) && getType(this.schema).toLowerCase() == "bool") {
             this.inputElement.value = value ? "True" : "False"
         } else {
             this.inputElement.value = value == null ? "" : value.toString()
@@ -95,13 +89,26 @@ class TextInputController extends InputController {
     constructor(schema) {
         super(schema, document.createElement("input"))
 
-        switch(getType(this.schema).toLowerCase()) {
-            case "real":
-                this.validation["Number expected"] = /^[+-]?(\d+([.]\d*)?([eE][+-]?\d+)?|[.]\d+([eE][+-]?\d+)?)$/
-                break
-            case "int":
-                this.validation["Integer expected"] = /^[-+]?[0-9]+$/
-                break
+        if (isReference(schema)) {
+            switch (getType(schema).toLowerCase()) {
+                case "range":
+                case "unspecified":
+                    this.validation["Cell (range) reference expected"] = /^([a-zA-Z]+[a-zA-Z_0-9]*!)?[a-zA-Z]+[0-9]+(:[a-zA-Z]+[0-9]+)?$/
+                    break
+
+                default:
+                    this.validation["Cell reference expected"] = /^([a-zA-Z]+[a-zA-Z_0-9]*!)?[a-zA-Z]+[0-9]+$/
+            }
+
+        } else if (isLiteral(this.schema)) {
+            switch (getType(this.schema).toLowerCase()) {
+                case "real":
+                    this.validation["Number expected"] = /^[+-]?(\d+([.]\d*)?([eE][+-]?\d+)?|[.]\d+([eE][+-]?\d+)?)$/
+                    break
+                case "int":
+                    this.validation["Integer expected"] = /^[-+]?[0-9]+$/
+                    break
+            }
         }
     }
 
