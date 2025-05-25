@@ -1,6 +1,7 @@
 import {EditMode, setCurrentCellFormula, setEditMode, commitCurrentCell} from "./shared_state.js";
 import {nullToEmtpy} from "./lib/values.js";
 
+// Sets up event handlers etc. for shared state. Depends on shared state
 
 let formulaInputElement = document.getElementById("formulaInput")
 let committedFormula = null
@@ -28,3 +29,36 @@ formulaInputElement.addEventListener("keydown", event => {
 formulaInputElement.addEventListener("focus", () => {
     setEditMode(EditMode.INPUT)
 })
+
+
+let panelSelectElement = document.getElementById("panelSelect")
+let currentPanelName = ""
+let currentPanelElement = null
+
+selectPanel(panelSelectElement.value)
+
+panelSelectElement.addEventListener("change", (ev) => {
+    console.log("Select panel: " + name, ev)
+    selectPanel(panelSelectElement.value)
+})
+
+export function selectPanel(name) {
+    if (name == currentPanelName) {
+        return
+    }
+
+    if (currentPanelElement != null) {
+        currentPanelElement.style.display = "none"
+    }
+    currentPanelName = name
+    panelSelectElement.value = name
+
+    let sidePanelElement = document.getElementById("sidePanel")
+    currentPanelElement = document.getElementById(name + "Panel")
+    if (name == "Hide") {
+        sidePanelElement.style.display = "none"
+    } else {
+        sidePanelElement.style.display = ""
+        currentPanelElement.style.display = "block"
+    }
+}

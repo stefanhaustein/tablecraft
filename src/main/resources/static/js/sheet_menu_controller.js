@@ -1,4 +1,5 @@
-import {model, currentSheet, selectSheet} from "./shared_state.js";
+import {model} from "./shared_model.js"
+import {currentSheet, selectSheet} from "./shared_state.js";
 
 let sheetDialogElement = document.getElementById("sheetDialog")
 let sheetSelectElement = document.getElementById("sheetSelect")

@@ -1,11 +1,8 @@
-import {getColumn, getRow, makeEnum, postJson, toCellId} from "./lib/util.js";
+import {makeEnum, postJson} from "./lib/util.js";
 import {nullToEmtpy} from "./lib/values.js";
 import {renderComputedValue} from "./cell_renderer.js";
-import {getPortInstance, getAllPorts} from "./shared_model.js";
-
-export var model = {
-    sheets: {}
-}
+import {getAllPorts, model} from "./shared_model.js";
+import {removeClasses, renderDependencies, renderRangeHighlight} from "./shared_state_internal_renderer.js";
 
 export var portValues = {}
 export var simulationValues = {}
@@ -30,10 +27,6 @@ let committedFormula = null
 let originElement = document.getElementById("origin")
 
 
-export function setSelectionRange(x, y) {
-    selectionRangeX = x
-    selectionRangeY = y
-}
 
 document.getElementById("simulationMode").addEventListener("change", (event) =>{
     let checked = event.target.checked
@@ -100,41 +93,6 @@ export function setEditMode(editMode) {
     notifySelectionListeners()
 }
 
-function removeClasses(keys, classList) {
-    for (let key of keys) {
-        let cut = key.indexOf("!")
-        let id = cut == -1 ? "port." + key : key.substring(cut + 1)
-        let element = document.getElementById(id)
-        if (element != null) {
-            element.classList.remove(...classList)
-        }
-    }
-}
-
-function renderDependencies(
-    key, propertyName, seen, depth, classNames) {
-    if (seen[key] != null && seen[key] < depth) {
-        return
-    }
-    seen[key] = depth
-    let cut = key.indexOf("!")
-    let id = cut == -1 ? "port." + key : key.substring(cut + 1)
-
-    let element = document.getElementById(id)
-    if (element != null) {
-            element.classList.add(classNames[depth >= classNames.length ? classNames.length - 1 : depth])
-    }
-
-    let entity = cut == -1 ? getPortInstance(key) : currentSheet.cells[key.substring(cut + 1)]
-    if (entity != null) {
-        let depList = entity[propertyName]
-        if (depList != null) {
-            for (let childKey of depList) {
-                renderDependencies(childKey, propertyName, seen, depth + 1, classNames)
-            }
-        }
-    }
-}
 
 export function selectSheet(name) {
     let cellId = currentCellId || "A1"
@@ -158,43 +116,6 @@ export function selectSheet(name) {
 }
 
 
-export function setRangeHighlight(setReset) {
-    if (currentCellId == null) {
-        return
-    }
-    let x0 = getColumn(currentCellId)
-    let y0 = getRow(currentCellId)
-    let y = y0
-
-    let dx = Math.sign(selectionRangeX)
-    let dy = Math.sign(selectionRangeY)
-    while(true) {
-        let x = x0
-        while (true) {
-            if (x != x0 || y != y0) {
-                let cellId = toCellId(x, y)
-                let cellElement = document.getElementById(cellId)
-                if (cellElement) {
-                    if (setReset) {
-                        cellElement.classList.add("focus2")
-                    } else {
-                        cellElement.classList.remove("focus2")
-                    }
-                }
-            }
-
-            if (x == x0 + selectionRangeX) {
-                break
-            }
-            x += dx
-        }
-        if (y == y0 + selectionRangeY) {
-            break
-        }
-        y += dy
-    }
-}
-
 let dependenciesShown = []
 
 export function showDependencies(targetKey) {
@@ -215,7 +136,7 @@ export function showDependencies(targetKey) {
 
 export function selectCell(id, rangeX = 0, rangeY = 0) {
 
-    setRangeHighlight(false)
+    renderRangeHighlight(currentCellId, selectionRangeX, selectionRangeY, false)
 
     let newElement = document.getElementById(id)
     if (!newElement || newElement.localName != "td") {
@@ -249,11 +170,13 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
 
     selectionRangeX = rangeX
     selectionRangeY = rangeY
-    setRangeHighlight(true)
+
+    renderRangeHighlight(currentCellId, selectionRangeX, selectionRangeY, true)
+
 
     if (newlySelected) {
         currentCellElement.classList.add("focus")
-        showDependencies("!" + currentCellId)
+        showDependencies(currentSheet.name + "!" + currentCellId)
 
         notifySelectionListeners()
     }
@@ -265,35 +188,3 @@ function notifySelectionListeners() {
     }
 }
 
-
-let panelSelectElement = document.getElementById("panelSelect")
-let currentPanelName = ""
-let currentPanelElement = null
-
-selectPanel(panelSelectElement.value)
-
-panelSelectElement.addEventListener("change", (ev) => {
-    console.log("Select panel: " + name, ev)
-    selectPanel(panelSelectElement.value)
-})
-
-export function selectPanel(name) {
-    if (name == currentPanelName) {
-        return
-    }
-
-    if (currentPanelElement != null) {
-        currentPanelElement.style.display = "none"
-    }
-    currentPanelName = name
-    panelSelectElement.value = name
-
-    let sidePanelElement = document.getElementById("sidePanel")
-    currentPanelElement = document.getElementById(name + "Panel")
-    if (name == "Hide") {
-        sidePanelElement.style.display = "none"
-    } else {
-        sidePanelElement.style.display = ""
-        currentPanelElement.style.display = "block"
-    }
-}

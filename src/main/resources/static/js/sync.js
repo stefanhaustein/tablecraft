@@ -1,7 +1,7 @@
-import {renderComputedValue} from "./cell_renderer.js";
+import {renderComputedValue} from "./cell_renderer.js"
+import {model} from "./shared_model.js"
 import {
     currentSheet,
-    model,
     portValues,
     selectSheet,
     simulationValues

@@ -3,6 +3,10 @@ let functions = {}
 let integrations = {}
 let ports = {}
 
+export var model = {
+    sheets: {}
+}
+
 export function getAllPorts() {
     return Object.values(ports)
 }
