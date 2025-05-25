@@ -1,6 +1,7 @@
 import {FormController} from "./forms/form_builder.js";
 import {postJson} from "./lib/util.js";
 import {getAllFactories, getFactory, getFunction, getIntegrationInstance, getPortInstance} from "./shared_model.js";
+import {currentSheet} from "./shared_state.js";
 
 let portListContainer = document.getElementById("portListContainer")
 let portEditorContainer = document.getElementById("portEditorContainer")
@@ -109,6 +110,10 @@ export function showPortDialog(constructorSpec, portSpec) {
     okButton.className = "dialogButton"
     okButton.addEventListener("click", () => {
         let values = portFormController.getValues()
+        let source = values["source"]
+        if (source != null && source.indexOf("!") == -1) {
+            values["source"] = currentSheet.name + "!" + source
+        }
         values["configuration"] = bindingFormController.getValues()
         values["type"] = constructorSpec["name"]
         values["previousName"] = previousName
