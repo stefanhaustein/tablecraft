@@ -7,7 +7,7 @@ import {removeClasses, renderDependencies, renderRangeHighlight} from "./shared_
 export var portValues = {}
 export var simulationValues = {}
 export var currentSheet = null
-export let currentCellId = null
+let currentCellId = null
 export let currentCellElement = null
 export let currentCellData = {}
 
@@ -53,7 +53,7 @@ export function addCellContentChangeListener(name, listener) {
 
 export function commitCurrentCell() {
     committedFormula = currentCellData.f
-    postJson("update/" + currentSheet.name + "!" + currentCellId, currentCellData)
+    postJson("update/" + currentSheet.name + "!" + currentCellData.key, currentCellData)
 }
 
 
@@ -136,7 +136,7 @@ export function showDependencies(targetKey) {
 
 export function selectCell(id, rangeX = 0, rangeY = 0) {
 
-    renderRangeHighlight(currentCellId, selectionRangeX, selectionRangeY, false)
+    renderRangeHighlight(currentCellData.key, selectionRangeX, selectionRangeY, false)
 
     let newElement = document.getElementById(id)
     if (!newElement || newElement.localName != "td") {
@@ -171,12 +171,12 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
     selectionRangeX = rangeX
     selectionRangeY = rangeY
 
-    renderRangeHighlight(currentCellId, selectionRangeX, selectionRangeY, true)
+    renderRangeHighlight(currentCellData.key, selectionRangeX, selectionRangeY, true)
 
 
     if (newlySelected) {
         currentCellElement.classList.add("focus")
-        showDependencies(currentSheet.name + "!" + currentCellId)
+        showDependencies(currentSheet.name + "!" + currentCellData.key)
 
         notifySelectionListeners()
     }
@@ -184,7 +184,7 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
 
 function notifySelectionListeners() {
     for (let listener of cellSelectionListeners) {
-        listener(currentCellId)
+        listener(currentCellData.key)
     }
 }
 

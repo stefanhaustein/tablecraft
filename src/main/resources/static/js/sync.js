@@ -164,10 +164,11 @@ function processSheetCellsUpdate(name, map) {
             key = key.substring(0, key.length - 2)
             let cell = cells[key]
             if (cell == null) {
-                cell = cells[key] = {}
+                cell = cells[key] = {key: key}
             }
             cell.c = newValue
         } else if (key.indexOf(".") == -1) {
+            newValue.key = key
             cells[key] = newValue
         } else {
             console.log("Unrecognized suffix for key ", key, "value", newValue)

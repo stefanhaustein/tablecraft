@@ -1,6 +1,5 @@
 import {
     currentCellElement,
-    currentCellId,
     selectCell,
     setEditMode,
     EditMode,
@@ -118,7 +117,7 @@ function tableKeyPress(event) {
 }
 
 function moveCursor(dx, dy, event) {
-    let cellId = toCellId(getColumn(currentCellId) + dx, getRow(currentCellId) + dy)
+    let cellId = toCellId(getColumn(currentCellData.key) + dx, getRow(currentCellData.key) + dy)
 
     if (event.shiftKey) {
         selectCell(cellId, selectionRangeX - dx, selectionRangeY - dy)
