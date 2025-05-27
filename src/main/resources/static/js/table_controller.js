@@ -1,5 +1,6 @@
 import {
     currentCellElement,
+    currentCellData,
     selectCell,
     setEditMode,
     EditMode,
@@ -82,9 +83,9 @@ function selectAndScrollCurrentIntoView(cellId) {
 
 function tableKeyPress(event) {
 
-    if (event.target != document.body) {
-        return
-    }
+   // if (event.target != document.body && event.target.tabIndex != 0) {
+   //     return
+   // }
 
     let matched = true
     switch (event.key) {

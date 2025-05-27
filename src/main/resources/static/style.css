@@ -74,6 +74,12 @@ h2, h3 {
 
 }
 
+/* For focus debugging...
+*:focus {
+    background-color: red; !important;
+}
+*/
+
 input:invalid {
     background-color: #faa
 }

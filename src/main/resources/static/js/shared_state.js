@@ -7,7 +7,6 @@ import {removeClasses, renderDependencies, renderRangeHighlight} from "./shared_
 export var portValues = {}
 export var simulationValues = {}
 export var currentSheet = null
-let currentCellId = null
 export let currentCellElement = null
 export let currentCellData = {}
 
@@ -15,6 +14,8 @@ export let selectionRangeX = 0
 export let selectionRangeY = 0
 
 export let EditMode = makeEnum(["NONE", "INPUT", "PANEL"])
+
+let currentCellId = null
 
 let currentEditMode = EditMode.NONE
 
@@ -147,7 +148,7 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
 
     let newData = currentSheet.cells[id]
     if (newData == null) {
-        newData = currentSheet.cells[id] = {}
+        newData = currentSheet.cells[id] = {key:id}
     }
     let newlySelected = id != currentCellId
     if (newlySelected) {

@@ -24,6 +24,7 @@ for (let row = 1; row < 100; row++) {
     tr.appendChild(th)
     for(let col = 1; col < 27; col++) {
         let td = document.createElement("td")
+        // TODO: td.tabIndex = 0
         let id = String.fromCharCode(col + 64) + row
         td.id = id
         tr.appendChild(td)
