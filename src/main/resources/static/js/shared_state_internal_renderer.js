@@ -59,9 +59,9 @@ export function renderRangeHighlight(rootCellId, rangeX, rangeY, setReset) {
                 let cellElement = document.getElementById(cellId)
                 if (cellElement) {
                     if (setReset) {
-                        cellElement.classList.add("focus2")
+                        cellElement.classList.add("selected2")
                     } else {
-                        cellElement.classList.remove("focus2")
+                        cellElement.classList.remove("selected2")
                     }
                 }
             }

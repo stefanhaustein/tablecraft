@@ -17,8 +17,6 @@ export let EditMode = makeEnum(["NONE", "INPUT", "PANEL"])
 
 let currentCellId = null
 
-let currentEditMode = EditMode.NONE
-
 let cellContentChangeListeners = {}  // new content, source
 let cellSelectionListeners = [] // new id, edit mode
 
@@ -78,10 +76,9 @@ export function setEditMode(editMode) {
     if (editMode == null) {
         editMode = EditMode.NONE
     }
-    currentEditMode = editMode
     if (editMode == EditMode.NONE) {
         currentCellElement.classList.remove("editing")
-        currentCellElement.classList.add("focus")
+        currentCellElement.classList.add("selected")
      //   renderComputedValue(currentCellElement, currentCellData)
     } else {
         currentCellElement.classList.remove(/*"c", "e", "i", "r",*/ "focus")
@@ -157,7 +154,7 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
                 commitCurrentCell()
             }
 
-            currentCellElement.classList.remove("focus", "editing")
+            currentCellElement.classList.remove("selected", "editing")
             renderComputedValue(currentCellElement, currentCellData)
 
         }
@@ -176,7 +173,7 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
 
 
     if (newlySelected) {
-        currentCellElement.classList.add("focus")
+        currentCellElement.classList.add("selected")
         showDependencies(currentSheet.name + "!" + currentCellData.key)
 
         notifySelectionListeners()

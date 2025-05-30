@@ -155,17 +155,17 @@ input:invalid {
     border-bottom:1px solid #eee;
 }
 
-#spreadsheetTable td.focus {
+#spreadsheetTable td.selected {
     outline: 2px solid #88f;
 }
 
-#spreadsheetTable td.focus,
+#spreadsheetTable td.selected,
 #spreadsheetTable td.editing {
     position: relative;
     z-index: 1;
 }
 
-#spreadsheetTable td.focus2 {
+#spreadsheetTable td.selected2 {
     background-color: lightblue;
 }
 
