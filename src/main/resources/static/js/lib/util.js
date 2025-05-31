@@ -1,13 +1,3 @@
-
-
-export function makeEnum(arr){
-    let obj = Object.create(null);
-    for (let val of arr){
-        obj[val] = Symbol(val);
-    }
-    return Object.freeze(obj);
-}
-
 export function addOption(selectElement, name) {
     let option = document.createElement("option")
     option.textContent = name

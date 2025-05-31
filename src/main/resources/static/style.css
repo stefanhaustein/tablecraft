@@ -74,11 +74,6 @@ h2, h3 {
 
 }
 
-/* For focus debugging...
-*:focus {
-    background-color: red; !important;
-}
-*/
 
 input:invalid {
     background-color: #faa
@@ -156,11 +151,7 @@ input:invalid {
 }
 
 #spreadsheetTable td.selected {
-    outline: 2px solid #88f;
-}
-
-#spreadsheetTable td.selected,
-#spreadsheetTable td.editing {
+    outline: 2px solid #ddf;
     position: relative;
     z-index: 1;
 }
@@ -169,8 +160,8 @@ input:invalid {
     background-color: lightblue;
 }
 
-#spreadsheetTable td.editing {
-    outline: 2px solid #ddf;
+#spreadsheetTable td.selected:focus {
+    outline: 2px solid #88f;
 }
 
 #spreadsheetTable td.c,

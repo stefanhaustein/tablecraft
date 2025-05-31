@@ -1,7 +1,7 @@
 import {
     setCurrentCellFormula,
     addCellContentChangeListener,
-    addCellSelectionListener, currentCellData, setEditMode, EditMode, currentCellElement, commitCurrentCell
+    addCellSelectionListener, commitCurrentCell
 } from "./shared_state.js";
 import {FormController} from "./forms/form_builder.js";
 import {extractParameters} from "./lib/expressions.js";
@@ -19,11 +19,6 @@ addCellContentChangeListener("panel", (newValue, source) => {
 
 addCellSelectionListener(() => {
     updateParameterTab()
-})
-
-
-functionPanelElement.addEventListener("focusin", event => {
-    setEditMode(EditMode.PANEL)
 })
 
 

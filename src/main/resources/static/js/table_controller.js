@@ -2,16 +2,18 @@ import {
     currentCellElement,
     currentCellData,
     selectCell,
-    setEditMode,
-    EditMode,
     selectionRangeY,
     selectionRangeX,
 } from "./shared_state.js"
 import {getColumn, getRow, toCellId} from "./lib/util.js";
 
-document.addEventListener("keydown", tableKeyPress)
-
 let spreadsheetTBodyElement = document.getElementById("spreadsheetTBody")
+let formulaInputElement = document.getElementById("formulaInput")
+
+
+
+spreadsheetTBodyElement.addEventListener("keydown", tableKeyPress)
+
 
 var dragOrigin = null
 var dragRangeSelection = false
@@ -28,7 +30,7 @@ spreadsheetTBodyElement.addEventListener(
 spreadsheetTBodyElement.addEventListener(
     "dblclick", (event) => {
         selectCell(event.target.id|| event.target.parentNode.id)
-        setEditMode(EditMode.INPUT)
+        formulaInputElement.focus()
     })
 
 
@@ -82,11 +84,6 @@ function selectAndScrollCurrentIntoView(cellId) {
 }
 
 function tableKeyPress(event) {
-
-   // if (event.target != document.body && event.target.tabIndex != 0) {
-   //     return
-   // }
-
     let matched = true
     switch (event.key) {
         case "ArrowDown":
@@ -106,7 +103,7 @@ function tableKeyPress(event) {
             break
 
         case "Enter":
-            setEditMode(EditMode.INPUT)
+            formulaInputElement.focus()
             break
 
         default:

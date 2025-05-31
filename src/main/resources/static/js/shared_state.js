@@ -1,4 +1,4 @@
-import {makeEnum, postJson} from "./lib/util.js";
+import {postJson} from "./lib/util.js";
 import {nullToEmtpy} from "./lib/values.js";
 import {renderComputedValue} from "./cell_renderer.js";
 import {getAllPorts, model} from "./shared_model.js";
@@ -12,8 +12,6 @@ export let currentCellData = {}
 
 export let selectionRangeX = 0
 export let selectionRangeY = 0
-
-export let EditMode = makeEnum(["NONE", "INPUT", "PANEL"])
 
 let currentCellId = null
 
@@ -77,15 +75,18 @@ export function setEditMode(editMode) {
         editMode = EditMode.NONE
     }
     if (editMode == EditMode.NONE) {
-        currentCellElement.classList.remove("editing")
-        currentCellElement.classList.add("selected")
+     //   currentCellElement.classList.remove("editing")
+     //   currentCellElement.classList.add("selected")
      //   renderComputedValue(currentCellElement, currentCellData)
+        currentCellElement.focus()
     } else {
-        currentCellElement.classList.remove(/*"c", "e", "i", "r",*/ "focus")
-        currentCellElement.classList.add("editing")
+    //    currentCellElement.classList.remove(/*"c", "e", "i", "r",*/ "focus")
+    //    currentCellElement.classList.add("editing")
    //     currentCellElement.textContent = nullToEmtpy(currentCellData["f"])
         if (editMode == EditMode.INPUT) {
             formulaInputElement.focus()
+        } else {
+            currentCellElement.focus()
         }
     }
     notifySelectionListeners()
@@ -165,6 +166,8 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
     currentCellElement = newElement
     currentCellData = newData
     formulaInputElement.value = nullToEmtpy(committedFormula)
+
+    currentCellElement.focus()
 
     selectionRangeX = rangeX
     selectionRangeY = rangeY

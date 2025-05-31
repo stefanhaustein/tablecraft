@@ -1,4 +1,4 @@
-import {EditMode, setCurrentCellFormula, setEditMode, commitCurrentCell} from "./shared_state.js";
+import {setCurrentCellFormula, commitCurrentCell, currentCellElement} from "./shared_state.js";
 import {nullToEmtpy} from "./lib/values.js";
 
 // Sets up event handlers etc. for shared state. Depends on shared state
@@ -12,22 +12,17 @@ formulaInputElement.addEventListener("keydown", event => {
     if (event.key == "Enter") {
         event.preventDefault()
         event.stopPropagation()
-        formulaInputElement.blur()
         setCurrentCellFormula(formulaInputElement.value)
-        setEditMode(EditMode.NONE)
+        currentCellElement.focus()
         commitCurrentCell()
     } else if (event.key == "Escape") {
         formulaInputElement.value = committedFormula
         setCurrentCellFormula(nullToEmtpy(committedFormula), "input")
-        formulaInputElement.blur()
-        setEditMode(EditMode.NONE)
+        currentCellElement.focus()
     } else {
         console.log(event.key)
         setCurrentCellFormula(formulaInputElement.value)
     }
-})
-formulaInputElement.addEventListener("focus", () => {
-    setEditMode(EditMode.INPUT)
 })
 
 
