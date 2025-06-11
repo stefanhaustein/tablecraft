@@ -1,7 +1,7 @@
 import {FormController} from "./forms/form_builder.js";
 import {postJson} from "./lib/util.js";
 import {getAllFactories, getFactory, getFunction, getIntegrationInstance, getPortInstance} from "./shared_model.js";
-import {currentSheet} from "./shared_state.js";
+import {currentCell} from "./shared_state.js";
 
 let portListContainer = document.getElementById("portListContainer")
 let portEditorContainer = document.getElementById("portEditorContainer")

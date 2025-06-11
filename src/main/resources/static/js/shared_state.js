@@ -4,16 +4,15 @@ import {renderComputedValue} from "./cell_renderer.js";
 import {getAllPorts, model} from "./shared_model.js";
 import {removeClasses, renderDependencies, renderRangeHighlight} from "./shared_state_internal_renderer.js";
 
-export var portValues = {}
-export var simulationValues = {}
-export var currentSheet = null
-export let currentCellElement = null
-export let currentCellData = {}
+export let portValues = {}
+export let simulationValues = {}
+export let currentCell = null
+export let currentSheet = null
 
 export let selectionRangeX = 0
 export let selectionRangeY = 0
 
-let currentCellId = null
+let currentCellElement = null
 
 let cellContentChangeListeners = {}  // new content, source
 let cellSelectionListeners = [] // new id, edit mode
@@ -49,17 +48,21 @@ export function addCellContentChangeListener(name, listener) {
 }
 
 export function commitCurrentCell() {
-    committedFormula = currentCellData.f
-    postJson("update/" + currentSheet.name + "!" + currentCellData.key, currentCellData)
+    committedFormula = currentCell.f
+    postJson("update/" + currentSheet.name + "!" + currentCell.key, currentCell)
 }
 
+export function getCurrentCellElement() {
+    return currentCellElement
+}
 
 export function setCurrentCellFormula(value, source) {
-    currentCellData["f"] = value
-    currentCellData["c"] = null
-    /*if (currentEditMode != EditMode.NONE) {
-        currentCellElement.textContent = value
-    }*/
+    if (value == currentCell["f"]) {
+        return
+    }
+    currentCell["f"] = value
+    currentCell["c"] = null
+
     if (source != "input") {
         formulaInputElement.value = value
     }
@@ -70,31 +73,10 @@ export function setCurrentCellFormula(value, source) {
     }
 }
 
-export function setEditMode(editMode) {
-    if (editMode == null) {
-        editMode = EditMode.NONE
-    }
-    if (editMode == EditMode.NONE) {
-     //   currentCellElement.classList.remove("editing")
-     //   currentCellElement.classList.add("selected")
-     //   renderComputedValue(currentCellElement, currentCellData)
-        currentCellElement.focus()
-    } else {
-    //    currentCellElement.classList.remove(/*"c", "e", "i", "r",*/ "focus")
-    //    currentCellElement.classList.add("editing")
-   //     currentCellElement.textContent = nullToEmtpy(currentCellData["f"])
-        if (editMode == EditMode.INPUT) {
-            formulaInputElement.focus()
-        } else {
-            currentCellElement.focus()
-        }
-    }
-    notifySelectionListeners()
-}
 
 
 export function selectSheet(name) {
-    let cellId = currentCellId || "A1"
+    let cellId = currentCell != null ? currentCell.key : "A1"
 
     if (name == null) {
         for (name in model.sheets) {
@@ -135,7 +117,9 @@ export function showDependencies(targetKey) {
 
 export function selectCell(id, rangeX = 0, rangeY = 0) {
 
-    renderRangeHighlight(currentCellData.key, selectionRangeX, selectionRangeY, false)
+    if (currentCell != null) {
+        renderRangeHighlight(currentCell.key, selectionRangeX, selectionRangeY, false)
+    }
 
     let newElement = document.getElementById(id)
     if (!newElement || newElement.localName != "td") {
@@ -148,23 +132,22 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
     if (newData == null) {
         newData = currentSheet.cells[id] = {key:id}
     }
-    let newlySelected = id != currentCellId
+    let newlySelected = currentCell == null || id != currentCell.key
     if (newlySelected) {
-        if (currentCellId != null) {
-            if (committedFormula != currentCellData["f"]) {
+        if (currentCellElement != null) {
+            if (committedFormula != currentCell["f"]) {
                 commitCurrentCell()
             }
 
-            currentCellElement.classList.remove("selected", "editing")
-            renderComputedValue(currentCellElement, currentCellData)
+            currentCellElement.classList.remove("selected")
+            renderComputedValue(currentCellElement, currentCell)
 
         }
         committedFormula = newData["f"]
     }
 
-    currentCellId = id
     currentCellElement = newElement
-    currentCellData = newData
+    currentCell = newData
     formulaInputElement.value = nullToEmtpy(committedFormula)
 
     currentCellElement.focus()
@@ -172,12 +155,12 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
     selectionRangeX = rangeX
     selectionRangeY = rangeY
 
-    renderRangeHighlight(currentCellData.key, selectionRangeX, selectionRangeY, true)
+    renderRangeHighlight(currentCell.key, selectionRangeX, selectionRangeY, true)
 
 
     if (newlySelected) {
         currentCellElement.classList.add("selected")
-        showDependencies(currentSheet.name + "!" + currentCellData.key)
+        showDependencies(currentSheet.name + "!" + currentCell.key)
 
         notifySelectionListeners()
     }
@@ -185,7 +168,7 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
 
 function notifySelectionListeners() {
     for (let listener of cellSelectionListeners) {
-        listener(currentCellData.key)
+        listener(currentCell.key)
     }
 }
 

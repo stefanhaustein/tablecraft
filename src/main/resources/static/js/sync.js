@@ -1,7 +1,7 @@
 import {renderComputedValue} from "./cell_renderer.js"
 import {model} from "./shared_model.js"
 import {
-    currentSheet,
+    currentCell,
     portValues,
     selectSheet,
     simulationValues
@@ -67,7 +67,7 @@ function proccessUpdateResponseText(responseText) {
     }
     processSection(sectionTitle, sectionMap)
 
-    if (currentSheet == null) {
+    if (currentCell == null) {
        selectSheet()
     }
 }
@@ -146,18 +146,19 @@ function processSheetUpdate(name, map) {
 }
 
 function processSheetCellsUpdate(name, map) {
-    if (model.sheets[name] == null || sheetSelectElement.firstElementChild == null) {
-        if (model.sheets[name] == null ) {
-            model.sheets[name] = {
+    let sheet = model.sheets[name]
+    if (sheet == null || sheetSelectElement.firstElementChild == null) {
+        if (sheet == null ) {
+            sheet = model.sheets[name] = {
                 name: name,
-            cells: {}
+                cells: {}
             }
         }
 
         updateSheetSelectElement()
     }
 
-    let cells = model.sheets[name].cells
+    let cells = sheet.cells
     for (let key in map) {
         let newValue = map[key]
         if (key.endsWith(".c")) {

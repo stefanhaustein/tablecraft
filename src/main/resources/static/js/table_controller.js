@@ -1,6 +1,6 @@
 import {
-    currentCellElement,
-    currentCellData,
+    getCurrentCellElement,
+    currentCell,
     selectCell,
     selectionRangeY,
     selectionRangeX,
@@ -115,7 +115,7 @@ function tableKeyPress(event) {
 }
 
 function moveCursor(dx, dy, event) {
-    let cellId = toCellId(getColumn(currentCellData.key) + dx, getRow(currentCellData.key) + dy)
+    let cellId = toCellId(getColumn(currentCell.key) + dx, getRow(currentCell.key) + dy)
 
     if (event.shiftKey) {
         selectCell(cellId, selectionRangeX - dx, selectionRangeY - dy)
@@ -123,7 +123,7 @@ function moveCursor(dx, dy, event) {
         selectCell(cellId)
     }
 
-    currentCellElement.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
+    getCurrentCellElement().scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
 
 }
 
