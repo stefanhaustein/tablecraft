@@ -1,4 +1,4 @@
-import {commitCurrentCell, setCurrentCellFormula} from "./shared_state.js";
+import {setCurrentCellFormula} from "./shared_state.js";
 
 export function renderComputedValue(targetElement, cellData) {
     if (cellData == null) {
@@ -111,7 +111,6 @@ function renderSelect(targetElement, cellData) {
     targetElement.appendChild(selectElement)
     selectElement.addEventListener("change", () => {
         setCurrentCellFormula(selectElement.value)
-        commitCurrentCell()
     })
 }
 

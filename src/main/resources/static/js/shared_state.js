@@ -22,6 +22,10 @@ let committedFormula = null
 
 let originElement = document.getElementById("origin")
 
+formulaInputElement.addEventListener("blur", () => {
+    console.log("onblur triggered")
+    commitCurrentCell()
+})
 
 
 document.getElementById("simulationMode").addEventListener("change", (event) =>{
@@ -47,7 +51,7 @@ export function addCellContentChangeListener(name, listener) {
     cellContentChangeListeners[name] = listener
 }
 
-export function commitCurrentCell() {
+function commitCurrentCell() {
     committedFormula = currentCell.f
     postJson("update/" + currentSheet.name + "!" + currentCell.key, currentCell)
 }
@@ -71,6 +75,11 @@ export function setCurrentCellFormula(value, source) {
             cellContentChangeListeners[key](value, source)
         }
     }
+}
+
+export function setCurrentCellImage(value) {
+    currentCell["i"] = value
+    commitCurrentCell()
 }
 
 

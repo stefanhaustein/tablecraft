@@ -1,7 +1,7 @@
 import {
     setCurrentCellFormula,
     addCellContentChangeListener,
-    addCellSelectionListener, commitCurrentCell
+    addCellSelectionListener,
 } from "./shared_state.js";
 import {FormController} from "./forms/form_builder.js";
 import {extractParameters} from "./lib/expressions.js";
@@ -74,8 +74,7 @@ function updateParameterTab() {
                 }
             }
             s += ")"
-            setCurrentCellFormula(s)
-            commitCurrentCell()
+            setCurrentCellFormula(s, "operation_editor")
         })
     }
 
