@@ -65,10 +65,10 @@ export function setCurrentCellFormula(value, source) {
         return
     }
     currentCell["f"] = value
-    currentCell["c"] = null
 
     if (source != "input") {
         formulaInputElement.value = value
+        commitCurrentCell()
     }
     for (let key in cellContentChangeListeners) {
         if (key != source) {
@@ -147,10 +147,7 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
             if (committedFormula != currentCell["f"]) {
                 commitCurrentCell()
             }
-
             currentCellElement.classList.remove("selected")
-            renderComputedValue(currentCellElement, currentCell)
-
         }
         committedFormula = newData["f"]
     }
