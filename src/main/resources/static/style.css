@@ -62,11 +62,11 @@ h2, h3 {
 
 /* make sure the specifity is higher than #spreadsheettable td.c */
 .input, body #spreadsheetTable td.input {
-    background-color: #a2c4c9;
+    background-color: #b6d7a8;
 }
 
 .input2, body #spreadsheetTable td.input2 {
-    background-color: #d0e0e3;
+    background-color: #d9ead3;
 }
 
 
