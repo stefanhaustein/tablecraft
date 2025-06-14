@@ -1,7 +1,7 @@
-import {renderComputedValue} from "./cell_renderer.js"
+import {renderCell} from "./cell_renderer.js"
 import {model} from "./shared_model.js"
 import {
-    currentCell,
+    currentCell, currentSheet,
     portValues,
     selectSheet,
     simulationValues
@@ -174,11 +174,8 @@ function processSheetCellsUpdate(name, map) {
         } else {
             console.log("Unrecognized suffix for key ", key, "value", newValue)
         }
-        let element = document.getElementById(key)
-        if (element != null) {
-            renderComputedValue(element, cells[key])
-        } else {
-            console.log("Sync issue: Element '" + key + "' not found for line '" + key + "=" + newValue + "'")
+        if (sheet == currentSheet) {
+            renderCell(key)
         }
     }
 }

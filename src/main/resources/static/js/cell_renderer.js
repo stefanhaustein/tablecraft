@@ -1,6 +1,12 @@
-import {setCurrentCellFormula} from "./shared_state.js";
+import {currentSheet, setCurrentCellFormula} from "./shared_state.js";
 
-export function renderComputedValue(targetElement, cellData) {
+export function renderCell(key) {
+    let targetElement = document.getElementById(key)
+    if (targetElement == null) {
+        console.log("Element for cell key '" + key + "' not found.'")
+    }
+
+    let cellData = currentSheet.cells[key]
     if (cellData == null) {
         cellData = {}
     }

@@ -1,6 +1,6 @@
 import {postJson} from "./lib/util.js";
 import {nullToEmtpy} from "./lib/values.js";
-import {renderComputedValue} from "./cell_renderer.js";
+import {renderCell} from "./cell_renderer.js";
 import {getAllPorts, model} from "./shared_model.js";
 import {removeClasses, renderDependencies, renderRangeHighlight} from "./shared_state_internal_renderer.js";
 
@@ -94,12 +94,11 @@ export function selectSheet(name) {
     }
 
     currentSheet = model.sheets[name]
-    let cells = currentSheet.cells
 
     document.getElementById("sheetSelect").value = name
 
     for (let tdElement of document.getElementById("spreadsheetTBody").getElementsByTagName("td")) {
-        renderComputedValue(tdElement, cells[tdElement.id])
+        renderCell(tdElement.id)
     }
 
     selectCell(cellId)
