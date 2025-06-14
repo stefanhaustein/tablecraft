@@ -9,7 +9,7 @@ import {
 import { registerFactory } from "./shared_model.js"
 
 
-import {addOption} from "./lib/util.js";
+import {addOption, getColumn, getRow, toCellId} from "./lib/util.js";
 import {processFunction} from "./operation_panel_controller.js";
 import {processIntegrationUpdate, updateIntegrationSpec} from "./integration_panel_controller.js";
 import {
@@ -176,6 +176,14 @@ function processSheetCellsUpdate(name, map) {
         }
         if (sheet == currentSheet) {
             renderCell(key)
+            let col = getColumn(key)
+            if (col > 0) {
+                let row = getRow(key)
+                let prevKey = toCellId(col - 1, row)
+                if (map[prevKey] == null) {
+                    renderCell(prevKey)
+                }
+            }
         }
     }
 }

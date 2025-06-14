@@ -1,4 +1,5 @@
 import {currentSheet, setCurrentCellFormula} from "./shared_state.js";
+import {getColumn, getRow, toCellId} from "./lib/util.js";
 
 export function renderCell(key) {
     let targetElement = document.getElementById(key)
@@ -33,23 +34,29 @@ export function renderCell(key) {
     classes.remove("c", "e", "i", "r", "l")
     targetElement.removeAttribute("title")
 
+    if (value == "") {
+        value = null
+    }
+
     switch(typeof value) {
         case "bigint":
         case "number": classes.add("r"); break;
         case "boolean": classes.add("c"); break;
         case "object":
             if (value == null) {
-                targetElement.textContent = ""
+                let col = getColumn(key)
+                let row = getRow(key)
+                let nextKey = toCellId(col + 1, row)
+                let nextCell = currentSheet.cells[nextKey]
+                if (nextCell != null && nextCell.f != null && nextCell.f.startsWith("=") && !imgSrc) {
+                    targetElement.textContent = nextCell.f.substring(1).trim();
+                    classes.add("i");
+                } else {
+                    targetElement.textContent = "";
+                }
             } else {
                 classes.add("l");
                 switch (value["type"]) {
-                    case "img":
-                        targetElement.textContent = ""
-                        let img = document.createElement("img")
-                        img.src = value["src"]
-                        targetElement.appendChild(img)
-                        classes.add("i")
-                        break
                     case "err":
                         let abbr = document.createElement("span")
                         targetElement.setAttribute("title", value["msg"])

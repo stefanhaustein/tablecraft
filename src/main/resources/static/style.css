@@ -189,7 +189,8 @@ input:invalid {
 }
 
 #spreadsheetTable td.i {
-    padding: 0;
+    text-align: right;
+    color: #888;
 }
 
 #spreadsheetTable td.r {
