@@ -156,7 +156,7 @@ input:invalid {
     z-index: 1;
 }
 
-#spreadsheetTable td.selected2 {
+#spreadsheetTable tr td.selected2 {
     background-color: lightblue;
 }
 

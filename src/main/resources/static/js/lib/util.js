@@ -99,3 +99,12 @@ export function getRow(cellId) {
 export function toCellId(column, row) {
     return String.fromCodePoint(column + 64) + row
 }
+
+export function toRangeKey(column, row, colSpan, rowSpan) {
+    let col0 = Math.min(column, column + colSpan)
+    let col1 = Math.max(column, column + colSpan)
+    let row0 = Math.min(row, row + rowSpan)
+    let row1 = Math.max(row, row + rowSpan)
+
+    return toCellId(col0, row0) + ":" + toCellId(col1, row1)
+}

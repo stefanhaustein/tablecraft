@@ -11,7 +11,9 @@ import io.ktor.utils.io.*
 import kotlinx.html.dom.serialize
 import org.kobjects.tablecraft.json.JsonParser
 import org.kobjects.tablecraft.json.toJson
+import org.kobjects.tablecraft.model.CellRangeReference
 import org.kobjects.tablecraft.model.Model
+import org.kobjects.tablecraft.tomson.TomsonParser
 import java.io.File
 import java.io.StringWriter
 import kotlin.coroutines.resume
@@ -23,6 +25,20 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     routing {
+        post("/clear/{range}") {
+            val rawRange = call.parameters["range"]!!
+            val range = CellRangeReference.parse(rawRange)
+            Model.applySynchronizedWithToken {
+                range.clear(it)
+            }
+            call.respond(HttpStatusCode.OK)
+        }
+        post("/clearAll") {
+            Model.applySynchronizedWithToken {
+                Model.clearAll(it)
+            }
+            call.respond(HttpStatusCode.OK)
+        }
         post("/update/{cell}") {
             val cell = call.parameters["cell"]!!
             val text = call.receiveText()
@@ -50,6 +66,19 @@ fun Application.module() {
                 Model.setSimulationValue(name, value, token)
             }
             call.respond(HttpStatusCode.OK, null)
+        }
+        post("/paste/{target}") {
+            val rawTargetRange = call.parameters["target"]!!
+            val targetRange = CellRangeReference.parse(rawTargetRange)
+            val tomsonText = call.receiveText()
+            val tomson = TomsonParser.parse(tomsonText)
+
+            println("/paste/$targetRange: $tomsonText")
+
+            Model.applySynchronizedWithToken { token ->
+                targetRange.sheet.paste(token, targetRange, tomson)
+            }
+            call.respond(HttpStatusCode.OK)
         }
         post("/ports/{name}") {
             val name = call.parameters["name"]!!
@@ -87,8 +116,6 @@ fun Application.module() {
             Model.applySynchronizedWithToken {
                 Model.clearAll(it)
                 Model.loadData(data, it)
-                it.symbolsChanged = true
-                it.formulaChanged = true
             }
             call.respond(HttpStatusCode.OK)
         }
@@ -99,17 +126,9 @@ fun Application.module() {
             Model.applySynchronizedWithToken {
                 Model.clearAll(it)
                 Model.loadData(data, it)
-                it.symbolsChanged = true
-                it.formulaChanged = true
             }
         }
-        post("/clearAll") {
-            Model.applySynchronizedWithToken {
-                Model.clearAll(it)
-                it.symbolsChanged = true
-                it.formulaChanged = true
-            }
-        }
+
         get("/data") {
             val rawTag = call.request.queryParameters["tag"]?.toLong()
             val forClient = rawTag != null

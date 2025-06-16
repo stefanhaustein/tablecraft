@@ -1,14 +1,74 @@
+import {getColumn, getRow, toCellId, toRangeKey} from "./lib/util.js";
+import {currentCell, currentSheet, selectionRangeX, selectionRangeY} from "./shared_state.js";
+
 let menuSelectElement = document.getElementById("menuSelect")
+
+let pasteBuffer = ""
 
 menuSelectElement.addEventListener("change", () => {
     switch (menuSelectElement.value) {
         case "Clear All": clearAll(); break;
+        case "Cut": copy(true); break;
+        case "Copy": copy(false); break;
+        case "Paste": paste(); break;
         case "Load File": uploadSpreadsheet(); break;
         case "Load Example": loadExample(); break;
         case "Save File": downloadSpreadsheet(); break;
     }
     menuSelectElement.value = "Menu"
 })
+
+
+function copy(clear) {
+    if (currentCell == null) {
+        return
+    }
+    let rootCellId = currentCell.key
+    let x0 = getColumn(rootCellId)
+    let y0 = getRow(rootCellId)
+    let y = y0
+
+    let dx = Math.sign(selectionRangeX)
+    let dy = Math.sign(selectionRangeY)
+
+    let rangeKey =   currentSheet.name + "!" + toRangeKey(x0, y0, selectionRangeX, selectionRangeY)
+    pasteBuffer = "range: \"" + rangeKey + "\"\n\n[cells]\n\n"
+
+    while(true) {
+        let x = x0
+        while (true) {
+            let key = toCellId(x, y)
+            let cell = currentSheet.cells[key]
+            if (cell != null) {
+                pasteBuffer += key + ": " + JSON.stringify(cell) + "\n"
+            }
+
+            if (x == x0 + selectionRangeX) {
+                break
+            }
+            x += dx
+        }
+        if (y == y0 + selectionRangeY) {
+            break
+        }
+        y += dy
+    }
+
+    if (clear) {
+        fetch(new Request("/clear/" + rangeKey, {method: "POST"}))
+    }
+
+    console.log("copied: ", pasteBuffer)
+}
+
+function paste() {
+    let key = currentCell.key
+    let col = getColumn(key)
+    let row = getRow(key)
+    let rangeKey = currentSheet.name + "!" + toRangeKey(col, row, selectionRangeX, selectionRangeY)
+
+    fetch(new Request("/paste/" + rangeKey, {method: "POST", body: pasteBuffer}))
+}
 
 function clearAll() {
     if (confirm("Delete all data and start from scratch?")) {

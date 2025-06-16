@@ -59,4 +59,32 @@ class Sheet(
         }
     }
 
+    fun paste(token: ModificationToken, targetSelectionRange: CellRangeReference, tomson: Map<String, Map<String, Any>>) {
+        val rawSourceRange = tomson[""]!!["range"] as String
+        val sourceRange = CellRangeReference.parse(rawSourceRange)
+
+        val targetRange = CellRangeReference(
+            targetSelectionRange.sheet,
+            targetSelectionRange.fromColumn,
+            targetSelectionRange.fromRow,
+            targetSelectionRange.fromColumn + sourceRange.width - 1,
+            targetSelectionRange.fromRow + sourceRange.width - 1)
+
+        targetRange.clear(token)
+
+        val offsetX = targetSelectionRange.fromColumn - sourceRange.fromColumn
+        val offsetY = targetSelectionRange.fromRow - sourceRange.fromRow
+
+        for ((key, value) in tomson["cells"]!!) {
+            try {
+                val column = Cell.getColumn(key) + offsetX
+                val row = Cell.getRow(key) + offsetY
+                getOrCreateCell(Cell.id(column, row)).setJson(value as Map<String, Any>, token)
+            } catch (e: Exception) {
+                System.err.println("Error parsing cell $key = $value")
+                e.printStackTrace()
+            }
+        }
+    }
+
 }

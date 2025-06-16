@@ -177,6 +177,7 @@ object Model : ModelInterface {
 
     fun clearAll(modificationToken: ModificationToken) {
         modificationToken.symbolsChanged = true
+        modificationToken.formulaChanged = true
 
         for (key in ports.keys.toList()) {
             ports.deletePort(key, modificationToken)

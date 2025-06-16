@@ -17,13 +17,9 @@ class Cell(
     id: String
 ) : Node, Iterable<Cell>, ToJson {
 
-    val column: Int
-    val row: Int
+    val column = getColumn(id)
+    val row = getRow(id)
 
-    init {
-        column = id[0].code - 'A'.code
-        row = id.substring(1).toInt()
-    }
 
     val id: String
         get() = id(column, row)
@@ -97,7 +93,11 @@ class Cell(
         }
     }
 
-
+    fun clear(modificationToken: ModificationToken) {
+        setFormula("", modificationToken)
+        setImage("", modificationToken)
+        setValidation(emptyMap(), modificationToken)
+    }
 
     fun setFormula(value: String, modificationToken: ModificationToken) {
         if (value != rawFormula) {
@@ -201,5 +201,11 @@ class Cell(
         }
 
         fun id(column: Int, row: Int) = (column + 65).toChar().toString() + row
+
+        fun getColumn(key: String) = key[0].code - 'A'.code
+
+
+        fun getRow(key: String) = key.substring(1).toInt()
+
     }
 }
