@@ -238,7 +238,7 @@ object Model : ModelInterface {
                 val current = modificationToken.refreshRoots.first()
                 modificationToken.refreshRoots.remove(current)
                 // println("Updating: $current")
-                if (current.updateValue(modificationToken.tag)) {
+                if (current.updateValue(modificationToken)) {
                     anyChanged = true
                     // println("adding new dependencies: ${current.dependencies}")
                     for (dep in current.dependencies) {
@@ -273,7 +273,7 @@ object Model : ModelInterface {
                     if (found) {
                         println("Updating node: $node")
                         modificationToken.refreshNodes.remove(node)
-                        if (node.updateValue(modificationToken.tag)) {
+                        if (node.updateValue(modificationToken)) {
                             anyChanged = true
                         }
                         break

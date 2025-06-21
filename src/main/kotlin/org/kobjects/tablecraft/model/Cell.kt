@@ -39,17 +39,17 @@ class Cell(
     override val dependencies = mutableSetOf<Node>()
 
 
-    override fun updateValue(tag: Long): Boolean {
+    override fun updateValue(token: ModificationToken): Boolean {
         var newValue: Any
         try {
-            newValue = expression.eval(EvaluationContext())
+            newValue = expression.eval(EvaluationContext(token))
         } catch (e: Exception) {
             e.printStackTrace()
             newValue = e
         }
         return if (newValue == value) false else {
             value = newValue
-            valueTag = tag
+            valueTag = token.tag
             true
         }
     }

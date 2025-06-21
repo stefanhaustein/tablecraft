@@ -23,9 +23,9 @@ class OutputPortHolder(
     override val inputs = mutableSetOf<Node>()
 
 
-    override fun updateValue(tag: Long): Boolean {
+    override fun updateValue(token: ModificationToken): Boolean {
         value = if (singleCell) cellRange!!.iterator().next().value else CellRangeValues(cellRange!!)
-        valueTag = tag
+        valueTag = token.tag
         if (attached) {
             try {
                 instance.setValue(value)

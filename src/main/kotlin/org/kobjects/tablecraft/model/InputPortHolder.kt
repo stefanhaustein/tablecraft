@@ -63,15 +63,15 @@ class InputPortHolder(
         token.addRefresh(this)
     }
 
-    override fun updateValue(tag: Long): Boolean {
-        if (valueTag == tag) {
+    override fun updateValue(token: ModificationToken): Boolean {
+        if (valueTag == token.tag) {
             return false
         }
         val newValue = if (Model.simulationMode_) simulationValue else instance.getValue()
         if (value == newValue) {
             return false
         }
-        valueTag = tag
+        valueTag = token.tag
         value = newValue
         return true
     }

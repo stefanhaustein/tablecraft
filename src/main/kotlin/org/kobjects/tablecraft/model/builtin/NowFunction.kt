@@ -2,6 +2,7 @@ package org.kobjects.tablecraft.model.builtin
 
 import kotlinx.datetime.Clock
 import org.kobjects.tablecraft.model.Model
+import org.kobjects.tablecraft.model.expression.EvaluationContext
 import org.kobjects.tablecraft.pluginapi.ValueChangeListener
 import org.kobjects.tablecraft.pluginapi.StatefulFunctionInstance
 import java.util.Timer
@@ -15,7 +16,7 @@ class NowFunction(
     var task: TimerTask? = null
     var host: ValueChangeListener? = null
 
-    override fun apply(params: Map<String, Any>): Any {
+    override fun apply(context: EvaluationContext, params: Map<String, Any>): Any {
         return Clock.System.now()
     }
 

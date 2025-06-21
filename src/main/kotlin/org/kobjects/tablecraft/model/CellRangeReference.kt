@@ -4,7 +4,7 @@ import org.kobjects.tablecraft.pluginapi.ModificationToken
 import java.lang.Integer.max
 import java.lang.Integer.min
 
-class CellRangeReference(
+data class CellRangeReference(
     val sheet: Sheet,
     val fromColumn: Int,
     val fromRow: Int,
@@ -12,8 +12,6 @@ class CellRangeReference(
     val toRow: Int      // Inclusive
 
 ): Iterable<Cell> {
-
-
 
     val width: Int
         get() = toColumn - fromColumn + 1
@@ -47,6 +45,16 @@ class CellRangeReference(
         }
         return result.iterator()
     }
+
+    fun toStringLocal(): String {
+        val from = Cell.id(fromColumn, fromRow)
+        if (fromColumn == toColumn && fromRow == toRow) {
+            return from
+        }
+        return from + ":" + Cell.id(toColumn, toRow)
+    }
+
+    override fun toString() = sheet.name + "!" + toStringLocal()
 
     override fun iterator(): Iterator<Cell> = iterator(false)
 

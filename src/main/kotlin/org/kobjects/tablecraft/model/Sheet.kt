@@ -7,6 +7,8 @@ class Sheet(
     val name: String,
     var tag: Long = 0L
 ) {
+    val highlighted = mutableSetOf<CellRangeReference>()
+    var highlightTag: Long = 0L
     val cells = mutableMapOf<String, Cell>()
     var deleted = false
 
@@ -22,6 +24,14 @@ class Sheet(
         token.symbolsChanged = true
     }
 
+    fun setHighlight(modificationToken: ModificationToken, cellRangeReference: CellRangeReference, value: Boolean) {
+        if (value) {
+            highlighted.add(cellRangeReference)
+        } else {
+            highlighted.remove(cellRangeReference)
+        }
+        highlightTag = modificationToken.tag
+    }
 
     fun serialize(tag: Long, forClient: Boolean): String {
         val sb = StringBuilder()
@@ -30,6 +40,12 @@ class Sheet(
                 sb.append("[sheets.$name]\n\ndeleted: true\n\n")
             }
         } else {
+            if (highlightTag > tag) {
+                sb.append("[sheets.$name]\n\nhighlighted: [")
+                    .append(highlighted.joinToString(",") { """"${it.toStringLocal()}""""})
+                    .append("]\n\n")
+            }
+
             sb.append("[sheets.$name.cells]\n\n")
             for (cell in cells.values) {
                 cell.serialize(sb, tag, forClient)

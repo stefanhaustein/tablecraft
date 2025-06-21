@@ -1,5 +1,6 @@
 package org.kobjects.tablecraft.model.builtin
 
+import org.kobjects.tablecraft.model.expression.EvaluationContext
 import org.kobjects.tablecraft.pluginapi.ValueChangeListener
 import org.kobjects.tablecraft.pluginapi.StatefulFunctionInstance
 
@@ -11,7 +12,7 @@ class FlipflopFunction(
 
     override fun attach(host: ValueChangeListener) {}
 
-    override fun apply(params: Map<String, Any>): Any {
+    override fun apply(context: EvaluationContext, params: Map<String, Any>): Any {
         val s = params["s"] as Boolean
         val r = params["r"] as Boolean
 

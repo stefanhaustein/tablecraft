@@ -1,6 +1,7 @@
 package org.kobjects.tablecraft.model
 
 import org.kobjects.tablecraft.json.quote
+import org.kobjects.tablecraft.pluginapi.ModificationToken
 
 interface Node {
     val value: Any
@@ -8,7 +9,7 @@ interface Node {
     val dependencies: MutableSet<Node>
     val inputs: MutableSet<Node>
 
-    fun updateValue(tag: Long): Boolean
+    fun updateValue(token: ModificationToken): Boolean
     fun detach()
 
     fun qualifiedId(): String

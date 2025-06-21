@@ -1,6 +1,7 @@
 package org.kobjects.tablecraft.model.builtin
 
 import org.kobjects.tablecraft.model.Model
+import org.kobjects.tablecraft.model.expression.EvaluationContext
 import org.kobjects.tablecraft.pluginapi.ValueChangeListener
 import org.kobjects.tablecraft.pluginapi.StatefulFunctionInstance
 import java.util.Timer
@@ -21,7 +22,7 @@ class TimedPulse(
         this.host = host
     }
 
-    override fun apply(params: Map<String, Any>): Any {
+    override fun apply(context: EvaluationContext, params: Map<String, Any>): Any {
         val inputState = params["input"] as Boolean
         if (inputState) {
             if (!armed) {

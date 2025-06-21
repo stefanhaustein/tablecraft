@@ -4,6 +4,8 @@ import org.kobjects.tablecraft.model.Cell
 import org.kobjects.tablecraft.model.CellRangeReference
 import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.model.expression.CellRangeExpression
+import org.kobjects.tablecraft.model.expression.EvaluationContext
+import org.kobjects.tablecraft.pluginapi.ModificationToken
 import org.kobjects.tablecraft.pluginapi.ValueChangeListener
 import org.kobjects.tablecraft.pluginapi.StatefulFunctionInstance
 import java.util.*
@@ -11,8 +13,11 @@ import java.util.*
 class StateMachine(
     val cellRange: CellRangeReference
 ) : StatefulFunctionInstance {
+    private var currentState = ""
+    private val highlighted = mutableSetOf<CellRangeReference>()
+
     var currentRow: Int = 0
-    var currentState = ""
+
     val timer = Timer()
     var timedTransition: TimedTransition? = null
     var host: ValueChangeListener? = null
@@ -32,11 +37,29 @@ class StateMachine(
             (if (col < 0) cellRange.toColumn + 1 else cellRange.fromColumn) + col, cellRange.fromRow + row)).value
     }
 
-    override fun apply(params: Map<String, Any>): Any {
+
+    fun setCurrentState(token: ModificationToken, state: String) {
+        if (state == currentState) {
+            return
+        }
+        for (highlight in highlighted) {
+            cellRange.sheet.setHighlight(token, highlight, false)
+        }
+        for (i in 0 until rowCount) {
+            if (getValue(0, i) == state) {
+                val toHighlight = CellRangeReference(cellRange.sheet, cellRange.fromColumn, cellRange.fromRow + i, cellRange.toColumn, cellRange.fromRow + i)
+                highlighted.add(toHighlight)
+                cellRange.sheet.setHighlight(token, toHighlight, true)
+            }
+        }
+        currentState = state
+    }
+
+    override fun apply(context: EvaluationContext, params: Map<String, Any>): Any {
         println("**** state machine apply called; currentState: $currentState")
 
         if (currentState == "") {
-            currentState = getValue(0, 0).toString()
+            setCurrentState(context.token, getValue(0, 0).toString())
         }
 
         val initialRow = currentRow
@@ -44,9 +67,10 @@ class StateMachine(
             if (getValue(0, currentRow).toString() == currentState) {
                 val gate = getValue(-2, currentRow)
                 if (gate == true) {
-                    currentState = getValue(-1, currentRow).toString()
                     timedTransition?.cancel()
                     timedTransition = null
+                    setCurrentState(context.token, getValue(-1, currentRow).toString())
+
                     // Trigger a re-calculation as there might be a followup state transition
                     timer.schedule(object : TimerTask() {
                         override fun run() {
@@ -86,7 +110,7 @@ class StateMachine(
         override fun run() {
             Model.applySynchronizedWithToken {
                 timedTransition = null
-                currentState = targetState
+                setCurrentState(it, targetState)
                 currentRow = targetRow
                 host?.notifyValueChanged(it)
             }

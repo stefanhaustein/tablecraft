@@ -34,7 +34,7 @@ class PluginOperationCall(
     }
 
     override fun eval(context: EvaluationContext): Any {
-        return operation.apply(parameters.mapValues {
+        return operation.apply(context, parameters.mapValues {
             val expr = it.value.first
             when (it.value.second) {
                 Type.INT -> expr.evalInt(context)

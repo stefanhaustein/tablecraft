@@ -1,4 +1,6 @@
 package org.kobjects.tablecraft.model.expression
 
-class EvaluationContext {
+import org.kobjects.tablecraft.pluginapi.ModificationToken
+
+class EvaluationContext(val token: ModificationToken) {
 }
