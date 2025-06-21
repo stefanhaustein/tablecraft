@@ -29,7 +29,7 @@ class StateMachine(
 
     fun getValue(col: Int, row: Int): Any {
         return cellRange.sheet.getOrCreateCell(Cell.id(
-            cellRange.fromColumn + col, cellRange.fromRow + row)).value
+            (if (col < 0) cellRange.toColumn + 1 else cellRange.fromColumn) + col, cellRange.fromRow + row)).value
     }
 
     override fun apply(params: Map<String, Any>): Any {
@@ -42,9 +42,9 @@ class StateMachine(
         val initialRow = currentRow
         do {
             if (getValue(0, currentRow).toString() == currentState) {
-                val gate = getValue(1, currentRow)
+                val gate = getValue(-2, currentRow)
                 if (gate == true) {
-                    currentState = getValue(2, currentRow).toString()
+                    currentState = getValue(-1, currentRow).toString()
                     timedTransition?.cancel()
                     timedTransition = null
                     // Trigger a re-calculation as there might be a followup state transition
@@ -62,7 +62,7 @@ class StateMachine(
                     if (targetTime < timedTransition?.targetTime ?: Long.MAX_VALUE) {
                         timedTransition?.cancel()
                         val newTransition = TimedTransition(
-                            targetTime, getValue(2, currentRow).toString(), currentRow)
+                            targetTime, getValue(-1, currentRow).toString(), currentRow)
                         timedTransition = newTransition
                         timer.schedule(newTransition, delay)
                     }

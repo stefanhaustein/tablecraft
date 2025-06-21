@@ -1,8 +1,10 @@
 let regex = /[a-zA-Z0-9_.]+|\+|:|-|<|>|=|\*|\(|\)|,/g
 
 
-export function tokenize(s) {
-    return s.match(regex)
+function tokenize(s) {
+    let tokenized = s.match(regex)
+    console.log("tokenized", tokenized)
+    return tokenized
 }
 
 

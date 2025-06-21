@@ -34,16 +34,12 @@ export function renderCell(key) {
     classes.remove("c", "e", "i", "r", "l")
     targetElement.removeAttribute("title")
 
-    if (value == "") {
-        value = null
-    }
-
     switch(typeof value) {
         case "bigint":
         case "number": classes.add("r"); break;
         case "boolean": classes.add("c"); break;
         case "object":
-            if (value == null) {
+            if (value == null || value == "") {
                 let col = getColumn(key)
                 let row = getRow(key)
                 let nextKey = toCellId(col + 1, row)
@@ -73,22 +69,6 @@ export function renderCell(key) {
     }
 
     targetElement.textContent = value
-
-
-    /*    } else if (value.startsWith("i:")) {
-        targetElement.textContent = ""
-        let img = document.createElement("img")
-        img.src = value.substring(2)
-        targetElement.appendChild(img)
-        classes.add("i")
-    } else {
-        let abbr = document.createElement("span")
-        targetElement.setAttribute("title", value.startsWith("e:") ? value.substring(2) : value)
-        abbr.textContent = "#REF"
-        targetElement.textContent = ""
-        targetElement.appendChild(abbr)
-        classes.add("e")
-    }*/
 }
 
 function renderSelect(targetElement, cellData) {

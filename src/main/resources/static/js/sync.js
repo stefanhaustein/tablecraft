@@ -176,6 +176,15 @@ function processSheetCellsUpdate(name, map) {
         }
         if (sheet == currentSheet) {
             renderCell(key)
+
+            if (key != currentCell.key) {
+                document.getElementById(key).classList.add("changed")
+                document.getElementById(key).style.transition = "box-shadow:200ms"
+                setTimeout(() => {
+                    document.getElementById(key).classList.remove("changed")
+                }, 1000)
+            }
+
             let col = getColumn(key)
             if (col > 0) {
                 let row = getRow(key)
