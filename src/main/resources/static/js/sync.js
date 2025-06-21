@@ -191,6 +191,16 @@ function processSheetCellsUpdate(name, map) {
                 cell = cells[key] = {key: key}
             }
             cell.c = newValue
+
+            let element = document.getElementById(key)
+            if (element) {
+                element.classList.add("changed")
+                element.style.transition = "box-shadow:200ms"
+                setTimeout(() => {
+                    element.classList.remove("changed")
+                }, 1000)
+            }
+
         } else if (key.indexOf(".") == -1) {
             newValue.key = key
             cells[key] = newValue
@@ -199,17 +209,6 @@ function processSheetCellsUpdate(name, map) {
         }
         if (sheet == currentSheet) {
             renderCell(key)
-
-            if (key != currentCell.key) {
-                let element = document.getElementById(key)
-                if (element) {
-                    element.classList.add("changed")
-                    element.style.transition = "box-shadow:200ms"
-                    setTimeout(() => {
-                        element.classList.remove("changed")
-                    }, 1000)
-                }
-            }
 
             let col = getColumn(key)
             if (col > 0) {
