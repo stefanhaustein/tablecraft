@@ -5,6 +5,7 @@ export function renderCell(key) {
     let targetElement = document.getElementById(key)
     if (targetElement == null) {
         console.log("Element for cell key '" + key + "' not found.'")
+        return;
     }
 
     let cellData = currentSheet.cells[key]
@@ -39,6 +40,7 @@ export function renderCell(key) {
         case "number": classes.add("r"); break;
         case "boolean": classes.add("c"); break;
         case "object":
+        case "string":
             if (value == null || value == "") {
                 let col = getColumn(key)
                 let row = getRow(key)

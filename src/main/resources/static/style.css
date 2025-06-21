@@ -71,6 +71,9 @@ h2, h3 {
     margin-bottom: 10px;
 }
 
+body #spreadsheetTable tbody tr td.highlight {
+    background-color: #ddd;
+}
 
 /* make sure the specifity is higher than #spreadsheettable td.c */
 .input, body #spreadsheetTable td.input {

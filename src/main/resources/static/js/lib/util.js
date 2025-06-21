@@ -108,3 +108,31 @@ export function toRangeKey(column, row, colSpan, rowSpan) {
 
     return toCellId(col0, row0) + ":" + toCellId(col1, row1)
 }
+
+export function iterateKeys(cellRange, callback) {
+    let cut = cellRange.indexOf(":")
+    if (cut == -1) {
+        callback(cellRange)
+        return
+    }
+    let key0 = cellRange.substring(0, cut).trim()
+    let key1 = cellRange.substring(cut + 1).trim()
+
+    let col0 = getColumn(key0)
+    let col1 = getColumn(key1)
+
+    let row0 = getRow(key0)
+    let row1 = getRow(key1)
+
+    let startCol = Math.min(col0, col1)
+    let startRow = Math.min(row0, row1)
+
+    let endCol = Math.max(col0, col1)
+    let endRow = Math.max(row0, row1)
+
+    for (let row = startRow; row <= endRow; row++) {
+        for (let col = startCol; col <= endCol; col++) {
+            callback(toCellId(col, row))
+        }
+    }
+}

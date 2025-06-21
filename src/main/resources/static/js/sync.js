@@ -9,7 +9,7 @@ import {
 import { registerFactory } from "./shared_model.js"
 
 
-import {addOption, getColumn, getRow, toCellId} from "./lib/util.js";
+import {addOption, getColumn, getRow, iterateKeys, toCellId} from "./lib/util.js";
 import {processFunction} from "./operation_panel_controller.js";
 import {processIntegrationUpdate, updateIntegrationSpec} from "./integration_panel_controller.js";
 import {
@@ -135,17 +135,6 @@ function updateSheetSelectElement() {
 }
 
 function processSheetUpdate(name, map) {
-    if (map["deleted"]) {
-        let current =  model.sheets[name] == currentSheet
-        delete model.sheets[name]
-        updateSheetSelectElement()
-        if (current) {
-            selectSheet()
-        }
-    }
-}
-
-function processSheetCellsUpdate(name, map) {
     let sheet = model.sheets[name]
     if (sheet == null || sheetSelectElement.firstElementChild == null) {
         if (sheet == null ) {
@@ -156,7 +145,41 @@ function processSheetCellsUpdate(name, map) {
         }
 
         updateSheetSelectElement()
+        selectSheet()
     }
+
+    let current =  sheet == currentSheet
+
+    if (map["deleted"]) {
+        delete model.sheets[name]
+        updateSheetSelectElement()
+        if (current) {
+            selectSheet()
+        }
+        return
+    }
+
+    let highlighted = map["highlighted"]
+    if (highlighted != null) {
+        if (current && sheet != null) {
+            for (let range of (sheet.highlighted || [])) {
+                iterateKeys(range, (key) => {
+                    document.getElementById(key).classList.remove("highlight")
+                })
+            }
+            for (let range of highlighted) {
+                iterateKeys(range, (key) => {
+                    document.getElementById(key).classList.add("highlight")
+                })
+            }
+        }
+        sheet.highlighted = highlighted
+    }
+}
+
+function processSheetCellsUpdate(name, map) {
+    let sheet = model.sheets[name]
+
 
     let cells = sheet.cells
     for (let key in map) {
@@ -178,11 +201,14 @@ function processSheetCellsUpdate(name, map) {
             renderCell(key)
 
             if (key != currentCell.key) {
-                document.getElementById(key).classList.add("changed")
-                document.getElementById(key).style.transition = "box-shadow:200ms"
-                setTimeout(() => {
-                    document.getElementById(key).classList.remove("changed")
-                }, 1000)
+                let element = document.getElementById(key)
+                if (element) {
+                    element.classList.add("changed")
+                    element.style.transition = "box-shadow:200ms"
+                    setTimeout(() => {
+                        element.classList.remove("changed")
+                    }, 1000)
+                }
             }
 
             let col = getColumn(key)
