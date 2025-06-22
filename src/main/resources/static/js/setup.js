@@ -6,9 +6,10 @@ for (let col = 0; col < 27; col++) {
     let th = document.createElement("th")
     th.style.top = 0
     if (col == 0) {
+        th.innerHTML = "<select id='sheetSelect' style='width:100%;height:100%'></select>"
         th.style.left = 0
         th.style.zIndex = 3
-        th.id = "origin"
+
     } else {
         th.textContent = String.fromCharCode(col + 64)
     }
