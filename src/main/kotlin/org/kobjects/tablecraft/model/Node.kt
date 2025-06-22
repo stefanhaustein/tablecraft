@@ -6,7 +6,7 @@ import org.kobjects.tablecraft.pluginapi.ModificationToken
 interface Node {
     val value: Any
     val valueTag: Long
-    val dependencies: MutableSet<Node>
+    val outputs: MutableSet<Node>
     val inputs: MutableSet<Node>
 
     fun updateValue(token: ModificationToken): Boolean
@@ -19,8 +19,8 @@ interface Node {
             sb.append(""", "inputs":[${inputs.joinToString(",") {
                 it.qualifiedId().quote() }}]""")
         }
-        if (dependencies.isNotEmpty()) {
-            sb.append(""", "dependencies":[${dependencies.joinToString(",") {
+        if (outputs.isNotEmpty()) {
+            sb.append(""", "outputs":[${outputs.joinToString(",") {
                 it.qualifiedId().quote() }}]""")
         }
     }

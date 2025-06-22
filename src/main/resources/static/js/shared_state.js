@@ -108,14 +108,14 @@ export function selectSheet(name) {
 let dependenciesShown = []
 
 export function showDependencies(targetKey) {
-    removeClasses(dependenciesShown, ["self","input", "input2", "dependency", "dependency2"])
+    removeClasses(dependenciesShown, ["self","input", "input2", "output", "output2"])
     if (targetKey == null) {
         dependenciesShown = []
     } else {
         let seenIn = {}
         renderDependencies(targetKey, "inputs",  seenIn,0, ["self","input", "input2"])
         let seenOut = {}
-        renderDependencies(targetKey, "dependencies", seenOut,0, ["self","dependency", "dependency2"])
+        renderDependencies(targetKey, "outputs", seenOut,0, ["self","output", "output2"])
 
         dependenciesShown = Object.getOwnPropertyNames(seenIn).concat(Object.getOwnPropertyNames(seenOut));
     }

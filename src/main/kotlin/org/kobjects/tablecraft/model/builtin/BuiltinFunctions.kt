@@ -3,7 +3,7 @@ package org.kobjects.tablecraft.model.builtin
 import org.kobjects.tablecraft.pluginapi.*
 
 object BuiltinFunctions : Plugin {
-    override val operationSpecs = listOf(
+    override val operationSpecs = listOf<AbstractArtifactSpec>(
         FunctionSpec(
             Type.DATE,
             "now",
@@ -76,7 +76,20 @@ object BuiltinFunctions : Plugin {
             StateMachine.create(it)
         },
 
-        RestOut.SPEC
+        RestOut.SPEC,
 
+        OutputPortSpec(
+            Type.RANGE,
+            "NamedRange",
+            "A named range of cells",
+            emptyList(),
+            emptySet(),
+            0) {
+                object : OutputPortInstance {
+                    override fun setValue(value: Any) {}
+                    override fun attach() {}
+                    override fun detach() {}
+                }
+            }
     )
 }

@@ -12,7 +12,7 @@ class InputPortHolder(
 
 ) : PortHolder, Node {
 
-    override val dependencies = mutableSetOf<Node>()
+    override val outputs = mutableSetOf<Node>()
     override val inputs = mutableSetOf<Node>()
 
     val instance = specification.createFn(configuration)

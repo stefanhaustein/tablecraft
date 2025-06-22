@@ -36,7 +36,7 @@ class Cell(
     var formulaTag = 0L
 
     override val inputs = mutableSetOf<Node>()
-    override val dependencies = mutableSetOf<Node>()
+    override val outputs = mutableSetOf<Node>()
 
 
     override fun updateValue(token: ModificationToken): Boolean {
@@ -60,7 +60,7 @@ class Cell(
 
     fun clearDependsOn() {
         for (dep in inputs) {
-            dep.dependencies.remove(this)
+            dep.outputs.remove(this)
         }
         inputs.clear()
     }

@@ -10,7 +10,7 @@ class PortExpression(
 
     init {
         owner.inputs.add(port)
-        port.dependencies.add(owner)
+        port.outputs.add(owner)
     }
 
     override fun eval(context: EvaluationContext): Any {

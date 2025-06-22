@@ -19,7 +19,7 @@ class OutputPortHolder(
     override var value: Any = Unit
     override var valueTag: Long = tag
 
-    override val dependencies = mutableSetOf<Node>()
+    override val outputs = mutableSetOf<Node>()
     override val inputs = mutableSetOf<Node>()
 
 
@@ -60,13 +60,13 @@ class OutputPortHolder(
         clearDependsOn()
         for (cell in cellRange!!) {
             inputs.add(cell)
-            cell.dependencies.add(this)
+            cell.outputs.add(this)
         }
     }
 
     fun clearDependsOn() {
         for (dep in inputs) {
-            dep.dependencies.remove(this)
+            dep.outputs.remove(this)
         }
         inputs.clear()
     }

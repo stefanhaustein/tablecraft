@@ -10,11 +10,11 @@ class CellRangeExpression(
 ) : Expression() {
 
     init {
-        // All dDependencies are removed on re-parse. This can't be "balanced" as
+        // All dependencies are removed on re-parse. This can't be "balanced" as
         // an expression might reference the same cells multiple times
         for (t in target.iterator()) {
             owner.inputs.add(t)
-            t.dependencies.add(owner)
+            t.outputs.add(owner)
         }
     }
 

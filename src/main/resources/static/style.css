@@ -54,11 +54,11 @@ body table#spreadsheetTable tbody tr td.changed {
     height: 36px;
 }
 
-.dependency, body #spreadsheetTable td.dependency {
+.output, body #spreadsheetTable td.output {
     background-color: #f9cb9c;
 }
 
-.dependency2, body #spreadsheetTable td.dependency2 {
+.output2, body #spreadsheetTable td.output2 {
     background-color: #fce4cd;
 }
 

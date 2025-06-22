@@ -9,7 +9,7 @@ class CellExpression(
 
     init {
         owner.inputs.add(target)
-        target.dependencies.add(owner)
+        target.outputs.add(owner)
     }
 
     override fun eval(context: EvaluationContext): Any {

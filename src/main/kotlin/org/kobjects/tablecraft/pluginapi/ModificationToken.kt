@@ -22,7 +22,7 @@ class ModificationToken() {
     }
 
     fun addAllDependencies(node: Node) {
-        for (dep in node.dependencies) {
+        for (dep in node.outputs) {
             if (refreshNodes.add(dep)) {
                 addAllDependencies(dep)
             }

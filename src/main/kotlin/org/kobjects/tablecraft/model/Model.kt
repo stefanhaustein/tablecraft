@@ -241,7 +241,7 @@ object Model : ModelInterface {
                 if (current.updateValue(modificationToken)) {
                     anyChanged = true
                     // println("adding new dependencies: ${current.dependencies}")
-                    for (dep in current.dependencies) {
+                    for (dep in current.outputs) {
                         if (dep.inputs.size == 1) {
                             modificationToken.refreshNodes.remove(dep)
                             modificationToken.refreshRoots.add(dep)
