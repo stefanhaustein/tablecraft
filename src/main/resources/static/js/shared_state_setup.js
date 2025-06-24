@@ -1,5 +1,8 @@
-import {setCurrentCellFormula, getCurrentCellElement} from "./shared_state.js";
+import {setCurrentCellFormula, getCurrentCellElement, getSelectedCellRangeKey} from "./shared_state.js";
 import {nullToEmtpy} from "./lib/values.js";
+import {promptDialog} from "./lib/dialogs.js";
+import {getAllPorts} from "./shared_model.js";
+import {postJson} from "./lib/util.js";
 
 // Sets up event handlers etc. for shared state. Depends on shared state
 
@@ -24,35 +27,28 @@ formulaInputElement.addEventListener("keydown", event => {
     }
 })
 
+let rangeNameSelectElement = document.getElementById("rangeNameSelect")
+rangeNameSelectElement.addEventListener("change", async () => {
+    rangeNameSelectElement.selectedIndex = 0
+    let name = await promptDialog("Name Cell Range " + getSelectedCellRangeKey())
 
-let panelSelectElement = document.getElementById("panelSelect")
-let currentPanelName = ""
-let currentPanelElement = null
-
-selectPanel(panelSelectElement.value)
-
-panelSelectElement.addEventListener("change", (ev) => {
-    console.log("Select panel: " + name, ev)
-    selectPanel(panelSelectElement.value)
 })
 
-export function selectPanel(name) {
-    if (name == currentPanelName) {
-        return
+
+
+
+
+document.getElementById("simulationMode").addEventListener("change", (event) =>{
+    let checked = event.target.checked
+    for (let port of getAllPorts()) {
+        let name = port.name
+        let simulationValueElement = document.getElementById("port." + name + ".simulationValue")
+        if (simulationValueElement != null) {
+            let valueElement =  document.getElementById("port." + name + ".value")
+            valueElement.style.display = checked ? "none" : "inline"
+            simulationValueElement.style.display = checked ? "inline" : "none"
+        }
     }
 
-    if (currentPanelElement != null) {
-        currentPanelElement.style.display = "none"
-    }
-    currentPanelName = name
-    panelSelectElement.value = name
-
-    let sidePanelElement = document.getElementById("sidePanel")
-    currentPanelElement = document.getElementById(name + "Panel")
-    if (name == "Hide") {
-        sidePanelElement.style.display = "none"
-    } else {
-        sidePanelElement.style.display = ""
-        currentPanelElement.style.display = "block"
-    }
-}
+    postJson("/simulationMode", checked)
+})

@@ -80,7 +80,7 @@ object BuiltinFunctions : Plugin {
 
         OutputPortSpec(
             Type.RANGE,
-            "NamedRange",
+            "NamedCells",
             "A named range of cells",
             emptyList(),
             emptySet(),

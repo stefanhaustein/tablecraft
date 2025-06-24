@@ -10,9 +10,13 @@ let outputPortSpecListElement = document.getElementById("outputPortSpecList")
 
 export function processPortSpec(spec) {
     let container = spec.kind == "OUTPUT_PORT" ? outputPortSpecListElement : inputPortSpecListElement
-    updateSpec(container, "portspec.", spec, () => {
-        showPortDialog(spec)
-    })
+    if (spec.name == "NamedCells") {
+        document.getElementById("addNamedCellsButton").addEventListener("click", () => { showPortDialog(spec) })
+    } else {
+        updateSpec(container, "portspec.", spec, () => {
+            showPortDialog(spec)
+        })
+    }
 }
 
 export function processPortValue(key, map) {
@@ -47,7 +51,7 @@ export function processPortUpdate(name, f) {
         let entryElement = document.createElement("div")
         entryElement.id = "port." + f.name
         entryElement.className = "port"
-        insertById(document.getElementById(spec.kind == "OUTPUT_PORT" ? "outputPortList" : "inputPortList"), entryElement)
+        insertById(document.getElementById(spec.kind == "OUTPUT_PORT" ? f.type == "NamedCells" ? "namedCellListContainer" :  "outputPortList" : "inputPortList"), entryElement)
 
         let entryConfigElement = document.createElement("img")
         entryConfigElement.src = "/img/settings.svg"
@@ -61,7 +65,8 @@ export function processPortUpdate(name, f) {
         let nameElement = document.createElement("b")
         nameElement.textContent = name
 
-        entryTitleElement.append(nameElement, ": " + f.type + "")
+
+        entryTitleElement.append(nameElement, ": " + (f.type == "NamedCells" ? f.source : f.type))
 
         entryElement.append(entryConfigElement, entryTitleElement)
 
@@ -87,7 +92,7 @@ export function processPortUpdate(name, f) {
             showValue = !document.getElementById("simulationMode").checked
             entryValueElement.style.display = showValue ? "none" : "inline"
             entryContentElement.appendChild(entryValueElement)
-        } else {
+        } else if (f.type != "NamedCells") {
             let sourceElement = document.createElement("div")
             sourceElement.style.float = "right"
             sourceElement.style.paddingRight = "5px"

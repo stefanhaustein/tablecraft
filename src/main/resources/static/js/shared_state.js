@@ -1,4 +1,4 @@
-import {postJson} from "./lib/util.js";
+import {getColumn, getRow, postJson, toRangeKey} from "./lib/util.js";
 import {nullToEmtpy} from "./lib/values.js";
 import {renderCell} from "./cell_renderer.js";
 import {getAllPorts, model} from "./shared_model.js";
@@ -27,21 +27,9 @@ formulaInputElement.addEventListener("blur", () => {
     commitCurrentCell()
 })
 
-
-document.getElementById("simulationMode").addEventListener("change", (event) =>{
-    let checked = event.target.checked
-    for (let port of getAllPorts()) {
-        let name = port.name
-        let simulationValueElement = document.getElementById("port." + name + ".simulationValue")
-        if (simulationValueElement != null) {
-            let valueElement =  document.getElementById("port." + name + ".value")
-            valueElement.style.display = checked ? "none" : "inline"
-            simulationValueElement.style.display = checked ? "inline" : "none"
-        }
-    }
-
-    postJson("/simulationMode", checked)
-})
+export function getSelectedCellRangeKey() {
+    return toRangeKey(getColumn(currentCell.key), getRow(currentCell.key), selectionRangeX, selectionRangeY)
+}
 
 export function addCellSelectionListener(listener) {
     cellSelectionListeners.push(listener)

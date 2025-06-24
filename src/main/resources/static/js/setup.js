@@ -9,6 +9,7 @@ for (let col = 0; col < 27; col++) {
         th.innerHTML = "<select id='sheetSelect' style='width:100%;height:100%'></select>"
         th.style.left = 0
         th.style.zIndex = 3
+        th.style.padding = 0
 
     } else {
         th.textContent = String.fromCharCode(col + 64)
