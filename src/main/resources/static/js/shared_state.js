@@ -122,7 +122,15 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
         return
     }
 
-    originElement.textContent = id
+    let name = toRangeKey(getColumn(id), getRow(id), rangeX, rangeY)
+    let normalizedKey = currentSheet.name + "!" + toRangeKey(getColumn(id), getRow(id), rangeX, rangeY)
+    for (let port of getAllPorts()) {
+        if (port.type == "NamedCells" && port.source == normalizedKey) {
+            name = port.name.substring(port.name.indexOf("!"))
+            break
+        }
+    }
+    originElement.textContent = name
 
     let newData = currentSheet.cells[id]
     if (newData == null) {

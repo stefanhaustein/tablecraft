@@ -1,17 +1,26 @@
-import {portValues, showDependencies, simulationValues} from "./shared_state.js";
+import {getSelectedCellRangeKey, portValues, showDependencies, simulationValues} from "./shared_state.js";
 import {showPortDialog} from "./port_editor.js";
 import {InputController} from "./forms/input_controller.js";
 import {camelCase, insertById, postJson, updateSpec} from "./lib/util.js";
 import {getFactory, getPortInstance, registerPortInstance} from "./shared_model.js";
 
+
 let inputPortSpecListElement = document.getElementById("inputPortSpecList")
 let outputPortSpecListElement = document.getElementById("outputPortSpecList")
+
+
+let rangeNameSelectElement = document.getElementById("rangeNameSelect")
 
 
 export function processPortSpec(spec) {
     let container = spec.kind == "OUTPUT_PORT" ? outputPortSpecListElement : inputPortSpecListElement
     if (spec.name == "NamedCells") {
         document.getElementById("addNamedCellsButton").addEventListener("click", () => { showPortDialog(spec) })
+        rangeNameSelectElement.addEventListener("change", async () => {
+            rangeNameSelectElement.selectedIndex = 0
+            let port = getPortInstance(rangeNameSelectElement.value)
+            showPortDialog(spec, port)
+        })
     } else {
         updateSpec(container, "portspec.", spec, () => {
             showPortDialog(spec)

@@ -27,13 +27,6 @@ formulaInputElement.addEventListener("keydown", event => {
     }
 })
 
-let rangeNameSelectElement = document.getElementById("rangeNameSelect")
-rangeNameSelectElement.addEventListener("change", async () => {
-    rangeNameSelectElement.selectedIndex = 0
-    let name = await promptDialog("Name Cell Range " + getSelectedCellRangeKey())
-
-})
-
 
 
 
