@@ -7,6 +7,7 @@ import {
     simulationValues
 } from "./shared_state.js";
 import { registerFactory } from "./shared_model.js"
+import { blink } from "./lib/util.js";
 
 
 import {addOption, getColumn, getRow, iterateKeys, toCellId} from "./lib/util.js";
@@ -162,15 +163,32 @@ function processSheetUpdate(name, map) {
     let highlighted = map["highlighted"]
     if (highlighted != null) {
         if (current && sheet != null) {
+            let previous = {}
+            let blinking = false
             for (let range of (sheet.highlighted || [])) {
                 iterateKeys(range, (key) => {
-                    document.getElementById(key).classList.remove("highlight")
+                    previous[key] = blinking = true
                 })
             }
             for (let range of highlighted) {
                 iterateKeys(range, (key) => {
-                    document.getElementById(key).classList.add("highlight")
+                    if (previous[key]) {
+                        delete previous[key]
+                    } else {
+                        let element = document.getElementById(key)
+                        if (element != null) {
+                            element.classList.add("highlight")
+                            if (blinking) blink(element)
+                        }
+                    }
                 })
+            }
+            for (let key in previous) {
+                let element = document.getElementById(key)
+                if (element != null) {
+                    element.classList.remove("highlight")
+                    blink(element)
+                }
             }
         }
         sheet.highlighted = highlighted
@@ -192,14 +210,7 @@ function processSheetCellsUpdate(name, map) {
             }
             cell.c = newValue
 
-            let element = document.getElementById(key)
-            if (element) {
-                element.classList.add("changed")
-                element.style.transition = "box-shadow:200ms"
-                setTimeout(() => {
-                    element.classList.remove("changed")
-                }, 1000)
-            }
+            blink(document.getElementById(key))
 
         } else if (key.indexOf(".") == -1) {
             newValue.key = key

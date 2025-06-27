@@ -10,6 +10,16 @@ export function camelCase(s) {
     return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase()
 }
 
+export function blink(element) {
+    if (element) {
+        element.classList.add("changed")
+        setTimeout(() => {
+            element.classList.remove("changed")
+        }, 1000)
+    }
+
+}
+
 export function insertById(parent, element) {
     let id = element.id
     let existing = document.getElementById(id)
