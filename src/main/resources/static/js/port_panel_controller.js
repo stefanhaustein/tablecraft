@@ -118,14 +118,10 @@ export function processPortUpdate(name, f) {
 
         entryElement.appendChild(entryContentElement)
 
-        entryElement.onclick = () => {
-            if (f.equivalent == null) {
-                f.equivalent = []
+        entryElement.onclick = (event) => {
+            if (event.target.localName.toUpperCase() == "DIV") {
+               showDependencies(f.name)
             }
-            if (f.equivalent.indexOf(f.name) == -1) {
-                f.equivalent.push(name)
-            }
-            showDependencies(f.name)
         }
     }
 }
