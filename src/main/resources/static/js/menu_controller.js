@@ -1,11 +1,12 @@
-import {getColumn, getRow, toCellId, toRangeKey} from "./lib/util.js";
+import {getColumn, getRow, post, toCellId, toRangeKey} from "./lib/util.js";
 import {currentCell, currentSheet, selectionRangeX, selectionRangeY} from "./shared_state.js";
+import {alertDialog, confirmDialog} from "./lib/dialogs.js";
 
 let menuSelectElement = document.getElementById("menuSelect")
 
 let pasteBuffer = ""
 
-menuSelectElement.addEventListener("change", () => {
+menuSelectElement.addEventListener("change", async() => {
     switch (menuSelectElement.value) {
         case "Clear All": clearAll(); break;
         case "Cut": copy(true); break;
@@ -55,7 +56,7 @@ function copy(clear) {
     }
 
     if (clear) {
-        fetch(new Request("/clear/" + rangeKey, {method: "POST"}))
+        post("/clear/" + rangeKey)
     }
 
     console.log("copied: ", pasteBuffer)
@@ -67,16 +68,12 @@ function paste() {
     let row = getRow(key)
     let rangeKey = currentSheet.name + "!" + toRangeKey(col, row, selectionRangeX, selectionRangeY)
 
-    fetch(new Request("/paste/" + rangeKey, {method: "POST", body: pasteBuffer}))
+    post("/paste/" + rangeKey, pasteBuffer)
 }
 
-function clearAll() {
-    if (confirm("Delete all data and start from scratch?")) {
-        fetch('/clearAll', {
-            method: "POST",
-        }).then(() => {
-            window.location.reload()
-        }, () => { alert("Clear All Failed")})
+async function clearAll() {
+    if (await confirmDialog("Delete all data and start from scratch?")) {
+        post('/clearAll')
     }
 }
 
@@ -123,7 +120,7 @@ function uploadSpreadsheet() {
                 }).then(() => {
                     window.location.reload()
                 }, () => {
-                    alert("Upload Failed")
+                    alertDialog("Upload Failed")
                 })
             }
         })
@@ -151,7 +148,7 @@ function loadExample() {
                 body: exampleSelectElement.value
             }).then(() => {
                 window.location.reload()
-            }, () => { alert("Loading Example Failed")})
+            }, () => { alertDialog("Loading Example Failed")})
             }
         })
     }

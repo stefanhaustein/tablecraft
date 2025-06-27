@@ -1,5 +1,5 @@
 import {FormController} from "./forms/form_builder.js";
-import {postJson} from "./lib/util.js";
+import {post} from "./lib/util.js";
 
 let integrationListElement = document.getElementById("integrationList")
 let dialogElement = document.getElementById("dialog")
@@ -51,7 +51,7 @@ export function showIntegrationInstanceConfigurationDialog(spec, instance) {
         deleteButton.textContent = "Delete"
         deleteButton.className = "dialogButton"
         deleteButton.addEventListener("click", () => {
-            postJson("updateIntegration", {previousName: previousName})
+            post("updateIntegration", {previousName: previousName})
             dialogElement.close()
         })
         buttonDiv.appendChild(deleteButton)
@@ -63,6 +63,6 @@ export function showIntegrationInstanceConfigurationDialog(spec, instance) {
 
 
 function sendIntegration(instance) {
-    postJson("integrations/" + instance["name"], instance)
+    post("integrations/" + instance["name"], instance)
     return true
 }

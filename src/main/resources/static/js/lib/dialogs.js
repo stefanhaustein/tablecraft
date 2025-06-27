@@ -1,5 +1,19 @@
 import {InputController} from "../forms/input_controller.js"
 
+
+export async function alertDialog(title, message = "") {
+    let confirmDialog = document.getElementById("alertDialog")
+    document.getElementById("alertDialogTitle").textContent = title
+    document.getElementById("alertDialogText").textContent = message
+    confirmDialog.showModal()
+    return new Promise(resolve => {
+        document.getElementById("alertDialogOkButton").onclick = () => {
+            confirmDialog.close()
+            resolve()
+        }
+    })
+}
+
 export async function confirmDialog(title, message = "") {
     let confirmDialog = document.getElementById("confirmDialog")
     document.getElementById("confirmDialogTitle").textContent = title

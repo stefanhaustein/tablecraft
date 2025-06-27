@@ -1,7 +1,7 @@
-import {getSelectedCellRangeKey, portValues, showDependencies, simulationValues} from "./shared_state.js";
+import {portValues, showDependencies, simulationValues} from "./shared_state.js";
 import {showPortDialog} from "./port_editor.js";
 import {InputController} from "./forms/input_controller.js";
-import {camelCase, insertById, postJson, updateSpec} from "./lib/util.js";
+import {camelCase, insertById, post, updateSpec} from "./lib/util.js";
 import {getFactory, getPortInstance, registerPortInstance} from "./shared_model.js";
 
 
@@ -96,7 +96,7 @@ export function processPortUpdate(name, f) {
                 modifiers: ["CONSTANT"]})
             entryValueElement.appendChild(controller.inputElement)
             controller.inputElement.addEventListener("change", () => {
-                postJson("portSimulation?name=" + name, controller.getValue())
+                post("portSimulation?name=" + name, controller.getValue())
             })
             showValue = !document.getElementById("simulationMode").checked
             entryValueElement.style.display = showValue ? "none" : "inline"

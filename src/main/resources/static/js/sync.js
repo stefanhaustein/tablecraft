@@ -22,10 +22,10 @@ import {
 let sheetSelectElement = document.getElementById("sheetSelect")
 
 var currentTag = -1
-fetch()
+fetchData()
 
 
-function fetch() {
+function fetchData() {
     var xmlhttp = new XMLHttpRequest();
     var url = "data?tag=" + currentTag;
 
@@ -37,7 +37,7 @@ function fetch() {
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
     xmlhttp.onloadend = function () {
-        setTimeout( fetch, 100)
+        setTimeout( fetchData, 100)
     }
 }
 

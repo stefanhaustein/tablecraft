@@ -1,5 +1,5 @@
 import {FormController} from "./forms/form_builder.js";
-import {postJson} from "./lib/util.js";
+import {post} from "./lib/util.js";
 import {getAllFactories, getFactory, getFunction, getIntegrationInstance, getPortInstance} from "./shared_model.js";
 import {currentSheet} from "./shared_state.js";
 import {selectPanel} from "./menu_controller.js";
@@ -123,7 +123,7 @@ export function showPortDialog(constructorSpec, portSpec) {
         }
         values["type"] = constructorSpec["name"]
         values["previousName"] = previousName
-        postJson("ports/" + values["name"], values)
+        post("ports/" + values["name"], values)
         hidePortDialog()
     })
     buttonDiv.appendChild(okButton)
@@ -139,7 +139,7 @@ export function showPortDialog(constructorSpec, portSpec) {
         deleteButton.textContent = "Delete"
         deleteButton.className = "dialogButton"
         deleteButton.addEventListener("click", () => {
-            postJson("ports/" + previousName, {deleted: true})
+            post("ports/" + previousName, {deleted: true})
             hidePortDialog()
         })
         buttonDiv.appendChild(deleteButton)

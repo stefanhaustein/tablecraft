@@ -2,7 +2,7 @@ import {setCurrentCellFormula, getCurrentCellElement, getSelectedCellRangeKey} f
 import {nullToEmtpy} from "./lib/values.js";
 import {promptDialog} from "./lib/dialogs.js";
 import {getAllPorts} from "./shared_model.js";
-import {postJson} from "./lib/util.js";
+import {post} from "./lib/util.js";
 
 // Sets up event handlers etc. for shared state. Depends on shared state
 
@@ -43,5 +43,5 @@ document.getElementById("simulationMode").addEventListener("change", (event) =>{
         }
     }
 
-    postJson("/simulationMode", checked)
+    post("/simulationMode", checked)
 })

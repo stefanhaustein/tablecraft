@@ -1,3 +1,5 @@
+import {alertDialog} from "./dialogs.js";
+
 export function addOption(selectElement, name) {
     let option = document.createElement("option")
     option.textContent = name
@@ -79,13 +81,24 @@ export function updateSpec(parent, idPrefix, spec, createAction) {
 }
 
 
-export function postJson(path, data) {
-    let request = new Request(path, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+export function post(path, data) {
+    let init = {method: "POST"}
+
+    if (data == null) {
+    } else if (typeof data === 'string' || data instanceof String) {
+        // init.headers = { "Content-Type": "application/json" }
+        init.body = data
+    } else {
+        init.headers = { "Content-Type": "application/json" }
+        init.body = JSON.stringify(data)
+    }
+    fetch(path, init).then((response) => {
+        if (!response.ok) {
+            alertDialog("Request Error", response.statusText)
+        }
+    }).catch((error) => {
+        alertDialog("Request Exception", error.toString())
     })
-    fetch(request)
 }
 
 export function getColumn(cellId) {

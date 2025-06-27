@@ -1,4 +1,4 @@
-import {getColumn, getRow, postJson, toRangeKey} from "./lib/util.js";
+import {getColumn, getRow, post, toRangeKey} from "./lib/util.js";
 import {nullToEmtpy} from "./lib/values.js";
 import {renderCell} from "./cell_renderer.js";
 import {getAllPorts, model} from "./shared_model.js";
@@ -41,7 +41,7 @@ export function addCellContentChangeListener(name, listener) {
 
 function commitCurrentCell() {
     committedFormula = currentCell.f
-    postJson("update/" + currentSheet.name + "!" + currentCell.key, currentCell)
+    post("update/" + currentSheet.name + "!" + currentCell.key, currentCell)
 }
 
 export function getCurrentCellElement() {
