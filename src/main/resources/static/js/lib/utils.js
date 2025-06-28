@@ -1,10 +1,6 @@
 import {alertDialog} from "./dialogs.js";
 import {insertById} from "./dom.js";
 
-export function nullToEmtpy(s) {
-    return s == null ? "" : s
-}
-
 export function camelCase(s) {
     return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase()
 }
@@ -17,13 +13,6 @@ export function getRow(cellId) {
     return parseInt(cellId.substring(1))
 }
 
-export function toCellId(column, row) {
-    return String.fromCodePoint(column + 64) + row
-}
-
-export function toRangeKey(column, row, colSpan, rowSpan, forceRange) {
-    return toCellId(column, row) + (forceRange || rowSpan != 0 || colSpan != 0 ? ":" + toCellId(column + colSpan, row + rowSpan) : "")
-}
 
 export function iterateKeys(cellRange, callback) {
     let cut = cellRange.indexOf(":")
@@ -52,6 +41,40 @@ export function iterateKeys(cellRange, callback) {
         }
     }
 }
+
+export function nullToEmtpy(s) {
+    return s == null ? "" : s
+}
+
+
+export function post(path, data) {
+    let init = {method: "POST"}
+
+    if (data == null) {
+    } else if (typeof data === 'string' || data instanceof String) {
+        // init.headers = { "Content-Type": "application/json" }
+        init.body = data
+    } else {
+        init.headers = {"Content-Type": "application/json"}
+        init.body = JSON.stringify(data)
+    }
+    fetch(path, init).then((response) => {
+        if (!response.ok) {
+            alertDialog("Request Error", response.statusText)
+        }
+    }).catch((error) => {
+        alertDialog("Request Exception", error.toString())
+    })
+}
+
+export function toCellId(column, row) {
+    return String.fromCodePoint(column + 64) + row
+}
+
+export function toRangeKey(column, row, colSpan, rowSpan, forceRange) {
+    return toCellId(column, row) + (forceRange || rowSpan != 0 || colSpan != 0 ? ":" + toCellId(column + colSpan, row + rowSpan) : "")
+}
+
 
 export function updateSpec(parent, idPrefix, spec, createAction) {
     let id = idPrefix + spec.name
@@ -103,24 +126,4 @@ export function updateSpec(parent, idPrefix, spec, createAction) {
     insertById(parent, element)
 
     return element
-}
-
-export function post(path, data) {
-    let init = {method: "POST"}
-
-    if (data == null) {
-    } else if (typeof data === 'string' || data instanceof String) {
-        // init.headers = { "Content-Type": "application/json" }
-        init.body = data
-    } else {
-        init.headers = {"Content-Type": "application/json"}
-        init.body = JSON.stringify(data)
-    }
-    fetch(path, init).then((response) => {
-        if (!response.ok) {
-            alertDialog("Request Error", response.statusText)
-        }
-    }).catch((error) => {
-        alertDialog("Request Exception", error.toString())
-    })
 }
