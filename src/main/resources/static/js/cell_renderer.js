@@ -1,5 +1,6 @@
 import {currentSheet, setCurrentCellFormula} from "./shared_state.js";
-import {getColumn, getRow, toCellId} from "./lib/dom.js";
+
+import {getColumn, getRow, toCellId} from "./lib/utils.js";
 
 export function renderCell(key) {
     let targetElement = document.getElementById(key)

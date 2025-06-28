@@ -10,7 +10,7 @@ import { registerFactory } from "./shared_model.js"
 import { blink } from "./lib/dom.js";
 
 
-import {addOption, getColumn, getRow, iterateKeys, toCellId} from "./lib/dom.js";
+import {addOption} from "./lib/dom.js";
 import {processFunction} from "./operation_panel_controller.js";
 import {processIntegrationUpdate, updateIntegrationSpec} from "./integration_panel_controller.js";
 import {
@@ -19,6 +19,7 @@ import {
     processPortValue,
     processSimulationValue
 } from "./port_panel_controller.js";
+import {getColumn, getRow, iterateKeys, toCellId} from "./lib/utils.js";
 
 let sheetSelectElement = document.getElementById("sheetSelect")
 

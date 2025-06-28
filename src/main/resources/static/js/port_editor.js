@@ -1,8 +1,8 @@
 import {FormController} from "./forms/form_builder.js";
-import {post} from "./lib/dom.js";
 import {getAllFactories, getFactory, getFunction, getIntegrationInstance, getPortInstance} from "./shared_model.js";
 import {currentSheet} from "./shared_state.js";
 import {selectPanel} from "./menu_controller.js";
+import {post} from "./lib/utils.js";
 
 
 let portEditorContainer = document.getElementById("portEditorContainer")

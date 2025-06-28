@@ -1,7 +1,7 @@
-import {updateSpec} from "./lib/dom.js";
 import {confirmDialog} from "./lib/dialogs.js"
 import {currentCell, setCurrentCellFormula} from "./shared_state.js";
 import {registerFunction} from "./shared_model.js";
+import {updateSpec} from "./lib/utils.js";
 
 let operationListContainerElement = document.getElementById("operationListContainer")
 

@@ -1,6 +1,6 @@
-import {getColumn, getRow, post, toCellId, toRangeKey} from "./lib/dom.js";
 import {currentCell, currentSheet, selectionRangeX, selectionRangeY} from "./shared_state.js";
 import {alertDialog, confirmDialog} from "./lib/dialogs.js";
+import {getColumn, getRow, post, toCellId, toRangeKey} from "./lib/utils.js";
 
 let menuSelectElement = document.getElementById("menuSelect")
 

@@ -1,8 +1,9 @@
 import {portValues, showDependencies, simulationValues} from "./shared_state.js";
 import {showPortDialog} from "./port_editor.js";
 import {InputController} from "./forms/input_controller.js";
-import {camelCase, insertById, post, updateSpec} from "./lib/dom.js";
+import {insertById} from "./lib/dom.js";
 import {getFactory, getPortInstance, registerPortInstance} from "./shared_model.js";
+import {camelCase, post, updateSpec} from "./lib/utils.js";
 
 
 let inputPortSpecListElement = document.getElementById("inputPortSpecList")

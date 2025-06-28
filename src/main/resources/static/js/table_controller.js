@@ -5,7 +5,8 @@ import {
     selectionRangeY,
     selectionRangeX,
 } from "./shared_state.js"
-import {getColumn, getRow, toCellId} from "./lib/dom.js";
+
+import {getColumn, getRow, toCellId} from "./lib/utils.js";
 
 let spreadsheetTBodyElement = document.getElementById("spreadsheetTBody")
 let formulaInputElement = document.getElementById("formulaInput")

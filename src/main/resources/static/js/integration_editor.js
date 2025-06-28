@@ -1,5 +1,6 @@
 import {FormController} from "./forms/form_builder.js";
-import {post} from "./lib/dom.js";
+
+import {post} from "./lib/utils.js";
 
 let integrationListElement = document.getElementById("integrationList")
 let dialogElement = document.getElementById("dialog")

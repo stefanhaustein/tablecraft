@@ -1,5 +1,4 @@
-import {getColumn, getRow, post, toRangeKey} from "./lib/dom.js";
-import {nullToEmtpy} from "./lib/values.js";
+import {getColumn, getRow, nullToEmtpy, post, toRangeKey} from "./lib/utils.js";
 import {renderCell} from "./cell_renderer.js";
 import {getAllPorts, model} from "./shared_model.js";
 import {removeClasses, renderDependencies, renderRangeHighlight} from "./shared_state_internal_renderer.js";
