@@ -96,11 +96,16 @@
                 <div id="operationListContainer"></div>
             </div>
             <div id="ValidationPanel">
-                <h2>Input / Validation</h2>
-                <select>
-                    <option>None</option>
-                    <option>Option Menu</option>
+                <h2>Type</h2>
+                <select id="inputType">
+                    <option>No User Input</option>
+                    <option>Boolean</option>
+                    <option>String</option>
+                    <option>Integer</option>
+                    <option>Real</option>
                 </select>
+                <div id="ValidationForm" >
+                </div>
             </div>
             <div id="IntegrationPanel">
                 <h2>Configured Integration</h2>
@@ -264,6 +269,7 @@
     <script type="module" src="js/integration_panel_controller.js"></script>
     <script type="module" src="js/menu_controller.js"></script>
     <script type="module" src="js/sheet_menu_controller.js"></script>
+    <script type="module" src="js/validation_panel_controller.js"></script>
     <script type="module" src="js/sync.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-import {updateSpec} from "./lib/util.js"
+import {updateSpec} from "./lib/dom.js"
 import {promptDialog} from "./lib/dialogs.js"
 import {showIntegrationInstanceConfigurationDialog} from "./integration_editor.js"
 import {getFactory, getIntegrationInstance, registerIntegrationInstance} from "./shared_model.js";

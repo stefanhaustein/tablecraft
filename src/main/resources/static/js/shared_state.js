@@ -1,4 +1,4 @@
-import {getColumn, getRow, post, toRangeKey} from "./lib/util.js";
+import {getColumn, getRow, post, toRangeKey} from "./lib/dom.js";
 import {nullToEmtpy} from "./lib/values.js";
 import {renderCell} from "./cell_renderer.js";
 import {getAllPorts, model} from "./shared_model.js";
@@ -67,6 +67,12 @@ export function setCurrentCellFormula(value, source) {
 
 export function setCurrentCellImage(value) {
     currentCell["i"] = value
+    commitCurrentCell()
+}
+
+
+export function setCurrentCellValidation(value) {
+    currentCell["v"] = value
     commitCurrentCell()
 }
 
@@ -151,7 +157,10 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
     currentCell = newData
     formulaInputElement.value = nullToEmtpy(committedFormula)
 
-    currentCellElement.focus()
+    // Commented out because it takes the focus away from user select elements in a cell. Not sure if it might
+    // be needed for anything -- in this case, it probably should check that the focus is not take from a child
+    // element.
+    // currentCellElement.focus()
 
     selectionRangeX = rangeX
     selectionRangeY = rangeY

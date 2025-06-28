@@ -7,10 +7,10 @@ import {
     simulationValues
 } from "./shared_state.js";
 import { registerFactory } from "./shared_model.js"
-import { blink } from "./lib/util.js";
+import { blink } from "./lib/dom.js";
 
 
-import {addOption, getColumn, getRow, iterateKeys, toCellId} from "./lib/util.js";
+import {addOption, getColumn, getRow, iterateKeys, toCellId} from "./lib/dom.js";
 import {processFunction} from "./operation_panel_controller.js";
 import {processIntegrationUpdate, updateIntegrationSpec} from "./integration_panel_controller.js";
 import {

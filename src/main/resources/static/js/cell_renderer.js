@@ -1,5 +1,5 @@
 import {currentSheet, setCurrentCellFormula} from "./shared_state.js";
-import {getColumn, getRow, toCellId} from "./lib/util.js";
+import {getColumn, getRow, toCellId} from "./lib/dom.js";
 
 export function renderCell(key) {
     let targetElement = document.getElementById(key)
@@ -26,7 +26,7 @@ export function renderCell(key) {
         targetElement.style.backgroundSize = null
     }
     let validation = cellData["v"]
-    if (validation != null && validation["values"] != null) {
+    if (validation != null && (validation["options"] != null || validation["type"] == "Boolean")) {
         renderSelect(targetElement, cellData)
         return
     }
@@ -75,37 +75,51 @@ export function renderCell(key) {
 
 function renderSelect(targetElement, cellData) {
     targetElement.textContent = ""
+    let validation = cellData.v
     let selectElement = document.createElement("select")
     selectElement.style.width = "100%"
     selectElement.style.height = "100%"
-    let options = cellData["v"]["values"]
-    let type = cellData["v"]["type"]
+    let type = validation.type
     let content = cellData["c"]
-    let stringValue = content == null ? "" : content.toString()
 
-    let found = false
-    for (let option of options) {
+    if (type == "Boolean") {
         let optionElement = document.createElement("option")
-        optionElement.textContent = option["label"]
-        let optionStringValue = option["value"].toString()
-        optionElement.value = optionStringValue
-        if (optionStringValue == stringValue) {
-            optionElement.selected = true
-            found = true
+        optionElement.textContent = validation["true"] || "True"
+        selectElement.appendChild(optionElement)
+        optionElement = document.createElement("option")
+        optionElement.textContent = validation["false"] || "False"
+        selectElement.appendChild(optionElement)
+
+        selectElement.selectedIndex = content ? 0 : 1
+
+        selectElement.addEventListener("change", () => {
+            setCurrentCellFormula(selectElement.selectedIndex == 0)
+        })
+    } else {
+        let stringValue = content == null ? "" : content.toString()
+        let found = false
+        for (let option of validation.options) {
+            let optionElement = document.createElement("option")
+            optionElement.textContent = option
+            if (option == stringValue) {
+                optionElement.selected = true
+                found = true
+            }
+            selectElement.appendChild(optionElement)
         }
-        selectElement.appendChild(optionElement)
-    }
-    if (!found) {
-        let optionElement = document.createElement("option")
-        optionElement.textContent = "(" + stringValue + ")"
-        optionElement.value = stringValue
-        optionElement.selected = true
-        selectElement.style.backgroundColor = "#FDD"
-        selectElement.appendChild(optionElement)
+        if (!found) {
+            let optionElement = document.createElement("option")
+            optionElement.textContent = "(" + stringValue + ")"
+            optionElement.value = stringValue
+            optionElement.selected = true
+            selectElement.style.backgroundColor = "#FDD"
+            selectElement.appendChild(optionElement)
+        }
+        selectElement.addEventListener("change", () => {
+            setCurrentCellFormula(selectElement.value)
+        })
     }
     targetElement.appendChild(selectElement)
-    selectElement.addEventListener("change", () => {
-        setCurrentCellFormula(selectElement.value)
-    })
+
 }
 

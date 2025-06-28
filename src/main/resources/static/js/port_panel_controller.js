@@ -1,7 +1,7 @@
 import {portValues, showDependencies, simulationValues} from "./shared_state.js";
 import {showPortDialog} from "./port_editor.js";
 import {InputController} from "./forms/input_controller.js";
-import {camelCase, insertById, post, updateSpec} from "./lib/util.js";
+import {camelCase, insertById, post, updateSpec} from "./lib/dom.js";
 import {getFactory, getPortInstance, registerPortInstance} from "./shared_model.js";
 
 

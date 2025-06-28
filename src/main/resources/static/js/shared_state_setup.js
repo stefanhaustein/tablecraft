@@ -2,7 +2,7 @@ import {setCurrentCellFormula, getCurrentCellElement, getSelectedCellRangeKey} f
 import {nullToEmtpy} from "./lib/values.js";
 import {promptDialog} from "./lib/dialogs.js";
 import {getAllPorts} from "./shared_model.js";
-import {post} from "./lib/util.js";
+import {post} from "./lib/dom.js";
 
 // Sets up event handlers etc. for shared state. Depends on shared state
 

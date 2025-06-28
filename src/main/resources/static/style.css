@@ -95,7 +95,9 @@ input:invalid {
 }
 
 .port {
-    padding-top: 5px;
+    padding: 3px 6px;
+    margin-top: 1px;
+    margin-bottom: 1px;
 }
 
 
@@ -110,8 +112,8 @@ input:invalid {
 }
 
 #sidePanel > div {
-    padding: 5px;
-    display: none;
+/*    padding: 5px; */
+     display: none;
 }
 
 #sidePanel .inputContainer {

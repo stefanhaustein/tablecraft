@@ -1,4 +1,4 @@
-import {getColumn, getRow, post, toCellId, toRangeKey} from "./lib/util.js";
+import {getColumn, getRow, post, toCellId, toRangeKey} from "./lib/dom.js";
 import {currentCell, currentSheet, selectionRangeX, selectionRangeY} from "./shared_state.js";
 import {alertDialog, confirmDialog} from "./lib/dialogs.js";
 

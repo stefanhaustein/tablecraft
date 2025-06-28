@@ -1,5 +1,5 @@
 import {getPortInstance, model} from "./shared_model.js";
-import {getColumn, getRow, toCellId} from "./lib/util.js";
+import {getColumn, getRow, toCellId} from "./lib/dom.js";
 
 // Use via sharedState.showDependencies(name)
 
