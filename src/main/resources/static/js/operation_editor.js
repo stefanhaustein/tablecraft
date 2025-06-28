@@ -6,6 +6,7 @@ import {
 import {FormController} from "./forms/form_builder.js";
 import {extractParameters} from "./lib/expressions.js";
 import {getFunction} from "./shared_model.js";
+import {transformSchema} from "./lib/utils";
 
 let formulaInputElement = document.getElementById("formulaInput")
 let functionPanelElement = document.getElementById("operationEditorContainer")
@@ -50,7 +51,7 @@ function updateParameterTab() {
         titleElement.textContent = found.name
         functionPanelElement.appendChild(titleElement)
 
-        currentController = FormController.create(functionPanelElement, found["params"])
+        currentController = FormController.create(functionPanelElement, transformSchema(found["params"]))
         currentFunction = found
 
         if (found.description != "") {

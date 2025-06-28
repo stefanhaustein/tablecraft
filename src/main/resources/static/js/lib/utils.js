@@ -75,6 +75,21 @@ export function toRangeKey(column, row, colSpan, rowSpan, forceRange) {
     return toCellId(column, row) + (forceRange || rowSpan != 0 || colSpan != 0 ? ":" + toCellId(column + colSpan, row + rowSpan) : "")
 }
 
+export function transformSchema(schema) {
+    if (Array.isArray(schema)) {
+        return schema.map(element => transformSchema(element))
+    }
+
+    let transformed = {...schema}
+    let options = schema.options || []
+
+    // delete transformed.options
+
+    transformed.isExpression = options.indexOf("CONSTANT") == -1
+    transformed.isReference = options.indexOf("REFERENCE") != -1
+
+    return transformed
+}
 
 export function updateSpec(parent, idPrefix, spec, createAction) {
     let id = idPrefix + spec.name

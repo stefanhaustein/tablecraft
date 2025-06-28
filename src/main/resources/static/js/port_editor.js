@@ -2,7 +2,7 @@ import {FormController} from "./forms/form_builder.js";
 import {getAllFactories, getFactory, getFunction, getIntegrationInstance, getPortInstance} from "./shared_model.js";
 import {currentSheet} from "./shared_state.js";
 import {selectPanel} from "./menu_controller.js";
-import {post} from "./lib/utils.js";
+import {post, transformSchema} from "./lib/utils.js";
 
 
 let portEditorContainer = document.getElementById("portEditorContainer")
@@ -16,7 +16,7 @@ function renderBinding(targetDiv, constructorSpec, instanceSpec) {
     targetDiv.textContent = constructorSpec.description
     targetDiv.appendChild(document.createElement("p"))
 
-    let bindingFormController = FormController.create(targetDiv, constructorSpec["params"])
+    let bindingFormController = FormController.create(targetDiv, transformSchema(constructorSpec["params"]))
 
     if (instanceSpec != null) {
         bindingFormController.setValues(instanceSpec)
@@ -63,7 +63,7 @@ export function showPortDialog(constructorSpec, portSpec) {
 
     let previousName = portSpec == null ? null : portSpec["name"]
 
-    let portFormController = FormController.create(inputDiv, portSchema)
+    let portFormController = FormController.create(inputDiv, transformSchema(portSchema))
     portFormController.setValues(portSpec == null ? {name: kind.substring(0, 1).toLowerCase() + "_"} : portSpec)
 
     let bindingFormController = null

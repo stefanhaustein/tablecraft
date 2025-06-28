@@ -1,4 +1,4 @@
-import {getType, getOptions, isLiteral, getTypeLabel, isReference, containsModifier} from "./input_schema.js";
+import {getType, getOptions, isLiteral, getTypeLabel} from "./input_schema.js";
 
 
 /**
@@ -43,7 +43,7 @@ export class InputController {
     }
 
     static create(schema) {
-        if (isLiteral(schema)) {
+        if (!schema.isExpression && !schema.isReference) {
             let options = getOptions(schema)
             if (options != null) {
                 return new EnumInputController(schema, schema.options || schema.type)
@@ -89,7 +89,7 @@ class TextInputController extends InputController {
     constructor(schema) {
         super(schema, document.createElement("input"))
 
-        if (isReference(schema)) {
+        if (schema.isReference) {
             switch (getType(schema).toLowerCase()) {
                 case "range":
                 case "unspecified":

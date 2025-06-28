@@ -1,6 +1,6 @@
 import {FormController} from "./forms/form_builder.js";
 
-import {post} from "./lib/utils.js";
+import {post, transformSchema} from "./lib/utils.js";
 
 let integrationListElement = document.getElementById("integrationList")
 let dialogElement = document.getElementById("dialog")
@@ -22,7 +22,7 @@ export function showIntegrationInstanceConfigurationDialog(spec, instance) {
     let inputDiv = document.createElement("div")
     inputDiv.className = "dialogFields"
 
-    let bindingFormController = FormController.create(inputDiv, spec["params"])
+    let bindingFormController = FormController.create(inputDiv, transformSchema(spec["params"]))
 
     bindingFormController.setValues(instanceConfiguration)
 

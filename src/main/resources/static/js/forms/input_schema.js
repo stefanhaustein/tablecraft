@@ -12,18 +12,18 @@ export function getTypeLabel(schema) {
     let t = getType(schema)
 
     if (t == "Unspecified") {
-        if (isReference(schema)) {
+        if (schema.isReference) {
             return "Ref."
         }
-        if (!isConstant(schema)) {
+        if (schema.isExpression) {
             return "Expr."
         }
         return ""
     }
-    if (isReference(schema)) {
+    if (schema.isReference) {
         return t + " ref."
     }
-    if (!isConstant(schema)) {
+    if (schema.isExpression) {
         return t + " expr."
     }
     return t
@@ -31,16 +31,9 @@ export function getTypeLabel(schema) {
 
 
 export function isLiteral(schema) {
-    return isConstant(schema) && !isReference(schema)
+    return !schema.isExpression && !schema.isReference
 }
 
-export function isReference(schema) {
-    return containsModifier(schema, "REFERENCE")
-}
-
-export function isConstant(schema) {
-    return containsModifier(schema, "CONSTANT")
-}
 
 
 export function getOptions(schema) {
