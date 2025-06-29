@@ -1,5 +1,6 @@
 import {FormController} from "./forms/form_builder.js";
 import {addCellSelectionListener, currentCell, setCurrentCellValidation} from "./shared_state.js";
+import {getType} from "./forms/input_schema.js";
 
 let inputTypeSelect = document.getElementById("inputType")
 
@@ -22,23 +23,28 @@ function setValidation(validation) {
     inputTypeSelect.value = type
 
     if (Array.isArray(validation.options)) {
-        validation.options = validation.options.join()
+        if (getType(validation) == "Bool") {
+            validation["true"] = validation.options[0].label
+            validation["false"] = validation.options[1].label
+        } else {
+            validation.options = validation.options.join(", ")
+        }
     }
 
-    switch (type.toLowerCase()) {
-        case "boolean":
+    switch (type) {
+        case "Bool":
             schema = [
                 {"name": "true", "label": "True Label"},
                 {"name": "false", "label": "False Label"},
             ]
             break
-        case "string":
+        case "String":
             schema = [{"name": "options", "label": "Permitted values"}]
             break
-        case "integer":
+        case "Int":
             schema = [{"name": "min"}, {"name": "max"}]
             break
-        case "real":
+        case "Real":
             schema = [{"name": "min"}, {"name": "max"}]
             break
     }
@@ -55,7 +61,11 @@ function setValidation(validation) {
         } else {
             let values = formController.getValues()
             values.type = inputTypeSelect.value
-            if (values.options != null) {
+            if (getType(values) == "Bool") {
+                values.options = [{label: values["true"], value: true}, {label: values["false"], value: false}]
+                delete values["true"]
+                delete values["false"]
+            } else if (values.options != null) {
                 if (values.options.trim() == "") {
                     delete values.options
                 } else {

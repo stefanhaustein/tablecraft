@@ -1,6 +1,7 @@
-import {currentSheet, setCurrentCellFormula} from "./shared_state.js";
+import {currentSheet, selectCell, setCurrentCellFormula} from "./shared_state.js";
 
 import {getColumn, getRow, toCellId} from "./lib/utils.js";
+import {InputController} from "./forms/input_controller.js";
 
 export function renderCell(key) {
     let targetElement = document.getElementById(key)
@@ -76,51 +77,18 @@ export function renderCell(key) {
 
 function renderSelect(targetElement, cellData) {
     targetElement.textContent = ""
-    let validation = cellData.v
-    let selectElement = document.createElement("select")
-    selectElement.style.width = "100%"
-    selectElement.style.height = "100%"
-    let type = validation.type
-    let content = cellData["c"]
 
-    if (type == "Boolean") {
-        let optionElement = document.createElement("option")
-        optionElement.textContent = validation["true"] || "True"
-        selectElement.appendChild(optionElement)
-        optionElement = document.createElement("option")
-        optionElement.textContent = validation["false"] || "False"
-        selectElement.appendChild(optionElement)
-
-        selectElement.selectedIndex = content ? 0 : 1
-
-        selectElement.addEventListener("change", () => {
-            setCurrentCellFormula(selectElement.selectedIndex == 0)
-        })
-    } else {
-        let stringValue = content == null ? "" : content.toString()
-        let found = false
-        for (let option of validation.options) {
-            let optionElement = document.createElement("option")
-            optionElement.textContent = option
-            if (option == stringValue) {
-                optionElement.selected = true
-                found = true
-            }
-            selectElement.appendChild(optionElement)
-        }
-        if (!found) {
-            let optionElement = document.createElement("option")
-            optionElement.textContent = "(" + stringValue + ")"
-            optionElement.value = stringValue
-            optionElement.selected = true
-            selectElement.style.backgroundColor = "#FDD"
-            selectElement.appendChild(optionElement)
-        }
-        selectElement.addEventListener("change", () => {
-            setCurrentCellFormula(selectElement.value)
-        })
-    }
-    targetElement.appendChild(selectElement)
-
+    let inputController = InputController.create(cellData.v)
+    let inputElement = inputController.inputElement
+    inputElement.style.width = "100%"
+    inputElement.style.height = "100%"
+    targetElement.appendChild(inputElement)
+    inputController.setValue(cellData["c"])
+    inputElement.addEventListener("change", () => {
+        setCurrentCellFormula(inputElement.value, "renderer")
+    })
+    inputElement.addEventListener("click", () => {
+        selectCell(targetElement.id)
+    })
 }
 

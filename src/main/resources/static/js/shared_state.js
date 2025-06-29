@@ -156,10 +156,10 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
     currentCell = newData
     formulaInputElement.value = nullToEmtpy(committedFormula)
 
-    // Commented out because it takes the focus away from user select elements in a cell. Not sure if it might
-    // be needed for anything -- in this case, it probably should check that the focus is not take from a child
-    // element.
-    // currentCellElement.focus()
+    //
+    if (document.activeElement != currentCellElement && document.activeElement.parentElement != currentCellElement) {
+        currentCellElement.focus()
+    }
 
     selectionRangeX = rangeX
     selectionRangeY = rangeY

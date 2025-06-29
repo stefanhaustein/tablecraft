@@ -6,7 +6,7 @@ import {
 import {FormController} from "./forms/form_builder.js";
 import {extractParameters} from "./lib/expressions.js";
 import {getFunction} from "./shared_model.js";
-import {transformSchema} from "./lib/utils";
+import {transformSchema} from "./lib/utils.js";
 
 let formulaInputElement = document.getElementById("formulaInput")
 let functionPanelElement = document.getElementById("operationEditorContainer")

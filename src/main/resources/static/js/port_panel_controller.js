@@ -93,8 +93,7 @@ export function processPortUpdate(name, f) {
             entryValueElement.id = "port." + name + ".simulationValue"
             entryValueElement.className = "portSimulationValue"
             let controller = f.valueController = InputController.create({
-                type: camelCase(spec.returnType),
-                modifiers: ["CONSTANT"]})
+                type: camelCase(spec.returnType)})
             entryValueElement.appendChild(controller.inputElement)
             controller.inputElement.addEventListener("change", () => {
                 post("portSimulation?name=" + name, controller.getValue())

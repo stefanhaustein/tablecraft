@@ -46,9 +46,9 @@ export class InputController {
         if (!schema.isExpression && !schema.isReference) {
             let options = getOptions(schema)
             if (options != null) {
-                return new EnumInputController(schema, schema.options || schema.type)
+                return new EnumInputController(schema, options)
             }
-            if (getType(schema).toLowerCase() == "bool") {
+            if (getType(schema) == "Bool") {
                 return new EnumInputController(schema, ["True", "False"])
             }
         }
@@ -75,11 +75,11 @@ export class InputController {
     }
 
     setValue(value) {
-        if (isLiteral(this.schema) && getType(this.schema).toLowerCase() == "bool") {
+        /*if (isLiteral(this.schema) && getType(this.schema) == "Bool" && this.schema.options == null) {
             this.inputElement.value = value ? "True" : "False"
-        } else {
+        } else {*/
             this.inputElement.value = value == null ? "" : value.toString()
-        }
+        //}
         this.validate()
     }
 }
@@ -143,9 +143,14 @@ class EnumInputController extends InputController {
     constructor(schema, options) {
         super(schema, document.createElement("select"));
 
-        for (let i in options) {
+        for (let option of options) {
             let optionElement = document.createElement("option")
-            optionElement.textContent = options[i]
+            if (option.label != null && option.value != null) {
+                optionElement.textContent = option.label
+                optionElement.value = option.value
+            } else {
+                optionElement.textContent = option
+            }
             this.inputElement.appendChild(optionElement)
         }
     }

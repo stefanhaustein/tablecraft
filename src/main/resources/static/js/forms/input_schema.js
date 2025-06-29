@@ -1,6 +1,13 @@
 export function getType(schema) {
     if (schema.type) {
-        return Array.isArray(schema.type) ? "Enum" : schema.type.toString();
+        if (Array.isArray(schema.type)) {
+            return "Enum"
+        }
+        let name = schema.type.toString()
+        if (name.toLowerCase().startsWith("bool")) {
+            return "Bool"
+        }
+        return name
     }
     if (schema.options) {
         return "Enum"
@@ -43,14 +50,8 @@ export function getOptions(schema) {
     if (Array.isArray(schema.type)) {
         return schema.type
     }
-    if (getType(schema).toLowerCase() == "Bool") {
-        return ["True", "False"]
+    if (getType(schema) == "Bool") {
+        return [{label:"True", value: true}, {label:"False", value:false}]
     }
 }
 
-export function containsModifier(schema, modifier) {
-    if (schema.modifiers == null) {
-        return false
-    }
-    return schema.modifiers.indexOf(modifier) != -1
-}
