@@ -135,6 +135,7 @@ class Cell(
         if (validation != this.validation) {
             this.validation = validation
             modificationToken.formulaChanged = true
+            formulaTag = modificationToken.tag
         }
     }
 
