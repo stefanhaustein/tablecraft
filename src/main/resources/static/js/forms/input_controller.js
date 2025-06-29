@@ -28,12 +28,13 @@ export class InputController {
 
         this.messageElement = document.createElement("div")
         this.messageElement.innerHTML = "&nbsp;"
-        this.messageElement.style.fontSize = "smaller"
+        this.messageElement.style.fontSize = "12px"
         this.messageElement.style.color = "red"
         this.messageElement.style.position = "relative"
-        this.messageElement.style.top = "-0.25em"
-        this.messageElement.style.lineHeight = "normal"
+//        this.messageElement.style.top = "-0.25em"
+  //      this.messageElement.style.lineHeight = "0.5"
         this.messageElement.style.textAlign = "right"
+        this.messageElement.style.fontFamily = "PT Sans"
 
         this.validation = schema.validation || {}
 
@@ -114,7 +115,7 @@ class TextInputController extends InputController {
 
     validate() {
         let errorMessage = "\u00a0"
-        if (this.inputElement.value == "") {
+        if (this.inputElement.value == "" && this.schema?.isRequired) {
             errorMessage = "Required Field"
         } else {
             if (this.validation) {

@@ -81,12 +81,12 @@ export function transformSchema(schema) {
     }
 
     let transformed = {...schema}
-    let options = schema.options || []
+    let modifiers = schema.modifiers || []
 
     // delete transformed.options
 
-    transformed.isExpression = options.indexOf("CONSTANT") == -1
-    transformed.isReference = options.indexOf("REFERENCE") != -1
+    transformed.isExpression = modifiers.indexOf("CONSTANT") == -1
+    transformed.isReference = modifiers.indexOf("REFERENCE") != -1
 
     return transformed
 }
