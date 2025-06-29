@@ -7,7 +7,7 @@ let inputTypeSelect = document.getElementById("inputType")
 // TODO: listen on selections; add something to be called by sync
 
 inputTypeSelect.addEventListener("change", () => {
-    setValidation({type: inputTypeSelect.value})
+    setValidation({type: inputTypeSelect.value}, true)
 })
 
 addCellSelectionListener(() => {
@@ -16,7 +16,7 @@ addCellSelectionListener(() => {
 })
 
 
-function setValidation(validation) {
+function setValidation(validation, saveImmediately) {
     let schema = []
     validation = validation == null ? {} : {...validation}
     let type = validation.type || "No User Input"
@@ -55,7 +55,7 @@ function setValidation(validation) {
     let formController = FormController.create(validationFormElement, schema)
     formController.setValues(validation)
 
-    formController.addListener(() => {
+    let saveFunction = () => {
         if (inputTypeSelect.selectedIndex == 0) {
             setCurrentCellValidation(null)
         } else {
@@ -74,5 +74,11 @@ function setValidation(validation) {
             }
             setCurrentCellValidation(values)
         }
-    })
+    }
+
+    formController.addListener(saveFunction)
+
+    if (saveImmediately) {
+        saveFunction()
+    }
 }

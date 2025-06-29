@@ -28,8 +28,8 @@ export function renderCell(key) {
         targetElement.style.backgroundSize = null
     }
     let validation = cellData["v"]
-    if (validation != null && (validation["options"] != null || validation["type"] == "Boolean")) {
-        renderSelect(targetElement, cellData)
+    if (validation?.type != null && validation?.type != "No User Input") {
+        renderInput(targetElement, cellData)
         return
     }
 
@@ -75,7 +75,7 @@ export function renderCell(key) {
     targetElement.textContent = value
 }
 
-function renderSelect(targetElement, cellData) {
+function renderInput(targetElement, cellData) {
     targetElement.textContent = ""
 
     let inputController = InputController.create(cellData.v)
