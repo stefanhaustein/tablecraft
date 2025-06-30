@@ -183,6 +183,10 @@ input:invalid {
     z-index: 1;
 }
 
+#spreadsheetTable tr td.selected.output {
+    background-color: white;
+}
+
 #spreadsheetTable tr td.selected2 {
     background-color: lightblue;
 }

@@ -1,6 +1,6 @@
 import {getColumn, getRow, nullToEmtpy, post, toRangeKey} from "./lib/utils.js";
 import {renderCell} from "./cell_renderer.js";
-import {getAllPorts, model} from "./shared_model.js";
+import {getAllPorts, getPortFactory, getPortInstance, model} from "./shared_model.js";
 import {removeClasses, renderDependencies, renderRangeHighlight} from "./shared_state_internal_renderer.js";
 
 export let portValues = {}
@@ -164,12 +164,27 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
     selectionRangeX = rangeX
     selectionRangeY = rangeY
 
+
     renderRangeHighlight(currentCell.key, selectionRangeX, selectionRangeY, true)
 
 
     if (newlySelected) {
         currentCellElement.classList.add("selected")
-        showDependencies(currentSheet.name + "!" + currentCell.key)
+        let targetKey = currentSheet.name + "!" + currentCell.key
+
+        let formula = currentCell.f?.toString() || ""
+        if (formula.startsWith("=")) {
+            let name = formula.substring(1)
+            let type = getPortInstance(name)?.type
+            if (type != null) {
+                let spec = getPortFactory(type)
+                if (spec.kind == "INPUT_PORT") {
+                    targetKey = name
+                }
+            }
+        }
+
+        showDependencies(targetKey)
 
         notifySelectionListeners()
     }

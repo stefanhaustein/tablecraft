@@ -89,8 +89,9 @@
                 <h2>All Functions</h2>
                 <div id="operationListContainer" class="panelItemContainer"></div>
             </div>
-            <div id="ValidationPanel" class="panelItem">
-                <h2>Type</h2>
+
+            <div id="ValidationPanel" class="panelContainer">
+                <label>Type:&nbsp;
                 <select id="inputType">
                     <option>No User Input</option>
                     <option>Bool</option>
@@ -98,16 +99,18 @@
                     <option>Int</option>
                     <option>Real</option>
                 </select>
-                <div id="ValidationForm" >
+                </label>
+                <div id="ValidationForm" style="margin-top:10px">
                 </div>
             </div>
-            <div id="IntegrationPanel">
 
+            <div id="IntegrationPanel">
                 <div id="integrationList" class="panelContainer"></div>
                 <details id="integrationSpecList" class="panelContainer">
                     <summary>Available Integrations</summary>
                 </details>
             </div>
+
             <div id="GraphicsPanel" class="panelContainer">
                 <button >Clear Cell Graphics</button>
                 <details class="symbols" open="open">
