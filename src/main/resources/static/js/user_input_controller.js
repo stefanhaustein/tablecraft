@@ -34,18 +34,18 @@ function setValidation(validation, saveImmediately) {
     switch (type) {
         case "Bool":
             schema = [
-                {"name": "true", "label": "True Label"},
-                {"name": "false", "label": "False Label"},
+                {name: "true", label: "True Label"},
+                {name: "false", label: "False Label"},
             ]
             break
         case "String":
-            schema = [{"name": "options", "label": "Permitted values"}]
+            schema = [{name: "options", label: "Permitted values", isMultiLine: true}]
             break
         case "Int":
-            schema = [{"name": "min"}, {"name": "max"}]
+            schema = [{name: "min", type: "Int"}, {name: "max", type: "Int"}]
             break
         case "Real":
-            schema = [{"name": "min"}, {"name": "max"}]
+            schema = [{name: "min", type: "Real"}, {name: "max", type: "Real"}]
             break
     }
 

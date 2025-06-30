@@ -29,6 +29,7 @@ body table#spreadsheetTable tbody tr td.changed {
     }
 }
 
+
 .dialogTitle {
     font-weight: bold;
 }
@@ -62,7 +63,7 @@ body table#spreadsheetTable tbody tr td.changed {
     background-color: #fce4cd;
 }
 
-#inputPortList .self, #outputPortList .self {
+#sidePanel .self {
     background-color: lightblue;
 }
 
@@ -85,14 +86,23 @@ body #spreadsheetTable tbody tr td.highlight {
 }
 
 
-#inputPortList, #outputPortList {
-
-}
-
 
 input:invalid {
     background-color: #faa
 }
+
+.panelItem {
+    padding: 3px 6px;
+}
+
+.panelItemContainer {
+    margin: 10px 0;
+}
+
+.panelContainer {
+    margin: 10px 6px;
+}
+
 
 .port {
     padding: 3px 6px;

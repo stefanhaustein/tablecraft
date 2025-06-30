@@ -88,7 +88,7 @@ export class InputController {
 class TextInputController extends InputController {
 
     constructor(schema) {
-        super(schema, document.createElement("input"))
+        super(schema, document.createElement(schema?.isMultiLine ? "textarea" : "input"))
 
         if (schema.isReference) {
             switch (getType(schema).toLowerCase()) {

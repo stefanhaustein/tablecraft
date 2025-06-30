@@ -53,7 +53,7 @@
             </table>
         </div>
         <div id="sidePanel" style="height: 100%; flex: 0 0 200px; overflow: auto">
-            <div id="AboutPanel">
+            <div id="AboutPanel" class="panelContainer">
                 <h2>TableCraft</h2>
 
                     <center><img src="TableCraft.png" width="150" /></center>
@@ -61,42 +61,35 @@
                     to control simple IoT projects.
             </div>
             <div id="InputPortsPanel">
-                <div id="portListContainer">
+                <div class="panelContainer">
                     <label>
                     <input type="checkbox" style="margin-left: 0" id="simulationMode" />Simulation Mode</label>
-                    <details id="inputPortList" open="open" >
-                        <summary>Input Ports</summary>
-                    </details>
-
-                    <details id="inputPortSpecList"> <summary>Available Inputs</summary></details>
-
                 </div>
+                <div id="inputPortList" class="panelItemContainer"> </div>
+                <details id="inputPortSpecList" class="panelContainer"> <summary>Available Inputs</summary></details>
+
 
             </div>
-            <div id="OutputPortsPanel">
-                <div id="outputportListContainer">
-                    <details id="outputPortList" open="open" >
-                        <summary>Output Ports</summary>
-                    </details>
-
-                    <details id="outputPortSpecList"><summary>Available Outputs</summary></details>
-                </div>
-
+            <div id="OutputPortsPanel" >
+                <div  id="outputPortList" class="panelItemContainer"></div>
+                <details id="outputPortSpecList" class="panelContainer"><summary>Available Outputs</summary></details>
             </div>
             <div id="PortEditorPanel">
                 <div id="portEditorContainer" ></div>
             </div>
             <div id="NamedCellsPanel">
-                <div id="namedCellListContainer">
+                <div id="namedCellListContainer" class="panelItemContainer">
                 </div>
+                <div class="panelContainer">
                 <button id="addNamedCellsButton">Add</button>
+                </div>
             </div>
-            <div id="FunctionPanel">
-                <div id="operationEditorContainer"></div>
+            <div id="FunctionPanel" class="panelContainer">
+                <div id="operationEditorContainer" class="panelItemContainer"></div>
                 <h2>All Functions</h2>
-                <div id="operationListContainer"></div>
+                <div id="operationListContainer" class="panelItemContainer"></div>
             </div>
-            <div id="ValidationPanel">
+            <div id="ValidationPanel" class="panelItem">
                 <h2>Type</h2>
                 <select id="inputType">
                     <option>No User Input</option>
@@ -109,13 +102,14 @@
                 </div>
             </div>
             <div id="IntegrationPanel">
-                <h2>Configured Integration</h2>
-                <div id="integrationList"></div>
-                <h2>Available Integrations</h2>
-                <div id="integrationSpecList"></div>
+
+                <div id="integrationList" class="panelContainer"></div>
+                <details id="integrationSpecList" class="panelContainer">
+                    <summary>Available Integrations</summary>
+                </details>
             </div>
-            <div id="GraphicsPanel">
-                <button src="" >Clear Cell Graphics</button>
+            <div id="GraphicsPanel" class="panelContainer">
+                <button >Clear Cell Graphics</button>
                 <details class="symbols" open="open">
                     <summary>Lines</summary>
                     <img src="img/line/hb.svg" />
