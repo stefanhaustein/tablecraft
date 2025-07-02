@@ -4,32 +4,40 @@ import {getType} from "./forms/input_schema.js";
 
 let inputTypeSelect = document.getElementById("inputType")
 
-// TODO: listen on selections; add something to be called by sync
+let currentValidation = {}
 
 inputTypeSelect.addEventListener("change", () => {
-    setValidation({type: inputTypeSelect.value}, true)
+    currentValidation.type = inputTypeSelect.value
+    updateValidation(false)
 })
 
-addCellSelectionListener(() => {
-    let validation = currentCell.v || {}
-    setValidation(validation)
-})
+addCellSelectionListener(initValidation)
 
-
-function setValidation(validation, saveImmediately) {
-    let schema = []
-    validation = validation == null ? {} : {...validation}
-    let type = validation.type || "No User Input"
-    inputTypeSelect.value = type
-
-    if (Array.isArray(validation.options)) {
-        if (getType(validation) == "Bool") {
-            validation["true"] = validation.options[0].label
-            validation["false"] = validation.options[1].label
-        } else {
-            validation.options = validation.options.join(", ")
-        }
+function initValidation() {
+    currentValidation = currentCell?.v == null ? {} : {...currentCell.v}
+    // Map fields for input form
+    switch (getType(currentValidation)) {
+        case "Bool":
+            currentValidation["true"] = currentValidation?.options[0]?.label
+            currentValidation["false"] = currentValidation?.options[1]?.label
+            break
+        case "String":
+            if (Array.isArray(currentValidation.options)) {
+                currentValidation.optionsString = currentValidation.options.join(", ")
+            }
+            break
     }
+
+    updateValidation(true)
+}
+
+
+function updateValidation(cellChanged) {
+    let schema = []
+    let type = currentValidation.type || "No User Input"
+    inputTypeSelect.value = type
+    let explanationDiv = document.getElementById("ValidationExplanation")
+    explanationDiv.textContent = ""
 
     switch (type) {
         case "Bool":
@@ -37,9 +45,12 @@ function setValidation(validation, saveImmediately) {
                 {name: "true", label: "True Label"},
                 {name: "false", label: "False Label"},
             ]
+            currentValidation["true"] = currentValidation["true"] || "True"
+            currentValidation["false"] = currentValidation["false"] || "False"
             break
         case "String":
-            schema = [{name: "options", label: "Permitted values", isMultiLine: true}]
+            schema = [{name: "optionsString", label: "Permitted values", isMultiLine: true}]
+            explanationDiv.textContent = "Comma separated values; leave empty for unrestricted text input."
             break
         case "Int":
             schema = [{name: "min", type: "Int"}, {name: "max", type: "Int"}]
@@ -53,32 +64,47 @@ function setValidation(validation, saveImmediately) {
     validationFormElement.textContent = ""
 
     let formController = FormController.create(validationFormElement, schema)
-    formController.setValues(validation)
+    formController.setValues(currentValidation)
 
     let saveFunction = () => {
+        let newValues = formController.getValues()
+        for (let key in newValues) {
+            currentValidation[key] = newValues[key]
+        }
+
         if (inputTypeSelect.selectedIndex == 0) {
             setCurrentCellValidation(null)
         } else {
-            let values = formController.getValues()
-            values.type = inputTypeSelect.value
-            if (getType(values) == "Bool") {
-                values.options = [{label: values["true"], value: true}, {label: values["false"], value: false}]
-                delete values["true"]
-                delete values["false"]
-            } else if (values.options != null) {
-                if (values.options.trim() == "") {
-                    delete values.options
-                } else {
-                    values.options = values.options.split(",").map(s => s.trim())
-                }
+            let sendValues = {type: inputTypeSelect.value}
+            switch (getType(currentValidation)) {
+                case "Bool":
+                    sendValues.options = [
+                        {label: currentValidation["true"], value: true},
+                        {label: currentValidation["false"], value: false}]
+                    break
+                case "String":
+                    if (currentValidation.optionsString != null &&
+                        currentValidation.optionsString.toString().trim() != "") {
+                        sendValues.options = currentValidation.optionsString.split(",").map(s => s.trim())
+                    }
+                    break
+                case "Int":
+                case "Real":
+                    if (currentValidation.min != null && currentValidation.min.toString().trim() != "") {
+                        sendValues.min = currentValidation.min
+                    }
+                    if (currentValidation.max != null && currentValidation.max.toString().trim() != "") {
+                        sendValues.max = currentValidation.max
+                    }
+                    break
             }
-            setCurrentCellValidation(values)
+            setCurrentCellValidation(sendValues)
         }
     }
 
     formController.addListener(saveFunction)
 
-    if (saveImmediately) {
+    if (!cellChanged) {
         saveFunction()
     }
 }

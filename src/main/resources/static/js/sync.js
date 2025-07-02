@@ -2,7 +2,7 @@ import {renderCell} from "./cell_renderer.js"
 import {model} from "./shared_model.js"
 import {
     currentCell, currentSheet,
-    portValues,
+    portValues, selectCell,
     selectSheet,
     simulationValues
 } from "./shared_state.js";
@@ -24,22 +24,27 @@ import {getColumn, getRow, iterateKeys, toCellId} from "./lib/utils.js";
 let sheetSelectElement = document.getElementById("sheetSelect")
 
 var currentTag = -1
-fetchData()
+fetchData(0)
 
 
-function fetchData() {
+function fetchData(count) {
     var xmlhttp = new XMLHttpRequest();
     var url = "data?tag=" + currentTag;
 
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             proccessUpdateResponseText(this.responseText)
+            if (count == 0) {
+                // Wiggle cell to get user validation initialized
+                selectCell("B1")
+                selectCell("A1")
+            }
         }
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
     xmlhttp.onloadend = function () {
-        setTimeout( fetchData, 100)
+        setTimeout(() => fetchData(count + 1), 100)
     }
 }
 

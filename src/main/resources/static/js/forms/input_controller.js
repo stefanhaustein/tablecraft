@@ -12,7 +12,7 @@ let labelCounter = 0
 
 export class InputController {
 
-    constructor(schema, inputElement) {
+    constructor(schema, inputElement, messageElement) {
         this.schema = schema
         this.inputElement = inputElement
 
@@ -26,16 +26,19 @@ export class InputController {
             : schema.name == null ? getTypeLabel(schema) : schema.name + " (" + getTypeLabel(schema) + ")"
         this.labelElement.textContent = label + ": "
 
-        this.messageElement = document.createElement("div")
-        this.messageElement.innerHTML = "&nbsp;"
-        this.messageElement.style.fontSize = "12px"
-        this.messageElement.style.color = "red"
-        this.messageElement.style.position = "relative"
-//        this.messageElement.style.top = "-0.25em"
-  //      this.messageElement.style.lineHeight = "0.5"
-        this.messageElement.style.textAlign = "right"
-        this.messageElement.style.fontFamily = "PT Sans"
-
+        if (messageElement != null) {
+            this.messageElement = messageElement
+        } else {
+            this.messageElement = document.createElement("div")
+            this.messageElement.innerHTML = "&nbsp;"
+            this.messageElement.style.fontSize = "12px"
+            this.messageElement.style.color = "red"
+            this.messageElement.style.position = "relative"
+//          this.messageElement.style.top = "-0.25em"
+            //        this.messageElement.style.lineHeight = "0.5"
+            this.messageElement.style.textAlign = "right"
+            this.messageElement.style.fontFamily = "PT Sans"
+        }
         this.validation = schema.validation || {}
 
         this.inputElement.addEventListener("input", () => { this.validate() })
@@ -43,17 +46,17 @@ export class InputController {
         this.validate()
     }
 
-    static create(schema) {
+    static create(schema, messageElement) {
         if (!schema.isExpression && !schema.isReference) {
             let options = getOptions(schema)
             if (options != null) {
-                return new EnumInputController(schema, options)
+                return new EnumInputController(schema, options, messageElement)
             }
             if (getType(schema) == "Bool") {
-                return new EnumInputController(schema, ["True", "False"])
+                return new EnumInputController(schema, ["True", "False"], messageElement)
             }
         }
-        return new TextInputController(schema)
+        return new TextInputController(schema, messageElement)
     }
 
     validate() {
@@ -118,6 +121,14 @@ class TextInputController extends InputController {
         if (this.inputElement.value == "" && this.schema?.isRequired) {
             errorMessage = "Required Field"
         } else {
+            if (this.getValue() != null) {
+                if (this.schema.max != null && this.getValue() > this.schema.max) {
+                    errorMessage = "Max. " + this.schema.max
+                } else if (this.schema.min != null && this.getValue() < this.schema.min) {
+                    errorMessage = "Min. " + this.schema.min
+                }
+            }
+
             if (this.validation) {
                 for (const msg in this.validation) {
                     let check = this.validation[msg]

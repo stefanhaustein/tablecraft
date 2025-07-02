@@ -121,9 +121,9 @@ class Cell(
            setFormula(formula.toString(), modificationToken)
        }
        val validation = json["v"]
-       if (validation != null) {
-           setValidation(validation as Map<String, Any?>, modificationToken)
-       }
+        setValidation(if (validation == null || validation == Unit || (validation as Map<*,*>).isEmpty()) null
+            else validation as Map<String, Any?>, modificationToken)
+
         val image = json["i"]
         if (image is String) {
             setImage(image, modificationToken)
