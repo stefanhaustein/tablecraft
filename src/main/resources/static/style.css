@@ -50,6 +50,7 @@ body table#spreadsheetTable tbody tr td.changed {
     align-items: center;
 }
 
+select.error,
 input.error {
     background-color: #fee;
 }

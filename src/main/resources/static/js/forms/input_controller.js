@@ -145,15 +145,15 @@ class TextInputController extends InputController {
             this.messageElement.classList.remove("error")
             this.inputElement.classList.remove("error")
         }
-        return hasError
+        return !hasError
     }
 }
 
 
 class EnumInputController extends InputController {
 
-    constructor(schema, options) {
-        super(schema, document.createElement("select"));
+    constructor(schema, options, messageElemnt,) {
+        super(schema, document.createElement("select"), messageElemnt);
 
         for (let option of options) {
             let optionElement = document.createElement("option")
@@ -167,5 +167,47 @@ class EnumInputController extends InputController {
         }
     }
 
+    validate() {
+        let errorMessage = "\u00a0"
+        let options = getOptions(this.schema)
+        let found = false
+        for (let option of options) {
+            if ((option.value != null ? option.value : option).toString() == this.inputElement.value) {
+                found = true
+                break
+            }
+        }
+        if (!found) {
+             errorMessage = "Invalid option '" + this.inputElement.value + "'"
+        }
+        this.messageElement.textContent = errorMessage
+        if (!found) {
+            this.messageElement.classList.add("error")
+            this.inputElement.classList.add("error")
+        } else {
+            this.messageElement.classList.remove("error")
+            this.inputElement.classList.remove("error")
+        }
+        return found
+    }
 
+    setValue(value) {
+        let s = value.toString()
+        let found = false
+        for (let option of this.inputElement.options) {
+            if (option.value == s) {
+                found = true
+                break
+            }
+        }
+
+        if (!found) {
+            let newOption = document.createElement("option")
+            newOption.textContent = "(" + s + ")"
+            newOption.value = s
+            this.inputElement.appendChild(newOption)
+        }
+        this.inputElement.value = s
+        this.validate()
+    }
 }
