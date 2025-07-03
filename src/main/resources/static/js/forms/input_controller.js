@@ -57,26 +57,25 @@ export class InputController {
     }
 
     getValue() {
+        // Note that we can't call validate here, as validate for input elements calls
+        // getValue()
+        let value = this.inputElement.value
         if (isLiteral(this.schema)) {
-            switch (getType(this.schema).toLowerCase()) {
-                case "bool":
-                    return this.inputElement.value == "True"
-                case "real":
-                    return Number.parseFloat(this.inputElement.value)
-                case "int":
-                    return Number.parseInt(this.inputElement.value)
-
+            let empty = value.trim() === ""
+            switch (getType(this.schema)) {
+                case "Bool":
+                    return empty ? null : value.toLowerCase() === "true"
+                case "Real":
+                    return empty ? null : Number.parseFloat(this.inputElement.value)
+                case "Int":
+                    return empty ? null : Number.parseInt(this.inputElement.value)
             }
         }
-        return this.inputElement.value
+        return value
     }
 
     setValue(value) {
-        /*if (isLiteral(this.schema) && getType(this.schema) == "Bool" && this.schema.options == null) {
-            this.inputElement.value = value ? "True" : "False"
-        } else {*/
-            this.inputElement.value = value == null ? "" : value.toString()
-        //}
+        this.inputElement.value = value == null ? "" : value.toString()
         this.validate()
     }
 }
@@ -111,18 +110,18 @@ class TextInputController extends InputController {
 
     validate() {
         let errorMessage = "\u00a0"
-        if (this.inputElement.value == "" && this.schema?.isRequired) {
-            errorMessage = "Required Field"
-        } else {
-            if (this.getValue() != null) {
-                if (this.schema.max != null && this.getValue() > this.schema.max) {
-                    errorMessage = "Max. " + this.schema.max
-                } else if (this.schema.min != null && this.getValue() < this.schema.min) {
-                    errorMessage = "Min. " + this.schema.min
-                }
+        let value = this.getValue()
+        if (getType(this.schema) == "String" ? value == "" : value == null) {
+            if (this.schema?.isRequired) {
+                errorMessage = "Required Field"
             }
-
-            if (this.validation) {
+        } else {
+            // Not empty
+            if (this.schema.max != null && value > this.schema.max) {
+                errorMessage = "Max. " + this.schema.max
+            } else if (this.schema.min != null && value < this.schema.min) {
+                errorMessage = "Min. " + this.schema.min
+            } else if (this.validation) {
                 for (const msg in this.validation) {
                     let check = this.validation[msg]
                     if (check instanceof RegExp) {
