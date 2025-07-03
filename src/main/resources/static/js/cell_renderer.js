@@ -27,15 +27,16 @@ export function renderCell(key) {
         targetElement.style.backgroundImage = null
         targetElement.style.backgroundSize = null
     }
+
+    let classes = targetElement.classList
+    classes.remove("c", "e", "i", "r", "l", "u")
+    targetElement.removeAttribute("title")
+
     let validation = cellData["v"]
     if (validation?.type != null && validation?.type != "No User Input") {
         renderInput(targetElement, cellData)
         return
     }
-
-    let classes = targetElement.classList
-    classes.remove("c", "e", "i", "r", "l")
-    targetElement.removeAttribute("title")
 
     switch(typeof value) {
         case "bigint":
@@ -77,8 +78,9 @@ export function renderCell(key) {
 
 function renderInput(targetElement, cellData) {
     targetElement.textContent = ""
+    targetElement.classList.add("u")
 
-    let inputController = InputController.create(cellData.v)
+    let inputController = InputController.create(cellData.v, document.getElementById("globalErrorDiv"))
     let inputElement = inputController.inputElement
     inputElement.style.width = "100%"
     inputElement.style.height = "100%"
@@ -90,5 +92,6 @@ function renderInput(targetElement, cellData) {
     inputElement.addEventListener("click", () => {
         selectCell(targetElement.id)
     })
+
 }
 

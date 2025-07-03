@@ -50,6 +50,33 @@ body table#spreadsheetTable tbody tr td.changed {
     align-items: center;
 }
 
+input.error {
+    background-color: #fee;
+}
+
+.errorMessage {
+    font-size: 12px;
+    color: red;
+    position: relative;
+    text-align: right;
+    font-family: "PT Sans";
+    margin-bottom: -5px;
+}
+
+#globalErrorDiv {
+    display: none;
+    background-color: #ffe ;
+    font-weight: bold;
+    color: red;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    padding: 5px;
+}
+
+#globalErrorDiv.error {
+    display: block;
+}
+
 .boxGraphics img {
     width: 48px;
     height: 36px;
@@ -195,11 +222,12 @@ input:invalid {
     outline: 2px solid #88f;
 }
 
-#spreadsheetTable td.c,
-#spreadsheetTable td.e,
-#spreadsheetTable td.i,
-#spreadsheetTable td.l,
-#spreadsheetTable td.r {
+#spreadsheetTable td.c,   /* center */
+#spreadsheetTable td.e,   /* error */
+#spreadsheetTable td.i,   /* implied label */
+#spreadsheetTable td.l,   /* left */
+#spreadsheetTable td.r,   /* right */
+#spreadsheetTable td.u {  /* User Input */
     position: relative;
     background: white;
 }
@@ -227,6 +255,11 @@ input:invalid {
 #spreadsheetTable td.r {
     padding: 0 3px;
     text-align: right;
+}
+
+
+#spreadsheetTable td.u {
+    padding: 0;
 }
 
 details {

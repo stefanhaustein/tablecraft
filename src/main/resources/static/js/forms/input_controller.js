@@ -30,14 +30,7 @@ export class InputController {
             this.messageElement = messageElement
         } else {
             this.messageElement = document.createElement("div")
-            this.messageElement.innerHTML = "&nbsp;"
-            this.messageElement.style.fontSize = "12px"
-            this.messageElement.style.color = "red"
-            this.messageElement.style.position = "relative"
-//          this.messageElement.style.top = "-0.25em"
-            //        this.messageElement.style.lineHeight = "0.5"
-            this.messageElement.style.textAlign = "right"
-            this.messageElement.style.fontFamily = "PT Sans"
+            this.messageElement.className = "errorMessage"
         }
         this.validation = schema.validation || {}
 
@@ -90,8 +83,8 @@ export class InputController {
 
 class TextInputController extends InputController {
 
-    constructor(schema) {
-        super(schema, document.createElement(schema?.isMultiLine ? "textarea" : "input"))
+    constructor(schema, messageElement) {
+        super(schema, document.createElement(schema?.isMultiLine ? "textarea" : "input"), messageElement)
 
         if (schema.isReference) {
             switch (getType(schema).toLowerCase()) {
@@ -145,7 +138,15 @@ class TextInputController extends InputController {
             }
         }
         this.messageElement.textContent = errorMessage
-        return errorMessage == "\u00a0"
+        let hasError = errorMessage != "\u00a0"
+        if (hasError) {
+            this.messageElement.classList.add("error")
+            this.inputElement.classList.add("error")
+        } else {
+            this.messageElement.classList.remove("error")
+            this.inputElement.classList.remove("error")
+        }
+        return hasError
     }
 }
 
