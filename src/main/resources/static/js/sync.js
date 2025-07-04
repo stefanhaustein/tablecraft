@@ -2,7 +2,7 @@ import {renderCell} from "./cell_renderer.js"
 import {model} from "./shared_model.js"
 import {
     currentCell, currentSheet,
-    portValues, selectCell,
+    portValues, selectCell, selectionRangeX, selectionRangeY,
     selectSheet,
     simulationValues
 } from "./shared_state.js";
@@ -204,7 +204,6 @@ function processSheetUpdate(name, map) {
 function processSheetCellsUpdate(name, map) {
     let sheet = model.sheets[name]
 
-
     let cells = sheet.cells
     for (let key in map) {
         let newValue = map[key]
@@ -217,23 +216,30 @@ function processSheetCellsUpdate(name, map) {
             cell.c = newValue
 
             blink(document.getElementById(key))
-
         } else if (key.indexOf(".") == -1) {
             newValue.key = key
             cells[key] = newValue
         } else {
             console.log("Unrecognized suffix for key ", key, "value", newValue)
         }
+
         if (sheet == currentSheet) {
             renderCell(key)
+            if (key == currentCell.key) {
+                selectCell(key, selectionRangeX, selectionRangeY)
+            }
 
             let col = getColumn(key)
-            if (col > 0) {
+            if (col > 1) {
                 let row = getRow(key)
                 let prevKey = toCellId(col - 1, row)
-                if (map[prevKey] == null) {
+                // we'd need to order cells backwards to avoid double rendering or
+                // separate rendering from filling --
+                // otherwise, if the prevKey was rendered before this cell was filled,
+                // it might still have been empty at this point.
+                //if (map[prevKey] == null) {
                     renderCell(prevKey)
-                }
+                //}
             }
         }
     }

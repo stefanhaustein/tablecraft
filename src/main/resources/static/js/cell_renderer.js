@@ -16,6 +16,9 @@ export function renderCell(key) {
     }
     let imgSrc = cellData["i"]
     let value = cellData["c"]
+    if (value == null) {
+        value = ""
+    }
     if (imgSrc) {
         if (imgSrc.endsWith("=")) {
             imgSrc += value
@@ -29,7 +32,7 @@ export function renderCell(key) {
     }
 
     let classes = targetElement.classList
-    classes.remove("c", "e", "i", "r", "l", "u")
+    classes.remove("c", "e", "i", "r", "l", "u", "I")
     targetElement.removeAttribute("title")
 
     let validation = cellData["v"]
@@ -38,42 +41,54 @@ export function renderCell(key) {
         return
     }
 
+    let renderedValue = value
     switch(typeof value) {
         case "bigint":
-        case "number": classes.add("r"); break;
-        case "boolean": classes.add("c"); break;
-        case "object":
+        case "number":
+            classes.add("r")
+            break
+
+        case "boolean":
+            classes.add("c")
+            renderedValue = value ? "True" : "False"
+            break
+
         case "string":
-            if (value == null || value == "") {
+            if (value == "" && !imgSrc) {
                 let col = getColumn(key)
                 let row = getRow(key)
                 let nextKey = toCellId(col + 1, row)
                 let nextCell = currentSheet.cells[nextKey]
-                if (nextCell != null && nextCell.f != null && nextCell.f.startsWith("=") && !imgSrc) {
-                    targetElement.textContent = nextCell.f.substring(1).trim();
-                    classes.add("i");
-                } else {
-                    targetElement.textContent = "";
-                }
-            } else {
-                classes.add("l");
-                switch (value["type"]) {
-                    case "err":
-                        let abbr = document.createElement("span")
-                        targetElement.setAttribute("title", value["msg"])
-                        abbr.textContent = "#REF"
+                if (nextCell?.f != null && nextCell.f.startsWith("=")) {
+                    renderedValue = nextCell.f.substring(1).trim()
+                    classes.add("i")
+                    // This is necessary because table cells don't respect (max-)height properly.
+                    if (renderedValue.length > 8) {
                         targetElement.textContent = ""
-                        targetElement.appendChild(abbr)
-                        classes.add("e")
-                        break;
-                    default:
-                        targetElement.textContent = JSON.stringify(value)
+                        let div = document.createElement("div")
+                        targetElement.appendChild(div)
+                        div.textContent = renderedValue
+                        return
+                    }
+                    break
                 }
             }
-            return;
+            classes.add("l")
+            break
+
+        default:
+            switch (value["type"]) {
+                case "err":
+                    renderedValue = "#REF"
+                    classes.add("e")
+                    break
+                default:
+                    classes.add("l")
+                    renderedValue = JSON.stringify(value)
+            }
     }
 
-    targetElement.textContent = value
+    targetElement.textContent = renderedValue
 }
 
 function renderInput(targetElement, cellData) {

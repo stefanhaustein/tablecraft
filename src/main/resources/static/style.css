@@ -168,6 +168,7 @@ input:invalid {
 #spreadsheetTable {
     border-collapse: separate;
     border-spacing: 0;
+// table-layout: fixed;
 }
 
 
@@ -184,11 +185,6 @@ input:invalid {
     white-space: nowrap;
 }
 
-#spreadsheetTable img {
-    widht: 72px;
-    height: 36px;
-    display: block;
-}
 
 #spreadsheetTable th {
     font-weight: normal;
@@ -226,6 +222,7 @@ input:invalid {
 #spreadsheetTable td.c,   /* center */
 #spreadsheetTable td.e,   /* error */
 #spreadsheetTable td.i,   /* implied label */
+#spreadsheetTable td.I,   /* implied label */
 #spreadsheetTable td.l,   /* left */
 #spreadsheetTable td.r,   /* right */
 #spreadsheetTable td.u {  /* User Input */
@@ -250,8 +247,21 @@ input:invalid {
 
 #spreadsheetTable td.i {
     text-align: right;
-    color: #888;
+    padding-top: 0;
+    padding-bottom: 0;
+    color: #aaa;
 }
+
+
+#spreadsheetTable tr td.i div {
+    font-size: 14px;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 36px;
+    vertical-align: center;
+}
+
 
 #spreadsheetTable td.r {
     padding: 0 3px;

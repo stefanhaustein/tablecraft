@@ -35,6 +35,7 @@ export class InputController {
         this.validation = schema.validation || {}
 
         this.inputElement.addEventListener("input", () => { this.validate() })
+        this.inputElement.addEventListener("focus", () => { this.validate() })
 
         this.validate()
     }

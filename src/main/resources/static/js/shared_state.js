@@ -38,6 +38,20 @@ export function addCellContentChangeListener(name, listener) {
     cellContentChangeListeners[name] = listener
 }
 
+// Called when the selection was changed -- which in turn is called when the selected cell was updated.
+function updateErrorMessage() {
+    if (currentCell.v) {
+        return
+    }
+    let errorDiv = document.getElementById("globalErrorDiv")
+    if (currentCell?.c?.type == "err") {
+        errorDiv.textContent = currentCell.c?.msg
+        errorDiv.classList.add("error")
+    } else {
+        errorDiv.classList.remove("error")
+    }
+}
+
 function commitCurrentCell() {
     committedFormula = currentCell.f
     post("update/" + currentSheet.name + "!" + currentCell.key, currentCell)
@@ -115,7 +129,8 @@ export function showDependencies(targetKey) {
 }
 
 
-
+// Note that this is also called when the current cell is updated by the server (as the server update might
+// swap out the whole object.
 export function selectCell(id, rangeX = 0, rangeY = 0) {
 
     if (currentCell != null) {
@@ -154,6 +169,9 @@ export function selectCell(id, rangeX = 0, rangeY = 0) {
 
     currentCellElement = newElement
     currentCell = newData
+
+    updateErrorMessage()
+
     formulaInputElement.value = nullToEmtpy(committedFormula)
 
     //
