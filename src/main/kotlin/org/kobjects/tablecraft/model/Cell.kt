@@ -127,6 +127,8 @@ class Cell(
         val image = json["i"]
         if (image is String) {
             setImage(image, modificationToken)
+        } else {
+            setImage("", modificationToken)
         }
     }
 
