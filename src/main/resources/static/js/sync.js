@@ -3,7 +3,7 @@ import {model} from "./shared_model.js"
 import {
     currentCell, currentSheet,
     portValues, selectCell, selectionRangeX, selectionRangeY,
-    selectSheet,
+    selectSheet, setRunMode,
     simulationValues
 } from "./shared_state.js";
 import { registerFactory } from "./shared_model.js"
@@ -93,6 +93,11 @@ function processSection(sectionName, map) {
             if (simulationMode != null) {
                 document.getElementById("simulationMode").checked = simulationMode
             }
+            let runMode = map["runMode"]
+            if (runMode != null) {
+                setRunMode(runMode)
+                updateSheetSelectElement()
+            }
             break
         case "factories":
             for (let name in map) {
@@ -139,6 +144,7 @@ function updateSheetSelectElement() {
     }
     addOption(sheetSelectElement, "Edit Sheet Metadata")
     addOption(sheetSelectElement, "Add New Sheet")
+    addOption(sheetSelectElement, "Run Mode")
 }
 
 function processSheetUpdate(name, map) {

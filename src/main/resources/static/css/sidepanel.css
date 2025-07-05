@@ -1,0 +1,53 @@
+
+.runMode #sidePanel {
+    display: none;
+}
+
+#sidePanel .self {
+    background-color: #ddf;
+}
+
+#sidePanel > div {
+    /*    padding: 5px; */
+    display: none;
+}
+
+#sidePanel .inputContainer {
+    /*padding-left: 10px;*/
+}
+
+#sidePanel .inputContainer input {
+    width: 100%;
+}
+
+.panelItem {
+    padding: 3px 6px;
+}
+
+.panelItemContainer {
+    margin: 10px 0;
+}
+
+.panelContainer {
+    margin: 10px 6px;
+}
+
+
+.port {
+    padding: 3px 6px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+
+.portConfig {
+    padding: 3px;
+    float: right;
+}
+
+
+.symbols img {
+    width: 72px;
+    height: 36px;
+}
+

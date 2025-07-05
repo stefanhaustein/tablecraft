@@ -1,4 +1,4 @@
-import {setCurrentCellFormula, getCurrentCellElement, getSelectedCellRangeKey} from "./shared_state.js";
+import {setCurrentCellFormula, getCurrentCellElement, getSelectedCellRangeKey, selectCell} from "./shared_state.js";
 import {nullToEmtpy, post} from "./lib/utils.js";
 import {promptDialog} from "./lib/dialogs.js";
 import {getAllPorts} from "./shared_model.js";
@@ -26,8 +26,10 @@ formulaInputElement.addEventListener("keydown", event => {
     }
 })
 
-
-
+let cells = document.getElementById("spreadsheetTBody").querySelectorAll("td")
+for (let cell of cells) {
+    cell.addEventListener("focus", () => selectCell(cell.id))
+}
 
 
 document.getElementById("simulationMode").addEventListener("change", (event) =>{

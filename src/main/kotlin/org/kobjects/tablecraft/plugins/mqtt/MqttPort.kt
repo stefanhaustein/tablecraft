@@ -35,25 +35,27 @@ class MqttPort(
 
     val operationSpecs: List<AbstractArtifactSpec> = listOf(
         FunctionSpec(
+            "MQTT",
             Type.STRING,
             "$name.subscribe",
             "Subscribe to the given topic and receive update messages",
             listOf(ParameterSpec("topic", Type.STRING, setOf(ParameterSpec.Modifier.CONSTANT))),
             emptySet(),
-            tag
+            tag,
         ) {
             MqttSubscription(this, it)
         },
         FunctionSpec(
+            "MQTT",
             Type.STRING,
-        "$name.publish",
-        "Publish / update a message for a given topic",
+            "$name.publish",
+            "Publish / update a message for a given topic",
             listOf(
                 ParameterSpec("topic", Type.STRING, setOf(ParameterSpec.Modifier.CONSTANT)),
                 ParameterSpec("payload",  Type.STRING),
                 ),
             emptySet(),
-            tag
+            tag,
         ) {
             MqttPublisher(this, it)
         }

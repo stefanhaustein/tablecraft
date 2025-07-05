@@ -1,0 +1,81 @@
+
+html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+    font-family: "PT Sans Narrow", serif;
+    font-size: 17px;
+}
+
+
+select.error,
+input.error {
+    background-color: #fee;
+}
+
+.errorMessage {
+    font-size: 12px;
+    color: red;
+    position: relative;
+    text-align: right;
+    font-family: "PT Sans";
+    margin-bottom: -5px;
+}
+
+.boxGraphics img {
+    width: 48px;
+    height: 36px;
+}
+
+.output,
+body #spreadsheetTable td.output {
+    background-color: #fcf; // #f9cb9c;
+}
+
+.output2,
+body #spreadsheetTable td.output2 {
+    background-color: #fef; //  #fce4cd;
+}
+
+h2, h3 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+/* make sure the specifity is higher than #spreadsheettable td.c */
+.input,
+body #spreadsheetTable td.input {
+    background-color:  #cff; // #b6d7a8;
+}
+
+.input2,
+body #spreadsheetTable td.input2 {
+    background-color:  #eff; // #d9ead3;
+}
+
+input:invalid {
+    background-color: #faa;
+}
+
+.subtitle {
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+
+
+details {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+details summary {
+    font-weight: bold;
+}
+
+details:open summary {
+    margin-bottom: 5px;
+/*    font-weight: bold; */
+}

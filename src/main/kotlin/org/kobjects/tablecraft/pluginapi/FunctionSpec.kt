@@ -1,6 +1,7 @@
 package org.kobjects.tablecraft.pluginapi
 
 class FunctionSpec(
+    val category: String,
     returnType: Type,
     name: String,
     description: String,

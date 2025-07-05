@@ -1,0 +1,28 @@
+
+#formulaInput {
+    height: 36px;
+}
+
+#globalErrorDiv {
+    display: none;
+    background-color: #ffe ;
+    font-weight: bold;
+    color: red;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    padding: 5px;
+}
+
+#globalErrorDiv.error {
+    display: block;
+}
+
+
+#topBar {
+    display:flex;
+    flex: none;
+}
+
+.runMode #topBar {
+    display: none;
+}

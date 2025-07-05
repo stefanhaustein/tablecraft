@@ -26,7 +26,10 @@ function renderBinding(targetDiv, constructorSpec, instanceSpec) {
 }
 
 export function showPortDialog(constructorSpec, portSpec) {
-    previousPanel = selectPanel("PortEditor")
+    let previous = selectPanel("PortEditor")
+    if (previous != "PortEditor") {
+        previousPanel = previous
+    }
 
     let kind = constructorSpec.kind
     let instanceSpec = portSpec != null ? portSpec.configuration : {}

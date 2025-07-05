@@ -11,6 +11,8 @@ export let currentSheet = null
 export let selectionRangeX = 0
 export let selectionRangeY = 0
 
+export let runMode = false
+
 let currentCellElement = null
 
 let cellContentChangeListeners = {}  // new content, source
@@ -19,7 +21,19 @@ let cellSelectionListeners = [] // new id, edit mode
 let formulaInputElement = document.getElementById("formulaInput")
 let committedFormula = null
 
-let originElement = document.getElementById("origin")
+let originElement = document.getElementById("rangeName")
+
+
+// Only set via sync.js -- run mode changes need to be requested via the server.
+export function setRunMode(mode) {
+    runMode = mode
+    if (runMode) {
+        document.body.classList.add("runMode")
+    } else {
+        document.body.classList.remove("runMode")
+    }
+}
+
 
 formulaInputElement.addEventListener("blur", () => {
     console.log("onblur triggered")
@@ -132,6 +146,15 @@ export function showDependencies(targetKey) {
 // Note that this is also called when the current cell is updated by the server (as the server update might
 // swap out the whole object.
 export function selectCell(id, rangeX = 0, rangeY = 0) {
+
+    if (isNaN(rangeX)) {
+        console.log("rangeX is NaN")
+        rangeX = 0
+    }
+    if (isNaN(rangeY)) {
+        console.log("rangeY is NaN")
+        rangeY = 0
+    }
 
     if (currentCell != null) {
         renderRangeHighlight(currentCell.key, selectionRangeX, selectionRangeY, false)

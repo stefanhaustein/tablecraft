@@ -1,5 +1,5 @@
 import {model} from "./shared_model.js"
-import {currentSheet, selectSheet} from "./shared_state.js";
+import {currentSheet, runMode, selectSheet, setRunMode} from "./shared_state.js";
 
 let sheetDialogElement = document.getElementById("sheetDialog")
 let sheetSelectElement = document.getElementById("sheetSelect")
@@ -21,6 +21,10 @@ sheetSelectElement.addEventListener("change", () => {
         sheetSelectElement.value = currentSheet.name
         sheetDialogOkButtonElement.textContent = "Add"
         editSheetMetadata()
+    } else if (selectedValue == "Run Mode") {
+        sheetSelectElement.value = currentSheet.name
+        // tbd
+        setRunMode(!runMode)
     } else {
         selectSheet(selectedValue)
     }

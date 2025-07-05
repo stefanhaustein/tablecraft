@@ -10,16 +10,15 @@ let inputPortSpecListElement = document.getElementById("inputPortSpecList")
 let outputPortSpecListElement = document.getElementById("outputPortSpecList")
 
 
-let rangeNameSelectElement = document.getElementById("rangeNameSelect")
+let rangeNameElement = document.getElementById("rangeName")
 
 
 export function processPortSpec(spec) {
     let container = spec.kind == "OUTPUT_PORT" ? outputPortSpecListElement : inputPortSpecListElement
     if (spec.name == "NamedCells") {
         document.getElementById("addNamedCellsButton").addEventListener("click", () => { showPortDialog(spec) })
-        rangeNameSelectElement.addEventListener("change", async () => {
-            rangeNameSelectElement.selectedIndex = 0
-            let port = getPortInstance(rangeNameSelectElement.value)
+        rangeNameElement.addEventListener("click", async () => {
+            let port = getPortInstance(rangeNameElement.textContent)
             showPortDialog(spec, port)
         })
     } else {

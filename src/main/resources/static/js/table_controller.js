@@ -21,11 +21,7 @@ var dragRangeSelection = false
 
 spreadsheetTBodyElement.addEventListener(
     "click", (event) => {
-        if (dragRangeSelection) {
-            dragRangeSelection = false
-        } else {
-            selectCell(event.target.id || event.target.parentNode.id)
-        }
+        dragRangeSelection = false
     })
 
 spreadsheetTBodyElement.addEventListener(
@@ -35,9 +31,17 @@ spreadsheetTBodyElement.addEventListener(
     })
 
 
+function findCell(element) {
+    let cell = (element.localName == "td") ? element : element.parentNode
+    return (cell.localName == "td" && cell.id) ? cell : null
+
+}
 
 spreadsheetTBodyElement.addEventListener("mousedown", (event) => {
-    dragOrigin = event.target.id  || event.target.parentNode.id
+    let cell = findCell(event.target)
+    if (cell != null) {
+        dragOrigin = cell.id
+    }
     dragRangeSelection = false
 });
 
@@ -52,37 +56,42 @@ spreadsheetTBodyElement.addEventListener("mouseup", (event) => {
 spreadsheetTBodyElement.addEventListener("mousemove", (event) => {
     // reset the transparency
 
-    if (dragOrigin) {
-        if (event.target.id == dragOrigin) {
-            if (dragRangeSelection) {
-                selectCell(dragOrigin)
-            }
-        } else {
-            if (!dragRangeSelection) {
-                dragRangeSelection = true
-                spreadsheetTBodyElement.style.userSelect = "none"
-            }
-            let targetId = event.target.id || event.target.parentNode.id
-
-            let targetColumn = getColumn(targetId)
-            let targetRow = getRow(targetId)
-
-            let originColum = getColumn(dragOrigin)
-            let originRow = getRow(dragOrigin)
-
-            console.log("dragOrigin", dragOrigin, [originColum, originRow], "target", targetId, [targetColumn, targetRow])
-
-            selectCell(dragOrigin,  targetColumn - originColum, targetRow - originRow)
+    if (!dragOrigin) {
+        return
+    }
+    let cell = findCell(event.target)
+    if (cell == null) {
+        return
+    }
+    if (cell == dragOrigin) {
+        if (dragRangeSelection) {
+            selectCell(dragOrigin)
         }
+        return
+    }
+    let targetId = cell.id
+
+    if (!dragRangeSelection) {
+        dragRangeSelection = true
+        spreadsheetTBodyElement.style.userSelect = "none"
     }
 
+    let targetColumn = getColumn(targetId)
+    let targetRow = getRow(targetId)
+
+    let originColum = getColumn(dragOrigin)
+    let originRow = getRow(dragOrigin)
+
+    console.log("dragOrigin", dragOrigin, [originColum, originRow], "target", targetId, [targetColumn, targetRow])
+
+    if (targetRow != originRow || targetColumn != originColum) {
+        cell.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
+    }
+
+    selectCell(dragOrigin,  targetColumn - originColum, targetRow - originRow)
 });
 
 
-function selectAndScrollCurrentIntoView(cellId) {
-    selectCell(cellId)
-
-}
 
 function tableKeyPress(event) {
     let matched = true

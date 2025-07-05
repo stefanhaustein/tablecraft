@@ -10,6 +10,10 @@ export function renderCell(key) {
         return;
     }
 
+    let classes = targetElement.classList
+    classes.remove("c", "e", "i", "r", "l", "u")
+    targetElement.removeAttribute("title")
+
     let cellData = currentSheet.cells[key]
     if (cellData == null) {
         cellData = {}
@@ -19,6 +23,20 @@ export function renderCell(key) {
     if (value == null) {
         value = ""
     }
+
+    if (typeof value == "object" && value?.type == "err") {
+        targetElement.textContent = "#REF"
+        targetElement.classList.add("e")
+        return
+    }
+
+
+    let validation = cellData["v"]
+    if (validation?.type != null && validation?.type != "No User Input") {
+        renderInput(targetElement, cellData)
+        return
+    }
+
     if (imgSrc) {
         if (imgSrc.endsWith("=")) {
             imgSrc += value
@@ -29,16 +47,6 @@ export function renderCell(key) {
     } else {
         targetElement.style.backgroundImage = null
         targetElement.style.backgroundSize = null
-    }
-
-    let classes = targetElement.classList
-    classes.remove("c", "e", "i", "r", "l", "u", "I")
-    targetElement.removeAttribute("title")
-
-    let validation = cellData["v"]
-    if (validation?.type != null && validation?.type != "No User Input") {
-        renderInput(targetElement, cellData)
-        return
     }
 
     let renderedValue = value

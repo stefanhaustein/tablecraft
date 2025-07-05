@@ -47,7 +47,7 @@ class Sheet(
             }
 
             sb.append("[sheets.$name.cells]\n\n")
-            for (cell in cells.values) {
+            for (cell in cells.values.sortedBy { it.row * 10000 + it.column }) {
                 cell.serialize(sb, tag, forClient)
             }
         }
