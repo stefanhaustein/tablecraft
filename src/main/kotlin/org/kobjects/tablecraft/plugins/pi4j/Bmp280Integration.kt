@@ -105,13 +105,15 @@ class Bmp280Integration(
 
         companion object {
             fun spec(integration: Bmp280Integration) = InputPortSpec(
+                category = "GPIO",
                 Type.REAL,
                 integration.name + ".value",
                 "Returns a measurement value of the BMP 280 sensor",
-                parameters = listOf(ParameterSpec("kind", Type.ENUM(MeasurementType.entries), setOf(ParameterSpec.Modifier.CONSTANT)))
-            ) {
-                Bmp280Port(integration, it["kind"] as MeasurementType)
-            }
+                parameters = listOf(ParameterSpec("kind", Type.ENUM(MeasurementType.entries), setOf(ParameterSpec.Modifier.CONSTANT))),
+                createFn = {
+                    Bmp280Port(integration, it["kind"] as MeasurementType)
+                }
+            )
         }
     }
 

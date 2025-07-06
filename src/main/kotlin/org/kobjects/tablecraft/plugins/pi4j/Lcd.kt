@@ -62,6 +62,7 @@ class Lcd(
 
     companion object {
         fun spec(plugin: Pi4jPlugin) = OutputPortSpec(
+            "GPIO",
             Type.RANGE,
             "Lcd",
             "An LCD text display",
@@ -70,7 +71,8 @@ class Lcd(
                 ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)),
                 ParameterSpec("width", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)),
                 ParameterSpec("height", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)),
-        )) {
+        )
+        ) {
             Lcd(plugin, it["bus"] as Int? ?: 1, it["address"] as Int? ?: 0x76, it["width"] as Int? ?: 16, it["height"] as Int? ?: 2) }
     }
 

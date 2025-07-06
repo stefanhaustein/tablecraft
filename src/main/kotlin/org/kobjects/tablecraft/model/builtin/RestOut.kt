@@ -21,6 +21,7 @@ class RestOut(val fieldName: String) : OutputPortInstance {
 
     companion object {
         val SPEC = OutputPortSpec(
+            "GPIO",
             Type.STRING,
             "rest.out",
             """Makes the given value accessible via an JSON object under the '/rest' path of this server.""",

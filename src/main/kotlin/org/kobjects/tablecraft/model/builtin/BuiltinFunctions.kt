@@ -99,12 +99,14 @@ object BuiltinFunctions : Plugin {
         RestOut.SPEC,
 
         OutputPortSpec(
+            "GPIO",
             Type.RANGE,
             "NamedCells",
             "A named range of cells",
             emptyList(),
             emptySet(),
-            0) {
+            0
+        ) {
                 object : OutputPortInstance {
                     override fun setValue(value: Any) {}
                     override fun attach() {}
