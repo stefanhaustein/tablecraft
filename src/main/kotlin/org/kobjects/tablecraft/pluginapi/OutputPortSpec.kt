@@ -1,7 +1,7 @@
 package org.kobjects.tablecraft.pluginapi
 
 class OutputPortSpec(
-    val category: String,
+    category: String,
     returnType: Type,
     name: String,
     description: String,
@@ -10,6 +10,7 @@ class OutputPortSpec(
     tag: Long = 0,
     val createFn: (configuration: Map<String, Any>) -> OutputPortInstance,
 ) : AbstractFactorySpec(
+    category,
     OperationKind.OUTPUT_PORT,
     returnType,
     name,

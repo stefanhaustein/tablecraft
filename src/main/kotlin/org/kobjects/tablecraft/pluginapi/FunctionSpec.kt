@@ -1,7 +1,7 @@
 package org.kobjects.tablecraft.pluginapi
 
 class FunctionSpec(
-    val category: String,
+    category: String,
     returnType: Type,
     name: String,
     description: String,
@@ -10,6 +10,7 @@ class FunctionSpec(
     tag: Long = 0,
     val createFn: (configuration: Map<String, Any>) -> FunctionInstance,
 ) : AbstractArtifactSpec(
+    category,
     OperationKind.FUNCTION,
     returnType,
     name,

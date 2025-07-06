@@ -6,6 +6,7 @@ import org.kobjects.tablecraft.json.toJson
 import org.kobjects.tablecraft.model.expression.Literal
 
 abstract class AbstractArtifactSpec(
+    val category: String,
     val kind: OperationKind,
     val type: Type,
     val name: String,

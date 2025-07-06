@@ -128,6 +128,7 @@ class Bmp280Integration(
         val FACTORY_NAME = "BMP280"
 
         fun spec(plugin: Pi4jPlugin) = IntegrationSpec(
+            "Misc",
             FACTORY_NAME,
             "BMP 280 sensor",
             listOf(

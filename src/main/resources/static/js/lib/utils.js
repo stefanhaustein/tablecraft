@@ -138,6 +138,8 @@ export function updateSpec(parent, idPrefix, spec, createAction) {
     descriptionElement.textContent = (cut == -1 ? description : description.substring(0, cut + 1))
     element.appendChild(descriptionElement)
 
+    // Find "sub-parent" by category(?)
+
     insertById(parent, element)
 
     return element

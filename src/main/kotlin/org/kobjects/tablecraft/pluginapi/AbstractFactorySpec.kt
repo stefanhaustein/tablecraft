@@ -1,6 +1,7 @@
 package org.kobjects.tablecraft.pluginapi
 
 abstract class AbstractFactorySpec(
+    category: String,
     kind: OperationKind,
     returnType: Type,
     name: String,
@@ -9,6 +10,7 @@ abstract class AbstractFactorySpec(
     modifiers: Set<Modifier>,
     tag: Long
 ) : AbstractArtifactSpec(
+    category,
     kind,
     returnType,
     name,
