@@ -35,7 +35,7 @@ abstract class AbstractArtifactSpec(
     }
 
     override fun toJson(sb: StringBuilder) {
-        sb.append("""{"name":${name.quote()},"kind":"$kind","returnType":${type.toJson()},"description":${description.quote()},"params":[""")
+        sb.append("""{"name":${name.quote()},"category":${category.quote()},"kind":"$kind","returnType":${type.toJson()},"description":${description.quote()},"params":[""")
         var first = true
         for (param in parameters) {
             if (first) {

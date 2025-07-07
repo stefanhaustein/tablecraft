@@ -140,7 +140,24 @@ export function updateSpec(parent, idPrefix, spec, createAction) {
 
     // Find "sub-parent" by category(?)
 
-    insertById(parent, element)
+    let target = null
+
+    for (let child of parent.children) {
+        if (child.localName == "details" && child.firstElementChild.textContent == spec.category) {
+            target = child
+            break
+        }
+    }
+
+    if (target == null) {
+        target = document.createElement("details")
+        let summary = document.createElement("summary")
+        summary.textContent = spec.category
+        target.appendChild(summary)
+        parent.appendChild(target)
+    }
+
+    insertById(target, element)
 
     return element
 }
