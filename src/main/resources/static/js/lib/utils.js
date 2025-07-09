@@ -141,11 +141,18 @@ export function updateSpec(parent, idPrefix, spec, createAction) {
     // Find "sub-parent" by category(?)
 
     let target = null
-
+    let before = null
     for (let child of parent.children) {
-        if (child.localName == "details" && child.firstElementChild.textContent == spec.category) {
-            target = child
-            break
+        if (child.localName == "details") {
+            let category = child.firstElementChild.textContent
+            if (category == spec.category) {
+                target = child
+                break
+            }
+            if (category > spec.category) {
+                before = child
+                break
+            }
         }
     }
 
@@ -154,7 +161,7 @@ export function updateSpec(parent, idPrefix, spec, createAction) {
         let summary = document.createElement("summary")
         summary.textContent = spec.category
         target.appendChild(summary)
-        parent.appendChild(target)
+        parent.insertBefore(target, before)
     }
 
     insertById(target, element)
