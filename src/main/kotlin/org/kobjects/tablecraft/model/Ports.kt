@@ -61,7 +61,8 @@ class Ports : Iterable<PortHolder> {
             val specification = Model.factories[type] ?: throw IllegalArgumentException("Unrecognized port type '$type'")
 
             val config = specification.convertConfiguration(
-                jsonSpec["configuration"] as Map<String, Any>)
+                jsonSpec["configuration"] as? Map<String, Any> ?: emptyMap()
+            )
 
             val port = when (specification) {
                 is InputPortSpec -> InputPortHolder(name, specification, config, token.tag)

@@ -20,10 +20,8 @@ formulaInputElement.addEventListener("keydown", event => {
         formulaInputElement.value = committedFormula
         setCurrentCellFormula(nullToEmtpy(committedFormula), "input")
         getCurrentCellElement().focus()
-    } else {
-        console.log(event.key)
-        setCurrentCellFormula(formulaInputElement.value)
     }
+    // Other input is handled by change/input
 })
 
 let cells = document.getElementById("spreadsheetTBody").querySelectorAll("td")
