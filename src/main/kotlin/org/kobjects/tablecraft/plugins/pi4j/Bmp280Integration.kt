@@ -105,7 +105,7 @@ class Bmp280Integration(
 
         companion object {
             fun spec(integration: Bmp280Integration) = InputPortSpec(
-                category = "GPIO",
+                category = "Drivers",
                 Type.REAL,
                 integration.name + ".value",
                 "Returns a measurement value of the BMP 280 sensor",
@@ -128,7 +128,7 @@ class Bmp280Integration(
         val FACTORY_NAME = "BMP280"
 
         fun spec(plugin: Pi4jPlugin) = IntegrationSpec(
-            "Misc",
+            "Drivers",
             FACTORY_NAME,
             "BMP 280 sensor",
             listOf(

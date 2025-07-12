@@ -62,7 +62,7 @@ class Lcd(
 
     companion object {
         fun spec(plugin: Pi4jPlugin) = OutputPortSpec(
-            "GPIO",
+            "Drivers",
             Type.RANGE,
             "Lcd",
             "An LCD text display",

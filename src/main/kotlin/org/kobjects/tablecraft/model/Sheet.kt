@@ -46,8 +46,13 @@ class Sheet(
                     .append("]\n\n")
             }
 
-            sb.append("[sheets.$name.cells]\n\n")
+            sb.append("[sheets.$name.cells]\n")
+            var previousRow = -1
             for (cell in cells.values.sortedBy { it.row * 10000 + it.column }) {
+                if (cell.row != previousRow) {
+                    previousRow = cell.row
+                    sb.append("\n")
+                }
                 cell.serialize(sb, tag, forClient)
             }
         }

@@ -161,23 +161,31 @@ class Cell(
         }
     }
 
-    fun serialize(sb: StringBuilder, tag: Long, includeComputed: Boolean) {
+    fun serialize(sb: StringBuilder, tag: Long, forClient: Boolean) {
         val id = id
         if (formulaTag > tag) {
-            sb.append("""$id = {"f": ${rawFormula.quote()}""")
-            if (validation != null) {
-                sb.append(""", "v":""")
-                validation.toJson(sb)
+            val properties = mutableListOf<String>()
+            if (!rawFormula.isNullOrEmpty()) {
+                properties.add("\"f\": ${rawFormula.quote()}")
             }
-            if (image != null) {
-                sb.append(""", "i": ${image!!.quote()}""")
+            if (validation?.isNotEmpty() == true) {
+                properties.add("\"v\": ${validation.toJson()}")
             }
-            if (includeComputed) {
-                serializeDependencies(sb)
-                sb.append(""", "c":""")
-                serializeValue(sb)
+            if (!image.isNullOrBlank()) {
+                properties.add("\"i\": ${image!!.quote()}")
             }
-            sb.append("}\n")
+            if (forClient) {
+                val inner = StringBuilder()
+                inner.append("\"c\":")
+                serializeValue(inner)
+                serializeDependencies(inner)
+                properties.add(inner.toString())
+            }
+            if (properties.isNotEmpty()) {
+                sb.append("$id = {")
+                sb.append(properties.joinToString(", "))
+                sb.append("}\n")
+            }
         } else if (valueTag > tag) {
             sb.append("$id.c: ")
             serializeValue(sb)

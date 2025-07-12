@@ -64,7 +64,7 @@ body #spreadsheetTable tbody tr td.highlight {
     z-index: 1;
 }
 
-#spreadsheetTable tr td.selected.output {
+#spreadsheetTable tr td.selected.output:focus {
     background-color: white;
 }
 

@@ -127,7 +127,7 @@ object Model : ModelInterface {
             writer.write(functions.serialize(tag))
         }
 
-        ports.serialize(writer, tag)
+        ports.serialize(writer, forClient, tag)
 
         writer.write("\n")
 

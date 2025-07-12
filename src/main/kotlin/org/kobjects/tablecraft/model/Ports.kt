@@ -73,7 +73,7 @@ class Ports : Iterable<PortHolder> {
         }
     }
 
-    fun serialize(writer: Writer, tag: Long) {
+    fun serialize(writer: Writer, forClient: Boolean, tag: Long) {
         val definitions = StringBuilder()
         val values = StringBuilder()
         val simulationValues = StringBuilder()
@@ -94,7 +94,7 @@ class Ports : Iterable<PortHolder> {
         if (definitions.isNotEmpty()) {
             writer.write("[ports]\n\n$definitions\n")
         }
-        if (values.isNotEmpty()) {
+        if (forClient && values.isNotEmpty()) {
             writer.write("[portValues]\n\n$values\n")
         }
 
