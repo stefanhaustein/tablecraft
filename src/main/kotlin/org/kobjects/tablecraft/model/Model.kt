@@ -18,7 +18,10 @@ object Model : ModelInterface {
     val STORAGE_FILE = File("storage/data.tc")
 
     var modificationTag: Long = 0
+
     var simulationMode_: Boolean = false
+    var runMode_: Boolean = false
+    var settingsTag: Long = 0
 
     val sheets = mutableMapOf<String, Sheet>("Sheet1" to Sheet("Sheet1"))
     val listeners = mutableSetOf<() -> Unit>()
@@ -64,7 +67,14 @@ object Model : ModelInterface {
         for (port in ports.filterIsInstance<InputPortHolder>()) {
             port.notifyValueChanged(token)
         }
+        settingsTag = token.tag
     }
+
+    fun setRunMode(value: Boolean, token: ModificationToken) {
+        runMode_ = value
+        settingsTag = token.tag
+    }
+
 
 
     fun loadData(data: String, token: ModificationToken) {
@@ -73,6 +83,7 @@ object Model : ModelInterface {
             for ((key, map) in toml) {
                 if (key.isEmpty()) {
                     setSimulationMode(map["simulationMode"] as Boolean? ?: false, token)
+                    setRunMode(map["runMode"] as Boolean? ?: false, token)
                 } else if (key.startsWith("sheets.") && key.endsWith(".cells")) {
                     val name = key.substringAfter("sheets.").substringBeforeLast(".cells")
                     val sheet = Sheet(name)
@@ -118,8 +129,10 @@ object Model : ModelInterface {
     }
 
     fun serialize(writer: Writer, forClient: Boolean = false, tag: Long = -1) {
-        writer.write("simulationMode = $simulationMode_\n\n")
-
+        if (settingsTag > tag) {
+            writer.write("simulationMode = $simulationMode_\n")
+            writer.write("runMode = $runMode_\n")
+        }
         integrations.serialize(writer, forClient, tag)
 
         if (forClient) {
@@ -196,6 +209,8 @@ object Model : ModelInterface {
             }
         }
     }
+
+
     @OptIn(ExperimentalContracts::class)
     override fun <T> applySynchronizedWithToken(action: (ModificationToken) -> T): T {
         return lock.withLock {

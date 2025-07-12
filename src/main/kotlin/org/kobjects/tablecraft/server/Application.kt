@@ -57,6 +57,15 @@ fun Application.module() {
             }
             call.respond(HttpStatusCode.OK)
         }
+        post("/runMode") {
+            val jsonText = call.receiveText()
+            println("Received JSON: $jsonText")
+            val value = JsonParser.parse(jsonText)
+            Model.applySynchronizedWithToken { token ->
+                Model.setRunMode(value as Boolean, token)
+            }
+            call.respond(HttpStatusCode.OK)
+        }
         post("/portSimulation") {
             val name = call.request.queryParameters["name"]!!
             val jsonText = call.receiveText()
