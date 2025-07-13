@@ -163,8 +163,9 @@ fun Application.module() {
             }
             call.respondText(result, ContentType.Text.Plain, HttpStatusCode.OK,)
         }
-        get("/rest") {
-            val json = Model.restValues.toJson()
+        get("/rest/{path...}") {
+            val path = call.parameters.getAll("path")!!.joinToString("/")
+            val json = Model.restValues[path].toJson()
             call.respondText(json, ContentType.Application.Json, HttpStatusCode.OK)
         }
         get("img/{name...}") {
