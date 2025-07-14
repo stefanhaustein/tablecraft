@@ -30,7 +30,7 @@ class Cell(
     var validation: Map<String, Any?>? = null
 
     var expression: Expression = Literal(Unit)
-    override var value: Any = Unit
+    override var value: Any? = null
 
     override var valueTag = 0L
     var formulaTag = 0L
@@ -40,7 +40,7 @@ class Cell(
 
 
     override fun updateValue(token: ModificationToken): Boolean {
-        var newValue: Any
+        var newValue: Any?
         try {
             newValue = expression.eval(EvaluationContext(token))
         } catch (e: Exception) {
@@ -213,8 +213,7 @@ class Cell(
 
         fun id(column: Int, row: Int) = (column + 65).toChar().toString() + row
 
-        fun getColumn(key: String) = key[0].code - 'A'.code
-
+        fun getColumn(key: String) = key[0].uppercaseChar().code - 'A'.code
 
         fun getRow(key: String) = key.substring(1).toInt()
 
