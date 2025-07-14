@@ -59,7 +59,7 @@ class Sheet(
         return sb.toString()
     }
 
-    fun parseToml(cells: Map<String, Any>, token: ModificationToken) {
+    fun parseToml(cells: Map<String, Any?>, token: ModificationToken) {
         for ((key, value) in cells) {
             try {
                 getOrCreateCell(key).setJson(value as Map<String, Any>, token)
@@ -80,7 +80,7 @@ class Sheet(
         }
     }
 
-    fun paste(token: ModificationToken, targetSelectionRange: CellRangeReference, tomson: Map<String, Map<String, Any>>) {
+    fun paste(token: ModificationToken, targetSelectionRange: CellRangeReference, tomson: Map<String, Map<String, Any?>>) {
         val rawSourceRange = tomson[""]!!["range"] as String
         val sourceRange = CellRangeReference.parse(rawSourceRange)
 

@@ -12,7 +12,7 @@ abstract class IntegrationInstance(
 
     abstract val operationSpecs: List<AbstractFactorySpec>
 
-    abstract val configuration: Map<String, Any>
+    abstract val configuration: Map<String, Any?>
 
     abstract fun detach()
 
@@ -22,7 +22,7 @@ abstract class IntegrationInstance(
         sb.append("}")
     }
 
-    abstract fun reconfigure(configuration: Map<String, Any>)
+    abstract fun reconfigure(configuration: Map<String, Any?>)
 
     class Tombstone(
         deletedInstance: IntegrationInstance,
@@ -33,7 +33,7 @@ abstract class IntegrationInstance(
         tag
     ) {
         override val configuration = emptyMap<String, Any>()
-        override fun reconfigure(configuration: Map<String, Any>) {}
+        override fun reconfigure(configuration: Map<String, Any?>) {}
         override val operationSpecs = emptyList<AbstractFactorySpec>()
 
         override fun detach() {}

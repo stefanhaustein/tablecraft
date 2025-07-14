@@ -5,7 +5,7 @@ import org.kobjects.tablecraft.model.Values
 
 abstract class Expression {
 
-    abstract fun eval(context: EvaluationContext): Any
+    abstract fun eval(context: EvaluationContext): Any?
 
     abstract val children: Collection<Expression>
 

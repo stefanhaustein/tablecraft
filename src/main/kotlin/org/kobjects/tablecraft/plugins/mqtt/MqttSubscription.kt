@@ -4,7 +4,7 @@ import org.kobjects.tablecraft.model.expression.EvaluationContext
 import org.kobjects.tablecraft.pluginapi.ValueChangeListener
 import org.kobjects.tablecraft.pluginapi.StatefulFunctionInstance
 
-class MqttSubscription(val port: MqttPort, configuration: Map<String, Any>) : StatefulFunctionInstance {
+class MqttSubscription(val port: MqttPort, configuration: Map<String, Any?>) : StatefulFunctionInstance {
     val topic = configuration["topic"].toString()
     var host: ValueChangeListener? = null
 
@@ -13,7 +13,7 @@ class MqttSubscription(val port: MqttPort, configuration: Map<String, Any>) : St
         this.host = host
     }
 
-    override fun apply(context: EvaluationContext, params: Map<String, Any>): Any {
+    override fun apply(context: EvaluationContext, params: Map<String, Any?>): Any {
         return ""
     }
 

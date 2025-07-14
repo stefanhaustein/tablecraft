@@ -17,7 +17,7 @@ class Lcd(
     var lcdDriver: LcdDriver? = null
     var error: Exception? = null
 
-    override fun setValue(value: Any) {
+    override fun setValue(value: Any?) {
         if (error != null) {
             throw IllegalStateException("Lcd Driver initialization error", error)
         }

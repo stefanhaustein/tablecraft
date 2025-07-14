@@ -11,9 +11,9 @@ class RestOut(val path: String) : OutputPortInstance {
         Model.restValues.remove(path)
     }
 
-    override fun setValue(value: Any) {
+    override fun setValue(value: Any?) {
         if (value is RangeValues) {
-            val json = mutableMapOf<String, Any>()
+            val json = mutableMapOf<String, Any?>()
             for (row in 0 until value.height) {
                 var col = 0
                 while (col < value.width - 1) {

@@ -22,7 +22,7 @@ class TimedPulse(
         this.host = host
     }
 
-    override fun apply(context: EvaluationContext, params: Map<String, Any>): Any {
+    override fun apply(context: EvaluationContext, params: Map<String, Any?>): Any {
         val inputState = params["input"] as Boolean
         if (inputState) {
             if (!armed) {
@@ -55,7 +55,7 @@ class TimedPulse(
 
 
     companion object {
-        fun create(configuration: Map<String, Any>): TimedPulse {
+        fun create(configuration: Map<String, Any?>): TimedPulse {
             return TimedPulse((configuration["delay"] as Number).toDouble())
         }
     }

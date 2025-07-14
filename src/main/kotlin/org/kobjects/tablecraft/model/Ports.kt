@@ -42,7 +42,7 @@ class Ports : Iterable<PortHolder> {
     }
 
     // The name is separate because it's typically the key of the spec map
-    fun definePort(name: String, jsonSpec: Map<String, Any>, token: ModificationToken) {
+    fun definePort(name: String, jsonSpec: Map<String, Any?>, token: ModificationToken) {
         token.symbolsChanged = true
 
         // Always delete what's there.

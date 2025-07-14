@@ -1,6 +1,6 @@
 package org.kobjects.tablecraft.model.expression
 
-class Literal(val value: Any) : Expression() {
+class Literal(val value: Any?) : Expression() {
 
 
     override fun eval(context: EvaluationContext) = value

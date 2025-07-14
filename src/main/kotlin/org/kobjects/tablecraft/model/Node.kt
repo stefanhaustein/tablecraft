@@ -4,7 +4,7 @@ import org.kobjects.tablecraft.json.quote
 import org.kobjects.tablecraft.pluginapi.ModificationToken
 
 interface Node {
-    val value: Any
+    val value: Any?
     val valueTag: Long
     val outputs: MutableSet<Node>
     val inputs: MutableSet<Node>

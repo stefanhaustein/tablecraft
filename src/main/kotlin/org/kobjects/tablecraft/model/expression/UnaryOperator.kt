@@ -2,7 +2,7 @@ package org.kobjects.tablecraft.model.expression
 
 class UnaryOperator(val name: String, val operand: Expression) : Expression() {
 
-    override fun eval(context: EvaluationContext): Any {
+    override fun eval(context: EvaluationContext): Any? {
         val value = operand.eval(context)
         return when (value) {
             is Double -> when (name) {
@@ -17,6 +17,7 @@ class UnaryOperator(val name: String, val operand: Expression) : Expression() {
                 "not" -> !value
                 else -> throw UnsupportedOperationException("$name not supported for Boolean operands.")
             }
+            null -> null
             else -> throw UnsupportedOperationException("Unary operantions (here, '$name') are not supported for type ${value::class}")
         }
     }

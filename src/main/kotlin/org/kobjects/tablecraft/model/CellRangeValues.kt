@@ -4,7 +4,7 @@ import org.kobjects.tablecraft.pluginapi.RangeValues
 
 class CellRangeValues(val cellRange: CellRangeReference): RangeValues {
 
-    val values = Array<Any>(cellRange.width * cellRange.height) {
+    val values = Array<Any?>(cellRange.width * cellRange.height) {
         cellRange[it % cellRange.width, it / cellRange.width].value }
 
     override fun toString() = "[$values]"
@@ -31,6 +31,6 @@ class CellRangeValues(val cellRange: CellRangeReference): RangeValues {
         return true
     }
 
-    override fun iterator(): Iterator<Any> = values.iterator()
+    override fun iterator(): Iterator<Any?> = values.iterator()
 
 }

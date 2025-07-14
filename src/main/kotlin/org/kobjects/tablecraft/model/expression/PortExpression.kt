@@ -13,7 +13,7 @@ class PortExpression(
         port.outputs.add(owner)
     }
 
-    override fun eval(context: EvaluationContext): Any {
+    override fun eval(context: EvaluationContext): Any? {
         try {
             return port.value
         } catch (e: Exception) {

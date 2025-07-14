@@ -7,7 +7,7 @@ import org.kobjects.tablecraft.pluginapi.*
 class OutputPortHolder(
     override val name: String,
     val specification: OutputPortSpec,
-    val configuration: Map<String, Any>,
+    val configuration: Map<String, Any?>,
     val rawFormula: String,
     override val tag: Long
 ) : /*ExpressionNode(),*/Node,  PortHolder {
@@ -16,7 +16,7 @@ class OutputPortHolder(
     var attached = false
     var cellRange: CellRangeReference? = null
     var singleCell = false
-    override var value: Any = Unit
+    override var value: Any? = null
     override var valueTag: Long = tag
 
     override val outputs = mutableSetOf<Node>()

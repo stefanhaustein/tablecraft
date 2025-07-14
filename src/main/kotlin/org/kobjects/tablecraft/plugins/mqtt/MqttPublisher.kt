@@ -5,7 +5,7 @@ import org.kobjects.tablecraft.model.expression.EvaluationContext
 import org.kobjects.tablecraft.pluginapi.ValueChangeListener
 import org.kobjects.tablecraft.pluginapi.StatefulFunctionInstance
 
-class MqttPublisher(val port: MqttPort, config: Map<String, Any>) : StatefulFunctionInstance {
+class MqttPublisher(val port: MqttPort, config: Map<String, Any?>) : StatefulFunctionInstance {
 
     val topic = config["topic"].toString()
 
@@ -14,7 +14,7 @@ class MqttPublisher(val port: MqttPort, config: Map<String, Any>) : StatefulFunc
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
-    override fun apply(context: EvaluationContext, params: Map<String, Any>): Any {
+    override fun apply(context: EvaluationContext, params: Map<String, Any?>): Any {
         val payload = params["payload"].toString()
         port.client?.publish(false, Qos.EXACTLY_ONCE, topic, payload.toByteArray().toUByteArray())
         return payload

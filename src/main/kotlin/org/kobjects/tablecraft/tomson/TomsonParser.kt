@@ -4,9 +4,9 @@ import org.kobjects.tablecraft.json.JsonParser
 
 object TomsonParser {
 
-    fun parse(input: String): Map<String, Map<String, Any>> {
-        val result = mutableMapOf<String, Map<String, Any>>()
-        var currentSectionMap = mutableMapOf<String, Any>()
+    fun parse(input: String): Map<String, Map<String, Any?>> {
+        val result = mutableMapOf<String, Map<String, Any?>>()
+        var currentSectionMap = mutableMapOf<String, Any?>()
         var currentSectionName = ""
 
         var pendingKey = ""
@@ -38,7 +38,7 @@ object TomsonParser {
                         result[currentSectionName] = currentSectionMap.toMap()
                     }
                     currentSectionName = line.substring(1, line.length - 1)
-                    currentSectionMap = mutableMapOf<String, Any>()
+                    currentSectionMap = mutableMapOf<String, Any?>()
                 } else {
                     val eq = line.indexOf('=')
                     val col = line.indexOf(':')

@@ -11,7 +11,7 @@ class Bmp280Integration(
     kind: String,
     name: String,
     tag: Long,
-    configuration: Map<String, Any>
+    configuration: Map<String, Any?>
 ) : IntegrationInstance (
     kind, name, tag
 ) {
@@ -20,7 +20,7 @@ class Bmp280Integration(
 
     val timer = Timer()
     val ports = mutableListOf<Bmp280Port>()
-    override var configuration: Map<String, Any> = emptyMap()
+    override var configuration: Map<String, Any?> = emptyMap()
 
     init {
         reconfigure(configuration)
@@ -38,7 +38,7 @@ class Bmp280Integration(
         }, 0, 100)
     }
 
-    override fun reconfigure(configuration: Map<String, Any>) {
+    override fun reconfigure(configuration: Map<String, Any?>) {
         this.configuration = configuration
         try {
             val i2c: I2C = plugin.pi4J.create(

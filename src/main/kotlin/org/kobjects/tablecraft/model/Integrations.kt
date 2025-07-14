@@ -19,10 +19,10 @@ class Integrations : Iterable<IntegrationInstance> {
         token.symbolsChanged = true
     }
 
-    fun configureIntegration(name: String, jsonSpec: Map<String, Any>, token: ModificationToken) {
+    fun configureIntegration(name: String, jsonSpec: Map<String, Any?>, token: ModificationToken) {
         val type = jsonSpec["type"].toString()
         val specification = Model.factories[type] as IntegrationSpec
-        val config = specification.convertConfiguration(jsonSpec["configuration"] as Map<String, Any>)
+        val config = specification.convertConfiguration(jsonSpec["configuration"] as Map<String, Any?>)
         var integration = integrationMap[name]
 
         if (integration == null) {

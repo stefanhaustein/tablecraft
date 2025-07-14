@@ -7,7 +7,7 @@ import org.kobjects.tablecraft.pluginapi.*
 class InputPortHolder(
     override val name: String,
     val specification: InputPortSpec,
-    val configuration: Map<String, Any>,
+    val configuration: Map<String, Any?>,
     override val tag: Long
 
 ) : PortHolder, Node {
@@ -20,14 +20,14 @@ class InputPortHolder(
     var attached: Boolean = false
     override var valueTag  = 0L
 
-    override var value: Any = when(specification.type) {
+    override var value: Any? = when(specification.type) {
         Type.INT -> 0
         Type.REAL -> 0.0
         Type.BOOL -> false
         Type.STRING -> ""
         else -> throw UnsupportedOperationException("port type")
     }
-    var simulationValue: Any = value
+    var simulationValue: Any? = value
     var simulationValueTag: Long = 0
 
 
@@ -83,7 +83,7 @@ class InputPortHolder(
         sb.append("}")
     }
 
-    fun setSimulationValue(value: Any, token: ModificationToken) {
+    fun setSimulationValue(value: Any?, token: ModificationToken) {
         simulationValue = value
         if (Model.simulationMode_) {
             notifyValueChanged(token)

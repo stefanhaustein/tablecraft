@@ -16,7 +16,7 @@ class NowFunction(
     var task: TimerTask? = null
     var host: ValueChangeListener? = null
 
-    override fun apply(context: EvaluationContext, params: Map<String, Any>): Any {
+    override fun apply(context: EvaluationContext, params: Map<String, Any?>): Any {
         return Clock.System.now()
     }
 
@@ -50,7 +50,7 @@ class NowFunction(
     companion object {
         var timerCounter = 0
 
-        fun create(configuration: Map<String, Any>): NowFunction {
+        fun create(configuration: Map<String, Any?>): NowFunction {
             return NowFunction((configuration["interval"] as Number).toDouble())
         }
 

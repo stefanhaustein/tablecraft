@@ -23,7 +23,7 @@ class TimedOnOff(
         this.host = host
     }
 
-    override fun apply(context: EvaluationContext, params: Map<String, Any>): Any {
+    override fun apply(context: EvaluationContext, params: Map<String, Any?>): Any {
         val inputState = params["input"] as Boolean
         if (inputState != delayedState) {
             task?.cancel()
@@ -52,11 +52,11 @@ class TimedOnOff(
 
 
     companion object {
-        fun createTon(configuration: Map<String, Any>): TimedOnOff {
+        fun createTon(configuration: Map<String, Any?>): TimedOnOff {
             return TimedOnOff(true, (configuration["delay"] as Number).toDouble())
         }
 
-        fun createToff(configuration: Map<String, Any>): TimedOnOff {
+        fun createToff(configuration: Map<String, Any?>): TimedOnOff {
             return TimedOnOff(false, (configuration["delay"] as Number).toDouble())
         }
     }

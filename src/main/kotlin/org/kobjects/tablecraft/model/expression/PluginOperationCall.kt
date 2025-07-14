@@ -7,7 +7,7 @@ import org.kobjects.tablecraft.pluginapi.*
 class PluginOperationCall(
     val owner: Cell,
     operationSpec: FunctionSpec,
-    val configuration: Map<String, Any>,
+    val configuration: Map<String, Any?>,
     val parameters: Map<String, Pair<Expression, Type>>
 
 ): Expression(), ValueChangeListener {
@@ -33,7 +33,7 @@ class PluginOperationCall(
         token.addRefresh(owner)
     }
 
-    override fun eval(context: EvaluationContext): Any {
+    override fun eval(context: EvaluationContext): Any? {
         return operation.apply(context, parameters.mapValues {
             val expr = it.value.first
             when (it.value.second) {
@@ -49,7 +49,7 @@ class PluginOperationCall(
 
     companion object {
         fun create(expressionHolder: Cell, operationSpec: FunctionSpec, parameters: Map<String, Expression>): PluginOperationCall {
-            val mappedConfig = mutableMapOf<String, Any>()
+            val mappedConfig = mutableMapOf<String, Any?>()
             val mappedParameters = mutableMapOf<String, Pair<Expression, Type>>()
             for ((index, specParam) in operationSpec.parameters.withIndex()) {
                 val actualParameter = parameters[specParam.name] ?: parameters["$index"]

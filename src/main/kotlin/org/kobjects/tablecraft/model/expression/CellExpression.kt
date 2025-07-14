@@ -12,7 +12,7 @@ class CellExpression(
         target.outputs.add(owner)
     }
 
-    override fun eval(context: EvaluationContext): Any {
+    override fun eval(context: EvaluationContext): Any? {
         try {
             return target.value
         } catch (e: Exception) {

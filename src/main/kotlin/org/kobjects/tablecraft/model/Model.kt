@@ -35,7 +35,7 @@ object Model : ModelInterface {
 
     val svgs = SvgManager(File("src/main/resources/static/img"))
 
-    val restValues = mutableMapOf<String, Any>()
+    val restValues = mutableMapOf<String, Any?>()
 
     private val lock = ReentrantLock()
 
@@ -162,7 +162,7 @@ object Model : ModelInterface {
 
 
 
-    fun updateSheet(name: String?, jsonSpec: Map<String, Any>, token: ModificationToken) {
+    fun updateSheet(name: String?, jsonSpec: Map<String, Any?>, token: ModificationToken) {
         val previousName = jsonSpec["previousName"] as? String?
 
         if (!name.isNullOrBlank()) {
@@ -201,7 +201,7 @@ object Model : ModelInterface {
         }
     }
 
-    fun setSimulationValue(name: String, value: Any, token: ModificationToken) {
+    fun setSimulationValue(name: String, value: Any?, token: ModificationToken) {
         if (simulationMode_) {
             val port = ports[name]
             if (port is InputPortHolder) {

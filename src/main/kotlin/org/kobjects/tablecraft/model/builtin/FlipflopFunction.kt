@@ -12,7 +12,7 @@ class FlipflopFunction(
 
     override fun attach(host: ValueChangeListener) {}
 
-    override fun apply(context: EvaluationContext, params: Map<String, Any>): Any {
+    override fun apply(context: EvaluationContext, params: Map<String, Any?>): Any? {
         val s = params["s"] as Boolean
         val r = params["r"] as Boolean
 

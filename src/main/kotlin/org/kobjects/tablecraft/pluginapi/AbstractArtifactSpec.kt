@@ -16,8 +16,8 @@ abstract class AbstractArtifactSpec(
     val tag: Long,
 ) : ToJson {
 
-    fun convertConfiguration(rawConfig: Map<String, Any>): Map<String, Any> {
-        val result = mutableMapOf<String, Any>()
+    fun convertConfiguration(rawConfig: Map<String, Any?>): Map<String, Any?> {
+        val result = mutableMapOf<String, Any?>()
         for (paramSpec in parameters) {
             val paramName = paramSpec.name
             val rawValue = rawConfig[paramName]

@@ -25,7 +25,7 @@ class DigitalOutputPort(
     }
 
 
-    override fun setValue(value: Any) {
+    override fun setValue(value: Any?) {
         if (error != null) {
             throw RuntimeException(error!!)
         }

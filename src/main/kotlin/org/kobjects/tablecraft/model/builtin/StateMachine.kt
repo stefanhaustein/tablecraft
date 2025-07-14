@@ -32,7 +32,7 @@ class StateMachine(
         host = null
     }
 
-    fun getValue(col: Int, row: Int): Any {
+    fun getValue(col: Int, row: Int): Any? {
         return cellRange.sheet.getOrCreateCell(Cell.id(
             (if (col < 0) cellRange.toColumn + 1 else cellRange.fromColumn) + col, cellRange.fromRow + row)).value
     }
@@ -55,7 +55,7 @@ class StateMachine(
         currentState = state
     }
 
-    override fun apply(context: EvaluationContext, params: Map<String, Any>): Any {
+    override fun apply(context: EvaluationContext, params: Map<String, Any?>): Any {
         println("**** state machine apply called; currentState: $currentState")
 
         if (currentState == "") {
@@ -120,7 +120,7 @@ class StateMachine(
 
 
     companion object {
-        fun create(configuration: Map<String, Any>) = StateMachine(
+        fun create(configuration: Map<String, Any?>) = StateMachine(
             (configuration["transitions"] as CellRangeExpression).target)
     }
 
