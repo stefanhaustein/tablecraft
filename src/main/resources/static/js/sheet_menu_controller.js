@@ -1,5 +1,6 @@
 import {model} from "./shared_model.js"
-import {currentSheet, runMode, selectSheet, setRunMode} from "./shared_state.js";
+import {post} from "./lib/utils.js"
+import {currentSheet, runMode, selectSheet} from "./shared_state.js";
 
 let sheetDialogElement = document.getElementById("sheetDialog")
 let sheetSelectElement = document.getElementById("sheetSelect")
@@ -23,8 +24,7 @@ sheetSelectElement.addEventListener("change", () => {
         editSheetMetadata()
     } else if (selectedValue == "Run Mode") {
         sheetSelectElement.value = currentSheet.name
-        // tbd
-        setRunMode(!runMode)
+        post("runMode", !runMode)
     } else {
         selectSheet(selectedValue)
     }

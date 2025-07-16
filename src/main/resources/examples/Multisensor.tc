@@ -1,28 +1,26 @@
 simulationMode = true
-
-[integrations]
-
-lcd: {"name":"lcd", "type":"Lcd1602", "configuration": {"width":"80","height":"4"}}
-
+runMode = false
 [ports]
 
-co_2: {"name":"co_2", "type":"pwmin", "configuration": {"address":24}}
-o_lcd_co2: {"name":"o_lcd_co2", "type":"lcd.section", "configuration": {"x":0,"y":0,"width":10}, "dependsOn":"[Sheet1!B4:=B2+100.0]", "dependencies":"[]", "expression":"=Sheet1!B4"}
-o_rest_co2: {"name":"o_rest_co2", "type":"rest.out", "configuration": {"fieldName":"co2"}, "dependsOn":"[Sheet1!B4:=B2+100.0]", "dependencies":"[]", "expression":"=Sheet1!B4"}
-
-[portValues]
-
-co_2: 0.0
+co_2: {"name":"co_2", "type":"pwmin", "configuration": {"address":24}, "outputs":["Sheet1!C2"]}
+o_rest: {"name":"o_rest", "type":"rest_out", "configuration": {"path":""}, "inputs":["Sheet1!B2","Sheet1!C2","Sheet1!B3","Sheet1!C3","Sheet1!B4","Sheet1!C4"], "source":"Sheet1!B2:C4"}
 
 [simulationValues]
 
-co_2: 0.0
+co_2: 500
 
 
+[sheets.Sheet1]
+
+highlighted: []
 
 [sheets.Sheet1.cells]
 
-B2 = {"f": "=co_2()"}
-B4 = {"f": "=B2+100.0"}
+B2 = {"f": "co2"}
+C2 = {"f": "=co_2()"}
 
+B3 = {"f": "temperature"}
+C3 = {"f": "10"}
 
+B4 = {"f": "humidity"}
+C4 = {"f": "40"}

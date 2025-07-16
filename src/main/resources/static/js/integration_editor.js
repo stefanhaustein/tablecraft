@@ -52,7 +52,7 @@ export function showIntegrationInstanceConfigurationDialog(spec, instance) {
         deleteButton.textContent = "Delete"
         deleteButton.className = "dialogButton"
         deleteButton.addEventListener("click", () => {
-            post("updateIntegration", {previousName: previousName})
+            post("integrations/" + instance["name"], {deleted: true})
             dialogElement.close()
         })
         buttonDiv.appendChild(deleteButton)

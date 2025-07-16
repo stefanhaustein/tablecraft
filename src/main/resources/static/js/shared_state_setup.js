@@ -42,5 +42,5 @@ document.getElementById("simulationMode").addEventListener("change", (event) =>{
         }
     }
 
-    post("/simulationMode", checked)
+    post("/simulationMode", !!checked)
 })

@@ -229,7 +229,7 @@ object Model : ModelInterface {
                 }
             }
 
-            var anyChanged = modificationToken.symbolsChanged || modificationToken.formulaChanged
+            var anyChanged = modificationToken.symbolsChanged || modificationToken.formulaChanged || settingsTag >= modificationToken.tag
             if (anyChanged) {
                 // Other changes are not relevant for saving.
                 save()
@@ -253,17 +253,21 @@ object Model : ModelInterface {
                 val current = modificationToken.refreshRoots.first()
                 modificationToken.refreshRoots.remove(current)
                 // println("Updating: $current")
-                if (current.updateValue(modificationToken)) {
-                    anyChanged = true
-                    // println("adding new dependencies: ${current.dependencies}")
-                    for (dep in current.outputs) {
-                        if (dep.inputs.size == 1) {
-                            modificationToken.refreshNodes.remove(dep)
-                            modificationToken.refreshRoots.add(dep)
-                        } else {
-                            modificationToken.refreshNodes.add(dep)
+                try { // Ports may fail if simulation mode is turned off and there is no "real" value
+                    if (current.updateValue(modificationToken)) {
+                        anyChanged = true
+                        // println("adding new dependencies: ${current.dependencies}")
+                        for (dep in current.outputs) {
+                            if (dep.inputs.size == 1) {
+                                modificationToken.refreshNodes.remove(dep)
+                                modificationToken.refreshRoots.add(dep)
+                            } else {
+                                modificationToken.refreshNodes.add(dep)
+                            }
                         }
                     }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
 

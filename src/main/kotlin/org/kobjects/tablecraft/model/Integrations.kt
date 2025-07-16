@@ -20,20 +20,25 @@ class Integrations : Iterable<IntegrationInstance> {
     }
 
     fun configureIntegration(name: String, jsonSpec: Map<String, Any?>, token: ModificationToken) {
+        if (jsonSpec["deleted"] == true) {
+            deleteIntegration(name, token)
+            return
+        }
+
         val type = jsonSpec["type"].toString()
         val specification = Model.factories[type] as IntegrationSpec
         val config = specification.convertConfiguration(jsonSpec["configuration"] as Map<String, Any?>)
         var integration = integrationMap[name]
 
-        if (integration == null) {
+        if (integration != null) {
+            integration.reconfigure(config)
+        } else {
             integration = specification.createFn(type, name, token.tag, config)
             integrationMap[name] = integration
             for (operation in integration.operationSpecs) {
                 Model.factories.add(operation)
             }
             token.symbolsChanged = true
-        } else {
-            integration.reconfigure(config)
         }
     }
 
