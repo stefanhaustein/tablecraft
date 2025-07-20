@@ -3,6 +3,9 @@ export function getType(schema) {
         if (Array.isArray(schema.type)) {
             return "Enum"
         }
+        if (typeof schema.type == "object") {
+            return schema.type
+        }
         let name = schema.type.toString()
         if (name.toLowerCase().startsWith("bool")) {
             return "Bool"

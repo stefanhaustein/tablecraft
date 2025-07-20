@@ -44,7 +44,8 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
         PwmInput.spec(this),
         DigitalOutputPort.spec(this),
         Lcd.spec(this),
-        Bmp280Integration.spec(this)
+        Bmp280Integration.spec(this),
+        Bmp280Port.spec(this),
     )
 
 }

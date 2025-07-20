@@ -4,6 +4,7 @@ import {InputController} from "./forms/input_controller.js";
 import {insertById} from "./lib/dom.js";
 import {getFactory, getPortInstance, registerPortInstance} from "./shared_model.js";
 import {camelCase, post, updateSpec} from "./lib/utils.js";
+import {FormController} from "./forms/form_builder.js";
 
 
 let inputPortSpecListElement = document.getElementById("inputPortSpecList")
@@ -43,7 +44,7 @@ export function processSimulationValue(key, map) {
     let port = getPortInstance(key)
     if (port != null) {
         let controller = port.valueController
-        if (controller != null) {
+        if (controller instanceof InputController) {
             controller.setValue(value)
         }
     }
@@ -57,7 +58,8 @@ export function processPortUpdate(name, f) {
         }
     } else {
         let spec = getFactory(f.type)
-        let entryElement = document.createElement("div")
+        let isStruct = typeof spec.returnType != "string"
+        let entryElement = document.createElement(isStruct ? "details" : "div")
         entryElement.id = "port." + f.name
         entryElement.className = "port"
         insertById(document.getElementById(spec.kind == "OUTPUT_PORT" ? f.type == "NamedCells" ? "namedCellListContainer" :  "outputPortList" : "inputPortList"), entryElement)
@@ -69,15 +71,14 @@ export function processPortUpdate(name, f) {
             showPortDialog(spec, f)
         }
 
-        let entryTitleElement = document.createElement("div")
+        let entryTitleElement = document.createElement(isStruct ? "summary" : "div")
         entryTitleElement.className = "portTitle"
         let nameElement = document.createElement("b")
         nameElement.textContent = name
 
-
         entryTitleElement.append(nameElement, ": " + (f.type == "NamedCells" ? f.source : f.type))
-
-        entryElement.append(entryConfigElement, entryTitleElement)
+        entryTitleElement.append(entryConfigElement)
+        entryElement.append(entryTitleElement)
 
         let modifiers = spec["modifiers"] || []
         // console.log("adding port", f, spec)
@@ -91,12 +92,20 @@ export function processPortUpdate(name, f) {
             let entryValueElement = document.createElement("span")
             entryValueElement.id = "port." + name + ".simulationValue"
             entryValueElement.className = "portSimulationValue"
-            let controller = f.valueController = InputController.create({
-                type: camelCase(spec.returnType)})
-            entryValueElement.appendChild(controller.inputElement)
-            controller.inputElement.addEventListener("change", () => {
-                post("portSimulation?name=" + name, controller.getValue())
-            })
+            if (!isStruct) {
+                let controller = f.valueController = InputController.create(
+                    {type: camelCase(spec.returnType)})
+                entryValueElement.appendChild(controller.inputElement)
+                controller.inputElement.addEventListener("change", () => {
+                    post("portSimulation?name=" + name, controller.getValue())
+                })
+            } else {
+                console.log(spec)
+                let controller = f.valueController = FormController.create(entryValueElement, spec.returnType)
+                controller.addListener(() => {
+                    post("portSimulation?name=" + name, controller.getValue())
+                })
+            }
             showValue = !document.getElementById("simulationMode").checked
             entryValueElement.style.display = showValue ? "none" : "inline"
             entryContentElement.appendChild(entryValueElement)

@@ -12,6 +12,20 @@ let labelCounter = 0
 
 export class InputController {
 
+
+    static create(schema, messageElement) {
+        if (!schema.isExpression && !schema.isReference) {
+            let options = getOptions(schema)
+            if (options != null) {
+                return new EnumInputController(schema, options, messageElement)
+            }
+            if (getType(schema) == "Bool") {
+                return new EnumInputController(schema, ["True", "False"], messageElement)
+            }
+        }
+        return new TextInputController(schema, messageElement)
+    }
+
     constructor(schema, inputElement, messageElement) {
         this.schema = schema
         this.inputElement = inputElement
@@ -40,18 +54,6 @@ export class InputController {
         this.validate()
     }
 
-    static create(schema, messageElement) {
-        if (!schema.isExpression && !schema.isReference) {
-            let options = getOptions(schema)
-            if (options != null) {
-                return new EnumInputController(schema, options, messageElement)
-            }
-            if (getType(schema) == "Bool") {
-                return new EnumInputController(schema, ["True", "False"], messageElement)
-            }
-        }
-        return new TextInputController(schema, messageElement)
-    }
 
     validate() {
         return true
@@ -153,8 +155,8 @@ class TextInputController extends InputController {
 
 class EnumInputController extends InputController {
 
-    constructor(schema, options, messageElemnt,) {
-        super(schema, document.createElement("select"), messageElemnt);
+    constructor(schema, options, messageElement) {
+        super(schema, document.createElement("select"), messageElement);
 
         for (let option of options) {
             let optionElement = document.createElement("option")
@@ -211,4 +213,5 @@ class EnumInputController extends InputController {
         this.inputElement.value = s
         this.validate()
     }
+
 }
