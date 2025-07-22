@@ -120,8 +120,8 @@ export function updateSpec(parent, idPrefix, spec, createAction) {
     if (spec.params && spec.params.length > 0) {
         titleElement.append("(" + spec.params.map((e) => e.name).join(", ") + ")")
     }
-    if ((typeof spec.returnType == "string") && spec.returnType.toLowerCase() != "void") {
-        titleElement.append(": " + camelCase(spec.returnType))
+    if ((typeof spec?.type == "string") && spec.type.toLowerCase() != "void") {
+        titleElement.append(": " + camelCase(spec.type))
     }
     titleElement.style.marginBottom = "5px"
     titleElement.style.marginTop = "10px"

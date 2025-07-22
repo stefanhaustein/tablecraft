@@ -11,7 +11,6 @@ class IntegrationSpec(
 ) : AbstractFactorySpec(
     category,
     OperationKind.INTEGRATION,
-    Type.VOID,
     name,
     description,
     parameters,

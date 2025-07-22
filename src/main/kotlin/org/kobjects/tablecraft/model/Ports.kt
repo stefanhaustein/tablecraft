@@ -24,7 +24,7 @@ class Ports : Iterable<PortHolder> {
             portMap[name] = InputPortHolder(
                 name, InputPortSpec(
                     "GPIO",
-                    Type.STRING,  // The operation name; used to identify tombstone ports on the client
+                    // The operation name; used to identify tombstone ports on the client
                     "TOMBSTONE",
                     "",
                     emptyList(),

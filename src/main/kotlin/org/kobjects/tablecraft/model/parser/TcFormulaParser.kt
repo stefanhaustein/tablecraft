@@ -33,25 +33,29 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
     Operator.Infix(0, "or", "OR", "Or")
 ) {
 
-    fun parsePrimary(scanner: TcScanner, context: ParsingContext): Expression =
-        when (scanner.current.type) {
+    fun parsePrimary(scanner: TcScanner, context: ParsingContext): Expression {
+        var result = when (scanner.current.type) {
             TcTokenType.NUMBER -> if (scanner.current.text.contains(".")
                 || scanner.current.text.contains("e")
-                || scanner.current.text.contains("E")) Literal(scanner.consume().text.toDouble()) else Literal(scanner.consume().text.toInt())
+                || scanner.current.text.contains("E")
+            ) Literal(scanner.consume().text.toDouble()) else Literal(scanner.consume().text.toInt())
+
             TcTokenType.STRING -> {
                 val text = scanner.consume().text
                 Literal(text.substring(1, text.length - 1))
             }
+
             TcTokenType.CELL_IDENTIFIER -> {
                 val name = scanner.consume().text
                 val cellRange = CellRangeReference.parse(name, context.cell.sheet)
 
                 if (name.contains(":")) {
-                    CellRangeExpression(context.cell,  cellRange)
+                    CellRangeExpression(context.cell, cellRange)
                 } else {
                     CellExpression(context.cell, cellRange.iterator().next())
                 }
             }
+
             TcTokenType.IDENTIFIER -> {
                 val name = scanner.consume().text
                 val parameterList = if (scanner.tryConsume("(")) parseParameterList(scanner, context) else emptyMap()
@@ -62,12 +66,14 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
                         }
                         Literal(true)
                     }
+
                     "false" -> {
                         require(parameterList.isEmpty()) {
                             "Unexpected parameter(s) for 'TRUE'"
                         }
                         Literal(false)
                     }
+
                     else -> {
                         val lowercase = name.lowercase()
                         val functionSpec = Model.functions[lowercase] as FunctionSpec?
@@ -83,6 +89,7 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
                     }
                 }
             }
+
             TcTokenType.SYMBOL -> {
                 if (scanner.tryConsume("(")) {
                     val result = parsePrimary(scanner, context)
@@ -92,9 +99,16 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
                     throw IllegalStateException("Unexpected token in parsePrimary ${scanner.current}")
                 }
             }
+
             else -> {
                 throw IllegalStateException("Unexpected token in parsePrimary ${scanner.current}")
             }
+        }
+
+        while (scanner.tryConsume(".")) {
+            result = FieldExpression(result, scanner.consume(TcTokenType.IDENTIFIER).text)
+        }
+        return result
 
     }
 

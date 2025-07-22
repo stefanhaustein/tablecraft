@@ -10,7 +10,7 @@ export class FormController {
         this.listeners.push(listener)
     }
 
-    setValues(map) {
+    setValue(map) {
         for (let key in map) {
             let elementController = this.elementControllers[key]
             if (elementController) {
@@ -19,7 +19,7 @@ export class FormController {
         }
     }
 
-    getValues() {
+    getValue() {
         let result = {}
         for (let name in this.elementControllers) {
             result[name] = this.elementControllers[name].getValue()

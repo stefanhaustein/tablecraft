@@ -64,10 +64,10 @@ function updateValidation(cellChanged) {
     validationFormElement.textContent = ""
 
     let formController = FormController.create(validationFormElement, schema)
-    formController.setValues(currentValidation)
+    formController.setValue(currentValidation)
 
     let saveFunction = () => {
-        let newValues = formController.getValues()
+        let newValues = formController.getValue()
         for (let key in newValues) {
             currentValidation[key] = newValues[key]
         }

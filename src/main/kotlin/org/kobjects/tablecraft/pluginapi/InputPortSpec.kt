@@ -2,7 +2,6 @@ package org.kobjects.tablecraft.pluginapi
 
 class InputPortSpec(
     category: String,
-    returnType: Type,
     name: String,
     description: String,
     parameters: List<ParameterSpec>,
@@ -12,7 +11,6 @@ class InputPortSpec(
 ) : AbstractFactorySpec(
     category,
     OperationKind.INPUT_PORT,
-    returnType,
     name,
     description,
     parameters,

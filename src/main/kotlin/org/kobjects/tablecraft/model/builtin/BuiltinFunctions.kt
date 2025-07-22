@@ -100,7 +100,6 @@ object BuiltinFunctions : Plugin {
 
         OutputPortSpec(
             "GPIO",
-            Type.RANGE,
             "NamedCells",
             "A named range of cells",
             emptyList(),

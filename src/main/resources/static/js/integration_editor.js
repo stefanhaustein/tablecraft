@@ -24,7 +24,7 @@ export function showIntegrationInstanceConfigurationDialog(spec, instance) {
 
     let bindingFormController = FormController.create(inputDiv, transformSchema(spec["params"]))
 
-    bindingFormController.setValues(instanceConfiguration)
+    bindingFormController.setValue(instanceConfiguration)
 
     dialogElement.appendChild(inputDiv)
 
@@ -34,7 +34,7 @@ export function showIntegrationInstanceConfigurationDialog(spec, instance) {
     okButton.textContent = "Ok"
     okButton.className = "dialogButton"
     okButton.addEventListener("click", () => {
-        instance["configuration"] = bindingFormController.getValues()
+        instance["configuration"] = bindingFormController.getValue()
         if (sendIntegration(instance)) {
             dialogElement.close()
         }

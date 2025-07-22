@@ -109,7 +109,6 @@ class Bmp280Integration(
         companion object {
             fun spec(integration: Bmp280Integration) = InputPortSpec(
                 category = "Drivers",
-                Type.REAL,
                 integration.name + ".value",
                 "Returns a measurement value of the BMP 280 sensor",
                 parameters = listOf(ParameterSpec("kind", Type.ENUM(MeasurementType.entries), setOf(ParameterSpec.Modifier.CONSTANT))),

@@ -60,7 +60,6 @@ class PwmInput(
     companion object {
         fun spec(plugin: Pi4jPlugin) = InputPortSpec(
             category = "GPIO",
-            Type.REAL,
             "pwmin",
             "Configures the given pin address for input and reports the pulse width in seconds.",
             listOf(ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),

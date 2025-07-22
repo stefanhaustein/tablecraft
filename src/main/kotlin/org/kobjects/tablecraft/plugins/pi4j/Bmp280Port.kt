@@ -4,7 +4,6 @@ import com.pi4j.io.i2c.I2C
 import org.kobjects.pi4jdriver.sensor.environment.bmx280.Bmx280Driver
 import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.pluginapi.*
-import org.kobjects.tablecraft.plugins.pi4j.Bmp280Integration.MeasurementType
 import java.util.*
 
 class Bmp280Port(
@@ -84,7 +83,6 @@ class Bmp280Port(
 
         fun spec(plugin: Pi4jPlugin) = InputPortSpec(
             category = "Driver",
-            TYPE,
             "Bmp280",
             "BMP 280 sensor port.",
             listOf(

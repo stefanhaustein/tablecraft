@@ -19,7 +19,7 @@ function renderBinding(targetDiv, constructorSpec, instanceSpec) {
     let bindingFormController = FormController.create(targetDiv, transformSchema(constructorSpec["params"]))
 
     if (instanceSpec != null) {
-        bindingFormController.setValues(instanceSpec)
+        bindingFormController.setValue(instanceSpec)
     }
 
     return bindingFormController
@@ -67,7 +67,7 @@ export function showPortDialog(constructorSpec, portSpec) {
     let previousName = portSpec == null ? null : portSpec["name"]
 
     let portFormController = FormController.create(inputDiv, transformSchema(portSchema))
-    portFormController.setValues(portSpec == null ? {name: kind.substring(0, 1).toLowerCase() + "_"} : portSpec)
+    portFormController.setValue(portSpec == null ? {name: kind.substring(0, 1).toLowerCase() + "_"} : portSpec)
 
     let bindingFormController = null
     if (constructorSpec.name != "NamedCells") {
@@ -116,7 +116,7 @@ export function showPortDialog(constructorSpec, portSpec) {
 
     okButton.className = "dialogButton"
     okButton.addEventListener("click", () => {
-        let values = portFormController.getValues()
+        let values = portFormController.getValue()
         let source = values["source"]
         if (source != null && source.indexOf("!") == -1) {
             values["source"] = currentSheet.name + "!" + source

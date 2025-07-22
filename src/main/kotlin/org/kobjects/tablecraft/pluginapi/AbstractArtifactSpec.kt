@@ -8,7 +8,7 @@ import org.kobjects.tablecraft.model.expression.Literal
 abstract class AbstractArtifactSpec(
     val category: String,
     val kind: OperationKind,
-    val type: Type,
+    val type: Type?,
     val name: String,
     val description: String,
     val parameters: List<ParameterSpec>,
@@ -35,7 +35,11 @@ abstract class AbstractArtifactSpec(
     }
 
     override fun toJson(sb: StringBuilder) {
-        sb.append("""{"name":${name.quote()},"category":${category.quote()},"kind":"$kind","returnType":${type.toJson()},"description":${description.quote()},"params":[""")
+        sb.append("""{"name":${name.quote()},"category":${category.quote()},"kind":"$kind",""")
+        if (type != null) {
+            sb.append(""""type":${type.toJson()},""")
+        }
+        sb.append(""""description":${description.quote()},"params":[""")
         var first = true
         for (param in parameters) {
             if (first) {

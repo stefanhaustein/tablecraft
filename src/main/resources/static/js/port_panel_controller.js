@@ -58,7 +58,7 @@ export function processPortUpdate(name, f) {
         }
     } else {
         let spec = getFactory(f.kind)
-        let isStruct = typeof spec.returnType != "string"
+        let isStruct = typeof f.type != "string"
         let entryElement = document.createElement(isStruct ? "details" : "div")
         entryElement.id = "port." + f.name
         entryElement.className = "port"
@@ -94,14 +94,14 @@ export function processPortUpdate(name, f) {
             entryValueElement.className = "portSimulationValue"
             if (!isStruct) {
                 let controller = f.valueController = InputController.create(
-                    {type: camelCase(spec.returnType)})
+                    {type: camelCase(f.type)})
                 entryValueElement.appendChild(controller.inputElement)
                 controller.inputElement.addEventListener("change", () => {
                     post("portSimulation?name=" + name, controller.getValue())
                 })
             } else {
                 console.log(spec)
-                let controller = f.valueController = FormController.create(entryValueElement, spec.returnType)
+                let controller = f.valueController = FormController.create(entryValueElement, f.type)
                 controller.addListener(() => {
                     post("portSimulation?name=" + name, controller.getValue())
                 })
