@@ -90,6 +90,9 @@ class Bmp280Integration(
             }
         }
 
+        override val type: Type
+            get() = Type.REAL
+
         override fun getValue(): Any {
             return value
         }

@@ -6,4 +6,6 @@ interface InputPortInstance {
     fun attach(host: ValueChangeListener)
 
     fun detach()
+
+    val type: Type
 }

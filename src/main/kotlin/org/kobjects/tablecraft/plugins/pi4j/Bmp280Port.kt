@@ -65,6 +65,8 @@ class Bmp280Port(
         timer.cancel()
     }
 
+    override val type: Type
+        get() = TYPE
 
     override fun getValue(): Any {
         return value
@@ -72,15 +74,17 @@ class Bmp280Port(
 
 
     companion object {
+        val TYPE = Type.Struct(listOf(
+            Type.Field("tc", Type.REAL),
+            Type.Field("tf", Type.REAL),
+            Type.Field("pmb", Type.REAL),
+            Type.Field("pp", Type.REAL),
+            Type.Field("h", Type.REAL)
+        ))
+
         fun spec(plugin: Pi4jPlugin) = InputPortSpec(
             category = "Driver",
-            Type.Struct(listOf(
-                Type.Field("tc", Type.REAL),
-                Type.Field("tf", Type.REAL),
-                Type.Field("pmb", Type.REAL),
-                Type.Field("pp", Type.REAL),
-                Type.Field("h", Type.REAL)
-            )),
+            TYPE,
             "Bmp280",
             "BMP 280 sensor port.",
             listOf(

@@ -124,7 +124,7 @@ export function showPortDialog(constructorSpec, portSpec) {
         if (bindingFormController != null) {
             values["configuration"] = bindingFormController.getValues()
         }
-        values["type"] = constructorSpec["name"]
+        values["kind"] = constructorSpec["name"]
         values["previousName"] = previousName
         post("ports/" + values["name"], values)
         hidePortDialog()

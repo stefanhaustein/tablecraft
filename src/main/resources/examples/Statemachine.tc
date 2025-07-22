@@ -2,14 +2,14 @@ simulationMode = true
 
 [ports]
 
-level_a: {"name":"level_a", "type":"din", "configuration": {"address":2}, "outputs":["Sheet1!B7","Sheet1!I9"]}
-level_b: {"name":"level_b", "type":"din", "configuration": {"address":3}, "outputs":["Sheet1!B5","Sheet1!I10"]}
-valve_a: {"name":"valve_a", "type":"dout", "configuration": {"address":4}, "inputs":["Sheet1!B3"], "source":"Sheet1!B3"}
-valve_b: {"name":"valve_b", "type":"dout", "configuration": {"address":5}, "inputs":["Sheet1!G3"], "source":"Sheet1!G3"}
-valve_out: {"name":"valve_out", "type":"dout", "configuration": {"address":6}, "inputs":["Sheet1!D11"], "source":"Sheet1!D11"}
-mixer: {"name":"mixer", "type":"dout", "configuration": {"address":7}, "inputs":["Sheet1!G2"], "source":"=Sheet1!G2"}
-state: {"name":"state", "type":"NamedCells", "configuration": {}, "inputs":["Sheet1!G8"], "outputs":["Sheet1!D2","Sheet1!B3","Sheet1!G3","Sheet1!D11"], "source":"Sheet1!G8"}
-level_0: {"name":"level_0", "type":"din", "configuration": {"address":1}, "outputs":["Sheet1!I12","Sheet1!B10"]}
+level_a: {"name":"level_a", "kind":"din", "configuration": {"address":2}, "outputs":["Sheet1!B7","Sheet1!I9"]}
+level_b: {"name":"level_b", "kind":"din", "configuration": {"address":3}, "outputs":["Sheet1!B5","Sheet1!I10"]}
+valve_a: {"name":"valve_a", "kind":"dout", "configuration": {"address":4}, "inputs":["Sheet1!B3"], "source":"Sheet1!B3"}
+valve_b: {"name":"valve_b", "kind":"dout", "configuration": {"address":5}, "inputs":["Sheet1!G3"], "source":"Sheet1!G3"}
+valve_out: {"name":"valve_out", "kind":"dout", "configuration": {"address":6}, "inputs":["Sheet1!D11"], "source":"Sheet1!D11"}
+mixer: {"name":"mixer", "kind":"dout", "configuration": {"address":7}, "inputs":["Sheet1!G2"], "source":"=Sheet1!G2"}
+state: {"name":"state", "kind":"NamedCells", "configuration": {}, "inputs":["Sheet1!G8"], "outputs":["Sheet1!D2","Sheet1!B3","Sheet1!G3","Sheet1!D11"], "source":"Sheet1!G8"}
+level_0: {"name":"level_0", "kind":"din", "configuration": {"address":1}, "outputs":["Sheet1!I12","Sheet1!B10"]}
 
 [simulationValues]
 

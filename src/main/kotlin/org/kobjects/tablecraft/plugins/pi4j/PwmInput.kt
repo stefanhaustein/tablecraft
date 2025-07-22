@@ -30,6 +30,9 @@ class PwmInput(
 
     override fun getValue(): Any = value
 
+    override val type: Type
+        get() = Type.REAL
+
     override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
         when (event!!.state().isHigh()) {
             true -> {

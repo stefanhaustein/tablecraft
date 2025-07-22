@@ -49,6 +49,8 @@ class DigitalInputPort(
         digitalInput = null
     }
 
+    override val type: Type
+        get() = Type.BOOL
 
     companion object {
         fun spec(plugin: Pi4jPlugin) = InputPortSpec(

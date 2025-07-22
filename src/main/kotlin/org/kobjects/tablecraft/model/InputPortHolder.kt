@@ -20,7 +20,7 @@ class InputPortHolder(
     var attached: Boolean = false
     override var valueTag  = 0L
 
-    override var value: Any? = when(specification.type) {
+    override var value: Any? = when(instance.type) {
         Type.INT -> 0
         Type.REAL -> 0.0
         Type.BOOL -> false
@@ -78,7 +78,7 @@ class InputPortHolder(
     }
 
     override fun toJson(sb: StringBuilder) {
-        sb.append("""{"name":${name.quote()}, "type":${specification.name.quote()}, "configuration": """)
+        sb.append("""{"name":${name.quote()}, "kind":${specification.name.quote()}, "configuration": """)
         configuration.toJson(sb)
         serializeDependencies(sb)
         sb.append("}")

@@ -35,6 +35,8 @@ class Ports : Iterable<PortHolder> {
                         override fun attach(host: ValueChangeListener) {}
                         override fun detach() {}
                         override fun getValue() = Unit
+                        override val type: Type
+                            get() = Type.VOID
                     }
                 }, emptyMap(), token.tag
             )
@@ -54,11 +56,11 @@ class Ports : Iterable<PortHolder> {
         }
 
         if (jsonSpec["deleted"] as Boolean? != true) {
-            val type = jsonSpec["type"].toString()
+            val kind = jsonSpec["kind"].toString()
 
             portMap[name]?.detach()
 
-            val specification = Model.factories[type] ?: throw IllegalArgumentException("Unrecognized port type '$type'")
+            val specification = Model.factories[kind] ?: throw IllegalArgumentException("Unrecognized port type '$kind'")
 
             val config = specification.convertConfiguration(
                 jsonSpec["configuration"] as? Map<String, Any> ?: emptyMap()

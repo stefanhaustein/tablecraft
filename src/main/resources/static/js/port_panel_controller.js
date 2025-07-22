@@ -57,12 +57,12 @@ export function processPortUpdate(name, f) {
             entryElement.parentElement.removeChild(entryElement)
         }
     } else {
-        let spec = getFactory(f.type)
+        let spec = getFactory(f.kind)
         let isStruct = typeof spec.returnType != "string"
         let entryElement = document.createElement(isStruct ? "details" : "div")
         entryElement.id = "port." + f.name
         entryElement.className = "port"
-        insertById(document.getElementById(spec.kind == "OUTPUT_PORT" ? f.type == "NamedCells" ? "namedCellListContainer" :  "outputPortList" : "inputPortList"), entryElement)
+        insertById(document.getElementById(spec.kind == "OUTPUT_PORT" ? f.kind == "NamedCells" ? "namedCellListContainer" :  "outputPortList" : "inputPortList"), entryElement)
 
         let entryConfigElement = document.createElement("img")
         entryConfigElement.src = "/img/settings.svg"
@@ -76,7 +76,7 @@ export function processPortUpdate(name, f) {
         let nameElement = document.createElement("b")
         nameElement.textContent = name
 
-        entryTitleElement.append(nameElement, ": " + (f.type == "NamedCells" ? f.source : f.type))
+        entryTitleElement.append(nameElement, ": " + (f.kind == "NamedCells" ? f.source : f.kind))
         entryTitleElement.append(entryConfigElement)
         entryElement.append(entryTitleElement)
 
@@ -109,7 +109,7 @@ export function processPortUpdate(name, f) {
             showValue = !document.getElementById("simulationMode").checked
             entryValueElement.style.display = showValue ? "none" : "inline"
             entryContentElement.appendChild(entryValueElement)
-        } else if (f.type != "NamedCells") {
+        } else if (f.kind != "NamedCells") {
             let sourceElement = document.createElement("div")
             sourceElement.style.float = "right"
             sourceElement.style.paddingRight = "5px"

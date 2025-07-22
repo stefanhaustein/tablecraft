@@ -2,8 +2,8 @@ simulationMode = true
 runMode = false
 [ports]
 
-co_2: {"name":"co_2", "type":"pwmin", "configuration": {"address":24}, "outputs":["Sheet1!C2"]}
-o_rest: {"name":"o_rest", "type":"rest_out", "configuration": {"path":""}, "inputs":["Sheet1!B2","Sheet1!C2","Sheet1!B3","Sheet1!C3","Sheet1!B4","Sheet1!C4"], "source":"Sheet1!B2:C4"}
+co_2: {"name":"co_2", "kind":"pwmin", "configuration": {"address":24}, "outputs":["Sheet1!C2"]}
+o_rest: {"name":"o_rest", "kind":"rest_out", "configuration": {"path":""}, "inputs":["Sheet1!B2","Sheet1!C2","Sheet1!B3","Sheet1!C3","Sheet1!B4","Sheet1!C4"], "source":"Sheet1!B2:C4"}
 
 [simulationValues]
 
