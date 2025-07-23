@@ -25,8 +25,9 @@ class InputPortHolder(
         Type.REAL -> 0.0
         Type.BOOL -> false
         Type.STRING -> ""
+        Type.VOID -> Unit
         is Type.Struct -> emptyMap<String, Any?>()
-        else -> throw UnsupportedOperationException("port type")
+        else -> throw UnsupportedOperationException("port type ${instance.type} not supported")
     }
     var simulationValue: Any? = value
     var simulationValueTag: Long = 0

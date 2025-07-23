@@ -122,7 +122,7 @@ export function showPortDialog(constructorSpec, portSpec) {
             values["source"] = currentSheet.name + "!" + source
         }
         if (bindingFormController != null) {
-            values["configuration"] = bindingFormController.getValues()
+            values["configuration"] = bindingFormController.getValue()
         }
         values["kind"] = constructorSpec["name"]
         values["previousName"] = previousName

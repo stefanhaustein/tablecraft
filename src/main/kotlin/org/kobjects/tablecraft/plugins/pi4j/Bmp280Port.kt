@@ -48,15 +48,13 @@ class Bmp280Port(
 
     fun poll() {
         val newValue = mapOf(
-            "tc" to (bmp280?.getTemperatureC() ?: Double.NaN),
-            "tf" to (bmp280?.getTemperatureF() ?: Double.NaN),
-            "ppa" to (bmp280?.getPressurePa() ?: Double.NaN),
-            "pmb" to (bmp280?.getPressureMb() ?: Double.NaN),
-            "h" to (bmp280?.getHumidity() ?: Double.NaN),
+            "celsius" to (bmp280?.getTemperatureC() ?: Double.NaN),
+            "fahrenheit" to (bmp280?.getTemperatureF() ?: Double.NaN),
+            "hectopascal" to (bmp280?.getPressureMb() ?: Double.NaN),
+            "humidity" to (bmp280?.getHumidity() ?: Double.NaN),
         )
         Model.applySynchronizedWithToken {
             value = newValue
-
         }
     }
 
@@ -74,11 +72,10 @@ class Bmp280Port(
 
     companion object {
         val TYPE = Type.Struct(listOf(
-            Type.Field("tc", Type.REAL),
-            Type.Field("tf", Type.REAL),
-            Type.Field("pmb", Type.REAL),
-            Type.Field("pp", Type.REAL),
-            Type.Field("h", Type.REAL)
+            Type.Field("celsius", Type.REAL),
+            Type.Field("fahrenheit", Type.REAL),
+            Type.Field("hectopascal", Type.REAL),
+            Type.Field("humidity", Type.REAL),
         ))
 
         fun spec(plugin: Pi4jPlugin) = InputPortSpec(

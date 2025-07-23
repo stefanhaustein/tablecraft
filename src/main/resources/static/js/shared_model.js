@@ -72,7 +72,7 @@ export function registerPortInstance(name, instance) {
     instance.name = name
     let key = instance.name.toLowerCase()
     instance.key = key
-    if (instance.type == "TOMBSTONE") {
+    if (instance.kind == "TOMBSTONE") {
         delete ports[key]
         return false
     }
