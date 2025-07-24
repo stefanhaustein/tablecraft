@@ -23,6 +23,8 @@ fun Any?.toJson(sb: StringBuilder) {
     when (this) {
         null -> sb.append("null")
         is ToJson -> this.toJson(sb)
+        is Double -> if (this.isFinite()) sb.append(this) else this.toString().toJson(sb)
+        is Float -> if (this.isFinite()) sb.append(this) else this.toString().toJson(sb)
         is Number -> sb.append(this)
         is Boolean -> sb.append(this)
         is Map<*, *> -> this.toJson(sb)

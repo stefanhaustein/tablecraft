@@ -34,7 +34,7 @@ export function processPortValue(key, map) {
     portValues[key] = value
     let target = document.getElementById("port." + key + ".value")
     if (target != null) {
-        target.textContent = value
+        target.textContent = JSON.stringify(value)
     }
 }
 

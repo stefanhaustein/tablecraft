@@ -147,9 +147,6 @@ class Cell(
         when (value) {
             null,
                 is Unit -> {sb.append("null")}
-            is Boolean -> sb.append(value.toString())
-            is Double -> sb.append(value.toFloat())
-            is Number -> sb.append(value)
             is Exception -> sb.append("""{"type": "err", "msg": ${(value::class.simpleName.toString() + value.message).quote()}}""")
             is Instant -> {
                 val localDateTime = value.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -157,7 +154,7 @@ class Cell(
                  sb.append(' ') */
                 sb.append("""{"type": "instant", "rendered":${localDateTime.time.format(TIME_FORMAT_SECONDS).quote()}}""")
             }
-            else -> sb.append(value.toString().quote())
+            else -> value.toJson(sb)
         }
     }
 

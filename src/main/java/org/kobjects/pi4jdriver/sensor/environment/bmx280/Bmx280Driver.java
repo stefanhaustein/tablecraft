@@ -138,7 +138,7 @@ public class Bmx280Driver {
 
         int ctlReg = 0; // bus.readU8Register(Bmp280Constants.CTRL_MEAS);
         ctlReg |= Bmp280Constants.CTL_FORCED;
-        //ctlReg &= ~Bmp280Constants.TEMP_OVER_SAMPLE_MSK;   // mask off all temperauire bits
+        //ctlReg &= ~Bmp280Constants.TEMP_OVER_SAMPLE_MSK;   // mask off all temperature bits
         ctlReg |= Bmp280Constants.CTL_TEMP_SAMP_1;      // Temperature oversample 1
         //ctlReg &= ~Bmp280Constants.PRES_OVER_SAMPLE_MSK;   // mask off all pressure bits
         ctlReg |= Bmp280Constants.CTL_PRESS_SAMP_1;   //  Pressure oversample 1
@@ -197,26 +197,42 @@ public class Bmx280Driver {
         if (sensorType == SensorType.BME280) {
             // Humidity
 
-            long adc_H = (long) ((measurementBuf[6] & 0xFF) << 8) | (long) (measurementBuf[7] & 0xFF);
-
-            System.out.println("Raw humidity: " + adc_H);
+            int adc_H = ((measurementBuf[6] & 0xFF) << 8) | (measurementBuf[7] & 0xFF);
 
 
-            double humidity = (double)t_fine - 76800.0;
-            humidity = (adc_H -(((double)dig_h4) * 64.0 + ((double)dig_h5)/16384.0  * humidity)) * (((double)dig_h2)/65536.0 * (1.0 + ((double)dig_h6) /67108864.0 * humidity * (1.0 + ((double)dig_h3)/67108864.0 * humidity)));
-            humidity = humidity * (1.0 - ((double) dig_h1) * humidity/524288.0);
-            if(humidity > 100.0){
+            System.out.println("Raw humidity: " + adc_H / 1024.0);
+
+
+            var1 = t_fine - 76800.0;
+            var2 = (((double) dig_h4) * 64.0 + (((double) dig_h5) / 16384.0) * var1);
+            double var3 = adc_H - var2;
+            double var4 = dig_h2 / 65536.0;
+            double var5 = (1.0 + (dig_h3 / 67108864.0) * var1);
+            double var6 = 1.0 + (dig_h6 / 67108864.0) * var1 * var5;
+            var6 = var3 * var4 * (var5 * var6);
+            double humidity = var6 * (1.0 - dig_h1 * var6 / 524288.0);
+ /*
+            int v_x1_u32r = t_fine - 76800;
+            v_x1_u32r = (((((adc_H << 14) - (((int)dig_h4) << 20) - (((int)dig_h5) *
+                    v_x1_u32r)) + ((int)16384)) >> 15) * (((((((v_x1_u32r *   ((int)dig_h6)) >> 10) * (((v_x1_u32r * ((int)dig_h3)) >> 11) +
+                    ((int)32768))) >> 10) + ((int)2097152)) * ((int)dig_h2) +
+                    8192) >> 14));
+            v_x1_u32r = (v_x1_u32r - (((((v_x1_u32r >> 15) * (v_x1_u32r >> 15)) >> 7) *   ((int)dig_h1)) >> 4));
+            v_x1_u32r = (v_x1_u32r < 0 ? 0 : v_x1_u32r);
+            v_x1_u32r = (v_x1_u32r > 419430400 ? 419430400 : v_x1_u32r);
+            measuredHumidity = (v_x1_u32r>>12);
+        }
+       */
+            if (humidity > 100.0) {
                 measuredHumidity = 100.0;
-            }else if(humidity < 0.0){
+            } else if (humidity < 0.0) {
                 measuredHumidity = 0.0;
-            }else {
+            } else {
                 measuredHumidity = humidity;
             }
 
 
-
         }
-
 
 
         measuredTemperature = T;

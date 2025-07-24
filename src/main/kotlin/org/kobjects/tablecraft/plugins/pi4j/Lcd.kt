@@ -45,7 +45,9 @@ class Lcd(
             )
             lcdDriver = LcdDriver.create(i2c, height, width)
             error = null
+            System.err.println("**** LCD Driver attached successfully: $lcdDriver")
         } catch (e: Exception) {
+            e.printStackTrace()
             error = e
         }
     }
@@ -72,7 +74,7 @@ class Lcd(
                 ParameterSpec("height", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)),
         )
         ) {
-            Lcd(plugin, it["bus"] as Int? ?: 1, it["address"] as Int? ?: 0x76, it["width"] as Int? ?: 16, it["height"] as Int? ?: 2) }
+            Lcd(plugin, it["bus"] as Int? ?: 1, it["address"] as Int? ?: 0x27, it["width"] as Int? ?: 16, it["height"] as Int? ?: 2) }
     }
 
 }

@@ -17,7 +17,7 @@ class Bmp280Port(
     var error: Exception? = null
     var host: ValueChangeListener? = null
     val timer = Timer()
-    var value = emptyMap<String, Double>()
+    var value = emptyMap<String, Double?>()
 
     override fun attach(host: ValueChangeListener) {
         this.host = host
@@ -38,24 +38,30 @@ class Bmp280Port(
                 override fun run() {
                     poll()
                 }
-            }, 0, 100)
+            }, 0, 10000)
+
+            System.err.println("**** BMx280 driver successfully attached: $bmp280")
 
         } catch (e: Exception) {
+            e.printStackTrace()
             error = e
             bmp280 = null
         }
     }
 
     fun poll() {
+        bmp280?.readMeasurements()
         val newValue = mapOf(
-            "celsius" to (bmp280?.getTemperatureC() ?: Double.NaN),
-            "fahrenheit" to (bmp280?.getTemperatureF() ?: Double.NaN),
-            "hectopascal" to (bmp280?.getPressureMb() ?: Double.NaN),
-            "humidity" to (bmp280?.getHumidity() ?: Double.NaN),
+            "celsius" to bmp280?.getTemperatureC(),
+            "fahrenheit" to bmp280?.getTemperatureF(),
+            "hectopascal" to bmp280?.getPressureMb(),
+            "humidity" to bmp280?.getHumidity(),
         )
         Model.applySynchronizedWithToken {
             value = newValue
+            host?.notifyValueChanged(it)
         }
+
     }
 
     override fun detach() {
@@ -85,7 +91,7 @@ class Bmp280Port(
             listOf(
                 ParameterSpec("bus", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)),
                 ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL))),
-            createFn = { Bmp280Port(plugin, it["bus"] as? Int ?: 1, it ["address"] as? Int ?:  0x76) },
+            createFn = { Bmp280Port(plugin, it["bus"] as? Int ?: 1, it ["address"] as? Int ?:  0x77) },
         )
     }
 }
