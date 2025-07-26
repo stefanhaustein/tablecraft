@@ -12,6 +12,7 @@ class Lcd(
     val address: Int,
     val width: Int,
     val height: Int,
+    val format: List<Int?>?,
 )  : OutputPortInstance {
 
     var lcdDriver: LcdDriver? = null
@@ -24,11 +25,12 @@ class Lcd(
 
         val range = value as RangeValues
         for (row in 0 until min(range.height, height)) {
+            var xPos = 0
             for (col in 0 until range.width) {
-                val xPos = col * width / range.width
                 lcdDriver?.setCursorPosition(row, xPos)
-                val columnWidth = (col + 1) * width / range.width - xPos
+                val columnWidth = format?.getOrNull(col) ?: ((width - xPos) / (range.width - col))
                 lcdDriver?.write(range[col, row].toString().take(columnWidth))
+                xPos += columnWidth
             }
         }
 
@@ -89,14 +91,14 @@ class Lcd(
                     2
                 ),
                 ParameterSpec(
-                    "column_widths",
+                    "format",
                     Type.STRING,
                     null,
                     setOf(ParameterSpec.Modifier.OPTIONAL)
                 )
         )
         ) {
-            Lcd(plugin, it["bus"] as Int, it["address"] as Int, it["width"] as Int, it["height"] as Int) }
+            Lcd(plugin, it["bus"] as Int, it["address"] as Int, it["width"] as Int, it["height"] as Int, (it["format"] as? String)?.split(",")?.map { it.toIntOrNull() } }
     }
 
 }
