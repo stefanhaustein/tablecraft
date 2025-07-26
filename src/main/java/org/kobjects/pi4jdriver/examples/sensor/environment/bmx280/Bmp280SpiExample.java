@@ -62,11 +62,11 @@ public class Bmp280SpiExample {
         var bmp280 = Bmx280Driver.create(spi, csPin);
 
         System.out.println(" Recognized Sensor type: " + bmp280.getSensorType());
-        System.out.println(" Temperatue C = " + bmp280.getTemperatureC());
-        System.out.println(" Temperatue F = " + bmp280.getTemperatureF());
-        System.out.println(" Pressure Pa = " + bmp280.getPressurePa());
-        System.out.println(" Pressure InHg = " + bmp280.getPressureInHg());
-        System.out.println(" Pressure mb = " + bmp280.getPressureMb());
+
+        var measurement = bmp280.readMeasurements();
+        System.out.println(" Temperatue = " + measurement.getTemperature());
+        System.out.println(" Pressure hPa = " + measurement.getPressure());
+        System.out.println(" Rel.Humidity % = " + measurement.getHumidity());
 
 
         // Shutdown Pi4J

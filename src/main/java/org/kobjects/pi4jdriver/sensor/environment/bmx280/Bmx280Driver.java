@@ -39,9 +39,6 @@ public class Bmx280Driver {
     private final AbstractConnection connection;
     private final SensorType sensorType;
 
-    private double measuredPressure = Double.NaN;
-    private double measuredTemperature = Double.NaN;
-    private double measuredHumidity = Double.NaN;
 
     private MeasurementMode measurementMode = MeasurementMode.SLEEPING;
 
@@ -159,7 +156,7 @@ public class Bmx280Driver {
      * <p>
      * Store the measured data.
      */
-    public void readMeasurements() {
+    public Bmx280Measurement readMeasurements() {
         if (measurementMode == MeasurementMode.SLEEPING) {
             requestSingleMeasurement();
         }
@@ -194,6 +191,7 @@ public class Bmx280Driver {
             P = P + (var1 + var2 + ((double) dig_p7)) / 16.0;
         }
 
+        double measuredHumidity = Double.NaN;
         if (sensorType == SensorType.BME280) {
             // Humidity
 
@@ -230,52 +228,9 @@ public class Bmx280Driver {
             } else {
                 measuredHumidity = humidity;
             }
-
-
         }
 
-
-        measuredTemperature = T;
-        measuredPressure = P;
-    }
-
-    public double getHumidity() {
-        return measuredHumidity;
-    }
-
-    /**
-     * @return Temperature centigrade
-     */
-    public double getTemperatureC() {
-        return measuredTemperature;
-    }
-
-    /**
-     * @return Temperature fahrenheit
-     */
-    public double getTemperatureF() {
-        return measuredTemperature * 1.8 + 32;
-    }
-
-    /**
-     * @return Pressure in Pa units
-     */
-    public double getPressurePa() {
-        return measuredPressure;
-    }
-
-    /**
-     * @return Pressure in millBar
-     */
-    public double getPressureMb() {
-        return measuredPressure / 100;
-    }
-
-    /**
-     * @return Pressure in inches mercury
-     */
-    public double getPressureInHg() {
-        return measuredPressure / 3386;
+        return new Bmx280Measurement(T, P, measuredHumidity);
     }
 
     /**

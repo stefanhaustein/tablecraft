@@ -50,12 +50,11 @@ class Bmp280Port(
     }
 
     fun poll() {
-        bmp280?.readMeasurements()
+        val measurement = bmp280?.readMeasurements()
         val newValue = mapOf(
-            "celsius" to bmp280?.getTemperatureC(),
-            "fahrenheit" to bmp280?.getTemperatureF(),
-            "hectopascal" to bmp280?.getPressureMb(),
-            "humidity" to bmp280?.getHumidity(),
+            "temperature" to measurement?.getTemperature(),
+            "pressure" to measurement?.getPressure(),
+            "humidity" to measurement?.getHumidity(),
         )
         Model.applySynchronizedWithToken {
             value = newValue
@@ -78,9 +77,8 @@ class Bmp280Port(
 
     companion object {
         val TYPE = Type.Struct(listOf(
-            Type.Field("celsius", Type.REAL),
-            Type.Field("fahrenheit", Type.REAL),
-            Type.Field("hectopascal", Type.REAL),
+            Type.Field("temperature", Type.REAL),
+            Type.Field("pressure", Type.REAL),
             Type.Field("humidity", Type.REAL),
         ))
 

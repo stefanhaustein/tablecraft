@@ -58,11 +58,14 @@ export function processPortUpdate(name, f) {
         }
     } else {
         let spec = getFactory(f.kind)
-        let isStruct = typeof f.type != "string"
-        let entryElement = document.createElement(isStruct ? "details" : "div")
+        let isExpandable = spec.kind == "INPUT_PORT" && typeof f.type != "string"
+        let entryElement = document.createElement( "div")
         entryElement.id = "port." + f.name
         entryElement.className = "port"
         insertById(document.getElementById(spec.kind == "OUTPUT_PORT" ? f.kind == "NamedCells" ? "namedCellListContainer" :  "outputPortList" : "inputPortList"), entryElement)
+
+        let entryContentElement = document.createElement("div")
+
 
         let entryConfigElement = document.createElement("img")
         entryConfigElement.src = "/img/settings.svg"
@@ -70,59 +73,80 @@ export function processPortUpdate(name, f) {
         entryConfigElement.onclick = () => {
             showPortDialog(spec, f)
         }
+        entryElement.append(entryConfigElement)
 
-        let entryTitleElement = document.createElement(isStruct ? "summary" : "div")
+        if (isExpandable) {
+            let showDetailsElement = document.createElement("img")
+            showDetailsElement.src = "/img/unfold_more.svg"
+            showDetailsElement.className = "portConfig"
+            entryContentElement.style.display = "none"
+            showDetailsElement.onclick = () => {
+                if (entryContentElement.style.display == "none") {
+                    entryContentElement.style.display = ""
+                    showDetailsElement.src = "/img/unfold_less.svg"
+                } else {
+                    entryContentElement.style.display = "none"
+                    showDetailsElement.src = "/img/unfold_more.svg"
+                }
+            }
+            entryElement.appendChild(showDetailsElement)
+        }
+
+        let entryTitleElement = document.createElement("div")
         entryTitleElement.className = "portTitle"
         let nameElement = document.createElement("b")
         nameElement.textContent = name
 
-        entryTitleElement.append(nameElement, ": " + (f.kind == "NamedCells" ? f.source : f.kind))
-        entryTitleElement.append(entryConfigElement)
+        entryTitleElement.appendChild(nameElement)
+        if (f.kind != "NamedCells") {
+            entryTitleElement.append(": ", f.kind)
+        }
         entryElement.append(entryTitleElement)
 
         let modifiers = spec["modifiers"] || []
         // console.log("adding port", f, spec)
 
-        let entryContentElement = document.createElement("div")
         entryContentElement.style.paddingLeft = "10px"
         entryContentElement.style.clear = "both"
 
         let showValue = true
         if (spec.kind == "INPUT_PORT") {
-            let entryValueElement = document.createElement("span")
-            entryValueElement.id = "port." + name + ".simulationValue"
-            entryValueElement.className = "portSimulationValue"
-            if (!isStruct) {
+            let entrySimulationElement = document.createElement("span")
+            entrySimulationElement.id = "port." + name + ".simulationValue"
+            entrySimulationElement.className = "portSimulationValue"
+            if (!isExpandable) {
                 let controller = f.valueController = InputController.create(
                     {type: camelCase(f.type)})
-                entryValueElement.appendChild(controller.inputElement)
+                entrySimulationElement.appendChild(controller.inputElement)
                 controller.inputElement.addEventListener("change", () => {
                     post("portSimulation?name=" + name, controller.getValue())
                 })
             } else {
                 console.log(spec)
-                let controller = f.valueController = FormController.create(entryValueElement, f.type)
+                let controller = f.valueController = FormController.create(entrySimulationElement, f.type)
                 controller.addListener(() => {
                     post("portSimulation?name=" + name, controller.getValue())
                 })
             }
             showValue = !document.getElementById("simulationMode").checked
-            entryValueElement.style.display = showValue ? "none" : "inline"
-            entryContentElement.appendChild(entryValueElement)
-        } else if (f.kind != "NamedCells") {
-            let sourceElement = document.createElement("div")
-            sourceElement.style.float = "right"
-            sourceElement.style.paddingRight = "5px"
-            sourceElement.textContent = "(" + f.source + ")"
+            entrySimulationElement.style.display = showValue ? "none" : "inline"
+            entryContentElement.appendChild(entrySimulationElement)
 
-            entryContentElement.append(sourceElement)
+            let entryValueElement = document.createElement("span")
+            entryValueElement.id = "port." + name + ".value"
+            entryValueElement.className = "portValue"
+            entryValueElement.style.display = showValue ? "inline" : "none"
+            entryContentElement.appendChild(entryValueElement)
+        } else {
+           // let sourceElement = document.createElement("div")
+           // sourceElement.style.float = "right"
+           // sourceElement.style.paddingRight = "5px"
+           // sourceElement.textContent =  f.source
+
+            entryContentElement.append(f.source)
         }
 
-        let entryValueElement = document.createElement("span")
-        entryValueElement.id = "port." + name + ".value"
-        entryValueElement.className = "portValue"
-        entryValueElement.style.display = showValue ? "inline" : "none"
-        entryContentElement.appendChild(entryValueElement)
+
 
         entryElement.appendChild(entryContentElement)
 
