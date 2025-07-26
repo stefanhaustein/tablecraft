@@ -87,8 +87,18 @@ class Bmp280Port(
             "Bmp280",
             "BMP 280 sensor port.",
             listOf(
-                ParameterSpec("bus", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)),
-                ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL))),
+                ParameterSpec(
+                    "bus",
+                    Type.INT,
+                    null,
+                    setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)
+                ),
+                ParameterSpec(
+                    "address",
+                    Type.INT,
+                    null,
+                    setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)
+                )),
             createFn = { Bmp280Port(plugin, it["bus"] as? Int ?: 1, it ["address"] as? Int ?:  0x77) },
         )
     }

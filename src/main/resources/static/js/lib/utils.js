@@ -75,7 +75,7 @@ export function toRangeKey(column, row, colSpan, rowSpan, forceRange) {
     return toCellId(column, row) + (forceRange || rowSpan != 0 || colSpan != 0 ? ":" + toCellId(column + colSpan, row + rowSpan) : "")
 }
 
-export function transformSchema(schema) {
+export function transformSchema(schema, forOperation) {
     if (Array.isArray(schema)) {
         return schema.map(element => transformSchema(element))
     }
@@ -85,7 +85,7 @@ export function transformSchema(schema) {
 
     // delete transformed.options
 
-    transformed.isExpression = modifiers.indexOf("CONSTANT") == -1
+    transformed.isExpression = forOperation && modifiers.indexOf("CONSTANT") == -1
     transformed.isReference = modifiers.indexOf("REFERENCE") != -1
 
     return transformed

@@ -51,6 +51,10 @@ export class InputController {
         this.inputElement.addEventListener("input", () => { this.validate() })
         this.inputElement.addEventListener("focus", () => { this.validate() })
 
+        if (schema["default"] != null) {
+            this.setValue(schema["default"])
+        }
+
         this.validate()
     }
 

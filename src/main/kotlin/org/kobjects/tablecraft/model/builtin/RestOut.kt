@@ -34,7 +34,12 @@ class RestOut(val path: String) : OutputPortInstance {
             """Makes the given value(s) accessible via an JSON object under the '/rest/path' path of this server.""",
             listOf(
 //                ParameterSpec("format", Type.ENUM(JsonFormat.entries), setOf(ParameterSpec.Modifier.CONSTANT)),
-                ParameterSpec("path", Type.STRING, setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)),
+                ParameterSpec(
+                    "path",
+                    Type.STRING,
+                    null,
+                    setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)
+                ),
             ),
             setOf(AbstractArtifactSpec.Modifier.NO_SIMULATION)
         ) {

@@ -32,11 +32,13 @@ class ParameterizableSvg(
                         }
                         val spec = ParameterSpec(
                             name,
-                            type)
+                            type,
+                            null
+                        )
                         add(spec)
                     }
                     "activity" -> {
-                        add(ParameterSpec("active", Type.BOOL))
+                        add(ParameterSpec("active", Type.BOOL, null))
                         insertActivity = true
                     }
                 }

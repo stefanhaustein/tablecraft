@@ -62,7 +62,7 @@ class PwmInput(
             category = "GPIO",
             "pwmin",
             "Configures the given pin address for input and reports the pulse width in seconds.",
-            listOf(ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT))),
+            listOf(ParameterSpec("address", Type.INT, null, setOf(ParameterSpec.Modifier.CONSTANT))),
             createFn = {
                 PwmInput(plugin, it["address"] as Int)
             },

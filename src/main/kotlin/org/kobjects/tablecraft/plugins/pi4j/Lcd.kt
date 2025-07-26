@@ -68,13 +68,35 @@ class Lcd(
             "Lcd",
             "An LCD text display",
             listOf(
-                ParameterSpec("bus", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)),
-                ParameterSpec("address", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)),
-                ParameterSpec("width", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)),
-                ParameterSpec("height", Type.INT, setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)),
+                ParameterSpec(
+                    "bus",
+                    Type.INT,
+                    1
+                ),
+                ParameterSpec(
+                    "address",
+                    Type.INT,
+                    0x27
+                ),
+                ParameterSpec(
+                    "width",
+                    Type.INT,
+                    16
+                ),
+                ParameterSpec(
+                    "height",
+                    Type.INT,
+                    2
+                ),
+                ParameterSpec(
+                    "column_widths",
+                    Type.STRING,
+                    null,
+                    setOf(ParameterSpec.Modifier.OPTIONAL)
+                )
         )
         ) {
-            Lcd(plugin, it["bus"] as Int? ?: 1, it["address"] as Int? ?: 0x27, it["width"] as Int? ?: 16, it["height"] as Int? ?: 2) }
+            Lcd(plugin, it["bus"] as Int, it["address"] as Int, it["width"] as Int, it["height"] as Int) }
     }
 
 }

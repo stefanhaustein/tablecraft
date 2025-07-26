@@ -51,7 +51,7 @@ function updateParameterTab() {
         titleElement.textContent = found.name
         functionPanelElement.appendChild(titleElement)
 
-        currentController = FormController.create(functionPanelElement, transformSchema(found["params"]))
+        currentController = FormController.create(functionPanelElement, transformSchema(found["params"], true))
         currentFunction = found
 
         if (found.description != "") {

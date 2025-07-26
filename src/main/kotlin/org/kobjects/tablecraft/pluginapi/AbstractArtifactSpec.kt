@@ -2,8 +2,6 @@ package org.kobjects.tablecraft.pluginapi
 
 import org.kobjects.tablecraft.json.ToJson
 import org.kobjects.tablecraft.json.quote
-import org.kobjects.tablecraft.json.toJson
-import org.kobjects.tablecraft.model.expression.Literal
 
 abstract class AbstractArtifactSpec(
     val category: String,

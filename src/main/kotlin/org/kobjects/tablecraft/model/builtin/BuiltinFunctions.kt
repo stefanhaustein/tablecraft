@@ -9,7 +9,7 @@ object BuiltinFunctions : Plugin {
             Type.DATE,
             "now",
             "The current local time",
-            listOf(ParameterSpec("interval", Type.REAL, setOf(ParameterSpec.Modifier.CONSTANT))),
+            listOf(ParameterSpec("interval", Type.REAL, null, setOf(ParameterSpec.Modifier.CONSTANT))),
             emptySet(),
             0,
             NowFunction::create,
@@ -29,7 +29,12 @@ object BuiltinFunctions : Plugin {
             Type.BOOL,
             "toff",
             "Timed Off",
-            listOf(ParameterSpec("input", Type.BOOL), ParameterSpec("delay", Type.REAL, setOf(ParameterSpec.Modifier.CONSTANT))),
+            listOf(ParameterSpec("input", Type.BOOL, null), ParameterSpec(
+                "delay",
+                Type.REAL,
+                null,
+                setOf(ParameterSpec.Modifier.CONSTANT)
+            )),
             emptySet(),
             0,
             TimedOnOff::createToff,
@@ -41,7 +46,12 @@ object BuiltinFunctions : Plugin {
             Type.BOOL,
             "ton",
             "Timed On",
-            listOf(ParameterSpec("input", Type.BOOL), ParameterSpec("delay", Type.REAL, setOf(ParameterSpec.Modifier.CONSTANT))),
+            listOf(ParameterSpec("input", Type.BOOL, null), ParameterSpec(
+                "delay",
+                Type.REAL,
+                null,
+                setOf(ParameterSpec.Modifier.CONSTANT)
+            )),
             emptySet(),
             0,
             TimedOnOff::createTon,
@@ -53,7 +63,12 @@ object BuiltinFunctions : Plugin {
             Type.BOOL,
             "tp",
             "Timed Pulse",
-            listOf(ParameterSpec("input", Type.BOOL), ParameterSpec("delay", Type.REAL, setOf(ParameterSpec.Modifier.CONSTANT))),
+            listOf(ParameterSpec("input", Type.BOOL, null), ParameterSpec(
+                "delay",
+                Type.REAL,
+                null,
+                setOf(ParameterSpec.Modifier.CONSTANT)
+            )),
             emptySet(),
             0,
             TimedPulse::create,
@@ -66,8 +81,8 @@ object BuiltinFunctions : Plugin {
             "rs",
             "RS-Flipflop",
             listOf(
-                ParameterSpec("s", Type.BOOL),
-                ParameterSpec("r",  Type.BOOL)),
+                ParameterSpec("s", Type.BOOL, null),
+                ParameterSpec("r", Type.BOOL, null)),
             emptySet(),
             0,
         ) { FlipflopFunction.createRs() },
@@ -78,8 +93,8 @@ object BuiltinFunctions : Plugin {
             "sr",
             "SR-Flipflop",
             listOf(
-                ParameterSpec("s", Type.BOOL),
-                ParameterSpec("r", Type.BOOL)),
+                ParameterSpec("s", Type.BOOL, null),
+                ParameterSpec("r", Type.BOOL, null)),
             emptySet(),
             0,
         ) { FlipflopFunction.createSr() },
@@ -90,7 +105,7 @@ object BuiltinFunctions : Plugin {
             "statemachine",
             """A state machine specified by the given cell range. 
                 |Rows consist of the current state, the transition condition and the new state""".trimMargin(),
-            listOf(ParameterSpec("transitions", Type.RANGE, setOf(ParameterSpec.Modifier.REFERENCE))),
+            listOf(ParameterSpec("transitions", Type.RANGE, null, setOf(ParameterSpec.Modifier.REFERENCE))),
             createFn = {
                 StateMachine.create(it)
             },
