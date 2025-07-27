@@ -25,13 +25,17 @@ class Lcd(
 
         val range = value as RangeValues
         for (row in 0 until min(range.height, height)) {
-            var xPos = 0
+            var sb = StringBuilder()
             for (col in 0 until range.width) {
-                lcdDriver?.setCursorPosition(row, xPos)
-                val columnWidth = format?.getOrNull(col) ?: ((width - xPos) / (range.width - col))
-                lcdDriver?.write(range[col, row].toString().take(columnWidth))
-                xPos += columnWidth
+                val columnWidth = format?.getOrNull(col) ?: ((width - sb.length) / (range.width - col))
+                val value = range[col, row]
+                val s = if (value is Number)
+                    Format.formatNumber(value.toDouble(), columnWidth).padStart(columnWidth)
+                    else value.toString().take(columnWidth).padEnd(columnWidth)
+                sb.append(s)
             }
+            lcdDriver?.setCursorPosition(row, 0)
+            lcdDriver?.write(sb.toString())
         }
 
     }
@@ -61,7 +65,6 @@ class Lcd(
             lcdDriver = null
         }
     }
-
 
 
     companion object {
@@ -96,9 +99,15 @@ class Lcd(
                     null,
                     setOf(ParameterSpec.Modifier.OPTIONAL)
                 )
-        )
+            )
         ) {
-            Lcd(plugin, it["bus"] as Int, it["address"] as Int, it["width"] as Int, it["height"] as Int, (it["format"] as? String)?.split(",")?.map { it.toIntOrNull() } }
+            Lcd(
+                plugin,
+                it["bus"] as Int,
+                it["address"] as Int,
+                it["width"] as Int,
+                it["height"] as Int,
+                (it["format"] as? String)?.split(",")?.map { it.toIntOrNull() })
+        }
     }
-
 }
