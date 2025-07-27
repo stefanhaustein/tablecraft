@@ -65,7 +65,7 @@ object Model : ModelInterface {
     fun setSimulationMode(value: Boolean, token: ModificationToken) {
         simulationMode_ = value
         for (port in ports.filterIsInstance<InputPortHolder>()) {
-            port.notifyValueChanged(token)
+            token.addRefresh(port)
         }
         settingsTag = token.tag
     }
@@ -110,7 +110,7 @@ object Model : ModelInterface {
                     for((key, value) in map) {
                         val port = ports[key]
                         if (port is InputPortHolder) {
-                            port.notifyValueChanged(token)
+                            port.setSimulationValue(value, token)
                         }
                     }
                 }

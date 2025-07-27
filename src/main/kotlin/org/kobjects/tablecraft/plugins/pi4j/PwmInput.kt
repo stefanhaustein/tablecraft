@@ -13,9 +13,9 @@ class PwmInput(
     var t0: Long = 0
     var value: Double = 0.0
     var error: Exception? = IllegalStateException("Detached")
-    var host: ValueChangeListener? = null
+    var host: ValueReceiver? = null
 
-    override fun attach(host: ValueChangeListener) {
+    override fun attach(host: ValueReceiver) {
         this.host = host
         try {
             digitalInput = plugin.createDigitalInput(DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
@@ -42,9 +42,7 @@ class PwmInput(
                 val newValue = (System.currentTimeMillis() - t0) / 1000.0
                 if (newValue != value && t0 != 0L) {
                     value = newValue
-                    plugin.model.applySynchronizedWithToken { token ->
-                        host!!.notifyValueChanged(token)
-                    }
+                    host?.updateValue(newValue)
                 }
             }
         }

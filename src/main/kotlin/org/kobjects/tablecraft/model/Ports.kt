@@ -32,7 +32,7 @@ class Ports : Iterable<PortHolder> {
                     token.tag
                 ) {
                     object : InputPortInstance {
-                        override fun attach(host: ValueChangeListener) {}
+                        override fun attach(host: ValueReceiver) {}
                         override fun detach() {}
                         override fun getValue() = Unit
                         override val type: Type
@@ -83,7 +83,7 @@ class Ports : Iterable<PortHolder> {
         for (port in this) {
             if (port.tag > tag) {
                 definitions.append(port.name).append(": ")
-                port.toJson(definitions)
+                port.toJson(definitions, forClient)
                 definitions.append('\n')
             }
             if (port.valueTag > tag) {

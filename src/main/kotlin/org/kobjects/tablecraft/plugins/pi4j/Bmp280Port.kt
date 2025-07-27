@@ -15,11 +15,11 @@ class Bmp280Port(
 
     var bmp280: Bmx280Driver? = null
     var error: Exception? = null
-    var host: ValueChangeListener? = null
+    var host: ValueReceiver? = null
     val timer = Timer()
     var value = emptyMap<String, Double?>()
 
-    override fun attach(host: ValueChangeListener) {
+    override fun attach(host: ValueReceiver) {
         this.host = host
         try {
             val i2c: I2C = plugin.pi4J.create(
@@ -56,11 +56,7 @@ class Bmp280Port(
             "pressure" to measurement?.getPressure(),
             "humidity" to measurement?.getHumidity(),
         )
-        Model.applySynchronizedWithToken {
-            value = newValue
-            host?.notifyValueChanged(it)
-        }
-
+        host?.updateValue(value)
     }
 
     override fun detach() {

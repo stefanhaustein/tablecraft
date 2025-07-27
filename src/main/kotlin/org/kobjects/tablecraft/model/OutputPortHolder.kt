@@ -99,15 +99,13 @@ class OutputPortHolder(
         }
     }
 
-    override fun notifyValueChanged(token: ModificationToken) {
-        System.out.println("Unexpected change notification in Output Port")
-    }
 
-    override fun toJson(sb: StringBuilder) {
+    override fun toJson(sb: StringBuilder, forClient: Boolean) {
         sb.append("""{"name":${name.quote()}, "kind":${specification.name.quote()}, "configuration": """)
         configuration.toJson(sb)
-        serializeDependencies(sb)
-
+        if (forClient) {
+            serializeDependencies(sb)
+        }
         sb.append(""", "source":${rawFormula.quote()}}""")
 
     }

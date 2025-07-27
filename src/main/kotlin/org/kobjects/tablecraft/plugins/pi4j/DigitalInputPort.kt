@@ -12,9 +12,9 @@ class DigitalInputPort(
     var digitalInput: DigitalInput? = null
     var error: Exception? = IllegalStateException("Detached")
     var value = false
-    var host: ValueChangeListener? = null
+    var host: ValueReceiver? = null
 
-    override fun attach(host: ValueChangeListener) {
+    override fun attach(host: ValueReceiver) {
         this.host = host
         try {
             digitalInput = plugin.createDigitalInput(
@@ -37,10 +37,8 @@ class DigitalInputPort(
     }
 
     override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
-        plugin.model.applySynchronizedWithToken {
             value = event?.state()?.isHigh ?: false
-            host?.notifyValueChanged(it)
-        }
+        host?.updateValue(value)
     }
 
     override fun detach() {

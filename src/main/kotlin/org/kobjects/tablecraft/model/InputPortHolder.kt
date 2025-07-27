@@ -10,7 +10,7 @@ class InputPortHolder(
     val configuration: Map<String, Any?>,
     override val tag: Long
 
-) : PortHolder, Node {
+) : PortHolder, Node, ValueReceiver {
 
     override val outputs = mutableSetOf<Node>()
     override val inputs = mutableSetOf<Node>()
@@ -20,15 +20,7 @@ class InputPortHolder(
     var attached: Boolean = false
     override var valueTag  = 0L
 
-    override var value: Any? = when(instance.type) {
-        Type.INT -> 0
-        Type.REAL -> 0.0
-        Type.BOOL -> false
-        Type.STRING -> ""
-        Type.VOID -> Unit
-        is Type.Struct -> emptyMap<String, Any?>()
-        else -> throw UnsupportedOperationException("port type ${instance.type} not supported")
-    }
+    override var value: Any? = null
     var simulationValue: Any? = value
     var simulationValueTag: Long = 0
 
@@ -59,10 +51,11 @@ class InputPortHolder(
         }
     }
 
-
-    // Incoming from ports
-    override fun notifyValueChanged(token: ModificationToken) {
-        token.addRefresh(this)
+    override fun updateValue(newValue: Any?) {
+        Model.applySynchronizedWithToken {
+            value = newValue
+            it.addRefresh(this)
+        }
     }
 
     override fun updateValue(token: ModificationToken): Boolean {
@@ -78,19 +71,21 @@ class InputPortHolder(
         return true
     }
 
-    override fun toJson(sb: StringBuilder) {
+    override fun toJson(sb: StringBuilder, forClient: Boolean) {
         sb.append("""{"name":${name.quote()}, "kind":${specification.name.quote()}, "type":""")
         instance.type.toJson(sb)
         sb.append(""", "configuration": """)
         configuration.toJson(sb)
-        serializeDependencies(sb)
+        if (forClient) {
+            serializeDependencies(sb)
+        }
         sb.append("}")
     }
 
     fun setSimulationValue(value: Any?, token: ModificationToken) {
         simulationValue = value
         if (Model.simulationMode_) {
-            notifyValueChanged(token)
+            token.addRefresh(this)
         } else {
             simulationValueTag = token.tag
         }
