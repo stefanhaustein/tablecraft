@@ -4,6 +4,7 @@ abstract class AbstractFactorySpec(
     category: String,
     kind: OperationKind,
     name: String,
+    type: Type?,
     description: String,
     parameters: List<ParameterSpec>,
     modifiers: Set<Modifier>,
@@ -11,7 +12,7 @@ abstract class AbstractFactorySpec(
 ) : AbstractArtifactSpec(
     category,
     kind,
-    null,
+    type,
     name,
     description,
     parameters,

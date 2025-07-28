@@ -5,33 +5,14 @@ import com.pi4j.io.gpio.digital.DigitalInput
 import org.kobjects.tablecraft.pluginapi.*
 
 class PwmInput(
+    val host: InputPortListener,
     val plugin: Pi4jPlugin,
     val address: Int
 ) : InputPortInstance, DigitalStateChangeListener {
 
-    var digitalInput: DigitalInput? = null
+    val digitalInput: DigitalInput = plugin.createDigitalInput(DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
     var t0: Long = 0
-    var value: Double = 0.0
-    var error: Exception? = IllegalStateException("Detached")
-    var host: ValueReceiver? = null
-
-    override fun attach(host: ValueReceiver) {
-        this.host = host
-        try {
-            digitalInput = plugin.createDigitalInput(DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
-            error = null
-        } catch (e: Exception) {
-            e.printStackTrace()
-            error = e
-            digitalInput = null
-        }
-        digitalInput?.addListener(this)
-    }
-
-    override fun getValue(): Any = value
-
-    override val type: Type
-        get() = Type.REAL
+    override var value: Double = 0.0
 
     override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
         when (event!!.state().isHigh()) {
@@ -49,20 +30,19 @@ class PwmInput(
     }
 
     override fun detach() {
-        digitalInput?.removeListener(this)
+        digitalInput.removeListener(this)
         plugin.releasePort(address, digitalInput)
-        digitalInput = null
-        error = IllegalStateException("Detached")
     }
 
     companion object {
         fun spec(plugin: Pi4jPlugin) = InputPortSpec(
             category = "GPIO",
             "pwmin",
+            Type.REAL,
             "Configures the given pin address for input and reports the pulse width in seconds.",
             listOf(ParameterSpec("address", Type.INT, null, setOf(ParameterSpec.Modifier.CONSTANT))),
-            createFn = {
-                PwmInput(plugin, it["address"] as Int)
+            createFn = { config, host ->
+                PwmInput(host, plugin, config["address"] as Int)
             },
         )
     }

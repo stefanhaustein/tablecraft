@@ -12,6 +12,7 @@ class IntegrationSpec(
     category,
     OperationKind.INTEGRATION,
     name,
+    null,
     description,
     parameters,
     modifiers,

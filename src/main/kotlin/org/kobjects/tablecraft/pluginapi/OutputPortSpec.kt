@@ -12,6 +12,7 @@ class OutputPortSpec(
     category,
     OperationKind.OUTPUT_PORT,
     name,
+    null,
     description,
     parameters,
     modifiers,

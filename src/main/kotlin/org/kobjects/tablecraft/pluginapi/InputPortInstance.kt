@@ -1,11 +1,8 @@
 package org.kobjects.tablecraft.pluginapi
 
 interface InputPortInstance {
-    fun getValue(): Any
-
-    fun attach(host: ValueReceiver)
+    val value: Any
 
     fun detach()
 
-    val type: Type
 }

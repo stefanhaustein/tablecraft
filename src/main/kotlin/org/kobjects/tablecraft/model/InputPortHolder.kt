@@ -10,14 +10,13 @@ class InputPortHolder(
     val configuration: Map<String, Any?>,
     override val tag: Long
 
-) : PortHolder, Node, ValueReceiver {
+) : PortHolder, Node, InputPortListener {
 
     override val outputs = mutableSetOf<Node>()
     override val inputs = mutableSetOf<Node>()
 
-    val instance = specification.createFn(configuration)
+    var instance: InputPortInstance? = null
     var error: Exception? = null
-    var attached: Boolean = false
     override var valueTag  = 0L
 
     override var value: Any? = null
@@ -30,9 +29,9 @@ class InputPortHolder(
 
         if (!simulationMode) {
             try {
-                instance.attach(this)
-                attached = true
+                instance = specification.createFn(configuration, this)
             } catch (e: Exception) {
+                error = e
                 e.printStackTrace()
             }
         }
@@ -41,12 +40,12 @@ class InputPortHolder(
     override fun detach() {
         // This doesn't really need to do anything about dependencies -- dependecies will be updatend in their reset
         // methods.
-        if (attached) {
+        if (instance != null) {
             try {
-                instance.detach()
+                instance?.detach()
             } catch (e: Exception) {
                 e.printStackTrace()
-                attached = false
+                instance = null
             }
         }
     }
@@ -62,7 +61,7 @@ class InputPortHolder(
         if (valueTag == token.tag) {
             return false
         }
-        val newValue = if (Model.simulationMode_) simulationValue else instance.getValue()
+        val newValue = if (Model.simulationMode_) simulationValue else instance?.value
         if (value == newValue) {
             return false
         }
@@ -73,7 +72,7 @@ class InputPortHolder(
 
     override fun toJson(sb: StringBuilder, forClient: Boolean) {
         sb.append("""{"name":${name.quote()}, "kind":${specification.name.quote()}, "type":""")
-        instance.type.toJson(sb)
+        specification.type.toJson(sb)
         sb.append(""", "configuration": """)
         configuration.toJson(sb)
         if (forClient) {

@@ -26,17 +26,15 @@ class Ports : Iterable<PortHolder> {
                     "GPIO",
                     // The operation name; used to identify tombstone ports on the client
                     "TOMBSTONE",
+                    Type.VOID,
                     "",
                     emptyList(),
                     emptySet(),
                     token.tag
-                ) {
+                ) { _, _ ->
                     object : InputPortInstance {
-                        override fun attach(host: ValueReceiver) {}
+                        override val value = Unit
                         override fun detach() {}
-                        override fun getValue() = Unit
-                        override val type: Type
-                            get() = Type.VOID
                     }
                 }, emptyMap(), token.tag
             )
