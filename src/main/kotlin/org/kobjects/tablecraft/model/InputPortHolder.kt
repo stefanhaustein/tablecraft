@@ -50,6 +50,7 @@ class InputPortHolder(
         }
     }
 
+    // Implements the corresponding value change listener method.
     override fun updateValue(newValue: Any?) {
         Model.applySynchronizedWithToken {
             value = newValue
@@ -57,6 +58,7 @@ class InputPortHolder(
         }
     }
 
+    // Overrides the corresponding Node method.
     override fun updateValue(token: ModificationToken): Boolean {
         if (valueTag == token.tag) {
             return false

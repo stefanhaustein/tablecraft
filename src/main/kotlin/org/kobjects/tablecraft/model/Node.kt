@@ -9,6 +9,11 @@ interface Node {
     val outputs: MutableSet<Node>
     val inputs: MutableSet<Node>
 
+    /**
+     * Re-calculates the value bases on inputs.
+     * Input port values will be refreshed from the port/simulation
+     * value here.
+     */
     fun updateValue(token: ModificationToken): Boolean
     fun detach()
 
