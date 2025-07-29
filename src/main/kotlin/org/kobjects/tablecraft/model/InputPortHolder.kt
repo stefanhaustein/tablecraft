@@ -16,11 +16,11 @@ class InputPortHolder(
     override val inputs = mutableSetOf<Node>()
 
     var instance: InputPortInstance? = null
-    var error: Exception? = null
     override var valueTag  = 0L
 
     override var value: Any? = null
-    var simulationValue: Any? = value
+    var portValue: Any? = null
+    var simulationValue: Any? = null
     var simulationValueTag: Long = 0
 
 
@@ -31,7 +31,7 @@ class InputPortHolder(
             try {
                 instance = specification.createFn(configuration, this)
             } catch (e: Exception) {
-                error = e
+                portValue = e
                 e.printStackTrace()
             }
         }
@@ -53,7 +53,7 @@ class InputPortHolder(
     // Implements the corresponding value change listener method.
     override fun updateValue(newValue: Any?) {
         Model.applySynchronizedWithToken {
-            value = newValue
+            portValue = newValue
             it.addRefresh(this)
         }
     }
@@ -63,7 +63,7 @@ class InputPortHolder(
         if (valueTag == token.tag) {
             return false
         }
-        val newValue = if (Model.simulationMode_) simulationValue else instance?.value
+        val newValue = if (Model.simulationMode_) simulationValue else portValue
         if (value == newValue) {
             return false
         }

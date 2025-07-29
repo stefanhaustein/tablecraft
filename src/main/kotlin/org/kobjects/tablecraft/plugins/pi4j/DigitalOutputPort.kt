@@ -10,37 +10,21 @@ class DigitalOutputPort(
     val address: Int
 )  : OutputPortInstance {
 
-    var digitalOutput: DigitalOutput? = null
-    var error: Exception? = IllegalStateException("Detached")
+    val digitalOutput= plugin.createDigitalOutput(DigitalOutputConfig.newBuilder(plugin.pi4J).address(address).build())
 
-    override fun attach() {
-        try {
-            digitalOutput = plugin.createDigitalOutput(DigitalOutputConfig.newBuilder(plugin.pi4J).address(address).build())
-            error = null
-        } catch (e: Exception) {
-            e.printStackTrace()
-            error = e
-            digitalOutput = null
-        }
-    }
 
 
     override fun setValue(value: Any?) {
-        if (error != null) {
-            throw RuntimeException(error!!)
-        }
         val value = when(val raw = value) {
             is Boolean -> raw
             is Number -> raw.toDouble() != 0.0
             else -> throw IllegalArgumentException("Unsupported value type for digital input: $raw;")
         }
-        digitalOutput?.setState(value)
+        digitalOutput.setState(value)
     }
 
     override fun detach() {
         plugin.releasePort(address, digitalOutput)
-        digitalOutput = null
-        error = IllegalStateException("Detached")
     }
 
 

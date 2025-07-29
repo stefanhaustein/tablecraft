@@ -11,7 +11,7 @@ class OutputPortHolder(
     val rawFormula: String,
     override val tag: Long
 ) : /*ExpressionNode(),*/Node,  PortHolder {
-    val instance = specification.createFn(configuration)
+    var instance: OutputPortInstance? = null
     var error: Exception? = null
     var attached = false
     var cellRange: CellRangeReference? = null
@@ -28,7 +28,7 @@ class OutputPortHolder(
         valueTag = token.tag
         if (attached) {
             try {
-                instance.setValue(value)
+                instance?.setValue(value)
                 error = null
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -38,19 +38,7 @@ class OutputPortHolder(
         }
         return false
     }
-    /*    }
-        if (super.updateValue(tag)) {
-            if (attached) {
-                try {
-                    instance.setValue(value)
-                    error = null
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    error = e
-                }
-            }
-            true
-        } else false*/
+
 
     fun reparse() {
         singleCell = !rawFormula.contains(":")
@@ -78,8 +66,7 @@ class OutputPortHolder(
 
         if (!simulationMode || specification.modifiers.contains(AbstractArtifactSpec.Modifier.NO_SIMULATION)) {
             try {
-                instance.attach()
-                attached = true
+                instance = specification.createFn(configuration)
             } catch (exception: Exception) {
                 error = exception
                 exception.printStackTrace()
@@ -89,9 +76,9 @@ class OutputPortHolder(
 
     override fun detach() {
 
-        if (attached) {
+        if (instance != null) {
             try {
-                instance.detach()
+                instance?.detach()
             } catch (e: Exception) {
                 e.printStackTrace()
             }

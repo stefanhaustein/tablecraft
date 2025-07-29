@@ -2,16 +2,14 @@ simulationMode = true
 runMode = false
 [ports]
 
-o_rest: {"name":"o_rest", "kind":"rest_out", "configuration": {"path":""}, "inputs":["Sheet1!B2","Sheet1!C2","Sheet1!B3","Sheet1!C3","Sheet1!B4","Sheet1!C4","Sheet1!B5","Sheet1!C5"], "source":"Sheet1!B2:C5"}
-i_bme280: {"name":"i_bme280", "kind":"Bmp280", "type":[{"name": "celsius", "type":"Real"},{"name": "fahrenheit", "type":"Real"},{"name": "hectopascal", "type":"Real"},{"name": "humidity", "type":"Real"}], "configuration": {}, "outputs":["Sheet1!C3","Sheet1!C4","Sheet1!C5"]}
-i_co_2: {"name":"i_co_2", "kind":"pwmin", "type":"Real", "configuration": {"address":24}, "outputs":["Sheet1!C2"]}
-o_lcd: {"name":"o_lcd", "kind":"Lcd", "configuration": {}, "inputs":["Sheet1!B2","Sheet1!C2","Sheet1!D2","Sheet1!B3","Sheet1!C3","Sheet1!D3","Sheet1!B4","Sheet1!C4","Sheet1!D4","Sheet1!B5","Sheet1!C5","Sheet1!D5"], "source":"Sheet1!B2:D5"}
+o_rest: {"name":"o_rest", "kind":"rest_out", "configuration": {"path":""}, "source":"Sheet1!B2:C5"}
+i_bme280: {"name":"i_bme280", "kind":"Bmp280", "type":[{"name": "temperature", "type":"Real"},{"name": "pressure", "type":"Real"},{"name": "humidity", "type":"Real"}], "configuration": {}}
+i_co_2: {"name":"i_co_2", "kind":"pwmin", "type":"Real", "configuration": {"address":24}}
 
 [simulationValues]
 
-i_bme280: {"celsius":20,"fahrenheit":null,"hectopascal":1000,"humidity":50}
+i_bme280: {"temperature":25,"pressure":1000,"humidity":40}
 i_co_2: 1000
-o_: "kotlin.Unit"
 
 
 [sheets.Sheet1]
@@ -25,7 +23,7 @@ C2 = {"f": "=i_co_2()"}
 D2 = {"f": "ppm"}
 
 B3 = {"f": "Temperature"}
-C3 = {"f": "=i_bme280.celsius"}
+C3 = {"f": "=i_bme280.temperature"}
 D3 = {"f": "C"}
 
 B4 = {"f": "Humidity"}
@@ -33,6 +31,6 @@ C4 = {"f": "=i_bme280.humidity"}
 D4 = {"f": "%"}
 
 B5 = {"f": "Pressure"}
-C5 = {"f": "=i_bme280.hectopascal"}
+C5 = {"f": "=i_bme280.pressure"}
 D5 = {"f": "hPa"}
 

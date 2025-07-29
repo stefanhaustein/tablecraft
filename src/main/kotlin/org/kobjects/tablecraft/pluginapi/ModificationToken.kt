@@ -2,6 +2,10 @@ package org.kobjects.tablecraft.pluginapi
 
 import org.kobjects.tablecraft.model.Node
 
+/**
+ * The token is used to collect changes. After the collection, where the result can't be influenced any longer,
+ * only the tag should be used.
+ */
 class ModificationToken() {
 
     val tag: Long = System.nanoTime()

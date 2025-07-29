@@ -8,20 +8,23 @@ import kotlin.math.min
 
 class Lcd(
     val plugin: Pi4jPlugin,
-    val bus: Int,
-    val address: Int,
+    bus: Int,
+    address: Int,
     val width: Int,
     val height: Int,
     val format: List<Int?>?,
 )  : OutputPortInstance {
 
-    var lcdDriver: LcdDriver? = null
-    var error: Exception? = null
+    val i2c: I2C = plugin.pi4J.create(
+        I2C.newConfigBuilder(plugin.pi4J)
+            .bus(bus)
+            .device(address)
+            .provider("linuxfs-i2c")
+            .build()
+    )
+    val lcdDriver = LcdDriver.create(i2c, height, width)
 
     override fun setValue(value: Any?) {
-        if (error != null) {
-            throw IllegalStateException("Lcd Driver initialization error", error)
-        }
 
         val range = value as RangeValues
         for (row in 0 until min(range.height, height)) {
@@ -34,36 +37,15 @@ class Lcd(
                     else value.toString().take(columnWidth).padEnd(columnWidth)
                 sb.append(s)
             }
-            lcdDriver?.setCursorPosition(row, 0)
-            lcdDriver?.write(sb.toString())
-        }
-
-    }
-
-    override fun attach() {
-        try {
-            val i2c: I2C = plugin.pi4J.create(
-                I2C.newConfigBuilder(plugin.pi4J)
-                    .bus(bus)
-                    .device(address)
-                    .provider("linuxfs-i2c")
-                    .build()
-            )
-            lcdDriver = LcdDriver.create(i2c, height, width)
-            error = null
-            System.err.println("**** LCD Driver attached successfully: $lcdDriver")
-        } catch (e: Exception) {
-            e.printStackTrace()
-            error = e
+            lcdDriver.setCursorPosition(row, 0)
+            lcdDriver.write(sb.toString())
         }
     }
 
 
     override fun detach() {
-        if (lcdDriver != null) {
-            lcdDriver?.close()
-            lcdDriver = null
-        }
+
+            lcdDriver.close()
     }
 
 

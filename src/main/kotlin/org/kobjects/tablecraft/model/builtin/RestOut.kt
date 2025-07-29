@@ -4,8 +4,6 @@ import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.pluginapi.*
 
 class RestOut(val path: String) : OutputPortInstance {
-    override fun attach() {
-    }
 
     override fun detach() {
         Model.restValues.remove(path)
