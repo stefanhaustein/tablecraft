@@ -91,8 +91,20 @@ public class Bmx280Driver {
             dig_h1 = connection.readU8Register(Bme280Constants.REG_DIG_H1);
             dig_h2 = connection.readS16Register(Bme280Constants.REG_DIG_H2);
             dig_h3 = connection.readU8Register(Bme280Constants.REG_DIG_H3);
-            dig_h4 = connection.readS16Register(Bme280Constants.REG_DIG_H4);
-            dig_h5 = connection.readS16Register(Bme280Constants.REG_DIG_H5);
+
+            int e4 = connection.readU8Register(0xe4);
+            int e5 = connection.readU8Register(0xe5);
+
+            int h4_hsb = e4 * 16;
+            int h4_lsb = e5 & 0x0f;
+            dig_h4 = h4_hsb | h4_lsb;
+
+            int e6 = connection.readU8Register(0xe6);
+
+            int h5_lsb = e5 >> 4;
+            int h5_hsb = e6 * 16;
+            dig_h5 = h5_hsb | h5_lsb;
+
             dig_h6 = connection.readS8Register(Bme280Constants.REG_DIG_H6);
         } else {
             throw new IllegalStateException("Incorrect chip ID read");
@@ -143,7 +155,8 @@ public class Bmx280Driver {
         connection.writeU8Register(Bmp280Constants.CTRL_MEAS,  ctlReg);
 
         measurementMode = MeasurementMode.SINGLE;
-        sleepUntil = System.currentTimeMillis() + 300;
+
+        sleepUntil = System.currentTimeMillis() + 1000;
     }
 
 
@@ -166,29 +179,34 @@ public class Bmx280Driver {
         long adc_T = (long) ((measurementBuf[3] & 0xFF) << 12) + (long) ((measurementBuf[4] & 0xFF) << 4) + (long) (measurementBuf[5] & 0xFF);
         long adc_P = (long) ((measurementBuf[0] & 0xFF) << 12) + (long) ((measurementBuf[1] & 0xFF) << 4) + (long) (measurementBuf[2] & 0xFF);
 
-        // Temperature
-        double var1 = (((double) adc_T) / 16384.0 - ((double) dig_t1) / 1024.0) * ((double) dig_t2);
-        double var2 = ((((double) adc_T) / 131072.0 - ((double) dig_t1) / 8192.0) *
-            (((double) adc_T) / 131072.0 - ((double) dig_t1) / 8192.0)) * ((double) dig_t3);
-        int t_fine = (int) (var1 + var2);
-        double T = (var1 + var2) / 5120.0;
-
+        double T;
+        int t_fine;
+        {
+            // Temperature
+            double var1 = (((double) adc_T) / 16384.0 - ((double) dig_t1) / 1024.0) * ((double) dig_t2);
+            double var2 = ((((double) adc_T) / 131072.0 - ((double) dig_t1) / 8192.0) *
+                    (((double) adc_T) / 131072.0 - ((double) dig_t1) / 8192.0)) * ((double) dig_t3);
+            t_fine = (int) (var1 + var2);
+            T = (var1 + var2) / 5120.0;
+        }
         // Pressure
         double P;
-        var1 = ((double) t_fine / 2.0) - 64000.0;
-        var2 = var1 * var1 * ((double) dig_p6) / 32768.0;
-        var2 = var2 + var1 * ((double) dig_p5) * 2.0;
-        var2 = (var2 / 4.0) + (((double) dig_p4) * 65536.0);
-        var1 = (((double) dig_p3) * var1 * var1 / 524288.0 + ((double) dig_p2) * var1) / 524288.0;
-        var1 = (1.0 + var1 / 32768.0) * ((double) dig_p1);
-        if (var1 == 0.0) {
-            P = 0;   // // avoid exception caused by division by zero
-        } else {
-            P = 1048576.0 - (double) adc_P;
-            P = (P - (var2 / 4096.0)) * 6250.0 / var1;
-            var1 = ((double) dig_p9) * P * P / 2147483648.0;
-            var2 = P * ((double) dig_p8) / 32768.0;
-            P = P + (var1 + var2 + ((double) dig_p7)) / 16.0;
+        {
+            double var1 = ((double) t_fine / 2.0) - 64000.0;
+            double var2 = var1 * var1 * ((double) dig_p6) / 32768.0;
+            var2 = var2 + var1 * ((double) dig_p5) * 2.0;
+            var2 = (var2 / 4.0) + (((double) dig_p4) * 65536.0);
+            var1 = (((double) dig_p3) * var1 * var1 / 524288.0 + ((double) dig_p2) * var1) / 524288.0;
+            var1 = (1.0 + var1 / 32768.0) * ((double) dig_p1);
+            if (var1 == 0.0) {
+                P = 0;   // // avoid exception caused by division by zero
+            } else {
+                P = 1048576.0 - (double) adc_P;
+                P = (P - (var2 / 4096.0)) * 6250.0 / var1;
+                var1 = ((double) dig_p9) * P * P / 2147483648.0;
+                var2 = P * ((double) dig_p8) / 32768.0;
+                P = P + (var1 + var2 + ((double) dig_p7)) / 16.0;
+            }
         }
 
         double measuredHumidity = Double.NaN;
@@ -200,6 +218,30 @@ public class Bmx280Driver {
 
             System.out.println("Raw humidity: " + adc_H / 1024.0);
 
+            int var1 = t_fine - 76800;
+            int var2 = adc_H * 16384;
+            int var3 = dig_h4 * 1048576;
+            int var4 = dig_h5 * var1;
+            int var5 = (((var2 - var3) - var4) + 16384) / 32768;
+            var2 = (var1 * dig_h6) / 1024;
+            var3 = (var1 * dig_h3) / 2048;
+            var4 = ((var2 * (var3 + 32768)) / 1024) + 2097152;
+            var2 = ((var4 * dig_h2) + 8192) / 16384;
+            var3 = var5 * var2;
+            var4 = ((var3 / 32768) * (var3 / 32768)) / 128;
+            var5 = var3 - ((var4 * dig_h1) / 16);
+            var5 = (var5 < 0 ? 0 : var5);
+            var5 = (var5 > 419430400 ? 419430400 : var5);
+            double humidity = (var5 / 4096.0) / 1024.0;
+
+
+/*
+            double var_H = (((double)t_fine) - 76800.0);
+            var_H = (adc_H - (((double)dig_h4) * 64.0 + ((double)dig_h5) / 16384.0 * var_H)) *
+            (((double)dig_h2) / 65536.0 * (1.0 + ((double)dig_h6) / 67108864.0 * var_H *
+                    (1.0 + ((double)dig_h3) / 67108864.0 * var_H)));
+            double humidity = var_H * (1.0 - ((double)dig_h1) * var_H / 524288.0);
+
 
             var1 = t_fine - 76800.0;
             var2 = (((double) dig_h4) * 64.0 + (((double) dig_h5) / 16384.0) * var1);
@@ -209,7 +251,7 @@ public class Bmx280Driver {
             double var6 = 1.0 + (dig_h6 / 67108864.0) * var1 * var5;
             var6 = var3 * var4 * (var5 * var6);
             double humidity = var6 * (1.0 - dig_h1 * var6 / 524288.0);
- /*
+
             int v_x1_u32r = t_fine - 76800;
             v_x1_u32r = (((((adc_H << 14) - (((int)dig_h4) << 20) - (((int)dig_h5) *
                     v_x1_u32r)) + ((int)16384)) >> 15) * (((((((v_x1_u32r *   ((int)dig_h6)) >> 10) * (((v_x1_u32r * ((int)dig_h3)) >> 11) +
