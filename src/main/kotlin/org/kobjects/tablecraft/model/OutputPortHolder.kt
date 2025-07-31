@@ -13,7 +13,6 @@ class OutputPortHolder(
 ) : /*ExpressionNode(),*/Node,  PortHolder {
     var instance: OutputPortInstance? = null
     var error: Exception? = null
-    var attached = false
     var cellRange: CellRangeReference? = null
     var singleCell = false
     override var value: Any? = null
@@ -24,9 +23,13 @@ class OutputPortHolder(
 
 
     override fun updateValue(token: ModificationToken): Boolean {
-        value = if (singleCell) cellRange!!.iterator().next().value else CellRangeValues(cellRange!!)
+        val newValue = if (singleCell) cellRange!!.iterator().next().value else CellRangeValues(cellRange!!)
         valueTag = token.tag
-        if (attached) {
+        if (newValue == this.value) {
+            return false
+        }
+        this.value = newValue
+        if (instance != null) {
             try {
                 instance?.setValue(value)
                 error = null
@@ -34,9 +37,8 @@ class OutputPortHolder(
                 e.printStackTrace()
                 error = e
             }
-            return true
         }
-        return false
+        return true
     }
 
 
@@ -82,7 +84,7 @@ class OutputPortHolder(
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            attached = false
+            instance = null
         }
     }
 

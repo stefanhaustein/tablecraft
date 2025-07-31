@@ -123,7 +123,6 @@ object BuiltinFunctions : Plugin {
         ) {
                 object : OutputPortInstance {
                     override fun setValue(value: Any?) {}
-                    override fun attach() {}
                     override fun detach() {}
                 }
             }
