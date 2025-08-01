@@ -9,11 +9,7 @@
 - Don't replicate i2c/spi config parameters. 
   - Instead, let users hand in an i2c/spi instance 
   - This ensures that all parameters can be set to the user's liking, including names and ids.
-  
 
-- Expose static create() methods instead of constructors
-  - This simplifies internal I/O abstractions
-  
 
 - No external dependencies other than Pi4j
  
@@ -24,7 +20,6 @@
     client app wants to use after all. It seems to be most straightforward to keep close to the
     hardware / vendor documentation and leave the rest to the user.
      
-
 
 - Extended documentation (pdf etc.) goes into the example package
   - This should help ensuring that large documents don't get bundled into deploy jars by mistake.
