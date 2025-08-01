@@ -2,7 +2,7 @@
 
 ## Design 
 
-- Separate the chip/device logic and it's IO where multiple IO options exist
+- Separate the chip/device logic and its IO where multiple IO options exist
   - Avoids code duplication and provides a clear logical abstraction.
 
 
