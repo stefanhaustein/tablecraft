@@ -32,7 +32,6 @@ import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
 import org.kobjects.pi4jdriver.sensor.environment.bmx280.Bmx280Driver;
-import org.kobjects.pi4jdriver.sensor.environment.bmx280.Bmx280Measurement;
 
 
 /**
@@ -60,7 +59,7 @@ public class Bmp280I2cExample {
 
          for (int i = 0; i < 10; i++) {
 
-            Bmx280Measurement measurement = bmp280.readMeasurements();
+            Bmx280Driver.Measurement measurement = bmp280.readMeasurements();
 
             System.out.println(" Sensor Type: " + bmp280.getSensorType());
 

@@ -86,8 +86,8 @@ class Bmp280Constants {
     static final int TEMP_MSB_MSK = 0xFF;  // mask bits 0 - 7
     static final int TEMP_LSB_MSK = 0xFF;  // mask bits 0 - 7
     static final int TEMP_XLSB_MSK = 0x0F;  // mask bits 0 - 3
-    static final int ID_VALUE_MSK_BMP = 0x58;   // expected chpId value BMP280
-    static final int ID_VALUE_MSK_BME = 0x60;   // expected chpId value BME280
+    static final int ID_VALUE_BMP = 0x58;   // expected chpId value BMP280
+    static final int ID_VALUE_BME = 0x60;   // expected chpId value BME280
 
     // For the control reg 0xf4
     static final int POWERMODE_SLEEP = 0x00;

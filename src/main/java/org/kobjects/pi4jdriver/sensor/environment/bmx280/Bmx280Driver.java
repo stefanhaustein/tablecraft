@@ -42,8 +42,6 @@ import com.pi4j.io.spi.Spi;
 // Re-implementation based on I2CRegisterDataReaderWriter
 public class Bmx280Driver {
 
-    private final byte[] ioBuf = new byte[2];
-
     private final I2CRegisterDataReaderWriter registerAccess;
     private final SensorType sensorType;
     private MeasurementMode measurementMode = MeasurementMode.SLEEPING;
@@ -54,8 +52,13 @@ public class Bmx280Driver {
     private final int dig_p1, dig_p2, dig_p3, dig_p4, dig_p5, dig_p6, dig_p7, dig_p8, dig_p9;
     private final int dig_t1, dig_t2, dig_t3;
 
-
     private final byte[] measurementBuf;
+    private final byte[] ioBuf = new byte[2];
+
+    private SensorMode temperatureMode = SensorMode.ENABLED;
+    private SensorMode pressureMode = SensorMode.ENABLED;
+    private SensorMode humidityMode;
+
 
     public Bmx280Driver(Spi spi) {
         this (new SpiRegisterAccess(spi));
@@ -66,12 +69,13 @@ public class Bmx280Driver {
 
         int id = readU8Register(Bmp280Constants.CHIP_ID);
         //SensorType sensorType;
-        if (id == Bmp280Constants.ID_VALUE_MSK_BMP) {
+        if (id == Bmp280Constants.ID_VALUE_BMP) {
             sensorType = SensorType.BMP280;
             measurementBuf = new byte[6];
             dig_h1 = dig_h2 = dig_h3 = dig_h4 = dig_h5 = dig_h6 = 0;
+            humidityMode = SensorMode.DISABLED;
 
-        } else if (id == Bmp280Constants.ID_VALUE_MSK_BME) {
+        } else if (id == Bmp280Constants.ID_VALUE_BME) {
             sensorType = SensorType.BME280;
             measurementBuf = new byte[8];
 
@@ -93,11 +97,13 @@ public class Bmx280Driver {
             dig_h5 = h5_hsb | h5_lsb;
 
             dig_h6 = readS8Register(Bme280Constants.REG_DIG_H6);
+            humidityMode = SensorMode.ENABLED;
+
         } else {
-            throw new IllegalStateException("Incorrect chip ID read");
+            throw new IllegalStateException("Incorrect chip ID: " + id);
         }
 
-        // Read calibaration values.
+        // Read calibration values.
 
         dig_t1 = readU16Register(Bmp280Constants.REG_DIG_T1);
         dig_t2 = readS16Register(Bmp280Constants.REG_DIG_T2);
@@ -115,28 +121,29 @@ public class Bmx280Driver {
     }
 
     /**
-     *
-     * Configure BMP280 for 1x oversamplimg and single measurement.
+     * Configure the BMP/E280 measurement mode.
      */
+    public void setMeasurementMode(MeasurementMode mode) {
+        if (measurementMode != mode) {
+            measurementMode = mode;
+            updateConfiguration();
+        }
+    }
 
-    public void requestSingleMeasurement() {
-        materializeSleep();
+    private void updateConfiguration() {
 
         // set forced mode to leave sleep mode state and initiate measurements.
         // At measurement completion chip returns to sleep mode
 
         if (sensorType == SensorType.BME280) {
             int ctlHum = readU8Register(Bme280Constants.CTRL_HUM);
-            ctlHum = (ctlHum & ~Bme280Constants.CTRL_HUM_MSK) | Bme280Constants.CTRL_HUM_SAMP_1;
+            ctlHum = (ctlHum & ~Bme280Constants.CTRL_HUM_MSK) | humidityMode.ordinal();
             writeU8Register(Bme280Constants.CTRL_HUM, ctlHum);
         }
 
-        int ctlReg = 0; // bus.readU8Register(Bmp280Constants.CTRL_MEAS);
-        ctlReg |= Bmp280Constants.POWERMODE_FORCED;
-        //ctlReg &= ~Bmp280Constants.TEMP_OVER_SAMPLE_MSK;   // mask off all temperature bits
-        ctlReg |= Bmp280Constants.OVERSAMPLING_1X << Bmp280Constants.CTRL_TEMP_POS;      // Temperature oversample 1
-        //ctlReg &= ~Bmp280Constants.PRES_OVER_SAMPLE_MSK;   // mask off all pressure bits
-        ctlReg |= Bmp280Constants.OVERSAMPLING_1X << Bmp280Constants.CTRL_PRESS_POS;   //  Pressure oversample 1
+        int ctlReg = Bmp280Constants.POWERMODE_FORCED;
+        ctlReg |= temperatureMode.ordinal() << Bmp280Constants.CTRL_TEMP_POS;
+        ctlReg |= pressureMode.ordinal() << Bmp280Constants.CTRL_PRESS_POS;
 
         writeU8Register(Bmp280Constants.CTRL_MEAS,  ctlReg);
 
@@ -145,6 +152,26 @@ public class Bmx280Driver {
         sleepUntil = System.currentTimeMillis() + 1000;
     }
 
+    public void setTemperatureMode(SensorMode mode) {
+        this.temperatureMode = mode;
+        if (measurementMode != MeasurementMode.SLEEPING) {
+            updateConfiguration();
+        }
+    }
+
+    public void setPressureMode(SensorMode mode) {
+        this.pressureMode = mode;
+        if (measurementMode != MeasurementMode.SLEEPING) {
+            updateConfiguration();
+        }
+    }
+
+    public void setHumidityMode(SensorMode mode) {
+        this.humidityMode = mode;
+        if (measurementMode != MeasurementMode.SLEEPING) {
+            updateConfiguration();
+        }
+    }
 
     /**
      * Read and store all factory set conversion data.
@@ -155,11 +182,13 @@ public class Bmx280Driver {
      * <p>
      * Store the measured data.
      */
-    public Bmx280Measurement readMeasurements() {
+    public Measurement readMeasurements() {
         if (measurementMode == MeasurementMode.SLEEPING) {
-            requestSingleMeasurement();
+            setMeasurementMode(MeasurementMode.SINGLE);
         }
+
         materializeSleep();
+
         readRegister(Bmp280Constants.PRESS_MSB, measurementBuf);
 
         long adc_T = (long) ((measurementBuf[3] & 0xFF) << 12) + (long) ((measurementBuf[4] & 0xFF) << 4) + (long) (measurementBuf[5] & 0xFF);
@@ -257,8 +286,11 @@ public class Bmx280Driver {
                 measuredHumidity = humidity;
             }
         }
+        if (measurementMode == MeasurementMode.SINGLE) {
+            measurementMode = MeasurementMode.SLEEPING;
+        }
 
-        return new Bmx280Measurement(T, P, measuredHumidity);
+        return new Measurement(T, P, measuredHumidity);
     }
 
     /**
@@ -269,6 +301,11 @@ public class Bmx280Driver {
         writeU8Register(Bmp280Constants.RESET, Bmp280Constants.RESET_CMD);
         sleepUntil = System.currentTimeMillis() + 100;
     }
+
+    public SensorType getSensorType() {
+        return sensorType;
+    }
+
 
     // Internal methods
 
@@ -284,19 +321,6 @@ public class Bmx280Driver {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    public SensorType getSensorType() {
-        return sensorType;
-    }
-
-
-    public enum MeasurementMode {
-        SLEEPING, CONTINUOUS, SINGLE
-    }
-
-    public enum SensorType {
-        BME280, BMP280
     }
 
     private int readU8Register(int register) {
@@ -316,8 +340,7 @@ public class Bmx280Driver {
         return registerAccess.writeRegister(register, data);
     }
 
-
-    final int readS16Register(int register) {
+    private int readS16Register(int register) {
         int count = readRegister(register, ioBuf);
         if (count != 2) {
             throw new IllegalStateException("Expected two bytes reading register "+ register +"; received: " + count);
@@ -325,56 +348,43 @@ public class Bmx280Driver {
         return (ioBuf[0] & 0xff) | (ioBuf[1] << 8);
     }
 
-    final int readU16Register(int register) {
+    private int readU16Register(int register) {
         return readS16Register(register) & 0xFFFF;
     }
 
 
-    static class SpiRegisterAccess implements I2CRegisterDataReaderWriter {
-        private final Spi spi;
+    public static class Measurement {
+        private final double temperature;
+        private final double pressure;
+        private final double humidity;
 
-        public SpiRegisterAccess(Spi spi) {
-            this.spi = spi;
+        Measurement(double temperature, double pressure, double humidity) {
+            this.temperature = temperature;
+            this.pressure = pressure;
+            this.humidity = humidity;
         }
 
-        @Override
-        public int readRegister(int register) {
-            spi.write((byte) (0b10000000 | register));
-            byte rval = this.spi.readByte();
-            return rval;
+        public double getTemperature() {
+            return temperature;
         }
-
-
-        @Override
-        public int readRegister(byte[] bytes, byte[] bytes1, int i, int i1) {
-            throw new UnsupportedOperationException();
+        public double getHumidity() {
+            return humidity;
         }
-
-        @Override
-        public int readRegister(int register, byte[] buffer, int i1, int i2) {
-            this.spi.write((byte) (0b10000000 | register));
-            int bytesRead = spi.read(buffer, i1, i2);
-
-            return bytesRead;
+        public double getPressure() {
+            return pressure;
         }
+    }
 
+    public enum SensorMode {
+        DISABLED, ENABLED, OVERSAMPLE_1X, OVERSAMPLE_2X, OVERSAMPLE_4X, OVERSAMPLE_8X, OVERSAMPLE_16X
+    }
 
-        @Override
-        public int writeRegister(int register, byte data) {
-            // send read request to BMP chip via SPI channel
-            return spi.write((byte) (0b01111111 & register), data);
-        }
+    public enum MeasurementMode {
+        SLEEPING, CONTINUOUS, SINGLE
+    }
 
-
-        @Override
-        public int writeRegister(int i, byte[] bytes, int i1, int i2) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int writeRegister(byte[] bytes, byte[] bytes1, int i, int i1) {
-            throw new UnsupportedOperationException();
-        }
+    public enum SensorType {
+        BME280, BMP280
     }
 
 
