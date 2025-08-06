@@ -28,7 +28,7 @@ package org.kobjects.pi4jdriver.sensor.environment.bmx280;
 /**
  * Register address, values and masks
  */
-public class Bmp280Constants {
+class Bmp280Constants {
 
 
     /*  Begin device register definitions.        */

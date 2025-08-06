@@ -1,7 +1,7 @@
 package org.kobjects.pi4jdriver.sensor.environment.bmx280;
 
 /** Additional constants for the BME280 */
-public class Bme280Constants {
+class Bme280Constants {
     static final int REG_DIG_H1 = 0xA1;
     static final int REG_DIG_H2 = 0xE1;
     static final int REG_DIG_H3 = 0xE3;
