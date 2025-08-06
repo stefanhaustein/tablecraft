@@ -90,9 +90,28 @@ class Bmp280Constants {
     static final int ID_VALUE_MSK_BME = 0x60;   // expected chpId value BME280
 
     // For the control reg 0xf4
-    static final int CTL_FORCED = 0x01;
+    static final int POWERMODE_SLEEP = 0x00;
+    static final int POWERMODE_FORCED = 0x01;
+    static final int POWERMODE_NORMAL = 0x02;
+
+    static final int NO_OVERSAMPLING  = 0x00;
+    static final int OVERSAMPLING_1X  = 0x01;
+    static final int OVERSAMPLING_2X  = 0x02;
+    static final int OVERSAMPLING_4X   = 0x03;
+    static final int OVERSAMPLING_8X  = 0x04;
+    static final int OVERSAMPLING_16X = 0x05;
+    static final int OVERSAMPLING_MAX = 16;
+
+
+    static final int CTRL_HUM_MSK          = 0x07;
+    static final int CTRL_HUM_POS          = 0x00;
+    static final int CTRL_PRESS_MSK        = 0x1C;
+    static final int CTRL_PRESS_POS        = 0x02;
+    static final int CTRL_TEMP_MSK         = 0xE0;
+    static final int CTRL_TEMP_POS         = 0x05;
+
     static final int CTL_TEMP_SAMP_1 = 0x20;   // oversample *1
-    static final int CTL_PRESS_SAMP_1 = 0x04;   // oversample *1
+    static final int CTL_PRCTL_FORCEDESS_SAMP_1 = 0x04;   // oversample *1
 
 
 }

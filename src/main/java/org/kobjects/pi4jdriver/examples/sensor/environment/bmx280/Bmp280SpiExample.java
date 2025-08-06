@@ -34,7 +34,6 @@ import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.pi4j.io.spi.*;
-
 import org.kobjects.pi4jdriver.sensor.environment.bmx280.Bmx280Driver;
 
 /**
@@ -59,7 +58,7 @@ public class Bmp280SpiExample {
                 .shutdown(DigitalState.HIGH)
                 .initial(DigitalState.HIGH));
 
-        var bmp280 = Bmx280Driver.create(spi, csPin);
+        var bmp280 = new Bmx280Driver(spi);
 
         System.out.println(" Recognized Sensor type: " + bmp280.getSensorType());
 

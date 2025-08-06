@@ -20,7 +20,7 @@ class Bmp280Port(
             .provider("linuxfs-i2c")
             .build()
     )
-    var bmp280 = Bmx280Driver.create(i2c)
+    var bmp280 = Bmx280Driver(i2c)
     val timer = Timer().apply {
         schedule(object : TimerTask() {
             override fun run() {

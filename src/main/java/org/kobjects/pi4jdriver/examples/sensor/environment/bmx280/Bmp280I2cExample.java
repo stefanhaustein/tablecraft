@@ -53,7 +53,7 @@ public class Bmp280I2cExample {
                 .provider("linuxfs-i2c")
                 .build());
 
-        Bmx280Driver bmp280 = Bmx280Driver.create(i2c);
+        Bmx280Driver bmp280 = new Bmx280Driver(i2c);
 
 
          bmp280.reset();

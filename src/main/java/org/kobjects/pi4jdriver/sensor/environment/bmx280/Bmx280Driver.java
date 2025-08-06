@@ -1,49 +1,54 @@
 /*
- *  **********************************************************************
- *  ORGANIZATION  :  Pi4J
- *  PROJECT       :  Pi4J ::  Providers
- *  FILENAME      :  BMP280Device.java
  *
- *  This file is part of the Pi4J project. More information about
- *  this project can be found here:  https://pi4j.com/
- *  **********************************************************************
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
+ *     *
+ *     * -
+ *     * #%L
+ *     * **********************************************************************
+ *     * ORGANIZATION  :  Pi4J
+ *     * PROJECT       :  Pi4J :: EXTENSION
+ *     * FILENAME      :  BMP280DeviceSPI.java
+ *     *
+ *     * This file is part of the Pi4J project. More information about
+ *     * this project can be found here:  https://pi4j.com/
+ *     * **********************************************************************
+ *     * %%
+ *     *   * Copyright (C) 2012 - 2022 Pi4J
+ *      * %%
+ *     *
+ *     * Licensed under the Apache License, Version 2.0 (the "License");
+ *     * you may not use this file except in compliance with the License.
+ *     * You may obtain a copy of the License at
+ *     *
+ *     *      http://www.apache.org/licenses/LICENSE-2.0
+ *     *
+ *     * Unless required by applicable law or agreed to in writing, software
+ *     * distributed under the License is distributed on an "AS IS" BASIS,
+ *     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     * See the License for the specific language governing permissions and
+ *     * limitations under the License.
+ *     * #L%
+ *     *
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Lesser Public License for more details.
  *
- *  You should have received a copy of the GNU General Lesser Public
- *  License along with this program.  If not, see
- *  <http://www.gnu.org/licenses/lgpl-3.0.html>.
- *  #L%
  *
  */
 
 package org.kobjects.pi4jdriver.sensor.environment.bmx280;
 
-
-import com.pi4j.io.gpio.digital.DigitalOutput;
-import com.pi4j.io.i2c.I2C;
+import com.pi4j.io.i2c.I2CRegisterDataReaderWriter;
 import com.pi4j.io.spi.Spi;
 
-/**
- * Implementation of BMP280 a Temperature/Pressure Sensor.
- */
+// Re-implementation based on I2CRegisterDataReaderWriter
 public class Bmx280Driver {
-    private final AbstractConnection connection;
+
+    private final byte[] ioBuf = new byte[2];
+
+    private final I2CRegisterDataReaderWriter registerAccess;
     private final SensorType sensorType;
-
-
     private MeasurementMode measurementMode = MeasurementMode.SLEEPING;
 
     private long sleepUntil = 0;
-
     // Calibration values for humidity, pressure and temperature
     private final int dig_h1, dig_h2, dig_h3, dig_h4, dig_h5, dig_h6;
     private final int dig_p1, dig_p2, dig_p3, dig_p4, dig_p5, dig_p6, dig_p7, dig_p8, dig_p9;
@@ -52,32 +57,14 @@ public class Bmx280Driver {
 
     private final byte[] measurementBuf;
 
-    public SensorType getSensorType() {
-        return sensorType;
+    public Bmx280Driver(Spi spi) {
+        this (new SpiRegisterAccess(spi));
     }
 
+    public Bmx280Driver(I2CRegisterDataReaderWriter registerAccess) {
+        this.registerAccess = registerAccess;
 
-    public enum MeasurementMode {
-            SLEEPING, CONTINUOUS, SINGLE
-    }
-
-    public enum SensorType {
-        BME280, BMP280
-    }
-
-    public static Bmx280Driver create(I2C i2c) {
-        return new Bmx280Driver(new I2cConnection(i2c));
-    }
-
-    public static Bmx280Driver create(Spi spi, DigitalOutput gcPin) {
-        return new Bmx280Driver(new SpiConnection(spi, gcPin));
-    }
-
-    Bmx280Driver(AbstractConnection connection) {
-        this.connection = connection;
-
-        // read 0xD0 validate data equal 0x58 or 0x60
-        int id = connection.readU8Register(Bmp280Constants.CHIP_ID);
+        int id = readU8Register(Bmp280Constants.CHIP_ID);
         //SensorType sensorType;
         if (id == Bmp280Constants.ID_VALUE_MSK_BMP) {
             sensorType = SensorType.BMP280;
@@ -88,45 +75,44 @@ public class Bmx280Driver {
             sensorType = SensorType.BME280;
             measurementBuf = new byte[8];
 
-            dig_h1 = connection.readU8Register(Bme280Constants.REG_DIG_H1);
-            dig_h2 = connection.readS16Register(Bme280Constants.REG_DIG_H2);
-            dig_h3 = connection.readU8Register(Bme280Constants.REG_DIG_H3);
+            dig_h1 = readU8Register(Bme280Constants.REG_DIG_H1);
+            dig_h2 = readS16Register(Bme280Constants.REG_DIG_H2);
+            dig_h3 = readU8Register(Bme280Constants.REG_DIG_H3);
 
-            int e4 = connection.readU8Register(0xe4);
-            int e5 = connection.readU8Register(0xe5);
+            int e4 = readU8Register(0xe4);
+            int e5 = readU8Register(0xe5);
 
             int h4_hsb = e4 * 16;
             int h4_lsb = e5 & 0x0f;
             dig_h4 = h4_hsb | h4_lsb;
 
-            int e6 = connection.readU8Register(0xe6);
+            int e6 = readU8Register(0xe6);
 
             int h5_lsb = e5 >> 4;
             int h5_hsb = e6 * 16;
             dig_h5 = h5_hsb | h5_lsb;
 
-            dig_h6 = connection.readS8Register(Bme280Constants.REG_DIG_H6);
+            dig_h6 = readS8Register(Bme280Constants.REG_DIG_H6);
         } else {
             throw new IllegalStateException("Incorrect chip ID read");
         }
 
         // Read calibaration values.
 
-        dig_t1 = connection.readU16Register(Bmp280Constants.REG_DIG_T1);
-        dig_t2 = connection.readS16Register(Bmp280Constants.REG_DIG_T2);
-        dig_t3 = connection.readS16Register(Bmp280Constants.REG_DIG_T3);
+        dig_t1 = readU16Register(Bmp280Constants.REG_DIG_T1);
+        dig_t2 = readS16Register(Bmp280Constants.REG_DIG_T2);
+        dig_t3 = readS16Register(Bmp280Constants.REG_DIG_T3);
 
-        dig_p1 = connection.readU16Register(Bmp280Constants.REG_DIG_P1);
-        dig_p2 = connection.readS16Register(Bmp280Constants.REG_DIG_P2);
-        dig_p3 = connection.readS16Register(Bmp280Constants.REG_DIG_P3);
-        dig_p4 = connection.readS16Register(Bmp280Constants.REG_DIG_P4);
-        dig_p5 = connection.readS16Register(Bmp280Constants.REG_DIG_P5);
-        dig_p6 = connection.readS16Register(Bmp280Constants.REG_DIG_P6);
-        dig_p7 = connection.readS16Register(Bmp280Constants.REG_DIG_P7);
-        dig_p8 = connection.readS16Register(Bmp280Constants.REG_DIG_P8);
-        dig_p9 = connection.readS16Register(Bmp280Constants.REG_DIG_P9);
+        dig_p1 = readU16Register(Bmp280Constants.REG_DIG_P1);
+        dig_p2 = readS16Register(Bmp280Constants.REG_DIG_P2);
+        dig_p3 = readS16Register(Bmp280Constants.REG_DIG_P3);
+        dig_p4 = readS16Register(Bmp280Constants.REG_DIG_P4);
+        dig_p5 = readS16Register(Bmp280Constants.REG_DIG_P5);
+        dig_p6 = readS16Register(Bmp280Constants.REG_DIG_P6);
+        dig_p7 = readS16Register(Bmp280Constants.REG_DIG_P7);
+        dig_p8 = readS16Register(Bmp280Constants.REG_DIG_P8);
+        dig_p9 = readS16Register(Bmp280Constants.REG_DIG_P9);
     }
-
 
     /**
      *
@@ -140,19 +126,19 @@ public class Bmx280Driver {
         // At measurement completion chip returns to sleep mode
 
         if (sensorType == SensorType.BME280) {
-            int ctlHum = connection.readU8Register(Bme280Constants.CTRL_HUM);
+            int ctlHum = readU8Register(Bme280Constants.CTRL_HUM);
             ctlHum = (ctlHum & ~Bme280Constants.CTRL_HUM_MSK) | Bme280Constants.CTRL_HUM_SAMP_1;
-            connection.writeU8Register(Bme280Constants.CTRL_HUM, ctlHum);
+            writeU8Register(Bme280Constants.CTRL_HUM, ctlHum);
         }
 
         int ctlReg = 0; // bus.readU8Register(Bmp280Constants.CTRL_MEAS);
-        ctlReg |= Bmp280Constants.CTL_FORCED;
+        ctlReg |= Bmp280Constants.POWERMODE_FORCED;
         //ctlReg &= ~Bmp280Constants.TEMP_OVER_SAMPLE_MSK;   // mask off all temperature bits
-        ctlReg |= Bmp280Constants.CTL_TEMP_SAMP_1;      // Temperature oversample 1
+        ctlReg |= Bmp280Constants.OVERSAMPLING_1X << Bmp280Constants.CTRL_TEMP_POS;      // Temperature oversample 1
         //ctlReg &= ~Bmp280Constants.PRES_OVER_SAMPLE_MSK;   // mask off all pressure bits
-        ctlReg |= Bmp280Constants.CTL_PRESS_SAMP_1;   //  Pressure oversample 1
+        ctlReg |= Bmp280Constants.OVERSAMPLING_1X << Bmp280Constants.CTRL_PRESS_POS;   //  Pressure oversample 1
 
-        connection.writeU8Register(Bmp280Constants.CTRL_MEAS,  ctlReg);
+        writeU8Register(Bmp280Constants.CTRL_MEAS,  ctlReg);
 
         measurementMode = MeasurementMode.SINGLE;
 
@@ -174,7 +160,7 @@ public class Bmx280Driver {
             requestSingleMeasurement();
         }
         materializeSleep();
-        connection.readRegister(Bmp280Constants.PRESS_MSB, measurementBuf);
+        readRegister(Bmp280Constants.PRESS_MSB, measurementBuf);
 
         long adc_T = (long) ((measurementBuf[3] & 0xFF) << 12) + (long) ((measurementBuf[4] & 0xFF) << 4) + (long) (measurementBuf[5] & 0xFF);
         long adc_P = (long) ((measurementBuf[0] & 0xFF) << 12) + (long) ((measurementBuf[1] & 0xFF) << 4) + (long) (measurementBuf[2] & 0xFF);
@@ -280,7 +266,7 @@ public class Bmx280Driver {
      * to allow the chip to complete the reset
      */
     public void reset() {
-        connection.writeU8Register(Bmp280Constants.RESET, Bmp280Constants.RESET_CMD);
+        writeU8Register(Bmp280Constants.RESET, Bmp280Constants.RESET_CMD);
         sleepUntil = System.currentTimeMillis() + 100;
     }
 
@@ -299,5 +285,97 @@ public class Bmx280Driver {
             }
         }
     }
+
+    public SensorType getSensorType() {
+        return sensorType;
+    }
+
+
+    public enum MeasurementMode {
+        SLEEPING, CONTINUOUS, SINGLE
+    }
+
+    public enum SensorType {
+        BME280, BMP280
+    }
+
+    private int readU8Register(int register) {
+        return registerAccess.readRegister(register);
+    }
+
+    private int readS8Register(int register) {
+        int unsigned = readU8Register(register);
+        return unsigned > 128 ? unsigned | 0xffff_fff0 : unsigned;
+    }
+
+    private int readRegister(int register, byte[] result) {
+        return registerAccess.readRegister(register, result);
+    }
+
+    private int writeU8Register(int register, int data) {
+        return registerAccess.writeRegister(register, data);
+    }
+
+
+    final int readS16Register(int register) {
+        int count = readRegister(register, ioBuf);
+        if (count != 2) {
+            throw new IllegalStateException("Expected two bytes reading register "+ register +"; received: " + count);
+        }
+        return (ioBuf[0] & 0xff) | (ioBuf[1] << 8);
+    }
+
+    final int readU16Register(int register) {
+        return readS16Register(register) & 0xFFFF;
+    }
+
+
+    static class SpiRegisterAccess implements I2CRegisterDataReaderWriter {
+        private final Spi spi;
+
+        public SpiRegisterAccess(Spi spi) {
+            this.spi = spi;
+        }
+
+        @Override
+        public int readRegister(int register) {
+            spi.write((byte) (0b10000000 | register));
+            byte rval = this.spi.readByte();
+            return rval;
+        }
+
+
+        @Override
+        public int readRegister(byte[] bytes, byte[] bytes1, int i, int i1) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int readRegister(int register, byte[] buffer, int i1, int i2) {
+            this.spi.write((byte) (0b10000000 | register));
+            int bytesRead = spi.read(buffer, i1, i2);
+
+            return bytesRead;
+        }
+
+
+        @Override
+        public int writeRegister(int register, byte data) {
+            // send read request to BMP chip via SPI channel
+            return spi.write((byte) (0b01111111 & register), data);
+        }
+
+
+        @Override
+        public int writeRegister(int i, byte[] bytes, int i1, int i2) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int writeRegister(byte[] bytes, byte[] bytes1, int i, int i1) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
 
 }
