@@ -30,8 +30,7 @@ package org.kobjects.pi4jdriver.sensor.environment.bmx280;
  */
 class Bmp280Constants {
 
-
-    /*  Begin device register definitions.        */
+    /*  Begin device register definitions. */
     static final int TEMP_XLSB = 0xFC;
     static final int TEMP_LSB = 0xFB;
     static final int TEMP_MSB = 0xFA;
