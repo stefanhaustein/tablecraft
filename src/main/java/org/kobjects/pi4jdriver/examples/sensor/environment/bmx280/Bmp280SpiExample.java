@@ -42,7 +42,6 @@ import org.kobjects.pi4jdriver.sensor.environment.bmx280.Bmx280Driver;
 public class Bmp280SpiExample {
     
     public static void main(String[] args) throws Exception {
-
         Context pi4j = Pi4J.newAutoContext();
         Spi spi = pi4j.create(
                 Spi.newConfigBuilder(pi4j)

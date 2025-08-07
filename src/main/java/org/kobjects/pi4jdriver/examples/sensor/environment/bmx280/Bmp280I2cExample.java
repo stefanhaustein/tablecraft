@@ -43,7 +43,6 @@ public class Bmp280I2cExample {
     private static final int I2C_ADDRESS = 0x77;
 
     public static void main(String[] args) throws Exception {
-        
         Context pi4j = Pi4J.newAutoContext();
         
         I2C i2c = pi4j.create(I2C.newConfigBuilder(pi4j)
@@ -53,8 +52,7 @@ public class Bmp280I2cExample {
                 .build());
 
         Bmx280Driver bmp280 = new Bmx280Driver(i2c);
-
-
+        
         bmp280.reset();
 
         for (int i = 0; i < 10; i++) {
