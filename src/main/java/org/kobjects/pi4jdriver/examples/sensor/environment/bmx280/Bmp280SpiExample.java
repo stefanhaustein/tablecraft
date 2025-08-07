@@ -58,15 +58,14 @@ public class Bmp280SpiExample {
                 .shutdown(DigitalState.HIGH)
                 .initial(DigitalState.HIGH));
 
-        var bmp280 = new Bmx280Driver(spi);
+        var bmp280 = new Bmx280Driver(spi, csPin);
 
         System.out.println(" Recognized Sensor type: " + bmp280.getSensorType());
 
         var measurement = bmp280.readMeasurements();
         System.out.println(" Temperatue = " + measurement.getTemperature());
-        System.out.println(" Pressure hPa = " + measurement.getPressure());
+        System.out.println(" Pressure Pa = " + measurement.getPressure());
         System.out.println(" Rel.Humidity % = " + measurement.getHumidity());
-
 
         // Shutdown Pi4J
         pi4j.shutdown();

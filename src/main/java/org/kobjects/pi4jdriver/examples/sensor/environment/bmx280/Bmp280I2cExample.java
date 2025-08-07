@@ -58,19 +58,15 @@ public class Bmp280I2cExample {
          bmp280.reset();
 
          for (int i = 0; i < 10; i++) {
-
             Bmx280Driver.Measurement measurement = bmp280.readMeasurements();
 
             System.out.println(" Sensor Type: " + bmp280.getSensorType());
 
-
             System.out.println(" Temperature C = " + measurement.getTemperature());
-            System.out.println(" Pressure hPa = " + measurement.getPressure());
+            System.out.println(" Pressure Pa = " + measurement.getPressure());
             System.out.println(" Rel.Humidity % = " + measurement.getHumidity());
-
          }
-
-
+         
         // Shutdown Pi4J
         pi4j.shutdown();
     }

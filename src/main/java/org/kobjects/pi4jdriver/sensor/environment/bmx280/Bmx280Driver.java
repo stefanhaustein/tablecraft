@@ -17,6 +17,8 @@
 
 package org.kobjects.pi4jdriver.sensor.environment.bmx280;
 
+import com.pi4j.io.gpio.digital.DigitalInput;
+import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.i2c.I2CRegisterDataReaderWriter;
 import com.pi4j.io.spi.Spi;
 
@@ -30,10 +32,13 @@ public class Bmx280Driver {
     private MeasurementMode measurementMode = MeasurementMode.SLEEPING;
 
     private long sleepUntil = 0;
-    // Calibration values for humidity, pressure and temperature
-    private final double digH1, digH2, digH3, digH4, digH5, digH6;
-    private final double digP1, digP2, digP3, digP4, digP5, digP6, digP7, digP8, digP9;
+    private long sleepUntilMeasurement = 0;
+    // Calibration values for temperature
     private final double digT1, digT2, digT3;
+    // Calibration values for pressure
+    private final double digP1, digP2, digP3, digP4, digP5, digP6, digP7, digP8, digP9;
+    // Calibration values for humidity
+    private final double digH1, digH2, digH3, digH4, digH5, digH6;
 
     private final byte[] measurementBuf;
     private final byte[] ioBuf = new byte[2];
@@ -42,8 +47,8 @@ public class Bmx280Driver {
     private SensorMode pressureMode = SensorMode.ENABLED;
     private SensorMode humidityMode;
 
-    public Bmx280Driver(Spi spi) {
-        this (new SpiRegisterAccess(spi));
+    public Bmx280Driver(Spi spi, DigitalOutput csb) {
+        this (new SpiRegisterAccess(spi, csb));
     }
 
     public Bmx280Driver(I2CRegisterDataReaderWriter registerAccess) {
@@ -115,6 +120,8 @@ public class Bmx280Driver {
         // set forced mode to leave sleep mode state and initiate measurements.
         // At measurement completion chip returns to sleep mode
 
+        materializeSleep(false);
+
         if (sensorType == SensorType.BME280) {
             int ctlHum = readU8Register(Bme280Constants.CTRL_HUM);
             ctlHum = (ctlHum & ~Bme280Constants.CTRL_HUM_MSK) | humidityMode.ordinal();
@@ -168,7 +175,7 @@ public class Bmx280Driver {
             setMeasurementMode(MeasurementMode.SINGLE);
         }
 
-        materializeSleep();
+        materializeSleep(true);
 
         readRegister(Bmp280Constants.PRESS_MSB, measurementBuf);
 
@@ -236,6 +243,7 @@ public class Bmx280Driver {
      * to allow the chip to complete the reset
      */
     public void reset() {
+        materializeSleep(false);
         writeU8Register(Bmp280Constants.RESET, Bmp280Constants.RESET_CMD);
         sleepUntil = System.currentTimeMillis() + 100;
     }
@@ -246,14 +254,15 @@ public class Bmx280Driver {
 
     // Internal methods
 
-    private void materializeSleep() {
+    private void materializeSleep(boolean forMeasurement) {
+        long timeOut = forMeasurement ? Math.max(sleepUntil, sleepUntilMeasurement) : sleepUntil;
         while (true) {
             long now = System.currentTimeMillis();
-            if (now >= sleepUntil) {
+            if (now >= timeOut) {
                 return;
             }
             try {
-                Thread.sleep(sleepUntil - now);
+                Thread.sleep(timeOut - now);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

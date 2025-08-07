@@ -16,22 +16,28 @@
  */
 package org.kobjects.pi4jdriver.sensor.environment.bmx280;
 
+import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.i2c.I2CRegisterDataReaderWriter;
 import com.pi4j.io.spi.Spi;
+import org.kobjects.tablecraft.plugins.pi4j.DigitalOutputPort;
 
 /**
  * Internal helper that implements BMx280 register access for SPI mode.
  */
 class SpiRegisterAccess implements I2CRegisterDataReaderWriter {
     private final Spi spi;
+    private final DigitalOutput csb;
 
-    public SpiRegisterAccess(Spi spi) {
+    public SpiRegisterAccess(Spi spi, DigitalOutput csb) {
         this.spi = spi;
+        this.csb = csb;
     }
 
     @Override
     public int readRegister(int register) {
+        csb.low();
         spi.write((byte) (0b10000000 | register));
+        csb.high();
         byte rval = this.spi.readByte();
         return rval;
     }
@@ -44,8 +50,10 @@ class SpiRegisterAccess implements I2CRegisterDataReaderWriter {
 
     @Override
     public int readRegister(int register, byte[] buffer, int i1, int i2) {
+        csb.low();
         this.spi.write((byte) (0b10000000 | register));
         int bytesRead = spi.read(buffer, i1, i2);
+        csb.high();
 
         return bytesRead;
     }
@@ -54,13 +62,20 @@ class SpiRegisterAccess implements I2CRegisterDataReaderWriter {
     @Override
     public int writeRegister(int register, byte data) {
         // send read request to BMP chip via SPI channel
-        return spi.write((byte) (0b01111111 & register), data);
+        csb.low();
+        int result = spi.write((byte) (0b01111111 & register), data);
+        csb.high();
+        return result;
     }
 
 
     @Override
-    public int writeRegister(int i, byte[] bytes, int i1, int i2) {
-        throw new UnsupportedOperationException();
+    public int writeRegister(int register, byte[] buffer, int i1, int i2) {
+        csb.low();
+        spi.write((byte) (0b01111111 & register));
+        int bytesWritten = spi.write(buffer, i1, i2);
+        csb.high();
+        return bytesWritten;
     }
 
     @Override
