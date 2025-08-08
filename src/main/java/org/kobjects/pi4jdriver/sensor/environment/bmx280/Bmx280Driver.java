@@ -17,7 +17,6 @@
 
 package org.kobjects.pi4jdriver.sensor.environment.bmx280;
 
-import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.i2c.I2CRegisterDataReaderWriter;
 import com.pi4j.io.spi.Spi;
@@ -27,12 +26,19 @@ import com.pi4j.io.spi.Spi;
  */
 public class Bmx280Driver {
 
+    private final double[] BME_280_STANDBY_TIMES = {0.5, 62.5, 125, 250, 500, 1000, 2000, 4000};
+    private final double[] BMP_280_STANDBY_TIMES = {0.5, 62.5, 125, 250, 500, 1000, 10, 20};
+
     private final I2CRegisterDataReaderWriter registerAccess;
     private final SensorType sensorType;
     private MeasurementMode measurementMode = MeasurementMode.SLEEPING;
 
     private long sleepUntil = 0;
     private long sleepUntilMeasurement = 0;
+    private int standByTimeIndex = 0;
+    private int filterCoefficientIndex = 0;
+    private boolean spi3WireMode = false;
+
     // Calibration values for temperature
     private final double digT1, digT2, digT3;
     // Calibration values for pressure
@@ -54,7 +60,7 @@ public class Bmx280Driver {
     public Bmx280Driver(I2CRegisterDataReaderWriter registerAccess) {
         this.registerAccess = registerAccess;
 
-        int id = readU8Register(Bmp280Constants.CHIP_ID);
+        int id = readRegisterU8(Bmp280Constants.CHIP_ID);
         if (id == Bmp280Constants.ID_VALUE_BMP) {
             sensorType = SensorType.BMP280;
             measurementBuf = new byte[6];
@@ -65,24 +71,24 @@ public class Bmx280Driver {
             sensorType = SensorType.BME280;
             measurementBuf = new byte[8];
 
-            digH1 = readU8Register(Bme280Constants.REG_DIG_H1);
-            digH2 = readS16Register(Bme280Constants.REG_DIG_H2);
-            digH3 = readU8Register(Bme280Constants.REG_DIG_H3);
+            digH1 = readRegisterU8(Bme280Constants.REG_DIG_H1);
+            digH2 = readRegisterS16(Bme280Constants.REG_DIG_H2);
+            digH3 = readRegisterU8(Bme280Constants.REG_DIG_H3);
 
-            int e4 = readU8Register(0xe4);
-            int e5 = readU8Register(0xe5);
+            int e4 = readRegisterU8(0xe4);
+            int e5 = readRegisterU8(0xe5);
 
             int h4Hsb = e4 * 16;
             int h4Lsb = e5 & 0x0f;
             digH4 = h4Hsb | h4Lsb;
 
-            int e6 = readU8Register(0xe6);
+            int e6 = readRegisterU8(0xe6);
 
             int h5Lsb = e5 >> 4;
             int h5Hsb = e6 * 16;
             digH5 = h5Hsb | h5Lsb;
 
-            digH6 = readS8Register(Bme280Constants.REG_DIG_H6);
+            digH6 = readRegisterS8(Bme280Constants.REG_DIG_H6);
             humidityMode = SensorMode.ENABLED;
 
         } else {
@@ -91,84 +97,113 @@ public class Bmx280Driver {
 
         // Read calibration values.
 
-        digT1 = readU16Register(Bmp280Constants.REG_DIG_T1);
-        digT2 = readS16Register(Bmp280Constants.REG_DIG_T2);
-        digT3 = readS16Register(Bmp280Constants.REG_DIG_T3);
+        digT1 = readURegisterU16(Bmp280Constants.REG_DIG_T1);
+        digT2 = readRegisterS16(Bmp280Constants.REG_DIG_T2);
+        digT3 = readRegisterS16(Bmp280Constants.REG_DIG_T3);
 
-        digP1 = readU16Register(Bmp280Constants.REG_DIG_P1);
-        digP2 = readS16Register(Bmp280Constants.REG_DIG_P2);
-        digP3 = readS16Register(Bmp280Constants.REG_DIG_P3);
-        digP4 = readS16Register(Bmp280Constants.REG_DIG_P4);
-        digP5 = readS16Register(Bmp280Constants.REG_DIG_P5);
-        digP6 = readS16Register(Bmp280Constants.REG_DIG_P6);
-        digP7 = readS16Register(Bmp280Constants.REG_DIG_P7);
-        digP8 = readS16Register(Bmp280Constants.REG_DIG_P8);
-        digP9 = readS16Register(Bmp280Constants.REG_DIG_P9);
+        digP1 = readURegisterU16(Bmp280Constants.REG_DIG_P1);
+        digP2 = readRegisterS16(Bmp280Constants.REG_DIG_P2);
+        digP3 = readRegisterS16(Bmp280Constants.REG_DIG_P3);
+        digP4 = readRegisterS16(Bmp280Constants.REG_DIG_P4);
+        digP5 = readRegisterS16(Bmp280Constants.REG_DIG_P5);
+        digP6 = readRegisterS16(Bmp280Constants.REG_DIG_P6);
+        digP7 = readRegisterS16(Bmp280Constants.REG_DIG_P7);
+        digP8 = readRegisterS16(Bmp280Constants.REG_DIG_P8);
+        digP9 = readRegisterS16(Bmp280Constants.REG_DIG_P9);
     }
 
     /**
-     * Configure the BMP/E280 measurement mode.
+     * If the mode doesn't match the current mode, send all settings to the chip and set the BMP/E280 measurement mode.
      */
     public void setMeasurementMode(MeasurementMode mode) {
-        if (measurementMode != mode) {
-            measurementMode = mode;
-            updateConfiguration();
+        if (measurementMode == mode) {
+            return;
         }
-    }
-
-    private void updateConfiguration() {
-        // set forced mode to leave sleep mode state and initiate measurements.
-        // At measurement completion chip returns to sleep mode
+        this.measurementMode = mode;
 
         materializeSleep(false);
 
+        int config = (spi3WireMode ? 1 : 0)
+                | (filterCoefficientIndex << 2)
+                | (standByTimeIndex << 5);
+        writeU8Register(Bmp280Constants.CONFIG, config);
+
         if (sensorType == SensorType.BME280) {
-            int ctlHum = readU8Register(Bme280Constants.CTRL_HUM);
+            int ctlHum = readRegisterU8(Bme280Constants.CTRL_HUM);
             ctlHum = (ctlHum & ~Bme280Constants.CTRL_HUM_MSK) | humidityMode.ordinal();
             writeU8Register(Bme280Constants.CTRL_HUM, ctlHum);
         }
 
         int ctlReg = Bmp280Constants.POWERMODE_FORCED
-            | (temperatureMode.ordinal() << Bmp280Constants.CTRL_TEMP_POS)
-            | (pressureMode.ordinal() << Bmp280Constants.CTRL_PRESS_POS);
+                | (temperatureMode.ordinal() << Bmp280Constants.CTRL_TEMP_POS)
+                | (pressureMode.ordinal() << Bmp280Constants.CTRL_PRESS_POS);
 
         writeU8Register(Bmp280Constants.CTRL_MEAS, ctlReg);
 
-        sleepUntil = System.currentTimeMillis() + 1000;
+        sleepUntil = System.currentTimeMillis() + (int) Math.ceil(getMeasurementTime());
+    }
+
+    /** Measurement time for the current sensor modes, as documented in section 9.1 */
+    public double getMeasurementTime() {
+        return 1.25 +
+                (temperatureMode == SensorMode.DISABLED ? 0 : (2.3 * (1 << temperatureMode.ordinal()) + 0.5)) +
+                (pressureMode == SensorMode.DISABLED ? 0 : (2.3 * (1 << pressureMode.ordinal()) + 0.575)) +
+                (temperatureMode == SensorMode.DISABLED ? 0 : 2.3 * (1 << temperatureMode.ordinal()) + 0.575);
+    }
+
+    /**
+     * Sets the standby time in milliseconds, selecting the closest available value (depending on the sensor).
+     */
+    public double setStandbyTime(double ms) {
+        double[] list = sensorType == SensorType.BMP280 ? BMP_280_STANDBY_TIMES : BME_280_STANDBY_TIMES;
+        double bestDelta = Double.POSITIVE_INFINITY;
+        for (int i = 0; i < list.length; i++) {
+            double delta = Math.abs(list[i] - ms);
+            if (delta < bestDelta) {
+                bestDelta = Math.abs(list[i] - ms);
+                standByTimeIndex = i;
+            }
+        }
+        return list[standByTimeIndex];
+    }
+
+    /**
+     * Sets the spi 3 wire mode.
+     */
+    public void setSpi3WireMode(boolean enable) {
+        spi3WireMode = enable;
+    }
+
+    /**
+     * Sets the IIR filter coefficient to the best match of the requested coefficient (0, 2, 4, 8 or 16).
+     * The best available match is returned.
+     */
+    public int setFilterCoefficient(int coefficient) {
+        int index = (int) Math.round(Math.log(coefficient / 2.0)/Math.log(2));
+        filterCoefficientIndex = index < 0 ? 0 : index > 8 ? 8 : index;
+        return filterCoefficientIndex == 0 ? 0 : (2 >> filterCoefficientIndex);
     }
 
     public void setTemperatureMode(SensorMode mode) {
-        if (this.temperatureMode != mode) {
-            this.temperatureMode = mode;
-            if (measurementMode != MeasurementMode.SLEEPING) {
-                updateConfiguration();
-            }
-        }
+        this.temperatureMode = mode;
     }
 
     public void setPressureMode(SensorMode mode) {
-        if (this.pressureMode != mode) {
-            this.pressureMode = mode;
-            if (measurementMode != MeasurementMode.SLEEPING) {
-                updateConfiguration();
-            }
-        }
+        this.pressureMode = mode;
     }
 
     public void setHumidityMode(SensorMode mode) {
-        if (this.humidityMode != mode) {
-            this.humidityMode = mode;
-            if (measurementMode != MeasurementMode.SLEEPING) {
-                updateConfiguration();
-            }
-        }
+        this.humidityMode = mode;
     }
 
     /**
      * Read measure registers 0xF7 - 0xFC in single read to ensure all the data pertains to
-     * a single  measurement.
+     * a single measurement. The result is returned in a "Measurement" instance.
      * <p>
-     * Use conversion data and measure data to calculate temperature in C and pressure in Pa.
+     * If the current mode is SLEEPING, a single measurement will be requested and the code will block
+     * for the time determined by getMeasurementTime.
+     * <p>
+     * Blocking can be avoided by setting FORCED or NORMAL mode ahead of time.
      */
     public Measurement readMeasurements() {
         if (measurementMode == MeasurementMode.SLEEPING) {
@@ -239,8 +274,7 @@ public class Bmx280Driver {
     }
 
     /**
-     * Write the reset command to the BMP280, Sleep 100 ms
-     * to allow the chip to complete the reset
+     * Write the reset command to the BMP280.
      */
     public void reset() {
         materializeSleep(false);
@@ -269,24 +303,11 @@ public class Bmx280Driver {
         }
     }
 
-    private int readU8Register(int register) {
-        return registerAccess.readRegister(register);
-    }
-
-    private int readS8Register(int register) {
-        int unsigned = readU8Register(register);
-        return unsigned > 128 ? unsigned | 0xffff_fff0 : unsigned;
-    }
-
     private int readRegister(int register, byte[] result) {
         return registerAccess.readRegister(register, result);
     }
 
-    private int writeU8Register(int register, int data) {
-        return registerAccess.writeRegister(register, data);
-    }
-
-    private int readS16Register(int register) {
+    private int readRegisterS16(int register) {
         int count = readRegister(register, ioBuf);
         if (count != 2) {
             throw new IllegalStateException("Expected two bytes reading register "+ register +"; received: " + count);
@@ -294,10 +315,32 @@ public class Bmx280Driver {
         return (ioBuf[0] & 0xff) | (ioBuf[1] << 8);
     }
 
-    private int readU16Register(int register) {
-        return readS16Register(register) & 0xFFFF;
+    private int readRegisterS8(int register) {
+        int unsigned = readRegisterU8(register);
+        return unsigned > 128 ? unsigned | 0xffff_fff0 : unsigned;
     }
 
+    private int readRegisterU8(int register) {
+        return registerAccess.readRegister(register);
+    }
+
+    private int readURegisterU16(int register) {
+        return readRegisterS16(register) & 0xFFFF;
+    }
+
+
+    /** Sends the current configuration to the BME 280 chip */
+    private void updateConfiguration() {
+        // set forced mode to leave sleep mode state and initiate measurements.
+        // At measurement completion chip returns to sleep mode
+
+    }
+
+    private int writeU8Register(int register, int data) {
+        return registerAccess.writeRegister(register, data);
+    }
+
+    // Nested types
 
     public static class Measurement {
         private final double rawTemperature;
