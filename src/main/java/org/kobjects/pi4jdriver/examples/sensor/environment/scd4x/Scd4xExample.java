@@ -9,7 +9,7 @@ public class Scd4xExample {
 
     public final static int I2C_BUS = 1;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException  {
 
         Context pi4j = Pi4J.newAutoContext();
 
@@ -21,7 +21,25 @@ public class Scd4xExample {
 
         Scd4xDriver driver = new Scd4xDriver(i2c);
 
-        driver.measureSingleShot();
+        driver.stopPeriodicMeasurement();
+
+        driver.reInit();
+
+        driver.startPeriodicMeasurement();
+
+        while (true) {
+            Thread.sleep(5000);
+
+            boolean ready = driver.getDataReadyStatus();
+
+            System.out.println("Ready state: " + ready);
+
+            if (ready) {
+                break;
+            }
+        }
+        System.out.println(driver.readMeasurement());
+
 
     }
 

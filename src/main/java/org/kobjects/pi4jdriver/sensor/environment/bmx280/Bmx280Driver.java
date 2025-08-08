@@ -384,6 +384,11 @@ public class Bmx280Driver {
         public double getPressure() {
             return pressure;
         }
+
+        @Override
+        public String toString() {
+            return "Temperature: " + temperature + "°C; Humidity: " + humidity + "%Rh; Pressure: " + pressure + "Pa";
+        }
     }
 
     public enum SensorMode {
