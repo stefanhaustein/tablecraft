@@ -97,11 +97,11 @@ public class Bmx280Driver {
 
         // Read calibration values.
 
-        digT1 = readURegisterU16(Bmp280Constants.REG_DIG_T1);
+        digT1 = readRegisterU16(Bmp280Constants.REG_DIG_T1);
         digT2 = readRegisterS16(Bmp280Constants.REG_DIG_T2);
         digT3 = readRegisterS16(Bmp280Constants.REG_DIG_T3);
 
-        digP1 = readURegisterU16(Bmp280Constants.REG_DIG_P1);
+        digP1 = readRegisterU16(Bmp280Constants.REG_DIG_P1);
         digP2 = readRegisterS16(Bmp280Constants.REG_DIG_P2);
         digP3 = readRegisterS16(Bmp280Constants.REG_DIG_P3);
         digP4 = readRegisterS16(Bmp280Constants.REG_DIG_P4);
@@ -126,19 +126,19 @@ public class Bmx280Driver {
         int config = (spi3WireMode ? 1 : 0)
                 | (filterCoefficientIndex << 2)
                 | (standByTimeIndex << 5);
-        writeU8Register(Bmp280Constants.CONFIG, config);
+        writeRegisterU8(Bmp280Constants.CONFIG, config);
 
         if (sensorType == SensorType.BME280) {
             int ctlHum = readRegisterU8(Bme280Constants.CTRL_HUM);
             ctlHum = (ctlHum & ~Bme280Constants.CTRL_HUM_MSK) | humidityMode.ordinal();
-            writeU8Register(Bme280Constants.CTRL_HUM, ctlHum);
+            writeRegisterU8(Bme280Constants.CTRL_HUM, ctlHum);
         }
 
         int ctlReg = Bmp280Constants.POWERMODE_FORCED
                 | (temperatureMode.ordinal() << Bmp280Constants.CTRL_TEMP_POS)
                 | (pressureMode.ordinal() << Bmp280Constants.CTRL_PRESS_POS);
 
-        writeU8Register(Bmp280Constants.CTRL_MEAS, ctlReg);
+        writeRegisterU8(Bmp280Constants.CTRL_MEAS, ctlReg);
 
         sleepUntil = System.currentTimeMillis() + (int) Math.ceil(getMeasurementTime());
     }
@@ -278,7 +278,7 @@ public class Bmx280Driver {
      */
     public void reset() {
         materializeSleep(false);
-        writeU8Register(Bmp280Constants.RESET, Bmp280Constants.RESET_CMD);
+        writeRegisterU8(Bmp280Constants.RESET, Bmp280Constants.RESET_CMD);
         sleepUntil = System.currentTimeMillis() + 100;
     }
 
@@ -324,19 +324,11 @@ public class Bmx280Driver {
         return registerAccess.readRegister(register);
     }
 
-    private int readURegisterU16(int register) {
+    private int readRegisterU16(int register) {
         return readRegisterS16(register) & 0xFFFF;
     }
 
-
-    /** Sends the current configuration to the BME 280 chip */
-    private void updateConfiguration() {
-        // set forced mode to leave sleep mode state and initiate measurements.
-        // At measurement completion chip returns to sleep mode
-
-    }
-
-    private int writeU8Register(int register, int data) {
+    private int writeRegisterU8(int register, int data) {
         return registerAccess.writeRegister(register, data);
     }
 
@@ -387,7 +379,7 @@ public class Bmx280Driver {
 
         @Override
         public String toString() {
-            return "Temperature: " + temperature + "°C; Humidity: " + humidity + "%Rh; Pressure: " + pressure + "Pa";
+            return "Temperature = " + temperature + " °C; Humidity = " + humidity + " %; Pressure = " + pressure + " Pa";
         }
     }
 
