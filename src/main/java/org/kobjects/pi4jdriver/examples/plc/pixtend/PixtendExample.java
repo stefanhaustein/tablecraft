@@ -11,7 +11,7 @@ public class PixtendExample {
     public static void main(String[] args) {
         Context pi4J = Pi4J.newAutoContext();
 
-        PixtendDriver pixtend = new PixtendDriver(Model.V2S, pi4J);
+        PixtendDriver pixtend = new PixtendDriver(pi4J, Model.V2S);
 
         pixtend.syncState();
 

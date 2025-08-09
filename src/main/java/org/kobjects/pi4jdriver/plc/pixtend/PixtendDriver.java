@@ -12,14 +12,19 @@ import java.io.Closeable;
 
 
 public class PixtendDriver implements Closeable {
+    public static final int ANALOG_OUTPUT_COUNT = 2;
+
     public final Model model;
     private final Context pi4J;
 
     private final Spi spi;
+    private final Spi dacSpi;
     private final DigitalOutput pin24dout;
 
     private final byte[] spiIn;
     private final byte[] spiOut;
+    private final byte[] dacOut = new byte[] {0, 0, (byte) 0x80, 0};
+
     private final GpioMode[] gpioModes = {
             GpioMode.DIGITAL_INPUT, GpioMode.DIGITAL_INPUT,
             GpioMode.DIGITAL_INPUT, GpioMode.DIGITAL_INPUT};
@@ -27,7 +32,7 @@ public class PixtendDriver implements Closeable {
     private long cycleTime = 30;
     private long timestamp;
 
-    public PixtendDriver(Model model, Context pi4J) {
+    public PixtendDriver(Context pi4J, Model model) {
         this.pi4J = pi4J;
         this.model = model;
 
@@ -43,13 +48,19 @@ public class PixtendDriver implements Closeable {
         SpiConfig spiConfig = Spi.newConfigBuilder(pi4J).provider("linuxfs-spi")
                 .mode(SpiMode.MODE_0)
                 .chipSelect(SpiChipSelect.CS_0)
-                .address(0)
                 .baud(700_000)
                 .build();
 
         spi = pi4J.create(spiConfig);
-
         spi.open();
+
+        SpiConfig dacSpiConfig = Spi.newConfigBuilder(pi4J).provider("linuxfs-spi")
+                .mode(SpiMode.MODE_0)
+                .chipSelect(SpiChipSelect.CS_1)
+                .baud(700_000)
+                .build();
+        dacSpi = pi4J.create(dacSpiConfig);
+        dacSpi.open();
 
         timestamp = System.currentTimeMillis();
     }
@@ -58,6 +69,7 @@ public class PixtendDriver implements Closeable {
     @Override
     public void close() {
         spi.close();
+        dacSpi.close();
         pi4J.shutdown(pin24dout.id());
     }
 
@@ -66,7 +78,7 @@ public class PixtendDriver implements Closeable {
 
         // Header checksum
         int headerChecksum = crc16(spiOut, 0, 7);
-        System.out.println("Header crc: " + headerChecksum);
+        // System.out.println("Header crc: " + headerChecksum);
         setWord(7, headerChecksum);
 
         //Calculate CRC16 Data Transmit Checksum
@@ -86,11 +98,11 @@ public class PixtendDriver implements Closeable {
 
         timestamp = System.currentTimeMillis();
 
-        System.out.println("Received: new");
-        for (int i = 0; i < spiIn.length; i++) {
-            System.out.print("" + Character.forDigit((spiIn[i] & 255) / 16, 16) + Character.forDigit((spiIn[i] & 255) % 16, 16) + ' ');
-        }
-        System.out.println();
+//        System.out.println("Received: new");
+//        for (int i = 0; i < spiIn.length; i++) {
+//            System.out.print("" + Character.forDigit((spiIn[i] & 255) / 16, 16) + Character.forDigit((spiIn[i] & 255) % 16, 16) + ' ');
+//        }
+//        System.out.println();
 
         if (result != spiOut.length) {
             throw new IllegalStateException("Expected " + spiOut.length + " bytes; got: " + result);
@@ -116,6 +128,8 @@ public class PixtendDriver implements Closeable {
         if (receivedDataChecksum != calculatedDataChecksum) {
             throw new IllegalStateException("Received data checksum " + receivedDataChecksum + " != calculated checksum " + calculatedDataChecksum);
         }
+
+        dacSpi.write(dacOut);
     }
 
     /** Returns the 10V-range voltage for analog in 0..3 and a mA value for analog in 4 and 5 */
@@ -209,6 +223,30 @@ public class PixtendDriver implements Closeable {
     public void setRelay(int index, boolean value) {
         checkRange(index, model.relayOutCount, "Relay");
         setBit(model.relayOutOffset, index, value);
+    }
+
+    public void setAnalogOutEnabled(int index, boolean value) {
+        checkRange(index, ANALOG_OUTPUT_COUNT, "Analog output");
+        dacOut[index * 2] = (byte) (dacOut[index * 2 + 1] & ~0x10 | (value ? 0x10 : 0));
+    }
+
+    /** Sets the analog output voltage as a double value between 10 and 0 */
+    public void setAnalogOut(int index, double value) {
+        setRawAnalogOut(index, (int) Math.round(1023.0 * value / 10.0));
+    }
+
+    public void setRawAnalogOut(int index, int value) {
+        checkRange(index, ANALOG_OUTPUT_COUNT, "Analog output");
+        if (value > 1023) {
+            value = 1023;
+        } else if (value < 0) {
+            value = 0;
+        }
+
+        // High 4 bits are in the bottom nibble of the high byte
+        dacOut[index * 2] = (byte) (dacOut[index * 2] & 0xf0 | (value >>> 6));
+        // Low 6 bits are in the upper 6 bits of the low byte.
+        dacOut[index * 2 + 1] = (byte) (value << 2);
     }
 
     // Private helpers
