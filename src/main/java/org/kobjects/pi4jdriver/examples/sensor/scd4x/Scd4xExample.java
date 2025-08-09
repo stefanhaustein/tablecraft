@@ -1,9 +1,9 @@
-package org.kobjects.pi4jdriver.examples.sensor.environment.scd4x;
+package org.kobjects.pi4jdriver.examples.sensor.scd4x;
 
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
-import org.kobjects.pi4jdriver.sensor.environment.scd4x.Scd4xDriver;
+import org.kobjects.pi4jdriver.sensor.scd4x.Scd4xDriver;
 
 public class Scd4xExample {
 

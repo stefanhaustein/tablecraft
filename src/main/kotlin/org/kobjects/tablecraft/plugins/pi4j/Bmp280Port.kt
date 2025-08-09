@@ -1,7 +1,7 @@
 package org.kobjects.tablecraft.plugins.pi4j
 
 import com.pi4j.io.i2c.I2C
-import org.kobjects.pi4jdriver.sensor.environment.bmx280.Bmx280Driver
+import org.kobjects.pi4jdriver.sensor.bmx280.Bmx280Driver
 import org.kobjects.tablecraft.pluginapi.*
 import java.util.*
 

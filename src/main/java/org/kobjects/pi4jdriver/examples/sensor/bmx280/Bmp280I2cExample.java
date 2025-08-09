@@ -26,12 +26,12 @@
  *  License along with this program.  If not, see
  *  <http://www.gnu.org/licenses/lgpl-3.0.html>.
  */
-package org.kobjects.pi4jdriver.examples.sensor.environment.bmx280;
+package org.kobjects.pi4jdriver.examples.sensor.bmx280;
 
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
-import org.kobjects.pi4jdriver.sensor.environment.bmx280.Bmx280Driver;
+import org.kobjects.pi4jdriver.sensor.bmx280.Bmx280Driver;
 
 
 /**

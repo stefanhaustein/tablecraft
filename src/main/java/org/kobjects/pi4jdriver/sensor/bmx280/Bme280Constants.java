@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kobjects.pi4jdriver.sensor.environment.bmx280;
+package org.kobjects.pi4jdriver.sensor.bmx280;
 
 /** Additional constants for the BME280 */
 class Bme280Constants {

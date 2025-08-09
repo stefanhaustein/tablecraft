@@ -27,14 +27,14 @@
  * limitations under the License.
  */
 
-package org.kobjects.pi4jdriver.examples.sensor.environment.bmx280;
+package org.kobjects.pi4jdriver.examples.sensor.bmx280;
 
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.pi4j.io.spi.*;
-import org.kobjects.pi4jdriver.sensor.environment.bmx280.Bmx280Driver;
+import org.kobjects.pi4jdriver.sensor.bmx280.Bmx280Driver;
 
 /**
  * Sample application accessing the BMP280 sensor chip via SPI.
