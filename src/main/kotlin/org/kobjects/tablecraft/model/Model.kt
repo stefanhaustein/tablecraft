@@ -47,7 +47,13 @@ object Model : ModelInterface {
 
         applySynchronizedWithToken { runtimeContext ->
             runtimeContext.loading = true
-            loadData(STORAGE_FILE.readText(), runtimeContext)
+            var fileData = ""
+            try {
+                fileData = STORAGE_FILE.readText()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            loadData(fileData, runtimeContext)
         }
     }
 
@@ -152,7 +158,7 @@ object Model : ModelInterface {
 
 
     fun save() {
-        STORAGE_FILE.mkdirs()
+        STORAGE_FILE.parentFile.mkdirs()
         val writer = FileWriter(STORAGE_FILE)
         serialize(writer)
         writer.close()

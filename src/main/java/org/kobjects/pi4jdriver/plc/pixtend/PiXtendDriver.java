@@ -10,7 +10,7 @@ import com.pi4j.io.spi.SpiMode;
 
 import java.io.Closeable;
 
-
+/** Driver for the PiXtend PLC */
 public class PiXtendDriver implements Closeable {
     public static final int ANALOG_OUTPUT_COUNT = 2;
 
@@ -230,11 +230,15 @@ public class PiXtendDriver implements Closeable {
         dacOut[index * 2] = (byte) (dacOut[index * 2 + 1] & ~0x10 | (value ? 0x10 : 0));
     }
 
-    /** Sets the analog output voltage as a double value between 10 and 0 */
+    /** Sets the analog output voltage as a double value between 10.0 and 0 */
     public void setAnalogOut(int index, double value) {
         setRawAnalogOut(index, (int) Math.round(1023.0 * value / 10.0));
     }
 
+    /**
+     * Sets the analog output voltage as an integer between 0 and 1023.
+     * Larger or smaller values will be clamped accordingly.
+     */
     public void setRawAnalogOut(int index, int value) {
         checkRange(index, ANALOG_OUTPUT_COUNT, "Analog output");
         if (value > 1023) {

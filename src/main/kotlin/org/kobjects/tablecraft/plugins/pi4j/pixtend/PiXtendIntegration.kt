@@ -68,9 +68,11 @@ class PiXtendIntegration(
     override val operationSpecs: List<AbstractFactorySpec>
         get() = listOf(
             PiXtendAnalogInputPort.spec(this),
+            PiXtendAnalogOutputPort.spec(this),
             PiXtendDigitalInputPort.spec(this),
-            PiXtendGpioDigitalInputPort.spec(this)
-
+            PiXtendDigitalOutputPort.spec(this),
+            PiXtendGpioDigitalInputPort.spec(this),
+            PiXtendGpioDigitalOutputPort.spec(this),
         )
 
     override val configuration: Map<String, Any?>

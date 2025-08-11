@@ -53,10 +53,17 @@ public class Bmx280Driver {
     private SensorMode pressureMode = SensorMode.ENABLED;
     private SensorMode humidityMode;
 
+    /**
+     * Creates a BMx280 SPI driver using the given Spi instance. The additional pin is used
+     * to signal SPI access, as per the device SPI specification.
+     */
     public Bmx280Driver(Spi spi, DigitalOutput csb) {
         this (new SpiRegisterAccess(spi, csb));
     }
 
+    /**
+     * Creates a BMx280 I2C driver using the given parameter (typically an I2C instance).
+     */
     public Bmx280Driver(I2CRegisterDataReaderWriter registerAccess) {
         this.registerAccess = registerAccess;
 
@@ -168,7 +175,7 @@ public class Bmx280Driver {
     }
 
     /**
-     * Sets the spi 3 wire mode.
+     * Sets the SPI 3 wire mode.
      */
     public void setSpi3WireMode(boolean enable) {
         spi3WireMode = enable;
@@ -184,14 +191,17 @@ public class Bmx280Driver {
         return filterCoefficientIndex == 0 ? 0 : (2 >> filterCoefficientIndex);
     }
 
+    /** Disables or enables temperature measurement in the given oversampling mode */
     public void setTemperatureMode(SensorMode mode) {
         this.temperatureMode = mode;
     }
 
+    /** Disables or enables pressure measurement in the given oversampling mode */
     public void setPressureMode(SensorMode mode) {
         this.pressureMode = mode;
     }
 
+    /** Disables or enables humidity measurement in the given oversampling mode */
     public void setHumidityMode(SensorMode mode) {
         this.humidityMode = mode;
     }
@@ -207,7 +217,7 @@ public class Bmx280Driver {
      */
     public Measurement readMeasurements() {
         if (measurementMode == MeasurementMode.SLEEPING) {
-            setMeasurementMode(MeasurementMode.SINGLE);
+            setMeasurementMode(MeasurementMode.FORCED);
         }
 
         materializeSleep(true);
@@ -264,7 +274,7 @@ public class Bmx280Driver {
             humidity = varH;
         }
 
-        if (measurementMode == MeasurementMode.SINGLE) {
+        if (measurementMode == MeasurementMode.FORCED) {
             measurementMode = MeasurementMode.SLEEPING;
         }
 
@@ -384,11 +394,33 @@ public class Bmx280Driver {
     }
 
     public enum SensorMode {
-        DISABLED, ENABLED, OVERSAMPLE_1X, OVERSAMPLE_2X, OVERSAMPLE_4X, OVERSAMPLE_8X, OVERSAMPLE_16X
+        /** Don't measure anything */
+        DISABLED,
+        /** Perform measurements without any oversampling */
+        ENABLED,
+        OVERSAMPLE_2X,
+        OVERSAMPLE_4X,
+        OVERSAMPLE_8X,
+        OVERSAMPLE_16X
     }
 
     public enum MeasurementMode {
-        SLEEPING, CONTINUOUS, SINGLE
+        /**
+         * The initial "default" mode. The chip will not perform any measurements in this mode.
+         * Certain configuration commands will only work in this mode.
+         */
+        SLEEPING,
+        /**
+         * Continuous measuring mode. The chip will perform a measurement (taking getMeasurementTime() ms,
+         * depending on the sampling settings), then sleep for the time set via setStandbyTime() in
+         * a continuous loop.
+         */
+        CONTINUOUS,
+        /**
+         * Forces a single measurement and then goes back to SLEEPING. The measured values
+         * will be available after getMeasurementTime().
+         */
+        FORCED
     }
 
     public enum SensorType {

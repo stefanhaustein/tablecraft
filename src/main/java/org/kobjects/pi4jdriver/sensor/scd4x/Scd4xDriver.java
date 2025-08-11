@@ -41,7 +41,7 @@ public class Scd4xDriver {
 
     /**
      * Set the temperature offset in °C.
-     * <p><
+     * <p>
      * Correctly setting the temperature offset is required for
      * accurate humidity and temperature readings. This offset doesn't affect the sensor's
      * CO₂ accuracy.
@@ -129,16 +129,16 @@ public class Scd4xDriver {
         sendCommand(0x3615, 800);
     }
 
-    public int gerSerialNumber() {
+    public long gerSerialNumber() {
         sendCommand(0x3682, 1);
         materializeDelay();
         i2c.read(buf, 0, 3*3);
-        return ((buf[0] & 0xff) << 40)
-                | ((buf[1] & 0xff) << 32)
-                | ((buf[3] & 0xff) << 24)
-                | ((buf[4] & 0xff) << 16)
-                | ((buf[6] & 0xff) << 8)
-                | (buf[7] & 0xff);
+        return ((buf[0] & 0xffL) << 40L)
+                | ((buf[1] & 0xffL) << 32)
+                | ((buf[3] & 0xffL) << 24)
+                | ((buf[4] & 0xffL) << 16)
+                | ((buf[6] & 0xffL) << 8)
+                | (buf[7] & 0xffL);
     }
 
     /**
@@ -199,12 +199,17 @@ public class Scd4xDriver {
     }
 
 
-    private void sendCommand(int cmd, int time, int... args) {
+    /**
+     * Sends the given command to the chip after materializing the delay implied
+     * by the previous command and keeps track of the delay implied by this command
+     * (from the timeMs parameter) in busyUntil.
+     */
+    private void sendCommand(int cmdCode, int timeMs, int... args) {
         materializeDelay();
 
         int idx = 0;
-        buf[idx++] = (byte) (cmd >>> 8);
-        buf[idx++] = (byte) cmd;
+        buf[idx++] = (byte) (cmdCode >>> 8);
+        buf[idx++] = (byte) cmdCode;
 
         for (int i = 0; i < args.length; i++) {
             int p0 = idx;
@@ -215,7 +220,7 @@ public class Scd4xDriver {
 
         i2c.write(buf, 0, 2 + 3 * args.length);
 
-        busyUntil = System.currentTimeMillis() + time;
+        busyUntil = System.currentTimeMillis() + timeMs;
     }
 
     public int readValue() {
