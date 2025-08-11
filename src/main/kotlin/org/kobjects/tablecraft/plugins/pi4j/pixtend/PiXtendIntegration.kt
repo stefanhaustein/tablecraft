@@ -73,6 +73,7 @@ class PiXtendIntegration(
             PiXtendDigitalOutputPort.spec(this),
             PiXtendGpioDigitalInputPort.spec(this),
             PiXtendGpioDigitalOutputPort.spec(this),
+            PiXtendRelayPort.spec(this),
         )
 
     override val configuration: Map<String, Any?>
