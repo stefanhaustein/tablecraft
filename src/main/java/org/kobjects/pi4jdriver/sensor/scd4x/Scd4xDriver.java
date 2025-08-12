@@ -2,24 +2,35 @@ package org.kobjects.pi4jdriver.sensor.scd4x;
 
 import com.pi4j.io.i2c.I2C;
 
+/** Pi4J-based driver for SCD4X co2 (+ temperature and humidity) sensors */
 public class Scd4xDriver {
 
+    /** The I2C address of the device (needed for constructing an I2C instance) */
     public static final int I2C_ADDRESS = 0x62;
-    private byte[] buf = new byte[64];
+    private final byte[] buf = new byte[64];
     private long busyUntil;
 
     private final I2C i2c;
 
+    /**
+     * Creates a driver instance, connected via the given I2C instance. Note that the device needs to be set to
+     * I2C_ADDRESS when building the I2C instance.
+     */
     public Scd4xDriver(I2C i2c) {
         this.i2c = i2c;
     }
 
     // Basic commands; Chapter 3.5
 
+    /** Starts periodic measurement. This is already the default state on powerup. */
     public void startPeriodicMeasurement() {
         sendCommand(0x21b1, 0);
     }
 
+    /**
+     * Read a measurement. Note that no further measurements will be available until the device actually
+     * performs another measurement.
+     */
     public Measurement readMeasurement() {
         sendCommand(0xec05, 1);
 
@@ -30,7 +41,10 @@ public class Scd4xDriver {
         int raw_temperature = ((buf[3] & 0xff) <<8) | (buf[4] & 0xff);
         int raw_humidity = ((buf[6] & 0xff) <<8) | (buf[7] & 0xff);
 
-        return new Measurement(co2, -45 + 175.0f * raw_temperature / 65535.0f, 100.0f * raw_humidity / 65535.0f);
+        return new Measurement(
+                co2,
+                -45 + 175.0f * raw_temperature / 65535.0f,
+                100.0f * raw_humidity / 65535.0f);
     }
 
     public void stopPeriodicMeasurement() {
@@ -117,6 +131,7 @@ public class Scd4xDriver {
         sendCommand(0x21ac, 0);
     }
 
+    /** Returns true if a measurement is available; false otherwise. */
     public boolean getDataReadyStatus() {
         sendCommand(0xe4b8, 1);
         int readyState = readValue();
@@ -129,6 +144,7 @@ public class Scd4xDriver {
         sendCommand(0x3615, 800);
     }
 
+    /** Returns the 48 bit serial number of the device as a long. */
     public long gerSerialNumber() {
         sendCommand(0x3682, 1);
         materializeDelay();
@@ -218,9 +234,10 @@ public class Scd4xDriver {
             buf[idx++] = crc(buf, p0, 2);
         }
 
-        i2c.write(buf, 0, 2 + 3 * args.length);
+        i2c.write(buf, 0, idx);
 
-        busyUntil = System.currentTimeMillis() + timeMs;
+        // Assume at least 1ms and add one ms as we don't know how much time is remaining to the next millisecond.
+        busyUntil = System.currentTimeMillis() + Math.max(1, timeMs) + 1;
     }
 
     public int readValue() {
@@ -232,7 +249,7 @@ public class Scd4xDriver {
     private void materializeDelay() {
         while (true) {
             long time = System.currentTimeMillis();
-            if (time > busyUntil) {  // > for safety if current milli was nearly over already.
+            if (time >= busyUntil) {
                 break;
             }
             try {
@@ -243,10 +260,13 @@ public class Scd4xDriver {
         }
     }
 
+    /**
+     * A measurement record containing the measured values returned form readMeasurement()
+     */
     public static class Measurement {
-        int co2;
-        float temperature;
-        float humidity;
+        private final int co2;
+        private final float temperature;
+        private final float humidity;
 
         public Measurement(int co2, float temperature, float humidity) {
             this.co2 = co2;
@@ -259,17 +279,19 @@ public class Scd4xDriver {
             return "co2 = " + co2 + " ppm; temperature = " + temperature + " °C; humidity = " + humidity + " %";
         }
 
+        /** Measured co2 concentration in ppm */
         public int getCo2() {
             return co2;
         }
 
+        /** Measured temperature in C */
         public float getTemperature() {
             return temperature;
         }
 
+        /** Measured relative humidity in % */
         public float getHumidity() {
             return humidity;
         }
     }
-
 }
