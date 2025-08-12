@@ -7,6 +7,7 @@ import com.pi4j.io.gpio.digital.DigitalOutput
 import com.pi4j.io.gpio.digital.DigitalOutputConfig
 import org.kobjects.tablecraft.pluginapi.*
 import org.kobjects.tablecraft.plugins.pi4j.devices.Bmp280Port
+import org.kobjects.tablecraft.plugins.pi4j.devices.Scd4xPort
 import org.kobjects.tablecraft.plugins.pi4j.pixtend.PiXtendIntegration
 
 class Pi4jPlugin(val model: ModelInterface) : Plugin {
@@ -47,6 +48,7 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
         DigitalOutputPort.spec(this),
         Lcd.spec(this),
         Bmp280Port.spec(this),
+        Scd4xPort.spec(this),
         PiXtendIntegration.spec(this),
     )
 
