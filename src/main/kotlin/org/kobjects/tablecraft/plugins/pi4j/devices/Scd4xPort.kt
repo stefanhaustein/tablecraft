@@ -1,26 +1,27 @@
-package org.kobjects.tablecraft.plugins.pi4j
+package org.kobjects.tablecraft.plugins.pi4j.devices
 
 import com.pi4j.io.i2c.I2C
-import org.kobjects.pi4jdriver.sensor.bmx280.Bmx280Driver
+import org.kobjects.pi4jdriver.sensor.scd4x.Scd4xDriver
 import org.kobjects.tablecraft.pluginapi.*
+import org.kobjects.tablecraft.plugins.pi4j.Pi4jPlugin
 import java.util.*
+import kotlin.math.roundToInt
 
-class Bmp280Port(
+class Scd4xPort(
     val host: InputPortListener,
     val plugin: Pi4jPlugin,
     bus: Int,
-    address: Int
 
 ) : InputPortInstance {
 
     val i2c = plugin.pi4J.create(
         I2C.newConfigBuilder(plugin.pi4J)
             .bus(bus)
-            .device(address)
+            .device(Scd4xDriver.I2C_ADDRESS)
             .provider("linuxfs-i2c")
             .build()
     )
-    var bmp280 = Bmx280Driver(i2c)
+    var scd4x = Scd4xDriver(i2c)
     val timer = Timer().apply {
         schedule(object : TimerTask() {
             override fun run() {
@@ -33,11 +34,11 @@ class Bmp280Port(
 
 
     fun poll() {
-        val measurement = bmp280.readMeasurements()
+        val measurement = scd4x.readMeasurement()
         value = mapOf(
-            "temperature" to measurement?.getTemperature(),
-            "pressure" to measurement?.getPressure(),
-            "humidity" to measurement?.getHumidity(),
+            "temperature" to measurement?.getTemperature()?.toDouble(),
+            "co2" to measurement?.getCo2()?.toDouble(),
+            "humidity" to measurement?.getHumidity()?.toDouble(),
         )
         host.updateValue(value)
     }
@@ -57,9 +58,9 @@ class Bmp280Port(
 
         fun spec(plugin: Pi4jPlugin) = InputPortSpec(
             category = "Driver",
-            "Bmp280",
+            "Scd4x",
             TYPE,
-            "BMP 280 sensor port.",
+            "SCD 4x sensor port.",
             listOf(
                 ParameterSpec(
                     "bus",
@@ -67,14 +68,9 @@ class Bmp280Port(
                     1,
                     setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)
                 ),
-                ParameterSpec(
-                    "address",
-                    Type.INT,
-                    0x77,
-                    setOf(ParameterSpec.Modifier.CONSTANT, ParameterSpec.Modifier.OPTIONAL)
-                )),
+            ),
             createFn = { config, host ->
-                Bmp280Port(host, plugin, config["bus"] as? Int ?: 1, config ["address"] as? Int ?:  0x77) },
+                Scd4xPort(host, plugin, config["bus"] as? Int ?: 1) },
         )
     }
 }

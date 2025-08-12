@@ -30,7 +30,7 @@ public class Scd4xDriver {
         int raw_temperature = ((buf[3] & 0xff) <<8) | (buf[4] & 0xff);
         int raw_humidity = ((buf[6] & 0xff) <<8) | (buf[7] & 0xff);
 
-        return new Measurement(co2, -45 + 175.0 * raw_temperature / 65535.0, 100.0 * raw_humidity / 65535.0);
+        return new Measurement(co2, -45 + 175.0f * raw_temperature / 65535.0f, 100.0f * raw_humidity / 65535.0f);
     }
 
     public void stopPeriodicMeasurement() {
@@ -245,10 +245,10 @@ public class Scd4xDriver {
 
     public static class Measurement {
         int co2;
-        double temperature;
-        double humidity;
+        float temperature;
+        float humidity;
 
-        public Measurement(int co2,  double temperature, double humidity) {
+        public Measurement(int co2, float temperature, float humidity) {
             this.co2 = co2;
             this.temperature = temperature;
             this.humidity = humidity;
@@ -257,6 +257,18 @@ public class Scd4xDriver {
         @Override
         public String toString() {
             return "co2 = " + co2 + " ppm; temperature = " + temperature + " °C; humidity = " + humidity + " %";
+        }
+
+        public int getCo2() {
+            return co2;
+        }
+
+        public float getTemperature() {
+            return temperature;
+        }
+
+        public float getHumidity() {
+            return humidity;
         }
     }
 

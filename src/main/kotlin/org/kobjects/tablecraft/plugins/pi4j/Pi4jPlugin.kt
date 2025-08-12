@@ -6,6 +6,7 @@ import com.pi4j.io.gpio.digital.DigitalInputConfig
 import com.pi4j.io.gpio.digital.DigitalOutput
 import com.pi4j.io.gpio.digital.DigitalOutputConfig
 import org.kobjects.tablecraft.pluginapi.*
+import org.kobjects.tablecraft.plugins.pi4j.devices.Bmp280Port
 import org.kobjects.tablecraft.plugins.pi4j.pixtend.PiXtendIntegration
 
 class Pi4jPlugin(val model: ModelInterface) : Plugin {
