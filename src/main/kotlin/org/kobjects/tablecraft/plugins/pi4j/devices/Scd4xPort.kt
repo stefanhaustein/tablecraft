@@ -22,7 +22,15 @@ class Scd4xPort(
             .build()
     )
     var scd4x = Scd4xDriver(i2c)
+
     val timer = Timer().apply {
+
+        scd4x.stopPeriodicMeasurement()
+        scd4x.wakeUp()
+        scd4x.reInit()
+        scd4x.startPeriodicMeasurement()
+
+
         schedule(object : TimerTask() {
             override fun run() {
                 poll()

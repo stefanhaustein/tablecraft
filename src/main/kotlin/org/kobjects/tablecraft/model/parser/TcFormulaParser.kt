@@ -106,7 +106,7 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
         }
 
         while (scanner.tryConsume(".")) {
-            result = FieldExpression(result, scanner.consume(TcTokenType.IDENTIFIER).text)
+            result = FieldExpression(result, scanner.consume().text)
         }
         return result
 

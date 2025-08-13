@@ -32,10 +32,18 @@ public class Scd4xDriver {
      * performs another measurement.
      */
     public Measurement readMeasurement() {
-        sendCommand(0xec05, 1);
 
         materializeDelay();
 
+        while (!getDataReadyStatus()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        sendCommand(0xec05, 1);
         i2c.read(buf, 0, 3*3);
         int co2 = ((buf[0] & 0xff) <<8) | (buf[1] & 0xff);
         int raw_temperature = ((buf[3] & 0xff) <<8) | (buf[4] & 0xff);
