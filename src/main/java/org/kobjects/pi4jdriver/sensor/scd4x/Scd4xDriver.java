@@ -2,7 +2,10 @@ package org.kobjects.pi4jdriver.sensor.scd4x;
 
 import com.pi4j.io.i2c.I2C;
 
-/** Pi4J-based driver for SCD4X co2 (+ temperature and humidity) sensors */
+/**
+ * Pi4J-based driver for SCD4X co2 (+ temperature and humidity) sensors.
+ * Product datasheet link: https://sensirion.com/media/documents/48C4B7FB/64C134E7/Sensirion_SCD4x_Datasheet.pdf
+ */
 public class Scd4xDriver {
 
     /** The I2C address of the device (needed for constructing an I2C instance) */
@@ -15,6 +18,8 @@ public class Scd4xDriver {
     /**
      * Creates a driver instance, connected via the given I2C instance. Note that the device needs to be set to
      * I2C_ADDRESS when building the I2C instance.
+     *
+     * The sensor will initially be in IDLE state.
      */
     public Scd4xDriver(I2C i2c) {
         this.i2c = i2c;
@@ -22,7 +27,7 @@ public class Scd4xDriver {
 
     // Basic commands; Chapter 3.5
 
-    /** Starts periodic measurement. This is already the default state on powerup. */
+    /** Starts periodic measurement at an interval of 5 seconds. */
     public void startPeriodicMeasurement() {
         sendCommand(0x21b1, 0);
     }
@@ -153,7 +158,7 @@ public class Scd4xDriver {
     }
 
     /** Returns the 48 bit serial number of the device as a long. */
-    public long gerSerialNumber() {
+    public long getSerialNumber() {
         sendCommand(0x3682, 1);
         materializeDelay();
         i2c.read(buf, 0, 3*3);
