@@ -37,8 +37,8 @@ public class Scd4xDriver {
 
     /**
      * Read a measurement. This command will implicitly wait until a measurement is available and throw an
-     * exception if a measurement will not be available within the time frame implied by the measurement mode.
-     *
+     * exception if a measurement will not be available within the interval time implied by the measurement mode.
+     * <p>
      * Reading the value will clear it internally, so the next read won't be available until the measurement
      * time implied by the measurement mode.
      */
@@ -77,7 +77,7 @@ public class Scd4xDriver {
     }
 
     /**
-     * Stops periodic measurements to save power.
+     * Stops periodic measurements to save power and goes back to IDLE mode.
      */
     public void stopPeriodicMeasurement() {
         sendCommand(0x3f86, 500);
@@ -131,7 +131,7 @@ public class Scd4xDriver {
         sendConfigurationCommand(0x2427, 1, Math.max(0, Math.min(altitudeMasl, 3000)));
     }
 
-    /** Returns the sensor altitude currently set in m. */
+    /** Returns the sensor altitude as set in m. */
     public int getSensorAltitude() {
         sendConfigurationCommand(0x2322, 1);
         return readValue();
@@ -148,6 +148,10 @@ public class Scd4xDriver {
 
     // Chapter 3.7: Field Calibration
 
+    /**
+     * Please refer to chapter 3.7.1 of the Sensirion specification for the steps necessary to perform a
+     * successful forced recalibration with a given reference value.
+     */
     public int performForcedRecalibration(int referenceCo2ppm) {
         sendConfigurationCommand(0x362f, 400, referenceCo2ppm);
         int result = readValue();
@@ -157,10 +161,16 @@ public class Scd4xDriver {
         return result - 0x8000;
     }
 
+    /**
+     * Enables or disables automatic self calibration. Enabled self calibration is the default.
+     */
     public void setAutomaticSelfCalibrationEnabled(boolean enabled) {
         sendConfigurationCommand(0x2416, 1, enabled ? 1 : 0);
     }
 
+    /**
+     * Returns whether automatic self calibration is currently enabled.
+     */
     public boolean getAutomaticSelfCalibrationEnabled() {
         sendConfigurationCommand(0x2313, 1);
         return readValue() != 0;
@@ -168,6 +178,10 @@ public class Scd4xDriver {
 
     // Chapter 3.8: Low Power Operation
 
+    /**
+     * Enables periodic measurement approximately every 30 seconds (opposed to every 5 seconds via
+     * startPeriodicMeasurment())
+     */
     public void startLowPowerPeriodicMeasurement() {
         sendConfigurationCommand(0x21ac, 0);
         mode = Mode.LOW_POWER_PERIODIC_MEASUREMENT;
@@ -186,6 +200,10 @@ public class Scd4xDriver {
 
     // Chapter 3.9: Advanced Features
 
+    /**
+     * Saves changed calibration settings to EEPROM. Without performing this action, calibration data will be
+     * lost during a power cycle.
+     */
     public void persistSettings() {
         sendConfigurationCommand(0x3615, 800);
     }
@@ -212,17 +230,26 @@ public class Scd4xDriver {
         return readValue();
     }
 
+    /**
+     * Resets all configuration settings stored in the EEPROM and erases the FRC and ASC algorithm history.
+     */
     public void performFactoryReset() {
-        sendCommand(0x3632, 1200);
+        sendConfigurationCommand(0x3632, 1200);
     }
 
+    /**
+     * Resets all volatile configuration settings (similar to a power cycle).
+     */
     public void reInit() {
         sendCommand(0x3646, 30);
     }
 
     // Chapter 3.10: Low power single shot (SCD41)
 
-    /** Requests a single shot measurement; only available for the SCD41 sensor. */
+    /**
+     * Requests a single shot measurement; only available for the SCD41 sensor.
+     * For details, please refer to section 3.10 of the device specification.
+     */
     public void measureSingleShot() {
         sendCommand(0x29d, 5000);
     }
@@ -236,11 +263,17 @@ public class Scd4xDriver {
         mode = Mode.SINGLE_SHOT_MEASUREMENT;
     }
 
+    /**
+     * Put the sensor from IDLE to SLEEP mode in order ot save power.
+     */
     public void powerDown() {
         sendConfigurationCommand(0x36e0, 1);
         mode = Mode.SLEEP;
     }
 
+    /**
+     * Wake the device up from SLEEP mode and put it back into IDLE mode.
+     */
     public void wakeUp() {
         sendCommand(0x36f6, 1);
         mode = Mode.IDLE;
