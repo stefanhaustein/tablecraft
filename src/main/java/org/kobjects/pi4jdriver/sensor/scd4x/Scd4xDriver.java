@@ -70,6 +70,10 @@ public class Scd4xDriver {
         int raw_temperature = ((buf[3] & 0xff) <<8) | (buf[4] & 0xff);
         int raw_humidity = ((buf[6] & 0xff) <<8) | (buf[7] & 0xff);
 
+        if (mode == Mode.SINGLE_SHOT_MEASUREMENT) {
+            mode = Mode.IDLE;
+        }
+
         return new Measurement(
                 co2,
                 -45 + 175.0f * raw_temperature / 65535.0f,
@@ -252,6 +256,7 @@ public class Scd4xDriver {
      */
     public void measureSingleShot() {
         sendCommand(0x29d, 5000);
+        mode = Mode.SINGLE_SHOT_MEASUREMENT;
     }
 
     /**
