@@ -25,8 +25,9 @@ public class Scd4xDriver {
      * to I2C_ADDRESS when building the I2C instance.
      * <p>
      * In most use cases, should make sense to first bring the device into a well-defined state via
-     * safeInit(), then call startPeriodicMeasurement() or startLowPowerPeriodicMeasurement(), and then
-     * obtain measurements via readMeasurement() as needed.
+     * safeInit(). After this, the sensor can be configured as desired (e.g. by setting the altitude).
+     * To initiate data collection, call startPeriodicMeasurement() or startLowPowerPeriodicMeasurement().
+     * After this, measurements can be obtained via readMeasurement() as needed.
      */
     public Scd4xDriver(I2C i2c) {
         this.i2c = i2c;
