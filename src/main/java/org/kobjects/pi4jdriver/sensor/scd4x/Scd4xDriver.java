@@ -13,8 +13,7 @@ public class Scd4xDriver {
 
     /** The I2C address of the device (needed for constructing an I2C instance) */
     public static final int I2C_ADDRESS = 0x62;
-    private final byte[] buf = new byte[64];
-    private final ByteBuffer ioBuf = ByteBuffer.allocate(64);
+    private final ByteBuffer ioBuf = ByteBuffer.allocate(9);
     private long busyUntil;
 
     private final I2C i2c;
@@ -70,9 +69,9 @@ public class Scd4xDriver {
         sendCommand(0xec05, 1);
         i2c.read(ioBuf.array(), 3 * 3);
         // i2c.read(buf, 0, 3*3);
-        int co2 = ioBuf.getShort(0); // (buf[0] & 0xff) <<8) | (buf[1] & 0xff);
-        int raw_temperature = ioBuf.getShort(3); // ((buf[3] & 0xff) <<8) | (buf[4] & 0xff);
-        int raw_humidity = ioBuf.getShort(6); // (buf[6] & 0xff) <<8) | (buf[7] & 0xff);
+        int co2 = u16(ioBuf.getShort(0));
+        int raw_temperature = u16(ioBuf.getShort(3));
+        int raw_humidity = u16(ioBuf.getShort(6));
 
         if (mode == Mode.SINGLE_SHOT_MEASUREMENT) {
             mode = Mode.IDLE;
@@ -220,13 +219,10 @@ public class Scd4xDriver {
     public long getSerialNumber() {
         sendConfigurationCommand(0x3682, 1);
         materializeDelay();
-        i2c.read(buf, 0, 3*3);
-        return ((buf[0] & 0xffL) << 40L)
-                | ((buf[1] & 0xffL) << 32)
-                | ((buf[3] & 0xffL) << 24)
-                | ((buf[4] & 0xffL) << 16)
-                | ((buf[6] & 0xffL) << 8)
-                | (buf[7] & 0xffL);
+        i2c.read(ioBuf.array(), 0, 3 * 3);
+        return (((long) u16(ioBuf.getShort(0))) << 32)
+                | ((long) u16(ioBuf.getShort(3)) << 16)
+                | u16(ioBuf.getShort(6));
     }
 
     /**
@@ -309,10 +305,14 @@ public class Scd4xDriver {
 
     // Internal helpers
 
-    private static byte crc(byte[] data, int offset, int count) {
+    private static int u16(short s16) {
+        return s16 & 0xffff;
+    }
+
+    private static byte crc(ByteBuffer data, int offset, int count) {
         byte crc = (byte) 0xff;
         for (int index = offset; index < offset + count; index++) {
-            crc ^= data[index];
+            crc ^= data.get(index);
             for (int crcBit = 8; crcBit > 0; --crcBit) {
                 if ((crc & 0x80) != 0) {
                     crc = (byte) ((crc << 1) ^ 0x31);
@@ -340,18 +340,16 @@ public class Scd4xDriver {
     private void sendCommand(int cmdCode, int timeMs, int... args) {
         materializeDelay();
 
-        int idx = 0;
-        buf[idx++] = (byte) (cmdCode >>> 8);
-        buf[idx++] = (byte) cmdCode;
+        ioBuf.putShort((short) cmdCode);
 
         for (int i = 0; i < args.length; i++) {
-            int p0 = idx;
-            buf[idx++] = (byte) (args[i] >>> 8);
-            buf[idx++] = (byte) args[i];
-            buf[idx++] = crc(buf, p0, 2);
+            int p0 = ioBuf.position();
+            ioBuf.putShort((short) args[i]);
+            ioBuf.put(crc(ioBuf, p0, 2));
         }
 
-        i2c.write(buf, 0, idx);
+        i2c.write(ioBuf.array(), ioBuf.position());
+        ioBuf.clear();
 
         // Assume at least 1ms and add one ms as we don't know how much time is remaining to the next millisecond.
         busyUntil = System.currentTimeMillis() + Math.max(1, timeMs) + 1;
@@ -359,8 +357,8 @@ public class Scd4xDriver {
 
     private int readValue() {
         materializeDelay();
-        i2c.read(buf, 0, 3);
-        return ((buf[0] & 0xff) << 8) | (buf[1] & 0xff);
+        i2c.read(ioBuf.array(), 3);
+        return u16(ioBuf.getShort(0));
     }
 
     private void materializeDelay() {
