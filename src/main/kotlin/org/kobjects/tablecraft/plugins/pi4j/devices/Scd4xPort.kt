@@ -5,7 +5,6 @@ import org.kobjects.pi4jdriver.sensor.scd4x.Scd4xDriver
 import org.kobjects.tablecraft.pluginapi.*
 import org.kobjects.tablecraft.plugins.pi4j.Pi4jPlugin
 import java.util.*
-import kotlin.math.roundToInt
 
 class Scd4xPort(
     val host: InputPortListener,
@@ -45,7 +44,9 @@ class Scd4xPort(
             "co2" to measurement?.getCo2()?.toDouble(),
             "humidity" to measurement?.getHumidity()?.toDouble(),
         )
-        host.updateValue(value)
+        plugin.model.applySynchronizedWithToken {
+            host.updateValue(it, value)
+        }
     }
 
     override fun detach() {

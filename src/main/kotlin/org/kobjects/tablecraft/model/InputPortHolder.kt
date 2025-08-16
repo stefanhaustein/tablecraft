@@ -51,7 +51,7 @@ class InputPortHolder(
     }
 
     // Implements the corresponding value change listener method.
-    override fun updateValue(newValue: Any?) {
+    override fun updateValue(token: ModificationToken, newValue: Any?) {
         Model.applySynchronizedWithToken {
             portValue = newValue
             it.addRefresh(this)

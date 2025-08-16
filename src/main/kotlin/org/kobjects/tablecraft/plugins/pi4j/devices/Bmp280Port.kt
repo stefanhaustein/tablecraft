@@ -40,7 +40,9 @@ class Bmp280Port(
             "pressure" to measurement?.getPressure()?.toDouble(),
             "humidity" to measurement?.getHumidity()?.toDouble(),
         )
-        host.updateValue(value)
+        plugin.model.applySynchronizedWithToken {
+            host.updateValue(it, value)
+        }
     }
 
     override fun detach() {

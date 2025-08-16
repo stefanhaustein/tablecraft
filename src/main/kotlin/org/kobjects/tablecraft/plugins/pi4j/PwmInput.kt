@@ -23,7 +23,9 @@ class PwmInput(
                 val newValue = (System.currentTimeMillis() - t0) / 1000.0
                 if (newValue != value && t0 != 0L) {
                     value = newValue
-                    host?.updateValue(newValue)
+                    plugin.model.applySynchronizedWithToken {
+                        host.updateValue(it, newValue)
+                    }
                 }
             }
         }

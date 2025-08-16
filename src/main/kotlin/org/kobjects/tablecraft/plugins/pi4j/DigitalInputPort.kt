@@ -2,6 +2,7 @@ package org.kobjects.tablecraft.plugins.pi4j
 
 import com.pi4j.io.gpio.digital.*
 import com.pi4j.io.gpio.digital.DigitalInput
+import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.pluginapi.*
 
 class DigitalInputPort(
@@ -18,7 +19,9 @@ class DigitalInputPort(
 
     override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
             value = event?.state()?.isHigh ?: false
-        host.updateValue(value)
+        plugin.model.applySynchronizedWithToken {
+            host.updateValue(it, value)
+        }
     }
 
     override fun detach() {

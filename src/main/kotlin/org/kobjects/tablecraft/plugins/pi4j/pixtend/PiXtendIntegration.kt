@@ -35,8 +35,10 @@ class PiXtendIntegration(
                 val driver = driver!!
                 while (myNumber == threadNumber) {
                     driver.syncState()
-                    for (inputPort in inputPorts) {
-                        inputPort.syncState()
+                    pi4j.model.applySynchronizedWithToken {
+                        for (inputPort in inputPorts) {
+                            inputPort.syncState(it)
+                        }
                     }
                 }
                 driver.close()
