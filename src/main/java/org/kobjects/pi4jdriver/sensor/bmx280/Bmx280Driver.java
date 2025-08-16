@@ -23,11 +23,13 @@ import com.pi4j.io.spi.Spi;
 
 /**
  * Driver for BME 280 and BMP 280 chips.
+ * <p>
+ * Datasheet: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf
  */
 public class Bmx280Driver {
 
-    private final double[] BME_280_STANDBY_TIMES = {0.5, 62.5, 125, 250, 500, 1000, 2000, 4000};
-    private final double[] BMP_280_STANDBY_TIMES = {0.5, 62.5, 125, 250, 500, 1000, 10, 20};
+    private final static double[] BME_280_STANDBY_TIMES = {0.5, 62.5, 125, 250, 500, 1000, 2000, 4000};
+    private final static double[] BMP_280_STANDBY_TIMES = {0.5, 62.5, 125, 250, 500, 1000, 10, 20};
 
     private final I2CRegisterDataReaderWriter registerAccess;
     private final SensorType sensorType;

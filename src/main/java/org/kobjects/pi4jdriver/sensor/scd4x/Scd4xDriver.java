@@ -2,6 +2,8 @@ package org.kobjects.pi4jdriver.sensor.scd4x;
 
 import com.pi4j.io.i2c.I2C;
 
+import java.nio.ByteBuffer;
+
 /**
  * Pi4J-based driver for SCD4X co2 (+ temperature and humidity) sensors.
  * <p>
@@ -12,6 +14,7 @@ public class Scd4xDriver {
     /** The I2C address of the device (needed for constructing an I2C instance) */
     public static final int I2C_ADDRESS = 0x62;
     private final byte[] buf = new byte[64];
+    private final ByteBuffer ioBuf = ByteBuffer.allocate(64);
     private long busyUntil;
 
     private final I2C i2c;
@@ -65,10 +68,11 @@ public class Scd4xDriver {
         }
 
         sendCommand(0xec05, 1);
-        i2c.read(buf, 0, 3*3);
-        int co2 = ((buf[0] & 0xff) <<8) | (buf[1] & 0xff);
-        int raw_temperature = ((buf[3] & 0xff) <<8) | (buf[4] & 0xff);
-        int raw_humidity = ((buf[6] & 0xff) <<8) | (buf[7] & 0xff);
+        i2c.read(ioBuf.array(), 3 * 3);
+        // i2c.read(buf, 0, 3*3);
+        int co2 = ioBuf.getShort(0); // (buf[0] & 0xff) <<8) | (buf[1] & 0xff);
+        int raw_temperature = ioBuf.getShort(3); // ((buf[3] & 0xff) <<8) | (buf[4] & 0xff);
+        int raw_humidity = ioBuf.getShort(6); // (buf[6] & 0xff) <<8) | (buf[7] & 0xff);
 
         if (mode == Mode.SINGLE_SHOT_MEASUREMENT) {
             mode = Mode.IDLE;
