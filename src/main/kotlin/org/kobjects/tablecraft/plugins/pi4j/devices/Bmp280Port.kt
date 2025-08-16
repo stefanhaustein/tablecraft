@@ -36,9 +36,9 @@ class Bmp280Port(
     fun poll() {
         val measurement = bmp280.readMeasurements()
         value = mapOf(
-            "temperature" to measurement?.getTemperature(),
-            "pressure" to measurement?.getPressure(),
-            "humidity" to measurement?.getHumidity(),
+            "temperature" to measurement?.getTemperature()?.toDouble(),
+            "pressure" to measurement?.getPressure()?.toDouble(),
+            "humidity" to measurement?.getHumidity()?.toDouble(),
         )
         host.updateValue(value)
     }

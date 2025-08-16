@@ -52,7 +52,7 @@ public class Scd4xDriver {
         materializeDelay();
 
         int expectedInterval = (mode == Mode.LOW_POWER_PERIODIC_MEASUREMENT ? 30_000 : 5_000);
-        // Multiply with 1.5 to allow some extra
+        // Multiply with 1.5 to allow some tolerance.
         long timeOut = System.currentTimeMillis() + expectedInterval * 3 / 2;
 
         // getDataReadyStatus will check that we are in one of the measurement modes.
