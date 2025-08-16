@@ -145,8 +145,8 @@ fun Application.module() {
 
             if (tag >= Model.modificationTag) {
                 suspendCoroutine<Unit> { continuation ->
-                    Model.applySynchronizedWithToken {
-                        Model.listeners.add {
+                    Model.applySynchronized {
+                        Model.addUpdateListener(permanent = false, onChangeOnly = true) { tag, anyChange ->
                             continuation.resume(Unit)
                         }
                     }

@@ -24,7 +24,8 @@ object Model : ModelInterface {
     var settingsTag: Long = 0
 
     val sheets = mutableMapOf<String, Sheet>("Sheet1" to Sheet("Sheet1"))
-    val listeners = mutableSetOf<() -> Unit>()
+
+    val updateListeners = mutableSetOf<UpdateListenerData>()
 
     val plugins = mutableListOf<Plugin>()
 
@@ -56,6 +57,11 @@ object Model : ModelInterface {
             loadData(fileData, runtimeContext)
         }
     }
+
+    override fun addUpdateListener(permanent: Boolean, onChangeOnly: Boolean, listener: (modificationTag: Long, anyChanged: Boolean) -> Unit) {
+        updateListeners.add(UpdateListenerData(permanent, onChangeOnly, listener))
+    }
+
 
     fun addPlugin(plugin: Plugin) {
         plugins.add(plugin)
@@ -218,8 +224,8 @@ object Model : ModelInterface {
 
 
     @OptIn(ExperimentalContracts::class)
-    override fun <T> applySynchronizedWithToken(action: (ModificationToken) -> T): T {
-        return lock.withLock {
+    override fun applySynchronizedWithToken(action: (ModificationToken) -> Unit) {
+        lock.withLock {
             val modificationToken = ModificationToken()
 
             val result = action(modificationToken)
@@ -307,16 +313,24 @@ object Model : ModelInterface {
             }
 
             modificationTag = modificationToken.tag
-            if (anyChanged) {
-                for(listener in listeners) {
-                    listener.invoke()
+            val removalSet = mutableSetOf<Any>()
+            for(listener in updateListeners) {
+                if (anyChanged || !listener.onChangeOnly) {
+                    listener.listener(modificationTag, anyChanged)
+                    if (!listener.permanent) {
+                        removalSet.add(listener)
+                    }
                 }
-                listeners.clear()
             }
-
-            result
+            updateListeners.removeAll(removalSet)
         }
     }
 
     fun <T> applySynchronized(action: () -> T) = lock.withLock(action)
+
+    data class UpdateListenerData (
+        val onChangeOnly: Boolean,
+        val permanent: Boolean,
+        val listener: (modificationTag: Long, anyChanged: Boolean) -> Unit
+    )
 }

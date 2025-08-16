@@ -2,6 +2,8 @@ package org.kobjects.tablecraft.pluginapi
 
 interface ModelInterface {
 
-    fun <T> applySynchronizedWithToken(action: (ModificationToken) -> T): T
+    fun applySynchronizedWithToken(action: (ModificationToken) -> Unit)
+
+    fun addUpdateListener(permanent: Boolean, onChangeOnly: Boolean, listener: (modificationTag: Long, anyChanged: Boolean) -> Unit)
 
 }
