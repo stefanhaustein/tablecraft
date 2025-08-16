@@ -24,18 +24,15 @@ class Scd4xPort(
     var scd4x = Scd4xDriver(i2c)
 
     val timer = Timer().apply {
-
-        scd4x.stopPeriodicMeasurement()
-        scd4x.wakeUp()
-        scd4x.reInit()
-        scd4x.startPeriodicMeasurement()
-
+        scd4x.safeInit()
+        scd4x.startLowPowerPeriodicMeasurement()
+        poll()
 
         schedule(object : TimerTask() {
             override fun run() {
                 poll()
             }
-        }, 0, 10000)
+        }, 0, 30000)
     }
 
     override var value = emptyMap<String, Double?>()

@@ -21,9 +21,7 @@ public class Scd4xExample {
 
         Scd4xDriver driver = new Scd4xDriver(i2c);
 
-        driver.stopPeriodicMeasurement();
-
-        driver.reInit();
+        driver.safeInit();
 
         driver.startPeriodicMeasurement();
 

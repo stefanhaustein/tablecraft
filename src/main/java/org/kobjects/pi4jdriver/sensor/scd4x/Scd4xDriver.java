@@ -5,7 +5,7 @@ import com.pi4j.io.i2c.I2C;
 import java.nio.ByteBuffer;
 
 /**
- * Pi4J-based driver for SCD4X co2 (+ temperature and humidity) sensors.
+ * Pi4J-based driver for SCD4X CO₂ (+ temperature and humidity) sensors.
  * <p>
  * Product datasheet link: https://sensirion.com/media/documents/48C4B7FB/64C134E7/Sensirion_SCD4x_Datasheet.pdf
  */
@@ -13,17 +13,20 @@ public class Scd4xDriver {
 
     /** The I2C address of the device (needed for constructing an I2C instance) */
     public static final int I2C_ADDRESS = 0x62;
-    private final ByteBuffer ioBuf = ByteBuffer.allocate(9);
-    private long busyUntil;
 
     private final I2C i2c;
-    private Mode mode = Mode.IDLE;
+    private final ByteBuffer ioBuf = ByteBuffer.allocate(9);
+
+    private long busyUntil;
+    private Mode mode = Mode.UNKNOWN;
 
     /**
-     * Creates a driver instance, connected via the given I2C instance. Note that the device needs to be set to
-     * I2C_ADDRESS when building the I2C instance.
-     *
-     * The sensor will initially be in IDLE state.
+     * Creates a driver instance, connected via the given I2C instance. Note that the i2c device value needs to be set
+     * to I2C_ADDRESS when building the I2C instance.
+     * <p>
+     * In most use cases, should make sense to first bring the device into a well-defined state via
+     * safeInit(), then call startPeriodicMeasurement() or startLowPowerPeriodicMeasurement(), and then
+     * obtain measurements via readMeasurement() as needed.
      */
     public Scd4xDriver(I2C i2c) {
         this.i2c = i2c;
@@ -47,20 +50,21 @@ public class Scd4xDriver {
     public Measurement readMeasurement() {
         materializeDelay();
 
-        // Allow 10% extra
-        long timeOut = System.currentTimeMillis() + (mode == Mode.LOW_POWER_PERIODIC_MEASUREMENT ? 33_000 : 5_500);
+        int expectedInterval = (mode == Mode.LOW_POWER_PERIODIC_MEASUREMENT ? 30_000 : 5_000);
+        // Multiply with 1.5 to allow some extra
+        long timeOut = System.currentTimeMillis() + expectedInterval * 3 / 2;
 
         // getDataReadyStatus will check that we are in one of the measurement modes.
         while (!getDataReadyStatus()) {
             if (System.currentTimeMillis() > timeOut) {
-                String message = "Unable to read measurement withing the expected time frame for " + mode + " mode";
+                String message = "Unable to read measurement withing the expected time frame (" + expectedInterval + "ms) for " + mode + " mode";
                 if (mode == Mode.SINGLE_SHOT_MEASUREMENT) {
                     mode = Mode.IDLE;
                 }
                 throw new RuntimeException(message);
             }
             try {
-                Thread.sleep(100);
+                Thread.sleep(expectedInterval / 32);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -187,7 +191,7 @@ public class Scd4xDriver {
 
     /**
      * Enables periodic measurement approximately every 30 seconds (opposed to every 5 seconds via
-     * startPeriodicMeasurment())
+     * startPeriodicMeasurement())
      */
     public void startLowPowerPeriodicMeasurement() {
         sendConfigurationCommand(0x21ac, 0);
@@ -245,7 +249,7 @@ public class Scd4xDriver {
      * Resets all volatile configuration settings (similar to a power cycle).
      */
     public void reInit() {
-        sendCommand(0x3646, 30);
+        sendConfigurationCommand(0x3646, 30);
     }
 
     // Chapter 3.10: Low power single shot (SCD41)
@@ -280,8 +284,42 @@ public class Scd4xDriver {
      * Wake the device up from SLEEP mode and put it back into IDLE mode.
      */
     public void wakeUp() {
-        sendCommand(0x36f6, 1);
+        sendCommand(0x36f6, 30);
         mode = Mode.IDLE;
+    }
+
+    /**
+     * Sets the initial period for automatic self correction (ASC). The default is 44 hours.
+     * Allowed values are integer multiples of four hours. Please refer to section 3.10.5 of the sensor spec
+     * for details.
+     */
+    public void setAutomaticSelfCalibrationInitialPeriod(int initialPeriodHours) {
+        sendConfigurationCommand(0x2445, 1, Math.max(0, Math.min(initialPeriodHours, 0xffff)) & 0xfffc);
+    }
+
+    /**
+     * Returns the current initial ASC period in hours.
+     */
+    public int getAutomaticSelfCalibrationInitialPeriod() {
+        sendConfigurationCommand(0x2340, 1);
+        return readValue();
+    }
+
+    /**
+     * Sets the standard period for automatic self correction (ASC). The default is 156 hours.
+     * Allowed values are integer multiples of four hours. Please refer to section 3.10.7 of the sensor specification
+     * for details.
+     */
+    public void setAutomaticSelfCalibrationStandardPeriod(int standardPeriodHours) {
+        sendConfigurationCommand(0x244e, 1, Math.max(0, Math.min(standardPeriodHours, 0xffff)) & 0xfffc);
+    }
+
+    /**
+     * Returns the current ASC standard period in hours.
+     */
+    public int getAutomaticSelfCalibrationStandardPeriod() {
+        sendConfigurationCommand(0x234b, 1);
+        return readValue();
     }
 
     // Additional methods provided by the driver.
@@ -301,6 +339,21 @@ public class Scd4xDriver {
      */
     public long getBusyUntil() {
         return busyUntil;
+    }
+
+    /**
+     * Safely brings the sensor to an IDLE state regardless of the current state and resets all volatile values.
+     */
+    public void safeInit() {
+
+        try {
+            stopPeriodicMeasurement();
+            getSerialNumber();
+        } catch (Exception e) {
+            wakeUp();
+        }
+
+        reInit();
     }
 
     // Internal helpers
@@ -326,10 +379,11 @@ public class Scd4xDriver {
 
     /** Checks that the mode is IDLE and then calls sendCommand. */
     private void sendConfigurationCommand(int cmdCode, int timeMs, int... args) {
-        if (mode != Mode.IDLE) {
+        if (mode != Mode.IDLE && mode != Mode.UNKNOWN) {
             throw new IllegalStateException("Command 0x" + Integer.toHexString(cmdCode) + " can only be issued in IDLE mode.");
         }
         sendCommand(cmdCode, timeMs, args);
+        mode = Mode.IDLE;
     }
 
     /**
@@ -376,6 +430,8 @@ public class Scd4xDriver {
     }
 
     public enum Mode {
+        /** After construction, we don't know the mode -- it might be different from IDLE from previous usage */
+        UNKNOWN,
         IDLE,
         PERIODIC_MEASUREMENT,
         LOW_POWER_PERIODIC_MEASUREMENT,
