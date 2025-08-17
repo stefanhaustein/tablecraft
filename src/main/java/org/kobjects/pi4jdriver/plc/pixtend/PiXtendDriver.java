@@ -14,6 +14,15 @@ import java.io.Closeable;
 public class PiXtendDriver implements Closeable {
     public static final int ANALOG_OUTPUT_COUNT = 2;
 
+    private static final int PWM_BLOCK_SIZE = 7;
+    private static final int PWM_X_CTRL_0 = 0;
+    private static final int PWM_X_CTRL_1L = 1;
+    private static final int PWM_X_CTRL_1H = 2;
+    private static final int PWM_X_AL = 3;
+    private static final int PWM_X_AH = 4;
+    private static final int PWM_X_BL = 5;
+    private static final int PWM_X_BH = 6;
+
     public final Model model;
     private final Context pi4J;
 
@@ -40,6 +49,10 @@ public class PiXtendDriver implements Closeable {
         this.spiOut = new byte[model.bufferSize];
 
         spiOut[0] = (byte) model.modelOut;
+
+        for (int i = 0; i < model.pwmCount; i++) {
+            setPwmXPrescaler(i, 1);
+        }
 
         // Enable Pixtend SPI communication by enabling bwm pin 24
         pin24dout = pi4J.create(DigitalOutputConfig.newBuilder(pi4J).address(24).build());
@@ -188,8 +201,17 @@ public class PiXtendDriver implements Closeable {
         return getWord(model.analogInOffset + 2 * index);
     }
 
+    /**
+     * Sets the debounce value for the given digital input. Note that debounce values always cover two inputs,
+     * i.e. setting the value for din 0 or 1 will always set the value for both inputs.
+     */
+    public void setDigitalInDebounce(int index, int value) {
+        checkRange(index, model.digitalInCount, "Digital input");
+        spiOut[model.digitalInDebounceOffset + index / 2] = (byte) Math.max(0, Math.min(value, 255));
+    }
+
     public void setDigitalOut(int index, boolean value) {
-        checkRange(index, model.digitalInCount, "Digital output");
+        checkRange(index, model.digitalOutCount, "Digital output");
         setBit(model.digitalOutOffset, index, value);
     }
 
@@ -210,6 +232,36 @@ public class PiXtendDriver implements Closeable {
                 setBit(model.gpioCtrlOffset, index + 4, false);
         }
         gpioModes[index] = mode;
+    }
+
+    public void setPwmXa(int x, int value) {
+        setWord(pwmAddress(x, PWM_X_AL), value);
+    }
+
+    public void setPwmXb(int x, int value) {
+        setWord(pwmAddress(x, PWM_X_BL), value);
+    }
+
+    public void setPwmXaEnabled(int x, boolean enabled) {
+        setBit(pwmAddress(x, PWM_X_CTRL_0), 3, enabled);
+    }
+
+    public void setPwmXbEnabled(int x, boolean enabled) {
+        setBit(pwmAddress(x, PWM_X_CTRL_0), 3, enabled);
+    }
+
+    public void setPwmXPrescaler(int x, int value) {
+        int address = pwmAddress(x, PWM_X_CTRL_0);
+        spiOut[address] = (byte) ((spiOut[address] & 0b00011011) | (value << 5));
+    }
+
+    public void setPwmXMode(int x, PwmMode mode) {
+        int address = pwmAddress(x, PWM_X_CTRL_0);
+        spiOut[address] = (byte) ((spiOut[address] & 0b11111000) | mode.ordinal());
+    }
+
+    public void setPwmXCtrl1(int x, int value) {
+        setWord(pwmAddress(x, PWM_X_CTRL_1L), value);
     }
 
     public void setGpioOut(int index, boolean value) {
@@ -275,6 +327,11 @@ public class PiXtendDriver implements Closeable {
             crc = (crc & 1) != 0 ? (crc >>> 1) ^ 0xa001 : (crc >>> 1);
         }
         return crc;
+    }
+
+    private int pwmAddress(int index, int offset) {
+        checkRange(index, model.pwmCount, "PWM address");
+        return model.pwmOffset + index * PWM_BLOCK_SIZE + offset;
     }
 
     private boolean getBit(int baseAddress, int bitIndex) {
@@ -434,5 +491,9 @@ public class PiXtendDriver implements Closeable {
         DIGITAL_OUTPUT,
         DHT11,
         DHT22
+    }
+
+    public enum PwmMode {
+        SERVO, DUTY_CYCLE, UNIVERSAL, FREQUENCY
     }
 }
