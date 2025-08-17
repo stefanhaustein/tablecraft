@@ -175,6 +175,11 @@ public class PiXtendDriver implements Closeable {
         return getBit(model.gpioInOffset, index);
     }
 
+    public GpioMode getGpioMode(int index) {
+        checkRange(index, model.gpioCount, "GPIO");
+        return gpioModes[index];
+    }
+
     public double getTemperature(int index) {
         checkRange(index, model.tempHumidCount, "Temperature");
         int rawValue = getWord(model.tempHumidOffset + index * 4);
