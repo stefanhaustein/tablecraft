@@ -17,41 +17,43 @@ class PiXtendIntegration(
     var driver: PiXtendDriver? = null
     var error: Exception? = null
     val inputPorts = mutableSetOf<PiXtendInputPortInstance>()
-    var threadNumber = 0
+    var invocationId = 0
 
     init {
        attach()
     }
 
-    fun attach() {
+    private fun attach() {
         try {
             driver = PiXtendDriver(pi4j.pi4J, model)
             error = null
-
-            threadNumber++
-
-            Thread{
-                val myNumber = threadNumber
-                val driver = driver!!
-                while (myNumber == threadNumber) {
-                    driver.syncState()
-                    pi4j.model.applySynchronizedWithToken {
-                        for (inputPort in inputPorts) {
-                            inputPort.syncState(it)
-                        }
-                    }
-                }
-                driver.close()
-            }.start()
-
+            pi4j.model.runAsync { syncState(driver!!, ++invocationId) }
         } catch (e: Exception) {
             e.printStackTrace()
             error = e
         }
     }
 
-    companion object {
+    fun syncState(driver: PiXtendDriver, invocationId: Int) {
+        if (invocationId != this.invocationId) {
+            return
+        }
+        driver.syncState()
+        pi4j.model.applySynchronizedWithToken(
+            callback = { tag, anyChange ->
+                pi4j.model.runAsync {
+                    syncState(driver, invocationId)
+                }
+            }
+        ) {
+            for (inputPort in inputPorts) {
+                inputPort.syncState(it)
+            }
+        }
+    }
 
+
+    companion object {
         val pixtendModel = Type.ENUM(PiXtendDriver.Model.entries)
 
         fun spec(pi4j: Pi4jPlugin) = IntegrationSpec(
@@ -63,8 +65,6 @@ class PiXtendIntegration(
         ) { kind, name, tag, config ->
             PiXtendIntegration(pi4j, kind, name, tag, config["model"] as PiXtendDriver.Model)
         }
-
-
     }
 
     override val operationSpecs: List<AbstractFactorySpec>
@@ -82,12 +82,11 @@ class PiXtendIntegration(
         get() = mapOf("model" to model.name)
 
     override fun detach() {
-        threadNumber++
-
+        invocationId++
     }
 
     override fun reconfigure(configuration: Map<String, Any?>) {
-        threadNumber++
+        invocationId++
         model = configuration["model"] as PiXtendDriver.Model
         attach()
     }

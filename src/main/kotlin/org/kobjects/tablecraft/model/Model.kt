@@ -224,7 +224,10 @@ object Model : ModelInterface {
 
 
     @OptIn(ExperimentalContracts::class)
-    override fun applySynchronizedWithToken(action: (ModificationToken) -> Unit) {
+    override fun applySynchronizedWithToken(
+        callback: ((modificationTag: Long, anyChanged: Boolean) -> Unit)?,
+        action: (ModificationToken) -> Unit
+    ) {
         lock.withLock {
             val modificationToken = ModificationToken()
 
@@ -333,4 +336,24 @@ object Model : ModelInterface {
         val permanent: Boolean,
         val listener: (modificationTag: Long, anyChanged: Boolean) -> Unit
     )
+
+    override fun runAsync(delay: Long, task: () -> Unit) {
+        Thread {
+            if (delay > 0) {
+                Thread.sleep(delay)
+            }
+            task()
+        }.start()
+    }
+
+    override fun scheduleAsync(interval: Long, initialDelay: Long, task: () -> Boolean) {
+        Thread {
+            if (initialDelay > 0) {
+                Thread.sleep(initialDelay)
+            }
+            while (task()) {
+                Thread.sleep(interval)
+            }
+        }.start()
+    }
 }
