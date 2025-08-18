@@ -231,7 +231,11 @@ object Model : ModelInterface {
         lock.withLock {
             val modificationToken = ModificationToken()
 
-            val result = action(modificationToken)
+            if (callback != null) {
+                updateListeners.add(UpdateListenerData(false, false, callback))
+            }
+
+            action(modificationToken)
 
             if (modificationToken.symbolsChanged) {
                 for (port in ports.filterIsInstance<OutputPortHolder>()) {
