@@ -59,7 +59,7 @@ object Model : ModelInterface {
     }
 
     override fun addUpdateListener(permanent: Boolean, onChangeOnly: Boolean, listener: (modificationTag: Long, anyChanged: Boolean) -> Unit) {
-        updateListeners.add(UpdateListenerData(permanent, onChangeOnly, listener))
+        updateListeners.add(UpdateListenerData(permanent = permanent, onChangeOnly = onChangeOnly, listener = listener))
     }
 
 
@@ -336,8 +336,8 @@ object Model : ModelInterface {
     fun <T> applySynchronized(action: () -> T) = lock.withLock(action)
 
     data class UpdateListenerData (
-        val onChangeOnly: Boolean,
         val permanent: Boolean,
+        val onChangeOnly: Boolean,
         val listener: (modificationTag: Long, anyChanged: Boolean) -> Unit
     )
 

@@ -2,11 +2,12 @@ package org.kobjects.tablecraft.plugins.pi4j
 
 
 import com.pi4j.io.i2c.I2C
+import org.kobjects.pi4jdriver.display.hd44780.Hd44780Driver
 import org.kobjects.pi4jdriver.display.lcd.LcdDriver
 import org.kobjects.tablecraft.pluginapi.*
 import kotlin.math.min
 
-class Lcd(
+class TextLcd(
     val plugin: Pi4jPlugin,
     bus: Int,
     address: Int,
@@ -22,7 +23,7 @@ class Lcd(
             .provider("linuxfs-i2c")
             .build()
     )
-    val lcdDriver = LcdDriver.create(i2c, height, width)
+    val lcdDriver = Hd44780Driver(i2c, width, height)
 
     override fun setValue(value: Any?) {
 
@@ -37,7 +38,7 @@ class Lcd(
                     else value.toString().take(columnWidth).padEnd(columnWidth)
                 sb.append(s)
             }
-            lcdDriver.setCursorPosition(row, 0)
+            lcdDriver.setCursorPosition(0, row)
             lcdDriver.write(sb.toString())
         }
     }
@@ -45,7 +46,7 @@ class Lcd(
 
     override fun detach() {
 
-            lcdDriver.close()
+          //  lcdDriver.close()
     }
 
 
@@ -83,7 +84,7 @@ class Lcd(
                 )
             )
         ) {
-            Lcd(
+            TextLcd(
                 plugin,
                 it["bus"] as Int,
                 it["address"] as Int,

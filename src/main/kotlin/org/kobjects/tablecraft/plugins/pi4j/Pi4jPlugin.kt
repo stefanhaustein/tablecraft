@@ -46,7 +46,7 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
         DigitalInputPort.spec(this),
         PwmInput.spec(this),
         DigitalOutputPort.spec(this),
-        Lcd.spec(this),
+        TextLcd.spec(this),
         Bmp280Port.spec(this),
         Scd4xPort.spec(this),
         PiXtendIntegration.spec(this),
