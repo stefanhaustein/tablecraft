@@ -40,7 +40,7 @@ import org.kobjects.pi4jdriver.sensor.bmx280.Bmx280Driver;
 public class Bmp280I2cExample {
 
     private static final int I2C_BUS = 1;
-    private static final int I2C_ADDRESS = 0x77;
+    private static final int I2C_ADDRESS = 0x76;
 
     public static void main(String[] args) throws Exception {
         Context pi4j = Pi4J.newAutoContext();
