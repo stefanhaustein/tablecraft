@@ -10,7 +10,7 @@ class PwmInput(
     val address: Int
 ) : InputPortInstance, DigitalStateChangeListener {
 
-    val digitalInput: DigitalInput = plugin.createDigitalInput(DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
+    val digitalInput: DigitalInput = plugin.pi4j.create(DigitalInputConfig.newBuilder(plugin.pi4j).address(address).build())
     var t0: Long = 0
     override var value: Double = 0.0
 
@@ -33,7 +33,12 @@ class PwmInput(
 
     override fun detach() {
         digitalInput.removeListener(this)
-        plugin.releasePort(address, digitalInput)
+        try {
+            plugin.pi4j.shutdown(digitalInput.getId())
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw RuntimeException(e)
+        }
     }
 
     companion object {

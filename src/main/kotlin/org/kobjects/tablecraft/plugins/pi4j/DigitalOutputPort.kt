@@ -2,7 +2,6 @@ package org.kobjects.tablecraft.plugins.pi4j
 
 
 import com.pi4j.io.gpio.digital.*
-import com.pi4j.io.gpio.digital.DigitalOutput
 import org.kobjects.tablecraft.pluginapi.*
 
 class DigitalOutputPort(
@@ -10,7 +9,7 @@ class DigitalOutputPort(
     val address: Int
 )  : OutputPortInstance {
 
-    val digitalOutput= plugin.createDigitalOutput(DigitalOutputConfig.newBuilder(plugin.pi4J).address(address).build())
+    val digitalOutput= plugin.pi4j.create(DigitalOutputConfig.newBuilder(plugin.pi4j).address(address).build())
 
 
 
@@ -24,7 +23,12 @@ class DigitalOutputPort(
     }
 
     override fun detach() {
-        plugin.releasePort(address, digitalOutput)
+        try {
+            plugin.pi4j.shutdown(digitalOutput.getId())
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw RuntimeException(e)
+        }
     }
 
 

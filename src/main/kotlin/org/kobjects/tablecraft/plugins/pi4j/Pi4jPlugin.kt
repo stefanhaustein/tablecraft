@@ -11,36 +11,7 @@ import org.kobjects.tablecraft.plugins.pi4j.devices.Scd4xPort
 import org.kobjects.tablecraft.plugins.pi4j.pixtend.PiXtendIntegration
 
 class Pi4jPlugin(val model: ModelInterface) : Plugin {
-    var pi4J = Pi4J.newAutoContext()
-
-    val releasedPorts = mutableMapOf<Int, Any> ()
-
-    fun createDigitalInput(config: DigitalInputConfig): DigitalInput {
-        val address = config.address
-        val existing = releasedPorts[address]
-        return when (existing) {
-            null -> pi4J.create(config)
-            is DigitalInput -> releasedPorts.remove(address) as DigitalInput
-            else -> throw IllegalStateException("Can't overwrite existing port $existing at address $address")
-        }
-    }
-
-    fun createDigitalOutput(config: DigitalOutputConfig): DigitalOutput {
-        val address = config.address
-        val existing = releasedPorts[address]
-        return when (existing) {
-            null -> pi4J.create(config)
-            is DigitalInput -> releasedPorts.remove(address) as DigitalOutput
-            else -> throw IllegalStateException("Can't overwrite existing port $existing at address $address")
-        }
-    }
-
-    fun releasePort(address: Int, port: Any?) {
-        if (port != null) {
-            releasedPorts[address] = port
-        }
-    }
-
+    var pi4j = Pi4J.newAutoContext()
 
     override val operationSpecs = listOf<AbstractArtifactSpec>(
         DigitalInputPort.spec(this),

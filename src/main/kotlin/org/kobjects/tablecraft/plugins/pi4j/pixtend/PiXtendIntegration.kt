@@ -3,8 +3,6 @@ package org.kobjects.tablecraft.plugins.pi4j.pixtend
 import org.kobjects.pi4jdriver.plc.pixtend.PiXtendDriver
 import org.kobjects.tablecraft.pluginapi.*
 import org.kobjects.tablecraft.plugins.pi4j.Pi4jPlugin
-import java.util.Timer
-import java.util.TimerTask
 
 class PiXtendIntegration(
     val pi4j: Pi4jPlugin,
@@ -25,7 +23,7 @@ class PiXtendIntegration(
 
     private fun attach() {
         try {
-            driver = PiXtendDriver(pi4j.pi4J, model)
+            driver = PiXtendDriver(pi4j.pi4j, model)
             error = null
             pi4j.model.runAsync { syncState(driver!!, ++invocationId) }
         } catch (e: Exception) {

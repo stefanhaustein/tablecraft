@@ -2,7 +2,6 @@ package org.kobjects.tablecraft.plugins.pi4j
 
 import com.pi4j.io.gpio.digital.*
 import com.pi4j.io.gpio.digital.DigitalInput
-import org.kobjects.tablecraft.model.Model
 import org.kobjects.tablecraft.pluginapi.*
 
 class DigitalInputPort(
@@ -11,8 +10,8 @@ class DigitalInputPort(
     val address: Int
 ) : InputPortInstance, DigitalStateChangeListener {
 
-    var digitalInput: DigitalInput = plugin.createDigitalInput(
-        DigitalInputConfig.newBuilder(plugin.pi4J).address(address).build())
+    val digitalInput: DigitalInput = plugin.pi4j.create(
+        DigitalInputConfig.newBuilder(plugin.pi4j).address(address).build())
 
     override var value: Boolean = digitalInput.isHigh
 
@@ -26,7 +25,12 @@ class DigitalInputPort(
 
     override fun detach() {
         digitalInput.removeListener(this)
-        plugin.releasePort(address, digitalInput)
+        try {
+            plugin.pi4j.shutdown(digitalInput.getId())
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw RuntimeException(e)
+        }
     }
 
     companion object {

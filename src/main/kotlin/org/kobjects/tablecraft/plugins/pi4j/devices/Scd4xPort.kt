@@ -13,8 +13,8 @@ class Scd4xPort(
 
 ) : InputPortInstance {
 
-    val i2c = plugin.pi4J.create(
-        I2C.newConfigBuilder(plugin.pi4J)
+    val i2c = plugin.pi4j.create(
+        I2C.newConfigBuilder(plugin.pi4j)
             .bus(bus)
             .device(Scd4xDriver.I2C_ADDRESS)
             .provider("linuxfs-i2c")
