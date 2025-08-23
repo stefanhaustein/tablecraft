@@ -213,7 +213,8 @@ public class Hd44780Driver {
             }
         }
         for (int i = 0; i < lookalikes.length(); i+=2) {
-            map.put((int) lookalikes.charAt(i), (int) lookalikes.charAt(i+1));
+            int target = lookalikes.charAt(i+1);
+            map.put((int) lookalikes.charAt(i), map.getOrDefault(target, target));
         }
         return map;
     }
