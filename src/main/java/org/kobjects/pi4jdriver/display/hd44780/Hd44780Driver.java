@@ -1,8 +1,6 @@
 package org.kobjects.pi4jdriver.display.hd44780;
 
-import com.pi4j.io.gpio.digital.DigitalOutput;
-import com.pi4j.io.i2c.I2C;
-
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,13 +12,13 @@ import java.util.Map;
  * TODO:
  * - Timings according to spec
  * - Virtual width / scroll support
- * - Command support
- * - Unicode mapping
- * - Custom character support
  */
 public class Hd44780Driver {
 
-    private static final Map<Integer, Integer> ROM_A00_MAP = generateCharacterMap(
+    /**
+     * The standard character rom consisting of most ASCII characters and Shift-JIS
+     */
+    public static final Map<Integer, Integer> CHARACTER_ROM_A00 = generateCharacterMap(
         "βß",
             126, "←→",
             0xa1, "｡｢｣､･ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝﾞﾟ",
@@ -31,7 +29,10 @@ public class Hd44780Driver {
             254, "÷"
     );
 
-    private static final Map<Integer, Integer> ROM_A02_MAP = generateCharacterMap(
+    /**
+     * Character ROM mostly corresponding to ISO-8859-1 with a few extra cyrillic and greek characters sprinkled in.
+     */
+    public static final Map<Integer, Integer> CHARACTER_ROM_A02 = generateCharacterMap(
             "АAВBЕEКKМMНHОOРPСCТT",
             8, "◀▶“”\u23eb\u23ec●⏎↑↓←→≤≥▲▼",
             128, "БДЖЗИЙЛПУЦЧШЩЪЫЭα♪ΓπΣστ⍾ΘΩδ∞❤εΠ",
@@ -40,7 +41,7 @@ public class Hd44780Driver {
 
     private final int width;
     private final int height;
-    private final Output output;
+    private final AbstractConnection output;
     private final int[] customCharacterToCodePoint = new int[8];
     private final Map<Integer, Integer> codePointToCustomCharacter = new HashMap<>();
 
@@ -50,21 +51,12 @@ public class Hd44780Driver {
     private boolean cursorEnabled = false;
     private boolean displayEnabled = false;
     private boolean blinkingEnabled = false;
+    private Map<Integer, Integer> characterRomMap = CHARACTER_ROM_A00;
 
-    Hd44780Driver(Output output, int width, int height) {
+    public Hd44780Driver(AbstractConnection output, int width, int height) {
         this.output = output;
         this.width = width;
         this.height = height;
-
-        // Bring the display into a well-defined state
-        delay(35);
-        sendCommand(0x03);
-        delay(35);
-        sendCommand(0x03);
-        delay(35);
-        sendCommand(0x03);
-        delay(35);
-        sendCommand(0x02);
 
         // Initialize display settings
 
@@ -78,28 +70,13 @@ public class Hd44780Driver {
         returnHome();
     }
 
-    public Hd44780Driver(I2C pcf8574, int width, int height) {
-        this(new Output() {
-            @Override
-            public void write(int value) {
-                pcf8574.write(value);
-            }
-        }, width, height);
-    }
-
     /**
-     * The 7 digital output pins used to control the lcd input pins in the following order:
-     * D7, D6, D5, D4, Backlight, Enable, RegisterSelect.
+     * Sets the character ROM mapping of the chip, translating unicode code points to display characters. By default,
+     * this is CHARACTER_ROM_A00. The mapping selected here needs to match the internal mapping of the chip in order
+     * to display supported unicode characters correctly.
      */
-    public Hd44780Driver(DigitalOutput[] digitalOutputs, int width, int height) {
-        this (new Output() {
-            public void write(int value) {
-                for (int i = 0; i < 7; i++) {
-                    int mask = (i == 6) ? 1 : (80 >> i);
-                    digitalOutputs[i].setState((value & mask) != 0);
-                }
-            }
-        }, width, height);
+    public void setCharacterRom(Map<Integer, Integer> characterRomMap) {
+        this.characterRomMap = characterRomMap;
     }
 
     public void clearDisplay() {
@@ -223,7 +200,7 @@ public class Hd44780Driver {
             int target = lookalikes.charAt(i+1);
             map.put((int) lookalikes.charAt(i), map.getOrDefault(target, target));
         }
-        return map;
+        return Collections.unmodifiableMap(map);
     }
 
 
@@ -232,7 +209,7 @@ public class Hd44780Driver {
         if (custom != null) {
             return custom;
         }
-        Integer rom = ROM_A00_MAP.get(codePoint);
+        Integer rom = characterRomMap.get(codePoint);
         if (rom != null) {
             return rom;
         }
@@ -248,44 +225,12 @@ public class Hd44780Driver {
     }
 
     private void sendCommand(int id) {
-       sendValue(id, false);
+       output.sendValue(false, id);
     }
 
     private void sendData(int value) {
-        sendValue(value, true);
+        output.sendValue(true, value);
     }
-
-    private void sendValue(int value, boolean registerSelect) {
-        int status = (registerSelect ? FLAG_REGISTER_SELECT : 0) | (backlightEnabled ? FLAG_BACKLIGHT : 0);
-
-        output.write((value & 0xf0) | status | FLAG_ENABLE);
-        delay(1);
-        output.write((value & 0xf0) | status);
-        delay(1);
-        output.write((value & 0x0f) << 4 | status | FLAG_ENABLE);
-        delay(1);
-        output.write((value & 0x0f) << 4 | status);
-        delay(1);
-    }
-
-    private void delay(int ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    interface Output {
-        void write(int value);
-    }
-
-
-    private final int FLAG_REGISTER_SELECT = 0b0000_0001;  // Set when writing text/data (opposed to command)
-    private final int FLAG_READ_WRITE =      0b0000_0010;
-    private final int FLAG_ENABLE =          0b0000_0100;
-    private final int FLAG_BACKLIGHT =       0b0000_1000;
 
 
     /** Display commands and their flags. */

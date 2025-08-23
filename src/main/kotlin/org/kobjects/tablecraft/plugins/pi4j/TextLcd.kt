@@ -3,6 +3,7 @@ package org.kobjects.tablecraft.plugins.pi4j
 
 import com.pi4j.io.i2c.I2C
 import org.kobjects.pi4jdriver.display.hd44780.Hd44780Driver
+import org.kobjects.pi4jdriver.display.hd44780.Pcf8574Connection
 import org.kobjects.tablecraft.pluginapi.*
 import kotlin.math.min
 
@@ -22,7 +23,7 @@ class TextLcd(
             .provider("linuxfs-i2c")
             .build()
     )
-    val lcdDriver = Hd44780Driver(i2c, width, height)
+    val lcdDriver = Hd44780Driver(Pcf8574Connection(i2c), width, height)
 
     override fun setValue(value: Any?) {
 

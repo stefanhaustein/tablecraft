@@ -4,7 +4,8 @@ import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
 import org.kobjects.pi4jdriver.display.hd44780.Hd44780Driver;
-import org.kobjects.pi4jdriver.display.lcd.LcdDriver;
+import org.kobjects.pi4jdriver.display.hd44780.Pcf8574Connection;
+
 
 public class Hd44780Example {
 
@@ -19,7 +20,7 @@ public class Hd44780Example {
                 .device(DEVICE_ADDRESS)
                 .build());
 
-        Hd44780Driver characterLcd = new Hd44780Driver(i2c, 20, 4);
+        Hd44780Driver characterLcd = new Hd44780Driver(new Pcf8574Connection(i2c), 20, 4);
 
         characterLcd.clearDisplay();
         characterLcd.setBlinkingEnabled(true);
