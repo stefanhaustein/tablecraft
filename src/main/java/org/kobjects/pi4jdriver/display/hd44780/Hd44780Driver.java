@@ -16,17 +16,21 @@ import java.util.Map;
 public class Hd44780Driver {
 
     /**
-     * The standard character rom consisting of most ASCII characters and Shift-JIS
+     * The standard character rom consisting of most ASCII characters and JIS X 0201 and some extra greek characters
+     * and umlauts. Most notably, backslash and tilde are missing. 
      */
     public static final Map<Integer, Integer> CHARACTER_ROM_A00 = generateCharacterMap(
         "βß",
+            0x5c, "¥",
             126, "←→",
             0xa1, "｡｢｣､･ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝﾞﾟ",
-            223, "°αäßɛμσρ",
+            224, "αäßɛμσρ",
             232, "√",
-            237, "¢ñö",
+            236, "¢",
+            238, "ñö",
             242, "Θ∞ΩüΣπ",
-            254, "÷"
+            253, "÷",
+            255, "█"
     );
 
     /**
@@ -41,20 +45,19 @@ public class Hd44780Driver {
 
     private final int width;
     private final int height;
-    private final AbstractConnection output;
+    private final AbstractConnection connection;
     private final int[] customCharacterToCodePoint = new int[8];
     private final Map<Integer, Integer> codePointToCustomCharacter = new HashMap<>();
 
     private int cursorX = 0;
     private int cursorY = 0;
-    private boolean backlightEnabled = false;
     private boolean cursorEnabled = false;
     private boolean displayEnabled = false;
     private boolean blinkingEnabled = false;
     private Map<Integer, Integer> characterRomMap = CHARACTER_ROM_A00;
 
-    public Hd44780Driver(AbstractConnection output, int width, int height) {
-        this.output = output;
+    public Hd44780Driver(AbstractConnection connection, int width, int height) {
+        this.connection = connection;
         this.width = width;
         this.height = height;
 
@@ -95,9 +98,7 @@ public class Hd44780Driver {
     }
 
     public void setBacklightEnabled(boolean backlightEnabled) {
-        this.backlightEnabled = backlightEnabled;
-        // Any command works here as backlight is a separate pin but we want one without side effect.
-        updateDisplayControl();
+        connection.setBacklight(backlightEnabled);
     }
 
     public void setCursorEnabled(boolean enabled) {
@@ -225,11 +226,11 @@ public class Hd44780Driver {
     }
 
     private void sendCommand(int id) {
-       output.sendValue(false, id);
+       connection.sendValue(false, id);
     }
 
     private void sendData(int value) {
-        output.sendValue(true, value);
+        connection.sendValue(true, value);
     }
 
 

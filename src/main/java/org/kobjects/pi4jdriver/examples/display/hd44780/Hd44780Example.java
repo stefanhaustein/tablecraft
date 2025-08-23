@@ -22,9 +22,10 @@ public class Hd44780Example {
 
         Hd44780Driver characterLcd = new Hd44780Driver(new Pcf8574Connection(i2c), 20, 4);
 
+        characterLcd.setBacklightEnabled(true);
         characterLcd.clearDisplay();
         characterLcd.setBlinkingEnabled(true);
         characterLcd.setCursorEnabled(true);
-        characterLcd.write("Hellö Wörld! äöü§öüäàèàé" + System.currentTimeMillis());
+        characterLcd.write("Hello Wörld (ｼ)\n" + System.currentTimeMillis());
     }
 }
