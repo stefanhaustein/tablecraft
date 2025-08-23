@@ -21,7 +21,14 @@ import java.util.Map;
 public class Hd44780Driver {
 
     private static final Map<Integer, Integer> ROM_A00_MAP = generateCharacterMap(
-        "βß", 126, "←→", 223, "°αäßɛμσρ", 232, "√", 237, "¢ñö", 242, "Θ∞ΩüΣπ", 254, "÷"
+        "βß",
+            126, "←→",
+            0xa1, "｡｢｣､･ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝﾞﾟ",
+            223, "°αäßɛμσρ",
+            232, "√",
+            237, "¢ñö",
+            242, "Θ∞ΩüΣπ",
+            254, "÷"
     );
 
     private static final Map<Integer, Integer> ROM_A02_MAP = generateCharacterMap(
