@@ -16,6 +16,10 @@ abstract class IntegrationInstance(
 
     abstract fun detach()
 
+    open fun notifySimulationModeChanged(token: ModificationToken) {
+
+    }
+
     override fun toJson(sb: StringBuilder) {
         sb.append("""{"name":${name.quote()}, "type":${kind.quote()}, "configuration": """)
         configuration.toJson(sb)

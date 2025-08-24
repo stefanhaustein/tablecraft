@@ -75,15 +75,36 @@ object Model : ModelInterface {
         }
     }
 
-    val simulationMode: Boolean
+    override val simulationMode: Boolean
         get() = simulationMode_
 
-    fun setSimulationMode(value: Boolean, token: ModificationToken) {
-        simulationMode_ = value
-        for (port in ports.filterIsInstance<InputPortHolder>()) {
-            token.addRefresh(port)
-        }
+    fun setSimulationMode(enabled: Boolean, token: ModificationToken) {
+        simulationMode_ = enabled
         settingsTag = token.tag
+
+        if (enabled) {
+            for (port in ports) {
+                port.notifySimulationModeChanged(token)
+            }
+            for (integration in integrations) {
+                integration.notifySimulationModeChanged(token)
+            }
+            for (plugin in plugins) {
+                plugin.notifySimulationModeChanged(token)
+            }
+        } else {
+            for (plugin in plugins) {
+                plugin.notifySimulationModeChanged(token)
+            }
+            for (integration in integrations) {
+                integration.notifySimulationModeChanged(token)
+            }
+            for (port in ports) {
+                port.notifySimulationModeChanged(token)
+            }
+
+        }
+
     }
 
     fun setRunMode(value: Boolean, token: ModificationToken) {
@@ -277,7 +298,7 @@ object Model : ModelInterface {
                 modificationToken.refreshRoots.remove(current)
                 // println("Updating: $current")
                 try { // Ports may fail if simulation mode is turned off and there is no "real" value
-                    if (current.recalculateValue(modificationToken)) {
+                    if (current.recalculateValue(modificationToken.tag)) {
                         anyChanged = true
                         // println("adding new dependencies: ${current.dependencies}")
                         for (dep in current.outputs) {
@@ -315,7 +336,7 @@ object Model : ModelInterface {
                     if (found) {
                         println("Updating node: $node")
                         modificationToken.refreshNodes.remove(node)
-                        if (node.recalculateValue(modificationToken)) {
+                        if (node.recalculateValue(modificationToken.tag)) {
                             anyChanged = true
                         }
                         break

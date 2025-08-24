@@ -9,7 +9,7 @@ class DigitalOutputPort(
     val address: Int
 )  : OutputPortInstance {
 
-    val digitalOutput= plugin.pi4j.create(DigitalOutputConfig.newBuilder(plugin.pi4j).address(address).build())
+    val digitalOutput= plugin.pi4j!!.create(DigitalOutputConfig.newBuilder(plugin.pi4j).address(address).build())
 
 
 
@@ -24,7 +24,7 @@ class DigitalOutputPort(
 
     override fun detach() {
         try {
-            plugin.pi4j.shutdown(digitalOutput.getId())
+            plugin.pi4j!!.shutdown(digitalOutput.getId())
         } catch (e: Exception) {
             e.printStackTrace()
             throw RuntimeException(e)

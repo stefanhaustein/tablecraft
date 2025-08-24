@@ -15,7 +15,7 @@ interface Node {
      * Input port values will be refreshed from the port/simulation
      * value here.
      */
-    fun recalculateValue(token: ModificationToken): Boolean
+    fun recalculateValue(tag: Long): Boolean
     fun detach()
 
     fun qualifiedId(): String

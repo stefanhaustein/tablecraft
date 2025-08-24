@@ -40,6 +40,12 @@ class InputPortHolder(
         }
     }
 
+    override fun notifySimulationModeChanged(token: ModificationToken) {
+        detach()
+        attach(token)
+        token.addRefresh(this)
+    }
+
     override fun detach() {
         // This doesn't really need to do anything about dependencies -- dependencies will be updatend in their reset
         // methods.
@@ -62,15 +68,15 @@ class InputPortHolder(
     }
 
 
-    override fun recalculateValue(token: ModificationToken): Boolean {
-        if (valueTag == token.tag) {
+    override fun recalculateValue(tag: Long): Boolean {
+        if (valueTag == tag) {
             return false
         }
         val newValue = if (Model.simulationMode) simulationValue else portValue
         if (value == newValue) {
             return false
         }
-        valueTag = token.tag
+        valueTag = tag
         value = newValue
         return true
     }

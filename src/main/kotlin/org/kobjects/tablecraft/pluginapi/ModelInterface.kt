@@ -2,6 +2,8 @@ package org.kobjects.tablecraft.pluginapi
 
 interface ModelInterface {
 
+    val simulationMode: Boolean
+
     fun applySynchronizedWithToken(callback: ((modificationTag: Long, anyChanged: Boolean) -> Unit)? = null, action: (ModificationToken) -> Unit)
 
     fun addUpdateListener(permanent: Boolean, onChangeOnly: Boolean, listener: (modificationTag: Long, anyChanged: Boolean) -> Unit)

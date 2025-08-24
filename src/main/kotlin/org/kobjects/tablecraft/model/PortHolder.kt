@@ -13,4 +13,5 @@ interface PortHolder:  Node {
     fun attach(token: ModificationToken)
 
     override fun qualifiedId() = name
+    fun notifySimulationModeChanged(token: ModificationToken)
 }

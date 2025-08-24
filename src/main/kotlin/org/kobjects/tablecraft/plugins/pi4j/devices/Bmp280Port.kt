@@ -15,7 +15,7 @@ class Bmp280Port(
 
 ) : InputPortInstance {
 
-    val i2c = plugin.pi4j.create(
+    val i2c = plugin.pi4j!!.create(
         I2C.newConfigBuilder(plugin.pi4j)
             .bus(bus)
             .device(address)

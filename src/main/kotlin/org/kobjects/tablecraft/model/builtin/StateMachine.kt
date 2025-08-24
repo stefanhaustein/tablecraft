@@ -38,18 +38,18 @@ class StateMachine(
     }
 
 
-    fun setCurrentState(token: ModificationToken, state: String) {
+    fun setCurrentState(tag: Long, state: String) {
         if (state == currentState) {
             return
         }
         for (highlight in highlighted) {
-            cellRange.sheet.setHighlight(token, highlight, false)
+            cellRange.sheet.setHighlight(tag, highlight, false)
         }
         for (i in 0 until rowCount) {
             if (getValue(0, i) == state) {
                 val toHighlight = CellRangeReference(cellRange.sheet, cellRange.fromColumn, cellRange.fromRow + i, cellRange.toColumn, cellRange.fromRow + i)
                 highlighted.add(toHighlight)
-                cellRange.sheet.setHighlight(token, toHighlight, true)
+                cellRange.sheet.setHighlight(tag, toHighlight, true)
             }
         }
         currentState = state
@@ -59,7 +59,7 @@ class StateMachine(
         println("**** state machine apply called; currentState: $currentState")
 
         if (currentState == "") {
-            setCurrentState(context.token, getValue(0, 0).toString())
+            setCurrentState(context.tag, getValue(0, 0).toString())
         }
 
         val initialRow = currentRow
@@ -69,7 +69,7 @@ class StateMachine(
                 if (gate == true) {
                     timedTransition?.cancel()
                     timedTransition = null
-                    setCurrentState(context.token, getValue(-1, currentRow).toString())
+                    setCurrentState(context.tag, getValue(-1, currentRow).toString())
 
                     // Trigger a re-calculation as there might be a followup state transition
                     timer.schedule(object : TimerTask() {
@@ -110,7 +110,7 @@ class StateMachine(
         override fun run() {
             Model.applySynchronizedWithToken {
                 timedTransition = null
-                setCurrentState(it, targetState)
+                setCurrentState(it.tag, targetState)
                 currentRow = targetRow
                 host?.notifyValueChanged(it)
             }

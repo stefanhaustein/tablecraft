@@ -22,13 +22,15 @@ class PiXtendIntegration(
     }
 
     private fun attach() {
-        try {
-            driver = PiXtendDriver(pi4j.pi4j, model)
-            error = null
-            pi4j.model.runAsync { syncState(driver!!, ++invocationId) }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            error = e
+        if (!pi4j.model.simulationMode) {
+            try {
+                driver = PiXtendDriver(pi4j.pi4j, model)
+                error = null
+                pi4j.model.runAsync { syncState(driver!!, ++invocationId) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                error = e
+            }
         }
     }
 
@@ -81,6 +83,11 @@ class PiXtendIntegration(
 
     override fun detach() {
         invocationId++
+    }
+
+    override fun notifySimulationModeChanged(token: ModificationToken) {
+        detach()
+        attach()
     }
 
     override fun reconfigure(configuration: Map<String, Any?>) {

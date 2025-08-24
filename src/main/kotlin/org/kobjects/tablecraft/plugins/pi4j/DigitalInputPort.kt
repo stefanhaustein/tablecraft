@@ -10,7 +10,7 @@ class DigitalInputPort(
     val address: Int
 ) : InputPortInstance, DigitalStateChangeListener {
 
-    val digitalInput: DigitalInput = plugin.pi4j.create(
+    val digitalInput: DigitalInput = plugin.pi4j!!.create(
         DigitalInputConfig.newBuilder(plugin.pi4j).address(address).build())
 
     override var value: Boolean = digitalInput.isHigh
@@ -26,7 +26,7 @@ class DigitalInputPort(
     override fun detach() {
         digitalInput.removeListener(this)
         try {
-            plugin.pi4j.shutdown(digitalInput.getId())
+            plugin.pi4j!!.shutdown(digitalInput.getId())
         } catch (e: Exception) {
             e.printStackTrace()
             throw RuntimeException(e)

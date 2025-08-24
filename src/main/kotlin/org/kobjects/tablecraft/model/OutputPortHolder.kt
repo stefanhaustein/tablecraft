@@ -23,9 +23,9 @@ class OutputPortHolder(
     override val inputs = mutableSetOf<Node>()
 
 
-    override fun recalculateValue(token: ModificationToken): Boolean {
+    override fun recalculateValue(tag: Long): Boolean {
         val newValue = if (singleCell) cellRange!!.iterator().next().value else CellRangeValues(cellRange!!)
-        valueTag = token.tag
+        valueTag = tag
         if (newValue == this.value) {
             return false
         }
@@ -75,6 +75,11 @@ class OutputPortHolder(
                 exception.printStackTrace()
             }
         }
+    }
+
+    override fun notifySimulationModeChanged(token: ModificationToken) {
+        detach()
+        attach(token)
     }
 
     override fun detach() {

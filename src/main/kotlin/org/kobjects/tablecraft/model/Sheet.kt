@@ -24,13 +24,13 @@ class Sheet(
         token.symbolsChanged = true
     }
 
-    fun setHighlight(modificationToken: ModificationToken, cellRangeReference: CellRangeReference, value: Boolean) {
+    fun setHighlight(tag: Long, cellRangeReference: CellRangeReference, value: Boolean) {
         if (value) {
             highlighted.add(cellRangeReference)
         } else {
             highlighted.remove(cellRangeReference)
         }
-        highlightTag = modificationToken.tag
+        highlightTag = tag
     }
 
     fun serialize(tag: Long, forClient: Boolean): String {

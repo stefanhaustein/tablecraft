@@ -16,7 +16,7 @@ class TextLcd(
     val format: List<Int?>?,
 )  : OutputPortInstance {
 
-    val i2c: I2C = plugin.pi4j.create(
+    val i2c: I2C = plugin.pi4j!!.create(
         I2C.newConfigBuilder(plugin.pi4j)
             .bus(bus)
             .device(address)
