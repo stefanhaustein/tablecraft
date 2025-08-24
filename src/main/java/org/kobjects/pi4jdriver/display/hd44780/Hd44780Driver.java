@@ -17,7 +17,7 @@ public class Hd44780Driver {
 
     /**
      * The standard character rom consisting of most ASCII characters and JIS X 0201 and some extra greek characters
-     * and umlauts. Most notably, backslash and tilde are missing. 
+     * and umlauts. Most notably, backslash and tilde are missing.
      */
     public static final Map<Integer, Integer> CHARACTER_ROM_A00 = generateCharacterMap(
         "βß",
