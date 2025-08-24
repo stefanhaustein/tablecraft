@@ -42,7 +42,7 @@ class Bmp280Port(
             "humidity" to measurement?.getHumidity()?.toDouble(),
         )
         plugin.model.applySynchronizedWithToken {
-            host.updateValue(it, value)
+            host.portValueChanged(it, value)
         }
     }
 

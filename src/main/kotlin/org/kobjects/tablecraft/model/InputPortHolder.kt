@@ -16,18 +16,21 @@ class InputPortHolder(
     override val inputs = mutableSetOf<Node>()
 
     var instance: InputPortInstance? = null
-    override var valueTag  = 0L
 
+    override var valueTag  = 0L
     override var value: Any? = null
+
     var portValue: Any? = null
     var simulationValue: Any? = null
-    var simulationValueTag: Long = 0
+
+    // We track the simulation value separately, as it sent to the client separately.
+    var simulationValueTag = 0L
 
 
-    override fun reset(simulationMode: Boolean, token: ModificationToken) {
+    override fun attach(token: ModificationToken) {
         detach()
 
-        if (!simulationMode) {
+        if (!Model.simulationMode) {
             try {
                 instance = specification.createFn(configuration, this)
             } catch (e: Exception) {
@@ -38,7 +41,7 @@ class InputPortHolder(
     }
 
     override fun detach() {
-        // This doesn't really need to do anything about dependencies -- dependecies will be updatend in their reset
+        // This doesn't really need to do anything about dependencies -- dependencies will be updatend in their reset
         // methods.
         if (instance != null) {
             try {
@@ -51,25 +54,34 @@ class InputPortHolder(
     }
 
     // Implements the corresponding value change listener method.
-    override fun updateValue(token: ModificationToken, newValue: Any?) {
-        Model.applySynchronizedWithToken {
-            portValue = newValue
-            it.addRefresh(this)
+    override fun portValueChanged(token: ModificationToken, newValue: Any?) {
+        portValue = newValue
+        if (!Model.simulationMode) {
+            token.addRefresh(this)
         }
     }
 
-    // Overrides the corresponding Node method.
-    override fun updateValue(token: ModificationToken): Boolean {
+
+    override fun recalculateValue(token: ModificationToken): Boolean {
         if (valueTag == token.tag) {
             return false
         }
-        val newValue = if (Model.simulationMode_) simulationValue else portValue
+        val newValue = if (Model.simulationMode) simulationValue else portValue
         if (value == newValue) {
             return false
         }
         valueTag = token.tag
         value = newValue
         return true
+    }
+
+
+    fun simulationValueChanged(token: ModificationToken, newValue: Any?) {
+        simulationValue = newValue
+        simulationValueTag = token.tag
+        if (Model.simulationMode) {
+            token.addRefresh(this)
+        }
     }
 
     override fun toJson(sb: StringBuilder, forClient: Boolean) {
@@ -83,14 +95,6 @@ class InputPortHolder(
         sb.append("}")
     }
 
-    fun setSimulationValue(value: Any?, token: ModificationToken) {
-        simulationValue = value
-        if (Model.simulationMode_) {
-            token.addRefresh(this)
-        } else {
-            simulationValueTag = token.tag
-        }
-    }
 
 
     override fun toString() = name

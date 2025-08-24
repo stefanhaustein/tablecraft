@@ -45,7 +45,7 @@ class Scd4xPort(
             "humidity" to measurement?.getHumidity()?.toDouble(),
         )
         plugin.model.applySynchronizedWithToken {
-            host.updateValue(it, value)
+            host.portValueChanged(it, value)
         }
     }
 

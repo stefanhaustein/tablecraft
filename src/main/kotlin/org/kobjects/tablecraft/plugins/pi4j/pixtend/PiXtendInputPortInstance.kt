@@ -12,7 +12,7 @@ abstract class PiXtendInputPortInstance(val listener: InputPortListener) : Input
         val newValue = value
         if (newValue != lastValue) {
             lastValue = newValue
-            listener.updateValue(token, newValue)
+            listener.portValueChanged(token, newValue)
         }
     }
 

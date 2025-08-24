@@ -19,7 +19,8 @@ object Model : ModelInterface {
 
     var modificationTag: Long = 0
 
-    var simulationMode_: Boolean = false
+    /* Can't be a proper property as the setter needs a modification token. */
+    private var simulationMode_: Boolean = false
     var runMode_: Boolean = false
     var settingsTag: Long = 0
 
@@ -74,6 +75,9 @@ object Model : ModelInterface {
         }
     }
 
+    val simulationMode: Boolean
+        get() = simulationMode_
+
     fun setSimulationMode(value: Boolean, token: ModificationToken) {
         simulationMode_ = value
         for (port in ports.filterIsInstance<InputPortHolder>()) {
@@ -122,7 +126,7 @@ object Model : ModelInterface {
                     for((key, value) in map) {
                         val port = ports[key]
                         if (port is InputPortHolder) {
-                            port.setSimulationValue(value, token)
+                            port.simulationValueChanged(token, value)
                         }
                     }
                 }
@@ -217,7 +221,7 @@ object Model : ModelInterface {
         if (simulationMode_) {
             val port = ports[name]
             if (port is InputPortHolder) {
-                port.setSimulationValue(value, token)
+                port.simulationValueChanged(token, value)
             }
         }
     }
@@ -273,7 +277,7 @@ object Model : ModelInterface {
                 modificationToken.refreshRoots.remove(current)
                 // println("Updating: $current")
                 try { // Ports may fail if simulation mode is turned off and there is no "real" value
-                    if (current.updateValue(modificationToken)) {
+                    if (current.recalculateValue(modificationToken)) {
                         anyChanged = true
                         // println("adding new dependencies: ${current.dependencies}")
                         for (dep in current.outputs) {
@@ -311,7 +315,7 @@ object Model : ModelInterface {
                     if (found) {
                         println("Updating node: $node")
                         modificationToken.refreshNodes.remove(node)
-                        if (node.updateValue(modificationToken)) {
+                        if (node.recalculateValue(modificationToken)) {
                             anyChanged = true
                         }
                         break

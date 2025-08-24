@@ -1,5 +1,5 @@
 package org.kobjects.tablecraft.pluginapi
 
 interface InputPortListener {
-    fun updateValue(token: ModificationToken, newValue: Any?)
+    fun portValueChanged(token: ModificationToken, newValue: Any?)
 }

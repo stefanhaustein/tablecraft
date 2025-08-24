@@ -19,7 +19,7 @@ class DigitalInputPort(
     override fun onDigitalStateChange(event: DigitalStateChangeEvent<out Digital<*, *, *>>?) {
             value = event?.state()?.isHigh ?: false
         plugin.model.applySynchronizedWithToken {
-            host.updateValue(it, value)
+            host.portValueChanged(it, value)
         }
     }
 

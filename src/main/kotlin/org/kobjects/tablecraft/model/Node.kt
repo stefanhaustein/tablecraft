@@ -5,6 +5,7 @@ import org.kobjects.tablecraft.pluginapi.ModificationToken
 
 interface Node {
     val value: Any?
+    /** Used to track when the value was changed last. */
     val valueTag: Long
     val outputs: MutableSet<Node>
     val inputs: MutableSet<Node>
@@ -14,7 +15,7 @@ interface Node {
      * Input port values will be refreshed from the port/simulation
      * value here.
      */
-    fun updateValue(token: ModificationToken): Boolean
+    fun recalculateValue(token: ModificationToken): Boolean
     fun detach()
 
     fun qualifiedId(): String

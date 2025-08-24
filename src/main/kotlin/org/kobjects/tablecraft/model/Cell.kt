@@ -39,7 +39,7 @@ class Cell(
     override val outputs = mutableSetOf<Node>()
 
 
-    override fun updateValue(token: ModificationToken): Boolean {
+    override fun recalculateValue(token: ModificationToken): Boolean {
         var newValue: Any?
         try {
             newValue = expression.eval(EvaluationContext(token))

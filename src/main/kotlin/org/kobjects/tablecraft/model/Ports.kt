@@ -70,7 +70,7 @@ class Ports : Iterable<PortHolder> {
                 else -> throw IllegalArgumentException("Operation specification $specification does not specify a port.")
             }
             portMap[name] = port
-            port.reset(Model.simulationMode_, token)
+            port.attach(token)
         }
     }
 

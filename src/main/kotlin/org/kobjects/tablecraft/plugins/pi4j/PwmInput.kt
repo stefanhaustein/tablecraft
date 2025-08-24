@@ -24,7 +24,7 @@ class PwmInput(
                 if (newValue != value && t0 != 0L) {
                     value = newValue
                     plugin.model.applySynchronizedWithToken {
-                        host.updateValue(it, newValue)
+                        host.portValueChanged(it, newValue)
                     }
                 }
             }

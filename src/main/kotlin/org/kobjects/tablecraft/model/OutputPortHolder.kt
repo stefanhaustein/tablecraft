@@ -15,6 +15,7 @@ class OutputPortHolder(
     var error: Exception? = null
     var cellRange: CellRangeReference? = null
     var singleCell = false
+
     override var value: Any? = null
     override var valueTag: Long = tag
 
@@ -22,7 +23,7 @@ class OutputPortHolder(
     override val inputs = mutableSetOf<Node>()
 
 
-    override fun updateValue(token: ModificationToken): Boolean {
+    override fun recalculateValue(token: ModificationToken): Boolean {
         val newValue = if (singleCell) cellRange!!.iterator().next().value else CellRangeValues(cellRange!!)
         valueTag = token.tag
         if (newValue == this.value) {
@@ -61,12 +62,12 @@ class OutputPortHolder(
         inputs.clear()
     }
 
-    override fun reset(simulationMode: Boolean, token: ModificationToken) {
+    override fun attach(token: ModificationToken) {
         detach()
 
         reparse()
 
-        if (!simulationMode || specification.modifiers.contains(AbstractArtifactSpec.Modifier.NO_SIMULATION)) {
+        if (!Model.simulationMode || specification.modifiers.contains(AbstractArtifactSpec.Modifier.NO_SIMULATION)) {
             try {
                 instance = specification.createFn(configuration)
             } catch (exception: Exception) {
