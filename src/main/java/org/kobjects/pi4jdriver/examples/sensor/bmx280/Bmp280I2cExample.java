@@ -33,6 +33,8 @@ import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
 import org.kobjects.pi4jdriver.sensor.bmx280.Bmx280Driver;
 
+import java.util.Arrays;
+
 
 /**
  * Sample application using BMP280 sensor chip via i2c.
@@ -40,7 +42,7 @@ import org.kobjects.pi4jdriver.sensor.bmx280.Bmx280Driver;
 public class Bmp280I2cExample {
 
     private static final int I2C_BUS = 1;
-    private static final int I2C_ADDRESS = 0x76;
+    private static final int I2C_ADDRESS = 0x77;
 
     public static void main(String[] args) throws Exception {
         Context pi4j = Pi4J.newAutoContext();
@@ -56,11 +58,23 @@ public class Bmp280I2cExample {
         bmp280.reset();
         System.out.println("Sensor Type: " + bmp280.getSensorType());
 
+        byte[] buf1 = new byte[24];
+        i2c.readRegister(0x88, buf1);
+        System.out.println("0x88: "+ Arrays.toString(buf1));
+
+        byte[] buf2 = new byte[16];
+        i2c.readRegister(0xe0, buf2);
+        System.out.println("0xe0: "+ Arrays.toString(buf2));
+
         for (int i = 0; i < 10; i++) {
             Bmx280Driver.Measurement measurement = bmp280.readMeasurements();
 
             System.out.println("Measurement: " + measurement);
         }
+
+        byte[] buf3 = new byte[9];
+        i2c.readRegister(0xf7, buf3);
+        System.out.println("0xf7: "+ Arrays.toString(buf3));
 
         // Shutdown Pi4J
         pi4j.shutdown();

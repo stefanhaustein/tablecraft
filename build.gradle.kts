@@ -15,6 +15,11 @@ application {
 }
 
 repositories {
+    maven(
+        url = "https://central.sonatype.com/repository/maven-snapshots/",
+
+
+    )
     mavenCentral()
 }
 
@@ -23,7 +28,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
     implementation("org.kobjects.parsek:core:0.10.0")
     implementation("com.pi4j:pi4j-core:3.0.2")
-//    implementation("com.pi4j:pi4j-drivers:0.0.1-SNAPSHOT")
+    implementation("com.pi4j:pi4j-drivers:0.0.1-SNAPSHOT")
     implementation("com.pi4j:pi4j-plugin-raspberrypi:3.0.2")
     implementation("com.pi4j:pi4j-plugin-gpiod:3.0.2")
     implementation("com.pi4j:pi4j-plugin-linuxfs:3.0.2")
