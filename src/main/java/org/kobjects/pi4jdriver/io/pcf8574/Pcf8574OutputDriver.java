@@ -17,7 +17,7 @@ public class Pcf8574OutputDriver {
 
     /** PCF8574T supports 8 addresses starting from 0x40 in increments of 2. */
     public static final int PCF8574T_ADDRESS_BASE = 0x40;  // Odd addresses used for input
-    
+
     private final I2C i2c;
     private final OnOffWrite<?>[] outputs = new OnOffWrite[8];
 

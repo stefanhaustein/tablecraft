@@ -1,5 +1,8 @@
 package org.kobjects.pi4jdriver.display.hd44780;
 
+import com.pi4j.io.i2c.I2C;
+import org.kobjects.pi4jdriver.io.pcf8574.Pcf8574OutputDriver;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,6 +59,18 @@ public class Hd44780Driver {
     private boolean blinkingEnabled = false;
     private Map<Integer, Integer> characterRomMap = CHARACTER_ROM_A00;
 
+    public static Hd44780Driver withPcf8574Connection(I2C i2c, int width, int height) {
+        Pcf8574OutputDriver pcf8574 = new Pcf8574OutputDriver(i2c);
+        Parallel4BitConnection connection = new Parallel4BitConnection(
+                pcf8574.getOutput(0),
+                pcf8574.getOutput(2),
+                pcf8574.getOutput(3),
+                pcf8574.getOutput(4),
+                pcf8574.getOutput(5),
+                pcf8574.getOutput(6),
+                pcf8574.getOutput(7));
+        return new Hd44780Driver(connection, width, height);
+    }
 
     public Hd44780Driver(AbstractConnection connection, int width, int height) {
         this.connection = connection;
