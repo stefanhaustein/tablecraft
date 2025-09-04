@@ -56,6 +56,7 @@ public class Hd44780Driver {
     private boolean blinkingEnabled = false;
     private Map<Integer, Integer> characterRomMap = CHARACTER_ROM_A00;
 
+
     public Hd44780Driver(AbstractConnection connection, int width, int height) {
         this.connection = connection;
         this.width = width;

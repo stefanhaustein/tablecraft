@@ -1,25 +1,34 @@
 package org.kobjects.pi4jdriver.display.hd44780;
 
+import com.pi4j.io.OnOffWrite;
 import com.pi4j.io.gpio.digital.DigitalOutput;
 
 public class Parallel4BitConnection extends AbstractConnection {
 
-    private final DigitalOutput registerSelect;
-    private final DigitalOutput enable;
-    private final DigitalOutput backLight;
-    private final DigitalOutput d4;
-    private final DigitalOutput d5;
-    private final DigitalOutput d6;
-    private final DigitalOutput d7;
+    private final OnOffWrite<?> registerSelect;
+    private final OnOffWrite<?> enable;
+    private final OnOffWrite<?> backLight;
+    private final OnOffWrite<?> d4;
+    private final OnOffWrite<?> d5;
+    private final OnOffWrite<?> d6;
+    private final OnOffWrite<?> d7;
+
+    private static void setState(OnOffWrite<?> pin, boolean state) {
+        if (state) {
+            pin.on();
+        } else {
+            pin.off();
+        }
+    }
 
     public Parallel4BitConnection(
-            DigitalOutput registerSelect,
-            DigitalOutput enable,
-            DigitalOutput backLight,
-            DigitalOutput d4,
-            DigitalOutput d5,
-            DigitalOutput d6,
-            DigitalOutput d7) {
+            OnOffWrite<?> registerSelect,
+            OnOffWrite<?> enable,
+            OnOffWrite<?> backLight,
+            OnOffWrite<?> d4,
+            OnOffWrite<?> d5,
+            OnOffWrite<?> d6,
+            OnOffWrite<?> d7) {
         this.registerSelect = registerSelect;
         this.enable = enable;
         this.backLight = backLight;
@@ -41,31 +50,31 @@ public class Parallel4BitConnection extends AbstractConnection {
 
     @Override
     protected void setBacklight(boolean on) {
-        backLight.setState(on);
+        setState(backLight, on);
     }
 
     @Override
     public void sendValue(boolean registerSelect, int value) {
 
-        this.registerSelect.setState(registerSelect);
-        d4.setState((value & 0b0001_0000) != 0);
-        d5.setState((value & 0b0010_0000) != 0);
-        d6.setState((value & 0b0100_0000) != 0);
-        d7.setState((value & 0b1000_0000) != 0);
+        setState(this.registerSelect, registerSelect);
+        setState(d4, (value & 0b0001_0000) != 0);
+        setState(d5, (value & 0b0010_0000) != 0);
+        setState(d6, (value & 0b0100_0000) != 0);
+        setState(d7, (value & 0b1000_0000) != 0);
 
-        enable.setState(true);
+        setState(enable, true);
         delay(1);
-        enable.setState(false);
+        setState(enable, false);
         delay(1);
 
-        d4.setState((value & 0b0001) != 0);
-        d5.setState((value & 0b0010) != 0);
-        d6.setState((value & 0b0100) != 0);
-        d7.setState((value & 0b1000) != 0);
+        setState(d4, (value & 0b0001) != 0);
+        setState(d5, (value & 0b0010) != 0);
+        setState(d6, (value & 0b0100) != 0);
+        setState(d7, (value & 0b1000) != 0);
 
-        enable.setState(true);
+        setState(enable, true);
         delay(1);
-        enable.setState(false);
+        setState(enable, false);
         delay(1);
     }
 }
