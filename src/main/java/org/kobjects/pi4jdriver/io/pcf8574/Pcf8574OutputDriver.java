@@ -9,14 +9,23 @@ import com.pi4j.io.i2c.I2C;
  * to implement these as separate classes.
  */
 public class Pcf8574OutputDriver {
+    /** PCF8574 and HLF8574 support a range of 8 addresses starting from 0x20 */
+    public static final int PCF8574_ADDRESS_BASE = 0x20;
 
+    /** PCF8574A supports a range of 8 addresses starting from 0x38 */
+    public static final int PCF8574A_ADDRESS_BASE = 0x38;
+
+    /** PCF8574T supports 8 addresses starting from 0x40 in increments of 2. */
+    public static final int PCF8574T_ADDRESS_BASE = 0x40;  // Odd addresses used for input
+    
     private final I2C i2c;
     private final OnOffWrite<?>[] outputs = new OnOffWrite[8];
 
-    private int outputBits;
+    // At power on, the I/Os are high.
+    private int outputBits = 0xff;
     private int triggerMask = -1;
 
-    Pcf8574OutputDriver(I2C i2c) {
+    public Pcf8574OutputDriver(I2C i2c) {
         this.i2c = i2c;
         for (int i = 0; i < 8; i++) {
             final int bitIndex = i;
@@ -40,7 +49,7 @@ public class Pcf8574OutputDriver {
      * Sets a mask for which bit changes trigger sending the changed state over i2c. By default,
      * all bit changes trigger an update.
      */
-    void setTriggerMask(int mask) {
+    public void setTriggerMask(int mask) {
         this.triggerMask = mask;
     }
 

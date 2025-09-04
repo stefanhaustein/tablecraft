@@ -10,7 +10,7 @@ public class Pcf8574Connection extends AbstractConnection {
     public static final int PCF8574A_ADDRESS_BASE = 0x38;
 
     // PCF8574T supports 8 addresses starting from 0x40 in increments of 2.
-    public static final int PCF8574T_ADDRESS_BASE = 0x40;  // Odd adresses used for input
+    public static final int PCF8574T_ADDRESS_BASE = 0x40;  // Odd addresses used for input
 
 
     private static final int FLAG_REGISTER_SELECT = 0b0000_0001;  // Set when writing text/data (opposed to command)
