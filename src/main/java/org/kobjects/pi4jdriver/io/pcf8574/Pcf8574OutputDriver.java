@@ -29,15 +29,17 @@ public class Pcf8574OutputDriver {
         this.i2c = i2c;
         for (int i = 0; i < 8; i++) {
             final int bitIndex = i;
-            outputs[i] = new OnOffWrite<Object>() {
+            outputs[bitIndex] = new OnOffWrite<>() {
                 @Override
                 public Object on() throws IOException {
+                    // System.out.println("Setting bit " + bitIndex + "on ");
                     setState(outputBits | 1 << bitIndex);
                     return this;
                 }
 
                 @Override
                 public Object off() throws IOException {
+                //    System.out.println("Setting bit " + bitIndex + "off ");
                     setState(outputBits & ~(1 << bitIndex));
                     return this;
                 }
@@ -65,10 +67,10 @@ public class Pcf8574OutputDriver {
     public boolean setState(int bits) {
         int changedBits = outputBits ^ bits;
         outputBits = bits;
-        if ((changedBits & triggerMask) != 0) {
-            this.i2c.write(outputBits);
-            return true;
+        if ((changedBits & triggerMask) == 0) {
+            return false;
         }
-        return false;
+        this.i2c.write(outputBits);
+        return true;
     }
 }

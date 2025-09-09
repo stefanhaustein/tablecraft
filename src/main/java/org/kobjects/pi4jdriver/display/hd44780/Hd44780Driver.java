@@ -1,5 +1,6 @@
 package org.kobjects.pi4jdriver.display.hd44780;
 
+import com.pi4j.io.OnOffWrite;
 import com.pi4j.io.i2c.I2C;
 import org.kobjects.pi4jdriver.io.pcf8574.Pcf8574OutputDriver;
 
@@ -17,6 +18,10 @@ import java.util.Map;
  * - Virtual width / scroll support
  */
 public class Hd44780Driver {
+
+    // Specified values are multiplied by 2 to allow for the minimum frequency.
+    private static final int STANDARD_DELAY_MICROS = 2 * 37;
+    private static final int LONG_DELAY_MICROS = 2 * 1520;
 
     /**
      * The standard character rom consisting of most ASCII characters and JIS X 0201 and some extra greek characters
@@ -59,17 +64,36 @@ public class Hd44780Driver {
     private boolean blinkingEnabled = false;
     private Map<Integer, Integer> characterRomMap = CHARACTER_ROM_A00;
 
+    public static Hd44780Driver with4BitConnection(
+            OnOffWrite<?> registerSelect,
+            OnOffWrite<?> enable,
+            OnOffWrite<?> backLight,
+            OnOffWrite<?> d4,
+            OnOffWrite<?> d5,
+            OnOffWrite<?> d6,
+            OnOffWrite<?> d7,
+            int width,
+            int height) {
+        return new Hd44780Driver(
+                new Parallel4BitConnection(registerSelect, enable, backLight, d4, d5, d6, d7),
+                width,
+                height);
+    }
+
     public static Hd44780Driver withPcf8574Connection(I2C i2c, int width, int height) {
         Pcf8574OutputDriver pcf8574 = new Pcf8574OutputDriver(i2c);
-        Parallel4BitConnection connection = new Parallel4BitConnection(
+        pcf8574.setTriggerMask(0b0100);
+        pcf8574.setState(0);
+        return with4BitConnection(
                 pcf8574.getOutput(0),
                 pcf8574.getOutput(2),
                 pcf8574.getOutput(3),
                 pcf8574.getOutput(4),
                 pcf8574.getOutput(5),
                 pcf8574.getOutput(6),
-                pcf8574.getOutput(7));
-        return new Hd44780Driver(connection, width, height);
+                pcf8574.getOutput(7),
+                width,
+                height);
     }
 
     public Hd44780Driver(AbstractConnection connection, int width, int height) {
@@ -78,9 +102,32 @@ public class Hd44780Driver {
         this.height = height;
 
         // Initialize display settings
+        int fsCmd = Constants.CMD_FUNCTION_SET
+                | (height == 1 ? Constants.FS_1_LINE : Constants.FS_2_LINES)
+                | (connection.is8Bit() ? Constants.FS_8_BIT : Constants.FS_4_BIT);
 
-        sendCommand(CMD_FUNCTION_SET | FS_4_BIT | (height == 1 ? FS_1_LINE : FS_2_LINES));
-        sendCommand(CMD_ENTRY_MODE | EM_INCREMENT | EM_DISPLAY_SHIFT_OFF);
+        if (connection.is8Bit()) {
+            fsCmd |= Constants.FS_8_BIT;
+            connection.setDelayMicros(50_000);
+            connection.sendValue(AbstractConnection.Mode.INIT, fsCmd);
+            connection.setDelayMicros(4500);
+            connection.sendValue(AbstractConnection.Mode.INIT, fsCmd);
+            connection.setDelayMicros(100);
+            connection.sendValue(AbstractConnection.Mode.INIT, fsCmd);
+        } else {
+            fsCmd |= Constants.FS_4_BIT;
+            connection.setDelayMicros(50_000);
+            connection.sendValue(AbstractConnection.Mode.INIT, 3);
+            connection.setDelayMicros(4500);
+            connection.sendValue(AbstractConnection.Mode.INIT, 3);
+            connection.setDelayMicros(100);
+            connection.sendValue(AbstractConnection.Mode.INIT, 3);
+            connection.setDelayMicros(100);
+            connection.sendValue(AbstractConnection.Mode.INIT, 2);
+        }
+
+        sendCommand(fsCmd);
+        sendCommand(Constants.CMD_ENTRY_MODE | Constants.EM_INCREMENT | Constants.EM_DISPLAY_SHIFT_OFF);
 
         setDisplayEnabled(true);
         setBacklightEnabled(true);
@@ -99,7 +146,8 @@ public class Hd44780Driver {
     }
 
     public void clearDisplay() {
-        sendCommand(CMD_CLEAR_DISPLAY);
+        sendCommand(Constants.CMD_CLEAR_DISPLAY);
+        connection.setDelayMicros(LONG_DELAY_MICROS);
         cursorX = 0;
         cursorY = 0;
     }
@@ -108,7 +156,8 @@ public class Hd44780Driver {
      * Returns the Cursor to Home Position (First line, first character)
      */
     public void returnHome() {
-        sendCommand(CMD_RETURN_HOME);
+        sendCommand(Constants.CMD_RETURN_HOME);
+        connection.setDelayMicros(LONG_DELAY_MICROS);
         cursorX = 0;
         cursorY = 0;
     }
@@ -164,7 +213,7 @@ public class Hd44780Driver {
         if (x >= width || x < 0) {
             throw new IllegalArgumentException("Column " + x + " out of range 0.." + (width - 1));
         }
-        sendCommand(CMD_SET_DDRAM_ADDR | x + LCD_ROW_OFFSETS[y]);
+        sendCommand(Constants.CMD_SET_DDRAM_ADDR | x + LCD_ROW_OFFSETS[y]);
         this.cursorX = x;
         this.cursorY = y;
     }
@@ -179,7 +228,7 @@ public class Hd44780Driver {
         if (index > 7 || index < 1) {
             throw new IllegalArgumentException("Custom character index " + index + " outside valid range (1..7)");
         }
-        sendCommand(CMD_SET_CGRAM_ADDR | index << 3);
+        sendCommand(Constants.CMD_SET_CGRAM_ADDR | index << 3);
 
         for (int i = 0; i < 8; i++) {
             sendData((int) ((characterData >>> ((7-i) * 8)) & 0xffL));
@@ -190,14 +239,14 @@ public class Hd44780Driver {
      * Scroll whole display to the right by one column.
      */
     public void scrollRight(){
-        sendCommand(CMD_DISPLAY_SHIFT_RIGHT);
+        sendCommand(Constants.CMD_DISPLAY_SHIFT_RIGHT);
     }
 
     /**
      * Scroll whole display to the left by one column.
      */
     public void scrollLeft(){
-        sendCommand(CMD_DISPLAY_SHIFT_LEFT);
+        sendCommand(Constants.CMD_DISPLAY_SHIFT_LEFT);
     }
 
 
@@ -234,67 +283,22 @@ public class Hd44780Driver {
     }
 
     private void updateDisplayControl() {
-        sendCommand(CMD_DISPLAY_CONTROL
-                | (displayEnabled ? DC_DISPLAY_ON : DC_DISPLAY_OFF)
-                | (cursorEnabled ? DC_CURSOR_ON : DC_CURSOR_OFF)
-                | (blinkingEnabled ? DC_BLINK_ON : DC_BLINK_OFF)
+        sendCommand(Constants.CMD_DISPLAY_CONTROL
+                | (displayEnabled ? Constants.DC_DISPLAY_ON : Constants.DC_DISPLAY_OFF)
+                | (cursorEnabled ? Constants.DC_CURSOR_ON : Constants.DC_CURSOR_OFF)
+                | (blinkingEnabled ? Constants.DC_BLINK_ON : Constants.DC_BLINK_OFF)
         );
     }
 
     private void sendCommand(int id) {
-       connection.sendValue(false, id);
+        connection.sendValue(AbstractConnection.Mode.COMMAND, id);
+        connection.setDelayMicros(STANDARD_DELAY_MICROS);
     }
 
     private void sendData(int value) {
-        connection.sendValue(true, value);
+        connection.sendValue(AbstractConnection.Mode.DATA, value);
     }
 
-
-    /** Display commands and their flags. */
-    private static final int CMD_CLEAR_DISPLAY   = 0x01;
-    private static final int CMD_RETURN_HOME     = 0x02;
-
-    private static final int CMD_ENTRY_MODE       = 0x04;
-    private static final int EM_INCREMENT         = 0x02;
-    private static final int EM_DECREMENT         = 0x00;
-    private static final int EM_DISPLAY_SHIFT_ON  = 0x01;
-    private static final int EM_DISPLAY_SHIFT_OFF = 0x00;
-
-    private static final int CMD_DISPLAY_CONTROL = 0x08;
-    private static final int DC_DISPLAY_ON       = 0x04;
-    private static final int DC_DISPLAY_OFF      = 0x00;
-    private static final int DC_CURSOR_ON        = 0x02;
-    private static final int DC_CURSOR_OFF       = 0x00;
-    private static final int DC_BLINK_ON         = 0x01;
-    private static final int DC_BLINK_OFF        = 0x00;
-
-    private static final int CMD_CURSOR_SHIFT_LEFT   = 0x0001_0000;
-    private static final int CMD_CURSOR_SHIFT_RIGHT  = 0x0001_0100;
-    private static final int CMD_DISPLAY_SHIFT_LEFT  = 0x0001_1000;
-    private static final int CMD_DISPLAY_SHIFT_RIGHT = 0x0001_1100;
-
-    private static final int CMD_FUNCTION_SET    = 0x20;
-    private static final int FS_8_BIT            = 0x10;
-    private static final int FS_4_BIT            = 0x00;
-    private static final int FS_2_LINES          = 0x08;
-    private static final int FS_1_LINE           = 0x00;
-    private static final int FS_CHARSET_5X10     = 0x04;
-    private static final int FS_CHARSET_5X8      = 0x00;
-
-    private static final int CMD_SET_CGRAM_ADDR  = 0x40;
-    private static final int CMD_SET_DDRAM_ADDR  = 0x80;
-
-    // flags for display/cursor shift
-    private static final int LCD_DISPLAY_MOVE = 0x08;
-    private static final int LCD_CURSOR_MOVE  = 0x00;
-
-    // flags for function set
-    private static final int LCD_8BIT_MODE = 0x10;
-    private static final int LCD_4BIT_MODE = 0x00;
-    private static final int LCD_2LINE     = 0x08;
-    private static final int LCD_1LINE     = 0x00;
-    private static final int LCD_5x10DOTS  = 0x04;
-    private static final int LCD_5x8DOTS   = 0x00;
 
     /** Display row offsets for up to 4 rows. */
     private static final byte[] LCD_ROW_OFFSETS = {0x00, 0x40, 0x14, 0x54};

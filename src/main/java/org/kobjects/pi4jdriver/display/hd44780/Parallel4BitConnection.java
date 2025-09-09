@@ -1,7 +1,6 @@
 package org.kobjects.pi4jdriver.display.hd44780;
 
 import com.pi4j.io.OnOffWrite;
-import com.pi4j.io.gpio.digital.DigitalOutput;
 
 public class Parallel4BitConnection extends AbstractConnection {
 
@@ -36,16 +35,11 @@ public class Parallel4BitConnection extends AbstractConnection {
         this.d5 = d5;
         this.d6 = d6;
         this.d7 = d7;
+    }
 
-        // Bring the display into a well-defined 4 bit state
-        delay(35);
-        sendValue(false, 0x03);
-        delay(35);
-        sendValue(false, 0x03);
-        delay(35);
-        sendValue(false, 0x03);
-        delay(35);
-        sendValue(false, 0x02);
+    @Override
+    protected boolean is8Bit() {
+        return false;
     }
 
     @Override
@@ -54,27 +48,23 @@ public class Parallel4BitConnection extends AbstractConnection {
     }
 
     @Override
-    public void sendValue(boolean registerSelect, int value) {
+    public void sendValue(Mode mode, int value) {
+        setState(this.registerSelect, mode == Mode.DATA);
+        if (mode != Mode.INIT) {
+            sendNibble(value >> 4);
+        }
+        sendNibble(value);
+    }
 
-        setState(this.registerSelect, registerSelect);
-        setState(d4, (value & 0b0001_0000) != 0);
-        setState(d5, (value & 0b0010_0000) != 0);
-        setState(d6, (value & 0b0100_0000) != 0);
-        setState(d7, (value & 0b1000_0000) != 0);
-
-        setState(enable, true);
-        delay(1);
-        setState(enable, false);
-        delay(1);
-
+    void sendNibble(int value) {
         setState(d4, (value & 0b0001) != 0);
         setState(d5, (value & 0b0010) != 0);
         setState(d6, (value & 0b0100) != 0);
         setState(d7, (value & 0b1000) != 0);
-
         setState(enable, true);
-        delay(1);
+        setDelayMicros(1);  // Enable cycle time is 1000 ns
+        materializeDelay();
         setState(enable, false);
-        delay(1);
+        setDelayMicros(1);
     }
 }
