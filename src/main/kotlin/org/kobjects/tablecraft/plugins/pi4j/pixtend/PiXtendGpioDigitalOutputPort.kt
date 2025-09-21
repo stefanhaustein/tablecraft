@@ -1,6 +1,6 @@
 package org.kobjects.tablecraft.plugins.pi4j.pixtend
 
-import org.kobjects.pi4jdriver.plc.pixtend.PiXtendDriver
+import com.pi4j.drivers.plc.pixtend.PiXtendDriver
 import org.kobjects.tablecraft.pluginapi.*
 
 class PiXtendGpioDigitalOutputPort(
