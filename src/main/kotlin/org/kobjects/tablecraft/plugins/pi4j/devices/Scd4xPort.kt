@@ -1,7 +1,7 @@
 package org.kobjects.tablecraft.plugins.pi4j.devices
 
 import com.pi4j.io.i2c.I2C
-import com.pi4j.drivers.sensor.scd4x.Scd4xDriver
+import com.pi4j.drivers.sensor.environment.scd4x.Scd4xDriver
 import org.kobjects.tablecraft.pluginapi.*
 import org.kobjects.tablecraft.plugins.pi4j.Pi4jPlugin
 import java.util.*

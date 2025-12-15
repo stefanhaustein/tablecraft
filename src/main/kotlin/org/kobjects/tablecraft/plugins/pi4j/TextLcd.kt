@@ -2,7 +2,7 @@ package org.kobjects.tablecraft.plugins.pi4j
 
 
 import com.pi4j.io.i2c.I2C
-import com.pi4j.drivers.display.text.hd44780.Hd44780Driver
+import com.pi4j.drivers.display.character.hd44780.Hd44780Driver
 import org.kobjects.tablecraft.pluginapi.*
 import kotlin.math.min
 

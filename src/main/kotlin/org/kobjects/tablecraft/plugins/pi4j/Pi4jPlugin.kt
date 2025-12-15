@@ -10,7 +10,7 @@ import org.kobjects.tablecraft.plugins.pi4j.pixtend.PiXtendIntegration
 
 class Pi4jPlugin(val model: ModelInterface) : Plugin {
     var pi4j: Context? = null
-    var error: Exception? = null
+    var error: Throwable? = null
 
     init {
         reInit()
@@ -30,7 +30,7 @@ class Pi4jPlugin(val model: ModelInterface) : Plugin {
             } else {
                 pi4j = Pi4J.newAutoContext()
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             pi4j = null
             error = e
         }
