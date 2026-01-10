@@ -182,7 +182,7 @@ export function selectPanel(name) {
     }
 
     let sidePanelElement = document.getElementById("sidePanel")
-    currentPanelElement = document.getElementById(name + "Panel")
+    currentPanelElement = document.getElementById(name + "Panel") || document.getElementById(name)
     if (name == "Hide") {
         sidePanelElement.style.display = "none"
     } else {

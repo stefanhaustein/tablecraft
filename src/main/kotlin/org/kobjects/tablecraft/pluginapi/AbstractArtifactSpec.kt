@@ -12,6 +12,7 @@ abstract class AbstractArtifactSpec(
     val parameters: List<ParameterSpec>,
     val modifiers: Set<Modifier>,
     val tag: Long,
+    val displayName: String?,
 ) : ToJson {
 
     fun convertConfiguration(rawConfig: Map<String, Any?>): Map<String, Any?> {
@@ -36,6 +37,9 @@ abstract class AbstractArtifactSpec(
         sb.append("""{"name":${name.quote()},"category":${category.quote()},"kind":"$kind",""")
         if (type != null) {
             sb.append(""""type":${type.toJson()},""")
+        }
+        if (displayName != null) {
+            sb.append(""""displayName":${displayName.quote()},""")
         }
         sb.append(""""description":${description.quote()},"params":[""")
         var first = true

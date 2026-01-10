@@ -23,9 +23,7 @@ class PwmInput(
                 val newValue = (System.currentTimeMillis() - t0) / 1000.0
                 if (newValue != value && t0 != 0L) {
                     value = newValue
-                    plugin.model.applySynchronizedWithToken {
-                        host.portValueChanged(it, newValue)
-                    }
+                    plugin.model.setPortValue(host, newValue)
                 }
             }
         }

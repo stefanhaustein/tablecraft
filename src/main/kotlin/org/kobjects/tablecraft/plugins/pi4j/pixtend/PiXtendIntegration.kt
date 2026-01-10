@@ -9,7 +9,7 @@ class PiXtendIntegration(
     kind: String,
     name: String,
     tag: Long,
-    var model: PiXtendDriver.Model
+    var pixtendModel: PiXtendDriver.Model
 
 ): IntegrationInstance(kind, name, tag) {
     var driver: PiXtendDriver? = null
@@ -24,7 +24,7 @@ class PiXtendIntegration(
     private fun attach() {
         if (!pi4j.model.simulationMode) {
             try {
-                driver = PiXtendDriver(pi4j.pi4j, model)
+                driver = PiXtendDriver(pi4j.pi4j, this@PiXtendIntegration.pixtendModel)
                 error = null
                 pi4j.model.runAsync { syncState(driver!!, ++invocationId) }
             } catch (e: Exception) {
@@ -54,13 +54,13 @@ class PiXtendIntegration(
 
 
     companion object {
-        val pixtendModel = Type.ENUM(PiXtendDriver.Model.entries)
+        val piXtendModel = Type.ENUM(PiXtendDriver.Model.entries)
 
         fun spec(pi4j: Pi4jPlugin) = IntegrationSpec(
             category = "PLC",
             name = "pixt",
             description = "PiXtend PLC Integration",
-            parameters = listOf(ParameterSpec("model", pixtendModel, PiXtendDriver.Model.V2S)),
+            parameters = listOf(ParameterSpec("model", piXtendModel, PiXtendDriver.Model.V2S)),
             modifiers = setOf(AbstractArtifactSpec.Modifier.SINGLETON),
         ) { kind, name, tag, config ->
             PiXtendIntegration(pi4j, kind, name, tag, config["model"] as PiXtendDriver.Model)
@@ -79,7 +79,7 @@ class PiXtendIntegration(
         )
 
     override val configuration: Map<String, Any?>
-        get() = mapOf("model" to model.name)
+        get() = mapOf("model" to pixtendModel.name)
 
     override fun detach() {
         invocationId++
@@ -92,7 +92,7 @@ class PiXtendIntegration(
 
     override fun reconfigure(configuration: Map<String, Any?>) {
         invocationId++
-        model = configuration["model"] as PiXtendDriver.Model
+        this@PiXtendIntegration.pixtendModel = configuration["model"] as PiXtendDriver.Model
         attach()
     }
 

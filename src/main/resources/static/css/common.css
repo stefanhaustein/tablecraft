@@ -9,7 +9,11 @@ html {
     font-size: 17px;
 }
 
-
+details::details-content {
+    margin-left:5px;
+    padding-left:5px;
+    border-left:1px solid #ccc;
+}
 select.error,
 input.error {
     background-color: #fee;

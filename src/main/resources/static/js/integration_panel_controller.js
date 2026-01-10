@@ -1,10 +1,11 @@
-import {promptDialog} from "./lib/dialogs.js"
-import {showIntegrationInstanceConfigurationDialog} from "./integration_editor.js"
-import {getFactory, getIntegrationInstance, getPortInstance, registerIntegrationInstance} from "./shared_model.js";
-import {updateSpec} from "./lib/utils.js";
+import {registerIntegrationInstance} from "./shared_model.js";
+import {addOption} from "./lib/dom.js";
+import {updateSpec} from "./artifacts.js";
 
 let integrationListElement = document.getElementById("integrationList")
 let integrationSpecListElement = document.getElementById("integrationSpecList")
+let sidePanel = document.getElementById("sidePanel")
+let panelSelectElement = document.getElementById("panelSelect")
 
 export function processIntegrationUpdate(name, integration) {
     let key = name.toLowerCase()
@@ -17,21 +18,32 @@ export function processIntegrationUpdate(name, integration) {
         }
     } else {
         if (element == null) {
+            addOption(panelSelectElement, "- " + name + " (" + integration.type + ")", id);
+
             element = document.createElement("div")
             element.id = id
+            sidePanel.appendChild(element)
 
+            let ops = integration["operations"] || []
+            console.log ("operations: ", integration["operations"])
+
+            for (const op of ops) {
+                updateSpec(element, id + ".", op)
+            }
+            /*
             let nameSpan = document.createElement("span")
             nameSpan.textContent = name
             nameSpan.style.fontWeight = "bold"
 
             element.append(nameSpan, " (" + integration.type + ")")
 
-            integrationListElement.appendChild(element)
 
             element.onclick = () => {
                 let spec = getFactory(integration.type)
                 showIntegrationInstanceConfigurationDialog(spec, integration)
             }
+
+             */
         }
     }
 }
@@ -40,26 +52,5 @@ export function updateIntegrationSpec(spec) {
     updateSpec(
         integrationSpecListElement,
         "integration.spec.",
-        spec,
-        () => { showIntegrationCreationDialog(spec) })
-}
-
-async function showIntegrationCreationDialog(spec) {
-    let name = spec.name
-
-    if (spec.modifiers == null || spec.modifiers.indexOf("SINGLETON") == -1) {
-        name = await promptDialog("Add " + name, name, {
-            label: "Name",
-            modifiers: ["CONSTANT"],
-            validation: {
-                "Integration name conflict": (name) => getIntegrationInstance(name) == null && (getFactory(name) == null || getFactory(name) == spec),
-                "Port name conflict": (name) => getPortInstance(name) == null,
-                "Valid: letters, non-leading '_' or digits": /^[a-zA-Z][a-zA-Z_0-9]*$/
-            }
-        })
-        if (name == null) {
-            return
-        }
-    }
-    showIntegrationInstanceConfigurationDialog(spec, {name: name, type: spec.name, kind: spec.name})
+        spec)
 }

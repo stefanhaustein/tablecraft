@@ -35,9 +35,9 @@ class Integrations : Iterable<IntegrationInstance> {
         } else {
             integration = specification.createFn(type, name, token.tag, config)
             integrationMap[name] = integration
-            for (operation in integration.operationSpecs) {
-                Model.factories.add(operation)
-            }
+            //for (operation in integration.operationSpecs) {
+            //    Model.factories.add(operation)
+            //}
             token.symbolsChanged = true
         }
     }
@@ -48,7 +48,7 @@ class Integrations : Iterable<IntegrationInstance> {
         for (integration in integrations) {
             if (integration.tag > tag && (forClient || integration !is IntegrationInstance.Tombstone)) {
                 sb.append(integration.name).append(": ")
-                integration.toJson(sb)
+                integration.toJson(sb, forClient)
                 sb.append('\n')
             }
         }

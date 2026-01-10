@@ -1,17 +1,24 @@
 import {portValues, showDependencies, simulationValues} from "./shared_state.js";
 import {showPortDialog} from "./port_editor.js";
 import {InputController} from "./forms/input_controller.js";
-import {insertById} from "./lib/dom.js";
+import {insertById, setDragHandler} from "./lib/dom.js";
 import {getFactory, getPortInstance, registerPortInstance} from "./shared_model.js";
-import {camelCase, post, updateSpec} from "./lib/utils.js";
+import {camelCase, post} from "./lib/utils.js";
 import {FormController} from "./forms/form_builder.js";
+import {updateSpec} from "./artifacts.js";
 
 
 let inputPortSpecListElement = document.getElementById("inputPortSpecList")
 let outputPortSpecListElement = document.getElementById("outputPortSpecList")
-
+let sidePanelWidth = 200;
 
 let rangeNameElement = document.getElementById("rangeName")
+
+
+setDragHandler(document.getElementById("divider"), (dx, dy) => {
+    sidePanelWidth -= dx
+    document.getElementById("sidePanel").style.flexBasis = sidePanelWidth + "px"
+})
 
 
 export function processPortSpec(spec) {
@@ -23,9 +30,7 @@ export function processPortSpec(spec) {
             showPortDialog(spec, port)
         })
     } else {
-        updateSpec(container, "portspec.", spec, () => {
-            showPortDialog(spec)
-        })
+        updateSpec(container, "portspec.", spec)
     }
 }
 

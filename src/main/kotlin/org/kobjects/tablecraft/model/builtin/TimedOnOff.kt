@@ -33,9 +33,7 @@ class TimedOnOff(
             task = object : TimerTask() {
                 override fun run() {
                     outputState = delayedState
-                    Model.applySynchronizedWithToken {
-                        host!!.notifyValueChanged(it)
-                    }
+                    Model.notifyValueChanged(host)
                     task = null
                 }
             }

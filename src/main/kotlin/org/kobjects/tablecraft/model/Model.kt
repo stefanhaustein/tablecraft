@@ -3,6 +3,7 @@ package org.kobjects.tablecraft.model
 import org.kobjects.tablecraft.json.JsonParser
 import org.kobjects.tablecraft.model.builtin.BuiltinFunctions
 import org.kobjects.tablecraft.pluginapi.*
+import org.kobjects.tablecraft.plugins.homeassistant.HomeAssistantPlugin
 import org.kobjects.tablecraft.plugins.pi4j.Pi4jPlugin
 import org.kobjects.tablecraft.svg.SvgManager
 import java.io.File
@@ -21,6 +22,8 @@ object Model : ModelInterface {
 
     /* Can't be a proper property as the setter needs a modification token. */
     private var simulationMode_: Boolean = false
+    private var pendingUpdates = mutableListOf<(ModificationToken)->Unit>()
+
     var runMode_: Boolean = false
     var settingsTag: Long = 0
 
@@ -38,6 +41,7 @@ object Model : ModelInterface {
     val svgs = SvgManager(File("src/main/resources/static/img"))
 
     val restValues = mutableMapOf<String, Any?>()
+    var refreshRequested: Boolean = false
 
     private val lock = ReentrantLock()
 
@@ -45,6 +49,7 @@ object Model : ModelInterface {
         addPlugin(BuiltinFunctions)
         addPlugin(Pi4jPlugin(this))
         addPlugin(svgs)
+        addPlugin(HomeAssistantPlugin(this))
         // addPlugin(MqttPlugin)
 
         applySynchronizedWithToken { runtimeContext ->
@@ -158,7 +163,6 @@ object Model : ModelInterface {
     }
 
 
-
     fun getOrCreate(name: String): Cell {
         val cut = name.indexOf("!")
         val sheet = sheets[name.substring(0, cut)]!!
@@ -194,9 +198,6 @@ object Model : ModelInterface {
         serialize(writer)
         writer.close()
     }
-
-
-
 
 
     fun updateSheet(name: String?, jsonSpec: Map<String, Any?>, token: ModificationToken) {
@@ -253,11 +254,21 @@ object Model : ModelInterface {
         callback: ((modificationTag: Long, anyChanged: Boolean) -> Unit)?,
         action: (ModificationToken) -> Unit
     ) {
-        lock.withLock {
+        applySynchronized {
             val modificationToken = ModificationToken()
 
             if (callback != null) {
                 updateListeners.add(UpdateListenerData(false, false, callback))
+            }
+
+            val pendingUpdatesLocal = pendingUpdates
+            pendingUpdates = mutableListOf()
+            for (update in pendingUpdatesLocal) {
+                try {
+                    update(modificationToken)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
 
             action(modificationToken)
@@ -358,6 +369,13 @@ object Model : ModelInterface {
         }
     }
 
+    fun requestSynchronizedWithToken(action: (ModificationToken) -> Unit) {
+        applySynchronized {
+            pendingUpdates.add(action)
+            requestRefresh()
+        }
+    }
+
     fun <T> applySynchronized(action: () -> T) = lock.withLock(action)
 
     data class UpdateListenerData (
@@ -384,5 +402,31 @@ object Model : ModelInterface {
                 Thread.sleep(interval)
             }
         }.start()
+    }
+
+    fun requestRefresh() {
+        applySynchronized {
+            if (!refreshRequested) {
+                refreshRequested = true
+                applySynchronizedWithToken {
+                    refreshRequested = false
+                }
+            }
+        }
+    }
+
+    /** A nullable listener simplifies call sites where the listener is a var and might be null */
+    fun notifyValueChanged(listener: ValueChangeListener?) {
+        if (listener != null) {
+            requestSynchronizedWithToken {
+                listener.notifyValueChanged(it)
+            }
+        }
+    }
+
+    override fun setPortValue(port: InputPortListener, value: Any?) {
+        requestSynchronizedWithToken {
+            port.portValueChanged(it, value)
+        }
     }
 }

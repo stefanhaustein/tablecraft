@@ -4,10 +4,10 @@ import com.pi4j.drivers.plc.pixtend.PiXtendDriver
 import org.kobjects.tablecraft.pluginapi.*
 
 class PiXtendGpioDigitalInputPort(
-    val integration: PiXtendIntegration,
+    integration: PiXtendIntegration,
     val index: Int,
     listener: InputPortListener
-) : PiXtendInputPortInstance(listener) {
+) : PiXtendInputPortInstance(integration, listener) {
 
     init {
         integration.driver?.setGpioMode(index, PiXtendDriver.GpioMode.DIGITAL_INPUT)

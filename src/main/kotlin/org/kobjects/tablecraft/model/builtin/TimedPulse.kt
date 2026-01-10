@@ -34,10 +34,7 @@ class TimedPulse(
                     task = object : TimerTask() {
                         override fun run() {
                             outputState = false
-                            Model.applySynchronizedWithToken {
-                                host!!.notifyValueChanged(it)
-                            }
-                            task = null
+                            Model.notifyValueChanged(host)
                         }
                     }
                     timer.schedule(task, (delay * 1000.0).toLong())

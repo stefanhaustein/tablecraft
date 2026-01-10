@@ -44,11 +44,11 @@ interface Type : ToJson {
     }
 
     fun valueFromString(s: String): Any =
-        throw UnsupportedOperationException("Can't parse $this yet.")
+        throw UnsupportedOperationException("Can't parse '$this' yet.")
 
     fun valueFromJson(value: Any): Any =
         if (value is String) valueFromString(value)
-        else throw UnsupportedOperationException("Can't parse $this from JSON yet.")
+        else throw UnsupportedOperationException("Can't parse '$this' from JSON yet.")
 
     class ENUM<T : Enum<T>>(val entries: EnumEntries<T>) : Type {
 

@@ -1,6 +1,8 @@
 import {FormController} from "./forms/form_builder.js";
 
 import {post, transformSchema} from "./lib/utils.js";
+import {getFactory, getIntegrationInstance, getPortInstance} from "./shared_model.js";
+import {promptDialog} from "./lib/dialogs.js";
 
 let integrationListElement = document.getElementById("integrationList")
 let dialogElement = document.getElementById("dialog")
@@ -66,4 +68,25 @@ export function showIntegrationInstanceConfigurationDialog(spec, instance) {
 function sendIntegration(instance) {
     post("integrations/" + instance["name"], instance)
     return true
+}
+
+
+export async function showIntegrationCreationDialog(spec) {
+    let name = spec.name
+
+    if (spec.modifiers == null || spec.modifiers.indexOf("SINGLETON") == -1) {
+        name = await promptDialog("Add " + name, name, {
+            label: "Name",
+            modifiers: ["CONSTANT"],
+            validation: {
+                "Integration name conflict": (name) => getIntegrationInstance(name) == null && (getFactory(name) == null || getFactory(name) == spec),
+                "Port name conflict": (name) => getPortInstance(name) == null,
+                "Valid: letters, non-leading '_' or digits": /^[a-zA-Z][a-zA-Z_0-9]*$/
+            }
+        })
+        if (name == null) {
+            return
+        }
+    }
+    showIntegrationInstanceConfigurationDialog(spec, {name: name, type: spec.name, kind: spec.name})
 }

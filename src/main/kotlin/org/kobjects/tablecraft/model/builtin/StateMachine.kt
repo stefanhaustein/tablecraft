@@ -74,9 +74,7 @@ class StateMachine(
                     // Trigger a re-calculation as there might be a followup state transition
                     timer.schedule(object : TimerTask() {
                         override fun run() {
-                            Model.applySynchronizedWithToken {
-                                host?.notifyValueChanged(it)
-                            }
+                            Model.notifyValueChanged(host)
                         }
                     }, 1)
                     break
@@ -108,7 +106,7 @@ class StateMachine(
         val targetRow: Int,
     ) : TimerTask() {
         override fun run() {
-            Model.applySynchronizedWithToken {
+            Model.requestSynchronizedWithToken {
                 timedTransition = null
                 setCurrentState(it.tag, targetState)
                 currentRow = targetRow

@@ -76,15 +76,23 @@ object TcFormulaParser : PrattParser<TcScanner, ParsingContext, Expression>(
 
                     else -> {
                         val lowercase = name.lowercase()
-                        val functionSpec = Model.functions[lowercase] as FunctionSpec?
-                        if (functionSpec != null) {
-                            PluginOperationCall.create(context.cell, functionSpec, parameterList)
+                        val integration = Model.integrations.integrationMap[lowercase]
+                        if (integration != null) {
+                            scanner.consume(".")
+                            val qName = lowercase + "." + scanner.consume(TcTokenType.IDENTIFIER).text.lowercase()
+                            val spec = integration.operationSpecs.find { it.name == qName } ?: throw IllegalArgumentException("'$qName' not found in integration '$lowercase'")
+                            PluginOperationCall.create(context.cell, spec as FunctionSpec, parameterList)
                         } else {
-                            val port = Model.ports[lowercase]
-                            require(port != null) {
-                                "Unresolved identifier $lowercase"
+                            val functionSpec = Model.functions[lowercase] as FunctionSpec?
+                            if (functionSpec != null) {
+                                PluginOperationCall.create(context.cell, functionSpec, parameterList)
+                            } else {
+                                val port = Model.ports[lowercase]
+                                require(port != null) {
+                                    "Unresolved identifier $lowercase"
+                                }
+                                PortExpression(context.cell, port)
                             }
-                            PortExpression(context.cell, port)
                         }
                     }
                 }

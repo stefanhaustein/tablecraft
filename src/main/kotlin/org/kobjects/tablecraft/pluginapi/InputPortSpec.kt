@@ -8,6 +8,7 @@ class InputPortSpec(
     parameters: List<ParameterSpec>,
     modifiers: Set<Modifier> = emptySet(),
     tag: Long = 0,
+    displayName: String? = null,
     val createFn: (configuration: Map<String, Any?>, listener: InputPortListener) -> InputPortInstance,
 ) : AbstractFactorySpec(
     category,
@@ -17,5 +18,6 @@ class InputPortSpec(
     description,
     parameters,
     modifiers,
-    tag
+    tag,
+    displayName,
 )

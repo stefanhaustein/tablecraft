@@ -81,7 +81,6 @@ class InputPortHolder(
         return true
     }
 
-
     fun simulationValueChanged(token: ModificationToken, newValue: Any?) {
         simulationValue = newValue
         simulationValueTag = token.tag

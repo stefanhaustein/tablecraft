@@ -8,6 +8,7 @@ class FunctionSpec(
     parameters: List<ParameterSpec>,
     modifiers: Set<Modifier> = emptySet(),
     tag: Long = 0,
+    displayName: String? = null,
     val createFn: (configuration: Map<String, Any?>) -> FunctionInstance,
 ) : AbstractArtifactSpec(
     category,
@@ -18,4 +19,5 @@ class FunctionSpec(
     parameters,
     modifiers,
     tag,
+    displayName,
 )

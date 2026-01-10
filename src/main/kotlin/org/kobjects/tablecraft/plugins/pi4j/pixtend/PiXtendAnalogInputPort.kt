@@ -4,10 +4,10 @@ import com.pi4j.drivers.plc.pixtend.PiXtendDriver
 import org.kobjects.tablecraft.pluginapi.*
 
 class PiXtendAnalogInputPort(
-    val integration: PiXtendIntegration,
+    integration: PiXtendIntegration,
     val index: Int,
     listener: InputPortListener
-) : PiXtendInputPortInstance(listener) {
+) : PiXtendInputPortInstance(integration, listener) {
 
     override val value: Any
         get() = integration.driver?.getAnalogIn(index) ?: Unit

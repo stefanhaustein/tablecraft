@@ -8,7 +8,8 @@ abstract class AbstractFactorySpec(
     description: String,
     parameters: List<ParameterSpec>,
     modifiers: Set<Modifier>,
-    tag: Long
+    tag: Long,
+    displayName: String?,
 ) : AbstractArtifactSpec(
     category,
     kind,
@@ -18,4 +19,5 @@ abstract class AbstractFactorySpec(
     parameters,
     modifiers,
     tag,
+    displayName,
 )

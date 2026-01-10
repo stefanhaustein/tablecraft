@@ -7,6 +7,7 @@ class OutputPortSpec(
     parameters: List<ParameterSpec>,
     modifiers: Set<Modifier> = emptySet(),
     tag: Long = 0,
+    displayName: String? = null,
     val createFn: (configuration: Map<String, Any?>) -> OutputPortInstance,
 ) : AbstractFactorySpec(
     category,
@@ -16,5 +17,6 @@ class OutputPortSpec(
     description,
     parameters,
     modifiers,
-    tag
+    tag,
+    displayName,
 )

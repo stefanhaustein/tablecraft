@@ -1,5 +1,4 @@
 import {alertDialog} from "./dialogs.js";
-import {insertById} from "./dom.js";
 
 export function camelCase(s) {
     return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase()
@@ -91,65 +90,26 @@ export function transformSchema(schema, forOperation) {
     return transformed
 }
 
-export function updateSpec(parent, idPrefix, spec, createAction) {
-    let id = idPrefix + spec.name
-
-    if (spec.modifiers && spec.modifiers.indexOf("DELETED") != -1) {
-        let existing = document.getElementById(id)
-        if (existing) {
-            existing.parentElement.removeChild(existing)
-        }
-        return existing  // should be null?
+export function ensureCategory(parent, name) {
+    if (name == null || name == "") {
+        return parent
     }
-
-    let element = document.createElement("div")
-    element.id = idPrefix + spec.name
-
-    if (createAction) {
-        let addButtonElement = document.createElement("img")
-        addButtonElement.src = "/img/add.svg"
-        addButtonElement.style.float = "right"
-        addButtonElement.onclick = createAction
-        element.appendChild(addButtonElement)
+    let cut = name.indexOf('.')
+    if (cut != -1) {
+        let outer = ensureCategory(parent, name.substring(0, cut))
+        return ensureCategory(outer, name.substring(cut + 1))
     }
-
-    let titleElement = document.createElement("div")
-    let nameSpan = document.createElement("b")
-    nameSpan.append(spec.name)
-    titleElement.appendChild(nameSpan)
-    if (spec.params && spec.params.length > 0) {
-        titleElement.append("(" + spec.params.map((e) => e.name).join(", ") + ")")
-    }
-    if ((typeof spec?.type == "string") && spec.type.toLowerCase() != "void") {
-        titleElement.append(": " + camelCase(spec.type))
-    }
-    titleElement.style.marginBottom = "5px"
-    titleElement.style.marginTop = "10px"
-    titleElement.style.textIndent = "-10px"
-    titleElement.style.paddingLeft = "10px"
-    element.appendChild(titleElement)
-
-    let descriptionElement = document.createElement("div")
-    descriptionElement.style.paddingLeft = "10px"
-
-    let description = spec.description
-    let cut = description.indexOf(".")
-
-    descriptionElement.textContent = (cut == -1 ? description : description.substring(0, cut + 1))
-    element.appendChild(descriptionElement)
-
-    // Find "sub-parent" by category(?)
 
     let target = null
     let before = null
     for (let child of parent.children) {
         if (child.localName == "details") {
             let category = child.firstElementChild.textContent
-            if (category == spec.category) {
+            if (category == name) {
                 target = child
                 break
             }
-            if (category > spec.category) {
+            if (category > name) {
                 before = child
                 break
             }
@@ -159,12 +119,11 @@ export function updateSpec(parent, idPrefix, spec, createAction) {
     if (target == null) {
         target = document.createElement("details")
         let summary = document.createElement("summary")
-        summary.textContent = spec.category
+        summary.textContent = name
         target.appendChild(summary)
         parent.insertBefore(target, before)
     }
 
-    insertById(target, element)
-
-    return element
+    return target
 }
+

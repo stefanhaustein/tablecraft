@@ -3,10 +3,10 @@ package org.kobjects.tablecraft.plugins.pi4j.pixtend
 import org.kobjects.tablecraft.pluginapi.*
 
 class PiXtendDigitalInputPort(
-    val integration: PiXtendIntegration,
+    integration: PiXtendIntegration,
     val index: Int,
     listener: InputPortListener
-) : PiXtendInputPortInstance(listener) {
+) : PiXtendInputPortInstance(integration, listener) {
 
     override val value: Any
         get() = integration.driver?.getDigitalIn(index) ?: Unit

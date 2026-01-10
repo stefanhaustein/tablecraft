@@ -44,9 +44,7 @@ class Scd4xPort(
             "co2" to measurement?.getCo2()?.toDouble(),
             "humidity" to measurement?.getHumidity()?.toDouble(),
         )
-        plugin.model.applySynchronizedWithToken {
-            host.portValueChanged(it, value)
-        }
+        plugin.model.setPortValue(host, value)
     }
 
     override fun detach() {

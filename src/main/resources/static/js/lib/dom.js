@@ -1,7 +1,22 @@
-export function addOption(selectElement, name) {
+export function addOption(selectElement, name, value) {
     let option = document.createElement("option")
     option.textContent = name
-    selectElement.appendChild(option)
+    if (value) {
+        option.setAttribute("value", value)
+    } else {
+        value = name
+    }
+    let child = selectElement.firstElementChild
+    while (child != null && (child.getAttribute("value") || child.textContent).toLocaleLowerCase() < value) {
+        child = child.nextElementSibling
+    }
+    if (child == null) {
+        selectElement.appendChild(option)
+    } else {
+        selectElement.insertBefore(option, child)
+//            child.insertAdjacentElement("beforebegin", element)
+    }
+    return option
 }
 
 export function blink(element) {
@@ -27,9 +42,39 @@ export function insertById(parent, element) {
         if (child == null) {
             parent.appendChild(element)
         } else {
-            child.insertAdjacentElement("beforebegin", element)
+            parent.insertBefore(element, child)
+//            child.insertAdjacentElement("beforebegin", element)
         }
     }
 }
 
 
+export function setDragHandler(element, action) {
+    // Two variables for tracking positions of the cursor
+    let lastX = 0;
+    let lastY = 0;
+
+    element.addEventListener("mousedown", (e) => {
+        lastX = e.clientX;
+        lastY = e.clientY;
+        document.addEventListener("mousemove", onMouseMove)
+        e.preventDefault()
+    })
+
+    // A function that will be called whenever the up event of the mouse is raised
+    function onMouseMove(e) {
+        e.preventDefault()
+        if (e.buttons == 0) {
+            document.removeEventListener("mousemove", onMouseMove)
+            return
+        }
+
+        let deltaX = e.clientX - lastX
+        let deltaY = e.clientY - lastY
+
+        lastX = e.clientX
+        lastY = e.clientY
+
+        action(deltaX, deltaY)
+    }
+}

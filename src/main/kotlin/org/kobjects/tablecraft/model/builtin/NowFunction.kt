@@ -26,9 +26,7 @@ class NowFunction(
         if (period > 0) {
             task = object : TimerTask() {
                 override fun run() {
-                    Model.applySynchronizedWithToken {
-                        host.notifyValueChanged(it)
-                    }
+                    Model.notifyValueChanged(host)
                 }
             }
             timer.schedule(task, period, period)

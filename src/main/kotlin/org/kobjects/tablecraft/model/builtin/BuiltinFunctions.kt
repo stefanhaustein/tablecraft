@@ -10,9 +10,7 @@ object BuiltinFunctions : Plugin {
             "now",
             "The current local time",
             listOf(ParameterSpec("interval", Type.REAL, null, setOf(ParameterSpec.Modifier.CONSTANT))),
-            emptySet(),
-            0,
-            NowFunction::create,
+            createFn = NowFunction::create,
         ),
 
         FunctionSpec(
@@ -35,9 +33,7 @@ object BuiltinFunctions : Plugin {
                 null,
                 setOf(ParameterSpec.Modifier.CONSTANT)
             )),
-            emptySet(),
-            0,
-            TimedOnOff::createToff,
+            createFn = TimedOnOff::createToff,
         ),
 
         FunctionSpec(
@@ -52,9 +48,7 @@ object BuiltinFunctions : Plugin {
                 null,
                 setOf(ParameterSpec.Modifier.CONSTANT)
             )),
-            emptySet(),
-            0,
-            TimedOnOff::createTon,
+            createFn = TimedOnOff::createTon,
         ),
 
         FunctionSpec(
@@ -69,9 +63,7 @@ object BuiltinFunctions : Plugin {
                 null,
                 setOf(ParameterSpec.Modifier.CONSTANT)
             )),
-            emptySet(),
-            0,
-            TimedPulse::create,
+            createFn = TimedPulse::create,
         ),
 
         FunctionSpec(
